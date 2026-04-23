@@ -25,8 +25,9 @@ const overridingConfigSchemaAdapter: ServerAdapterModule = {
   }),
 };
 
-let registerServerAdapter: typeof import("../adapters/index.js").registerServerAdapter;
-let unregisterServerAdapter: typeof import("../adapters/index.js").unregisterServerAdapter;
+let registerServerAdapter: typeof import("../adapters/registry.js").registerServerAdapter;
+let unregisterServerAdapter: typeof import("../adapters/registry.js").unregisterServerAdapter;
+let findServerAdapter: typeof import("../adapters/registry.js").findServerAdapter;
 let setOverridePaused: typeof import("../adapters/registry.js").setOverridePaused;
 let adapterRoutes: typeof import("../routes/adapters.js").adapterRoutes;
 let errorHandler: typeof import("../middleware/index.js").errorHandler;
@@ -62,8 +63,9 @@ describe("adapter routes", () => {
       vi.importActual<typeof import("../routes/adapters.js")>("../routes/adapters.js"),
       vi.importActual<typeof import("../middleware/index.js")>("../middleware/index.js"),
     ]);
-    registerServerAdapter = adapters.registerServerAdapter;
-    unregisterServerAdapter = adapters.unregisterServerAdapter;
+    registerServerAdapter = registry.registerServerAdapter;
+    unregisterServerAdapter = registry.unregisterServerAdapter;
+    findServerAdapter = registry.findServerAdapter;
     setOverridePaused = registry.setOverridePaused;
     adapterRoutes = routes.adapterRoutes;
     errorHandler = middleware.errorHandler;
@@ -165,5 +167,45 @@ describe("adapter routes", () => {
     expect(builtin.body).not.toMatchObject({
       fields: [{ key: "mode" }],
     });
+  });
+
+  it("POST /api/adapters/install preserves module-provided sessionManagement (hot-install parity with init-time IIFE)", async () => {
+    const HOT_INSTALL_TYPE = "hot_install_session_test";
+    const declaredSessionManagement = {
+      supportsSessionResume: true,
+      nativeContextManagement: "confirmed" as const,
+      defaultSessionCompaction: {
+        enabled: true,
+        maxSessionRuns: 10,
+        maxRawInputTokens: 100_000,
+        maxSessionAgeHours: 24,
+      },
+    };
+    const externalModule: ServerAdapterModule = {
+      type: HOT_INSTALL_TYPE,
+      execute: async () => ({ exitCode: 0, signal: null, timedOut: false }),
+      testEnvironment: async () => ({
+        adapterType: HOT_INSTALL_TYPE,
+        status: "pass",
+        checks: [],
+        testedAt: new Date(0).toISOString(),
+      }),
+      sessionManagement: declaredSessionManagement,
+    };
+    mockPluginLoader.loadExternalAdapterPackage.mockResolvedValue(externalModule);
+
+    const app = createApp({ isInstanceAdmin: true });
+    const res = await request(app)
+      .post("/api/adapters/install")
+      .send({ packageName: "/tmp/fake-hot-install-adapter", isLocalPath: true });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(201);
+    expect(res.body.type).toBe(HOT_INSTALL_TYPE);
+
+    const registered = findServerAdapter(HOT_INSTALL_TYPE);
+    expect(registered).not.toBeNull();
+    expect(registered?.sessionManagement).toEqual(declaredSessionManagement);
+
+    unregisterServerAdapter(HOT_INSTALL_TYPE);
   });
 });
