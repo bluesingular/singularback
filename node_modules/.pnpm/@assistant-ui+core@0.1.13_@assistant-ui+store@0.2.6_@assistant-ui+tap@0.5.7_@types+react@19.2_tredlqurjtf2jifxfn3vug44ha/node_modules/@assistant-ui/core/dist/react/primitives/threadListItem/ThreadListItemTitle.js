@@ -1,0 +1,8 @@
+import { Fragment as _Fragment, jsx as _jsx } from "react/jsx-runtime";
+import { useAuiState } from "@assistant-ui/store";
+export const ThreadListItemPrimitiveTitle = ({ fallback }) => {
+    const title = useAuiState((s) => s.threadListItem.title);
+    return _jsx(_Fragment, { children: title || fallback });
+};
+ThreadListItemPrimitiveTitle.displayName = "ThreadListItemPrimitive.Title";
+//# sourceMappingURL=ThreadListItemTitle.js.map

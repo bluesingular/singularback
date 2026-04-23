@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Singular.blue — Vibe Coding Plan v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080C10;--surface:#0E1318;--surface2:#141B22;--surface3:#1C252F;
+  --border:#1E2A35;--border2:#263340;
+  --text:#D4DDE6;--text2:#7A8C9A;--muted:#3D5060;
+  --green:#00D68F;--green-d:rgba(0,214,143,.1);--green-b:rgba(0,214,143,.25);
+  --blue:#3D9EFF;--blue-d:rgba(61,158,255,.1);--blue-b:rgba(61,158,255,.25);
+  --amber:#F5A623;--amber-d:rgba(245,166,35,.1);--amber-b:rgba(245,166,35,.25);
+  --purple:#A78BFA;--purple-d:rgba(167,139,250,.1);--purple-b:rgba(167,139,250,.25);
+  --red:#FF6B6B;--red-d:rgba(255,107,107,.1);
+  --cyan:#22D3EE;--cyan-d:rgba(34,211,238,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Fira Code',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.header{background:rgba(8,12,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.h-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#fff;}
+.h-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+.h-title{font-size:12px;color:var(--text2);letter-spacing:.05em;}
+.h-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.h-prog{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);}
+.prog-track{width:100px;height:3px;background:var(--surface3);border-radius:2px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:2px;width:0%;transition:width .6s ease;}
+.h-count{font-size:11px;color:var(--muted);}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px);}
+
+/* ── SIDEBAR ── */
+.sidebar{border-right:1px solid var(--border);padding:20px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:2px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+.sb-section{margin-bottom:4px;}
+.sb-label{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);padding:12px 16px 5px;display:block;}
+.sb-link{display:flex;align-items:center;gap:8px;padding:5px 16px;color:var(--text2);font-size:11px;text-decoration:none;border-left:2px solid transparent;transition:all .15s;cursor:pointer;}
+.sb-link:hover{color:var(--text);background:var(--surface);}
+.sb-link.active{color:var(--green);border-left-color:var(--green);background:var(--green-d);}
+.sb-week{font-size:10px;color:var(--muted);margin-left:auto;}
+.sb-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* ── CONTENT ── */
+.content{padding:28px 36px 80px;overflow-y:auto;}
+
+/* ── HERO BANNER ── */
+.hero-banner{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--border2);border-radius:14px;padding:28px 32px;margin-bottom:28px;position:relative;overflow:hidden;}
+.hero-banner::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(0,214,143,.06),transparent);border-radius:50%;pointer-events:none;}
+.hb-tag{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.hb-tag::before{content:'';display:inline-block;width:16px;height:1px;background:var(--green);}
+.hb-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;}
+.hb-body{font-size:12px;color:var(--text2);line-height:1.7;max-width:680px;}
+.hb-body strong{color:var(--text);}
+.hb-stats{display:flex;gap:28px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);}
+.hbs-item{text-align:center;}
+.hbs-val{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--green);display:block;line-height:1;}
+.hbs-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
+
+/* ── WEEK SECTION ── */
+.week-section{margin-bottom:12px;}
+.week-header{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;}
+.week-header:hover{border-color:var(--border2);background:var(--surface2);}
+.week-header.open{border-radius:10px 10px 0 0;border-bottom-color:transparent;}
+.wh-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:var(--muted);min-width:52px;}
+.wh-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#fff;flex:1;}
+.wh-badge{font-size:9px;font-weight:600;padding:3px 9px;border-radius:10px;letter-spacing:.05em;}
+.badge-infra{background:var(--purple-d);color:var(--purple);border:1px solid var(--purple-b);}
+.badge-backend{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b);}
+.badge-safety{background:var(--red-d);color:var(--red);border:1px solid rgba(255,107,107,.25);}
+.badge-trust{background:var(--amber-d);color:var(--amber);border:1px solid var(--amber-b);}
+.badge-ai{background:var(--cyan-d);color:var(--cyan);border:1px solid rgba(34,211,238,.25);}
+.badge-pack{background:var(--green-d);color:var(--green);border:1px solid var(--green-b);}
+.badge-ui{background:rgba(255,130,80,.1);color:#FF8050;border:1px solid rgba(255,130,80,.25);}
+.wh-days{font-size:10px;color:var(--muted);}
+.wh-toggle{font-size:11px;color:var(--muted);transition:transform .2s;}
+.week-header.open .wh-toggle{transform:rotate(90deg);}
+
+.week-body{display:none;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:20px;}
+.week-body.open{display:block;}
+
+/* ── MODULE ── */
+.module{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.04);}
+.module:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.mod-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.mod-check{width:18px;height:18px;border-radius:4px;border:1px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px;}
+.mod-check:hover{border-color:var(--green);}
+.mod-check.done{background:var(--green);border-color:var(--green);color:#000;font-weight:700;}
+.mod-info{flex:1;}
+.mod-id{font-size:10px;color:var(--muted);letter-spacing:.05em;margin-bottom:3px;}
+.mod-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#fff;}
+.mod-desc{font-size:11px;color:var(--text2);line-height:1.7;margin-top:6px;}
+.mod-desc strong{color:var(--text);}
+.mod-new{font-size:8px;font-weight:700;letter-spacing:.1em;padding:2px 6px;border-radius:3px;background:var(--amber-d);color:var(--amber);margin-left:6px;vertical-align:middle;}
+
+/* ── PROMPT BLOCK ── */
+.prompt{background:rgba(0,214,143,.05);border:1px solid rgba(0,214,143,.15);border-radius:8px;margin:10px 0;overflow:hidden;cursor:pointer;transition:border-color .15s;}
+.prompt:hover{border-color:var(--green);}
+.prompt-hdr{padding:8px 14px;background:rgba(0,214,143,.08);border-bottom:1px solid rgba(0,214,143,.15);display:flex;align-items:center;gap:8px;font-size:10px;color:var(--green);}
+.prompt-hdr .copy-hint{margin-left:auto;opacity:.5;font-size:9px;text-transform:uppercase;letter-spacing:.1em;transition:opacity .15s;}
+.prompt:hover .copy-hint{opacity:1;}
+.prompt-body{padding:12px 14px;font-size:11px;color:var(--text);line-height:1.7;white-space:pre-wrap;}
+.prompt-body .ph{color:var(--amber);font-style:italic;}
+
+/* ── TEST BLOCK ── */
+.test-block{margin-top:8px;}
+.test-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--text2);padding:4px 0;}
+.test-item::before{content:'✓';color:var(--green);flex-shrink:0;font-size:11px;margin-top:1px;}
+.test-cmd{font-size:10px;color:var(--blue);background:var(--blue-d);padding:1px 6px;border-radius:3px;font-family:'Fira Code',monospace;}
+
+/* ── FILES ── */
+.file-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.file-tag{font-size:10px;color:var(--purple);background:var(--purple-d);border:1px solid var(--purple-b);padding:1px 7px;border-radius:3px;}
+
+/* ── RULES SECTION ── */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.rule{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;border-left:3px solid var(--red);}
+.rule.green{border-left-color:var(--green);}
+.rule.blue{border-left-color:var(--blue);}
+.rule.amber{border-left-color:var(--amber);}
+.rule-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;color:#fff;margin-bottom:5px;}
+.rule-body{font-size:11px;color:var(--text2);line-height:1.6;}
+.rule-body code{color:var(--purple);background:var(--purple-d);padding:1px 4px;border-radius:2px;}
+
+/* ── RHYTHM ── */
+.rhythm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.rhythm-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.rc-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--blue);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.rc-item{font-size:11px;color:var(--text2);padding:4px 0;display:flex;gap:6px;}
+.rc-item::before{content:'▸';color:var(--muted);flex-shrink:0;}
+
+/* ── DoD ── */
+.dod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dod-item{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color .15s;}
+.dod-item:hover{border-color:var(--border2);}
+.dod-cb{width:14px;height:14px;border-radius:3px;border:1px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;margin-top:1px;}
+.dod-cb.done{background:var(--green);border-color:var(--green);color:#000;}
+.dod-text{font-size:11px;color:var(--text2);line-height:1.5;}
+.dod-item.done .dod-text{text-decoration:line-through;color:var(--muted);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#000;font-size:11px;font-weight:700;padding:10px 18px;border-radius:8px;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ── SECTION TITLE ── */
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.section-sub{font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.6;}
+
+/* ── SETUP CODE ── */
+.code-block{background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+.code-hdr{padding:8px 14px;background:var(--surface3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text2);}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:9px;height:9px;border-radius:50%;}
+.code-body{padding:14px 16px;font-size:11px;line-height:1.7;color:var(--text);white-space:pre;overflow-x:auto;}
+.code-body .c{color:var(--muted);font-style:italic;}
+.code-body .g{color:var(--green);}
+.code-body .b{color:var(--blue);}
+.code-body .a{color:var(--amber);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="h-logo">Singular.blue</div>
+  <div class="h-dot"></div>
+  <div class="h-title">Vibe Coding Plan v2 — 10 weeks to MVP</div>
+  <div class="h-right">
+    <div class="h-prog">
+      <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+      <span id="pcnt" class="h-count">0 / 0</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-section">
+    <span class="sb-label">Start here</span>
+    <a class="sb-link" href="#setup"><div class="sb-dot" style="background:var(--blue)"></div>Day 0 — Setup<span class="sb-week">2h</span></a>
+    <a class="sb-link" href="#rules"><div class="sb-dot" style="background:var(--red)"></div>10 hard rules</a>
+    <a class="sb-link" href="#rhythm"><div class="sb-dot" style="background:var(--green)"></div>Daily rhythm</a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 1 — Foundation</span>
+    <a class="sb-link" href="#m0"><div class="sb-dot" style="background:var(--purple)"></div>M0 Multi-tenancy<span class="sb-week">2d</span></a>
+    <a class="sb-link" href="#m1"><div class="sb-dot" style="background:var(--purple)"></div>M1 BullMQ EDA<span class="sb-week">3d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 2 — Intelligence</span>
+    <a class="sb-link" href="#m2"><div class="sb-dot" style="background:var(--blue)"></div>M2 Context pipeline<span class="sb-week">3d</span></a>
+    <a class="sb-link" href="#m3"><div class="sb-dot" style="background:var(--blue)"></div>M3 LLM router<span class="sb-week">2d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 3 — Integrations</span>
+    <a class="sb-link" href="#m4"><div class="sb-dot" style="background:var(--blue)"></div>M4 Vault + MCP<span class="sb-week">3d</span></a>
+    <a class="sb-link" href="#m5"><div class="sb-dot" style="background:var(--blue)"></div>M5 Firecrawl<span class="sb-week">2d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 4 — Safety</span>
+    <a class="sb-link" href="#m6"><div class="sb-dot" style="background:var(--red)"></div>M6 Gates + damage<span class="sb-week">3d</span></a>
+    <a class="sb-link" href="#m7"><div class="sb-dot" style="background:var(--red)"></div>M7 Cost + translate<span class="sb-week">2d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 5 — Memory + Trust</span>
+    <a class="sb-link" href="#m8"><div class="sb-dot" style="background:var(--amber)"></div>M8 Memory + Contacts<span class="sb-week">3d</span></a>
+    <a class="sb-link" href="#m9"><div class="sb-dot" style="background:var(--amber)"></div>M9 Trust calibration<span class="sb-week">2d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 6 — Learning</span>
+    <a class="sb-link" href="#m10"><div class="sb-dot" style="background:var(--cyan)"></div>M10 Self-improve<span class="sb-week">3d</span></a>
+    <a class="sb-link" href="#m11"><div class="sb-dot" style="background:var(--cyan)"></div>M11 Intelligence<span class="sb-week">2d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 7 — Ship infra</span>
+    <a class="sb-link" href="#m12"><div class="sb-dot" style="background:var(--green)"></div>M12–15 All infra<span class="sb-week">5d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Weeks 8–9 — Pack P1</span>
+    <a class="sb-link" href="#pack"><div class="sb-dot" style="background:var(--green)"></div>Pack P1 full build<span class="sb-week">8d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Week 10 — UI</span>
+    <a class="sb-link" href="#ui"><div class="sb-dot" style="background:var(--purple)"></div>React UI — 9 screens<span class="sb-week">6d</span></a>
+  </div>
+  <div class="sb-section">
+    <span class="sb-label">Done</span>
+    <a class="sb-link" href="#dod"><div class="sb-dot" style="background:var(--green)"></div>MVP Definition of done</a>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- HERO -->
+<div class="hero-banner">
+  <div class="hb-tag">Singular.blue — Product 1</div>
+  <div class="hb-title">10-week vibe coding execution plan</div>
+  <p class="hb-body">You hold the architecture. Claude Code writes the code. Every prompt below references the exact spec section. Every module has a pass/fail test before you proceed. <strong>Do not skip ahead. Do not build without a spec reference. Review every diff before it hits disk.</strong></p>
+  <div class="hb-stats">
+    <div class="hbs-item"><span class="hbs-val">15</span><span class="hbs-label">Modules</span></div>
+    <div class="hbs-item"><span class="hbs-val">10</span><span class="hbs-label">Weeks</span></div>
+    <div class="hbs-item"><span class="hbs-val">20</span><span class="hbs-label">Definition of done</span></div>
+    <div class="hbs-item"><span class="hbs-val">v5</span><span class="hbs-label">Spec version</span></div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="setup">
+  <div class="section-title">⚙️ Day 0 — Environment setup</div>
+  <p class="section-sub">Do this before writing a single line of product code. Takes 2 hours. Do it once.</p>
+
+  <div class="code-block">
+    <div class="code-hdr"><div class="code-dots"><div class="code-dot" style="background:#FF5F57"></div><div class="code-dot" style="background:#FEBC2E"></div><div class="code-dot" style="background:#28C840"></div></div>1. Fork + spec files at root</div>
+    <div class="code-body"><span class="g">git</span> clone https://github.com/paperclipai/paperclip singular.blue
+<span class="g">cd</span> singular.blue
+<span class="g">git</span> remote rename origin paperclip-upstream
+<span class="c"># Drop spec files at repo root (from your downloads)</span>
+<span class="g">cp</span> ~/Downloads/CLAUDE_v2.md ./CLAUDE.md
+<span class="g">cp</span> ~/Downloads/TECHNICAL_SPEC_v2.md .
+<span class="g">cp</span> ~/Downloads/PLATFORM_FUNCTIONAL_SPEC_v5.md .
+<span class="g">cp</span> ~/Downloads/EMOTIONAL_LAYER.md .
+<span class="g">cp</span> ~/Downloads/DOMAIN_PACK_SPEC.md .
+<span class="g">git</span> add -A && git commit -m "feat: init Singular.blue fork + spec files"</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-hdr"><div class="code-dots"><div class="code-dot" style="background:#FF5F57"></div><div class="code-dot" style="background:#FEBC2E"></div><div class="code-dot" style="background:#28C840"></div></div>2. Local services (docker-compose.dev.yml)</div>
+    <div class="code-body"><span class="a">services</span>:
+  <span class="b">postgres</span>:
+    image: pgvector/pgvector:pg16
+    environment: {POSTGRES_DB: singular_dev, POSTGRES_PASSWORD: dev}
+    ports: ["5432:5432"]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+  <span class="b">redis</span>:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+<span class="g">docker</span> compose -f docker-compose.dev.yml up -d</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-hdr"><div class="code-dots"><div class="code-dot" style="background:#FF5F57"></div><div class="code-dot" style="background:#FEBC2E"></div><div class="code-dot" style="background:#28C840"></div></div>3. .env — get ALL these before Week 1</div>
+    <div class="code-body">DATABASE_URL=postgresql://postgres:dev@localhost:5432/singular_dev
+REDIS_URL=redis://localhost:6379
+VAULT_MASTER_KEY=<span class="g">$(openssl rand -hex 32)</span>  <span class="c"># generate now, save it</span>
+
+<span class="c"># API keys — get before building each module</span>
+OPENROUTER_API_KEY=sk-or-...    <span class="c"># Week 2 (M3)</span>
+FIRECRAWL_API_KEY=fc-...        <span class="c"># Week 3 (M5)</span>
+STRIPE_SECRET_KEY=sk_test_...   <span class="c"># Week 7 (M14)</span>
+STRIPE_WEBHOOK_SECRET=whsec_... <span class="c"># Week 7 (M14)</span>
+GOOGLE_CLIENT_ID=...            <span class="c"># Week 3 (M4)</span>
+GOOGLE_CLIENT_SECRET=...        <span class="c"># Week 3 (M4)</span></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-hdr"><div class="code-dots"><div class="code-dot" style="background:#FF5F57"></div><div class="code-dot" style="background:#FEBC2E"></div><div class="code-dot" style="background:#28C840"></div></div>4. Launch Claude Code (reads CLAUDE.md automatically)</div>
+    <div class="code-body"><span class="g">npm</span> install -g @anthropic-ai/claude-code
+<span class="g">cd</span> singular.blue && claude
+
+<span class="c"># Verify it reads the spec</span>
+<span class="a">> What are the 10 hard rules from CLAUDE.md?</span>
+<span class="c"># It should list all 10. If not, something is wrong.</span></div>
+  </div>
+</div>
+
+<div style="height:1px;background:var(--border);margin:28px 0;"></div>
+
+<!-- RULES -->
+<div id="rules">
+  <div class="section-title">🚨 10 hard rules</div>
+  <p class="section-sub">Violating any of these will cost more time to fix than the shortcut saved.</p>
+  <div class="rules-grid">
+    <div class="rule"><div class="rule-title">Rule 1 — GDPR is a code invariant</div><div class="rule-body"><code>gdpr_required:true</code> → <code>routeModel()</code> throws if model is not Mistral EU. Test: <code>yarn test --grep "GDPR routing"</code> before every commit.</div></div>
+    <div class="rule"><div class="rule-title">Rule 2 — Credentials never reach LLM</div><div class="rule-body">Vault decrypts server-side only. LLM receives clean, pseudonymised content. Lint rule: no credential variables under <code>llm/</code>.</div></div>
+    <div class="rule"><div class="rule-title">Rule 3 — Quality gates are mandatory</div><div class="rule-body">Every external action passes <code>runGates()</code> + <code>validateOutputSchema()</code>. No bypass path. Not for testing, not for admin, not for demo.</div></div>
+    <div class="rule"><div class="rule-title">Rule 4 — Audit trail immutable at DB level</div><div class="rule-body">DB RULE prevents UPDATE/DELETE on <code>audit_entries</code>. Test: direct DELETE must fail at DB level, not application level.</div></div>
+    <div class="rule green"><div class="rule-title">Rule 5 — Task context never truncated</div><div class="rule-body">Runtime assertion in <code>assembleContext()</code>: if task layer truncated → throw. Compress in order: outputs → memory → DNA. Never touch the task.</div></div>
+    <div class="rule green"><div class="rule-title">Rule 6 — BullMQ idempotency</div><div class="rule-body">Every worker safe to run twice. Heartbeat <code>jobId = heartbeat:${agentId}</code>. Double execution without DB transaction = bug.</div></div>
+    <div class="rule blue"><div class="rule-title">Rule 7 — Approval flow non-negotiable</div><div class="rule-body"><code>requires_approval</code> → <code>approval_requests</code> record → wait for explicit human confirmation. Auto-executing before approval = bug.</div></div>
+    <div class="rule blue"><div class="rule-title">Rule 8 — Company isolation</div><div class="rule-body"><code>company_id</code> from auth middleware only. Never trust client-supplied. Every DB query must include <code>WHERE company_id = ?</code>.</div></div>
+    <div class="rule amber"><div class="rule-title">Rule 9 — All UI copy from EMOTIONAL_LAYER.md</div><div class="rule-body">No English strings in user-facing UI. No invented copy. Find the exact string in EMOTIONAL_LAYER.md first. grep for English in <code>ui/src/pages/</code> → fail review.</div></div>
+    <div class="rule amber"><div class="rule-title">Rule 10 — Seed tasks indistinguishable from real work</div><div class="rule-body">No "Test Candidate" or "Sample Company". Anonymised from real domain data, sector-matched. If operator can tell it's a demo → it has failed.</div></div>
+  </div>
+</div>
+
+<div style="height:1px;background:var(--border);margin:28px 0;"></div>
+
+<!-- WEEK 1 -->
+<div id="m0">
+<div class="week-section">
+  <div class="week-header open" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 1</span>
+    <span class="wh-title">Foundation — Multi-tenancy + BullMQ</span>
+    <span class="wh-badge badge-infra">Infrastructure</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body open">
+
+    <div class="module" id="m0">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 0</div>
+          <div class="mod-title">Multi-tenancy foundation</div>
+          <div class="mod-desc">The entire platform sits on this. Without correct company isolation, everything else is broken. Take 2 full days. Do not rush the migrations.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — Session 1<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read CLAUDE.md and TECHNICAL_SPEC_v2.md Module 0 in full before writing any code.
+
+Implement Module 0 — Multi-tenancy foundation:
+
+1. Create migration 0001_multi_tenancy.sql with:
+   - companies table (id, name, slug, plan, stripe_customer_id, created_at)
+   - users table (id, email, hashed_password, name, avatar_url)
+   - company_members table (company_id, user_id, role, joined_at)
+   - sessions table (id, user_id, company_id, token_hash, expires_at)
+   - ALTER TABLE on all existing Paperclip tables to add company_id FK
+
+2. Create server/src/middleware/auth.ts:
+   - RequestContext interface (userId, companyId, role, plan)
+   - authMiddleware: validates JWT, checks company membership, injects context
+
+3. Create server/src/routes/auth.ts with routes:
+   GET  /api/v1/auth/me
+   POST /api/v1/auth/switch (company switcher)
+   POST /api/v1/auth/login
+   POST /api/v1/auth/logout
+   GET  /api/v1/auth/google
+   GET  /api/v1/auth/google/callback
+
+Show me the migration SQL first. Do not create any other files until I approve the SQL.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item">Migration applied: companies, users, company_members, sessions tables exist in TablePlus</div>
+        <div class="test-item">Company switcher: user in 2 companies, data isolated between them</div>
+        <div class="test-item"><span class="test-cmd">yarn test --grep "auth middleware"</span></div>
+      </div>
+      <div class="file-tags">
+        <span class="file-tag">migrations/0001_multi_tenancy.sql</span>
+        <span class="file-tag">src/middleware/auth.ts</span>
+        <span class="file-tag">src/routes/auth.ts</span>
+      </div>
+    </div>
+
+    <div class="module" id="m1">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 1</div>
+          <div class="mod-title">BullMQ EDA — replace polling scheduler</div>
+          <div class="mod-desc">Kill Paperclip's <code>setInterval</code> polling loop. Replace with an event-driven architecture. After this, agents wake on events (email received, task approved) — not on a timer.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — Session 2 (queues + jobs)<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 1 in full.
+
+yarn add bullmq ioredis @bull-board/api @bull-board/express
+
+Implement the queue infrastructure — do NOT implement workers yet:
+1. server/src/queue/redis.ts — ioredis main + blocking connections
+2. server/src/queue/jobs.ts — Zod schemas for all job types:
+   HeartbeatJob, EmailReceivedJob, TaskApprovedJob, WebhookReceivedJob,
+   MemoryExtractionJob, SkillImprovementJob, IntelligenceJob, SeedTaskJob
+3. server/src/queue/queues.ts — agentQueue, backgroundQueue, systemQueue
+4. server/src/queue/emit.ts — type-safe emit API for all job types
+
+Show me emit.ts before writing anything else.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — Session 3 (workers + scheduler)<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 1 — Workers section.
+
+1. server/src/workers/heartbeat.worker.ts — replaces setInterval. Idempotent via jobId deduplication.
+2. server/src/workers/emailReceived.worker.ts
+3. server/src/workers/taskApproved.worker.ts
+4. server/src/queue/scheduler.ts — bootstrapScheduler() seeds all active agents
+5. server/src/routes/monitoring.ts — Bull Board at /internal/queues
+6. Update server entry point: call bootstrapScheduler(), start all workers, REMOVE the setInterval polling loop from Paperclip
+
+Show me the exact lines being removed from the Paperclip scheduler before writing anything.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item"><span class="test-cmd">grep -r "setInterval" server/src/</span> — returns 0 results</div>
+        <div class="test-item">Bull Board visible at localhost:3000/internal/queues — 3 queues shown</div>
+        <div class="test-item"><span class="test-cmd">yarn test --grep "heartbeat idempotent"</span></div>
+        <div class="test-item">Task approval triggers agent execution within 2 seconds (not at next heartbeat)</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 2 -->
+<div id="m2">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 2</span>
+    <span class="wh-title">Intelligence — Context pipeline + LLM router</span>
+    <span class="wh-badge badge-backend">Backend</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 2</div>
+          <div class="mod-title">Context assembly pipeline <span class="mod-new">V5: contact injection</span></div>
+          <div class="mod-desc">6-layer context built at every heartbeat. New in v5: <strong>Layer 4 now injects contact profiles when a task involves a known person</strong> — contact profile takes priority over generic org memory chunks.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — M2<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 18 (Full context architecture) in full.
+Read TECHNICAL_SPEC_v2.md Module 2 in full.
+
+1. Migration 0002_company_dna.sql — company_dna table
+2. server/src/context/dna.ts — getDnaFull() and getDnaCompressed()
+3. server/src/context/memory.ts — retrieveMemory() with pgvector cosine similarity
+   and the contact injection rule: when task involves a known contact,
+   contact profile replaces the first 3 org memory chunks in Layer 4
+4. server/src/context/assembler.ts — assembleContext() with all 6 layers, TOKEN_BUDGETS
+
+CRITICAL INVARIANT: The currentTask layer (Layer 3) must NEVER be truncated regardless
+of budget pressure. Add a runtime assertion that throws AssertionError if this is violated.
+
+Show me the TOKEN_BUDGETS constant before writing assembleContext().</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item"><span class="test-cmd">yarn test --grep "context assembly"</span></div>
+        <div class="test-item">T1 context stays under 7,000 tokens for any input</div>
+        <div class="test-item">Task content never truncated — assertion fires if violated</div>
+        <div class="test-item">Contact profile injected when task email matches known contact</div>
+      </div>
+    </div>
+
+    <div class="module" id="m3">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 3</div>
+          <div class="mod-title">LLM router + GDPR enforcement</div>
+          <div class="mod-desc">The GDPR rule is a code invariant, not a config option. Write the test first. Make it pass second.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — M3<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 3 in full.
+
+Write the GDPR routing test FIRST (as a failing test), then implement to make it pass.
+
+1. server/src/skills/parser.ts — parseSkill() using gray-matter, returns ParsedSkill
+2. server/src/llm/router.ts — MODEL_REGISTRY constant, routeModel() with GDPR hard rule:
+   if skill.gdprRequired AND (model.includes('deepseek') OR !isEuModel(model)) → throw GdprViolationError
+3. server/src/llm/openrouter.ts — callLLM() with token usage tracking
+
+The GDPR rule must be enforced as a runtime throw, not a log warning, not a fallback.
+It must be impossible to call a non-EU model for gdpr_required:true content by any code path.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item"><span class="test-cmd">yarn test --grep "GDPR routing"</span> — must never fail</div>
+        <div class="test-item">DeepSeek → throws for any gdpr_required skill</div>
+        <div class="test-item">Mistral Small → succeeds for gdpr_required skill</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 3 -->
+<div id="m4">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 3</span>
+    <span class="wh-title">Integrations — Vault + MCP + Firecrawl</span>
+    <span class="wh-badge badge-backend">Backend</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 4</div>
+          <div class="mod-title">Integration Hub — vault + MCP + webhooks</div>
+          <div class="mod-desc">Split into 3 sessions. The vault session is the most critical — credentials must never reach any LLM. Build it first, review it, then proceed.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session A — Credential vault<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 4 — Credential vault section only.
+
+1. Migration 0003_integration_hub.sql (vault table only for now)
+2. server/src/integrations/vault.ts:
+   - encryptCredential(companyId, plaintext) → ciphertext
+   - decryptCredential(companyId, ciphertext) → plaintext
+   - Uses AES-256-GCM with per-company key derived via HKDF from VAULT_MASTER_KEY
+   - VAULT_MASTER_KEY comes from env only — never stored in DB
+
+Show me the HKDF key derivation function before writing anything else.
+Test: encrypt then decrypt must return original plaintext. DB must contain only ciphertext.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session B — MCP router<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 4 — MCP Router section.
+
+Implement server/src/integrations/mcp.ts — MCPRouter class:
+- callTool(agentId, toolName, params, context) method
+- Steps: check permission → decrypt token → refresh OAuth if expired → execute server-side → log to tool_call_log
+- The LLM NEVER receives the decrypted token. Add a comment + type-level enforcement.
+
+Test: calling a tool without permission must throw ForbiddenError.
+Test: every tool call creates a tool_call_log record (AI Act requirement).</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session C — Webhook handler<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 4 — Webhook handler section.
+
+Implement server/src/routes/webhooks.ts:
+- POST /webhooks/:companyId/:agentSlug
+- Acknowledge IMMEDIATELY (res.json({ok:true}) before any processing)
+- Then: validate HMAC, store in webhook_events, call emit.webhookReceived()
+
+Test: wrong HMAC signature → log warning but still return 200 (acknowledge first, validate second).
+Test: same webhook event twice → processed exactly once (idempotency).</div>
+      </div>
+    </div>
+
+    <div class="module" id="m5">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 5</div>
+          <div class="mod-title">Web browsing — Firecrawl + Jina fallback</div>
+          <div class="mod-desc">Used by the market intelligence agent (Firecrawl) and candidate sourcing skill. <strong>Not Hermes, not OpenClaw</strong> — Firecrawl handles all web access for Pack P1. Simple, reliable, GDPR-safe.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — M5<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 5 in full.
+
+yarn add @mendable/firecrawl-js
+
+Implement server/src/tools/webBrowse.ts:
+- webBrowse(url, skill, context) → { markdown, title, url, gdprFlagged }
+- Firecrawl primary, Jina Reader (r.jina.ai) fallback if Firecrawl fails
+- Permission gate: if !skill.webAccess → throw ForbiddenError
+- GDPR flag: if content contains personal identifiers and skill.gdprRequired → flag in result
+- Log every URL to tool_call_log (AI Act requirement)
+
+Test: skill without web_access → throws ForbiddenError immediately.
+Test: URL logged to tool_call_log even on failure.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 4 -->
+<div id="m6">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 4</span>
+    <span class="wh-title">Safety — Gates + output validation + damage control + costs</span>
+    <span class="wh-badge badge-safety">Safety</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 6</div>
+          <div class="mod-title">Quality gates + output schema validation + damage control + audit trail <span class="mod-new">V5: 3 new sub-features</span></div>
+          <div class="mod-desc">Three new things from v5: <strong>output schema validation runs before gates</strong>, <strong>damage control flow for erroneous communications</strong>, and gates still include the 4 auto-protection rules. The audit trail is immutable at database level — not application level.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session A — Output schema validation<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 14.1 (Output schema validation) in full.
+
+Implement server/src/gates/schemaValidator.ts:
+- validateOutputSchema(output, skill) → { valid, errors, correctedOutput? }
+- Reads JSON schema from skill frontmatter output.schema field
+- If invalid: asks agent to correct (max 2 attempts) before escalating to operator
+- If 2 attempts fail: create approval_requests with note "Sophie had trouble completing this"
+
+This runs BEFORE quality gates. Schema validation failure does NOT surface as an error to the operator if the agent corrects it within 2 attempts.
+
+Test: output missing required field → agent asked to correct.
+Test: 2 failed corrections → approval_requests created with helpful operator message.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session B — Quality gates + immutable audit<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 6 in full.
+
+1. Migration 0004_quality_gates.sql:
+   - quality_gates, gate_violations, audit_entries tables
+   - CRITICAL: Add DB-level RULE on audit_entries that prevents UPDATE and DELETE
+     This is an AI Act requirement. Must be enforced at DB level, not application level.
+
+2. server/src/gates/engine.ts — runGates(action, context):
+   - volume_limit gate (max 50 emails/day per agent, configurable)
+   - recipient_whitelist gate
+   - budget_limit gate (check cost_records before executing)
+   - content_forbidden gate (check against Company DNA forbidden topics)
+   - On block: create approval_requests + emit SSE notification
+
+Write the immutability test first:
+  it('audit_entries cannot be deleted', async () => {
+    // Insert a record, then try to DELETE it directly via SQL
+    // Should throw a DB error, not silently succeed
+  })</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session C — Damage control flow<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 14.5 (Damage control flow) in full.
+Read EMOTIONAL_LAYER.md section 10 for all French copy strings.
+
+Implement server/src/gates/damageControl.ts:
+- reportError(taskId, errorType, operatorNote) → DamageControlPlan
+- Immediate containment: suspend agent send permission 24h + flag audit entry
+- Create memory note: "Erreur communicating with [contact] on [date] — handle with care"
+- Reset Trust Score for the relevant skill
+- Trigger immediate self-improvement analysis (don't wait for the weekly trigger)
+- Schedule follow-up intelligence card for Day+7
+
+All copy strings must come from EMOTIONAL_LAYER.md section 10 exactly.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item">Direct DELETE on audit_entries throws at DB level</div>
+        <div class="test-item"><span class="test-cmd">yarn test --grep "audit immutable"</span></div>
+        <div class="test-item">Volume limit blocks at 50 emails/day</div>
+        <div class="test-item">Damage control: trust score resets, memory note created, follow-up scheduled</div>
+      </div>
+    </div>
+
+    <div class="module" id="m7">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 7</div>
+          <div class="mod-title">Cost intelligence + task translation <span class="mod-new">V5: task translation</span></div>
+          <div class="mod-desc">New in v5: <strong>task counts must translate to business language</strong>. "847 tâches" → "environ 95 sélections de CV restantes". The translation table is defined per pack in pack.json.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — M7<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 7 in full.
+Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 16 (task translation) in full.
+Read EMOTIONAL_LAYER.md section for usage gauge copy.
+
+1. Migration 0005_cost_intelligence.sql — cost_records table + materialized view
+2. server/src/costs/service.ts:
+   - recordUsage(companyId, agentId, model, inputTokens, outputTokens, taskId) — micro-euro precision
+   - checkBudgetBeforeCall(companyId, agentId, estimatedCost) — hard stop if would exceed limit
+   - checkT3Cap(companyId) — cap T3 usage per plan
+   - Monthly reset via emit.scheduleMonthlyReset()
+
+3. server/src/costs/translator.ts:
+   - translateTaskCount(count, remaining, packTaskTranslations) → string
+   - Output: "environ 95 sélections de CV ou 380 e-mails restants"
+   - Must match EMOTIONAL_LAYER.md usage gauge copy exactly
+
+Test: (0.0017 * 1000000) stored as integer 1700, not float 1699.9999.
+Test: translateTaskCount returns French business language string.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 5 -->
+<div id="m8">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 5</span>
+    <span class="wh-title">Memory + Trust calibration</span>
+    <span class="wh-badge badge-trust">Trust</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 8</div>
+          <div class="mod-title">Org memory + Contact entity foundation <span class="mod-new">V5: contacts</span></div>
+          <div class="mod-desc">New in v5: <strong>the contacts entity</strong>. Every person an agent interacts with builds a knowledge profile. The contact schema lives here; the UI is V2. Context injection — when a task involves a known contact — is wired in Week 2 (M2) already. This module creates the data.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — M8<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 8 in full.
+Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 8.4 (Contacts entity) in full.
+
+1. Migration 0006_org_memory.sql:
+   - memory_entries with vector(1024) column and ivfflat index
+   - contacts table (per spec section 8.4 Contact interface)
+   - contact_events table (interaction timeline)
+   - contact_notes table (human-added notes)
+   - CREATE EXTENSION IF NOT EXISTS vector (must come first)
+
+2. server/src/memory/retrieval.ts — retrieveMemory(companyId, query, agentId):
+   - pgvector cosine similarity with weighted ranking: relevance × importance × recency_decay
+   - Threshold 0.72
+   - Contact injection: if query mentions a known contact email/name → return contact profile + events
+
+3. server/src/memory/contacts.ts:
+   - upsertContact(companyId, email, data) — never duplicate, email deduplication
+   - autoCreateFromEmail(companyId, email, type) — called when agent sends/receives email
+   - generateContactSummary(contact, events) → 2-3 sentence AI summary
+
+Verify pgvector: SELECT * FROM pg_extension WHERE extname = 'vector' must return a row.</div>
+      </div>
+    </div>
+
+    <div class="module" id="m9">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 9</div>
+          <div class="mod-title">Trust calibration system <span class="mod-new">V5: entire module new</span></div>
+          <div class="mod-desc">The most important new module in v5. Builds the trust arc from Supervised → Spot-checked → Summarised. Every approval is tracked. Proposals fire at the right moment. The system never forces autonomy — it proposes it with evidence.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session A — Trust Score + proposals<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 12 (Trust calibration system) in full.
+
+1. Migration 0007_trust.sql:
+   - trust_scores (agent_id, skill_type, score, quality_rating_avg, gate_pass_rate,
+                   schema_pass_rate, consecutive_4plus, last_updated)
+   - trust_proposals (id, company_id, agent_id, skill_type, current_level,
+                       proposed_level, evidence_json, status, created_at, acted_at)
+   - autonomy_levels enum: supervised | spot_checked | summarised | silent
+
+2. server/src/trust/score.ts:
+   - calculateTrustScore(agentId, skillType) — weighted formula per spec section 12.2
+   - updateScoreAfterApproval(agentId, skillType, rating) — called after every operator rating
+   - incrementStreak(agentId, skillType) → if streak reaches 10 → trigger fast-track proposal
+
+3. server/src/trust/proposals.ts:
+   - generateProposal(agentId, skillType) → TrustProposal with evidence_json
+   - Evidence must include: batch count, average rating, consecutive weeks, gate violation count
+   - Max 1 proposal per agent per week (check before creating)
+
+CRITICAL: external-facing skills (email, publish) cannot be proposed beyond 'spot_checked'
+unless Trust Score >= 4.8. Enforce this in generateProposal().
+
+Test: 10 consecutive 4+★ ratings → proposal created with correct evidence.
+Test: External skill below 4.8 trust → cannot be proposed for 'summarised' level.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session B — Autonomy enforcement + downgrade<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 12.5 (Trust downgrade) in full.
+
+1. server/src/trust/enforcement.ts:
+   - getAutonomyLevel(agentId, skillType) → current autonomy level
+   - requiresApproval(agentId, skillType) → boolean (supervised + spot_checked sample)
+   - The spot_checked level: randomly select 1 in 5 tasks for review (use crypto.randomInt)
+
+2. server/src/trust/downgrade.ts:
+   - checkForDowngrade(agentId, skillType) — runs after each quality score update
+   - If score drops below threshold for 7+ days → auto-downgrade + notify operator
+   - Downgrade notification copy must come from EMOTIONAL_LAYER.md section 9
+   - Trust Score resets after damage control event (wired in M6)
+
+Test: score below supervised threshold for 7 days → auto-downgrade fires.
+Test: downgrade fires SSE notification to operator with French copy.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item"><span class="test-cmd">yarn test --grep "trust calibration"</span></div>
+        <div class="test-item">Tier A skill never auto-activates without proposal + approval</div>
+        <div class="test-item">Streak of 10 → fast-track proposal created with evidence</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 6 -->
+<div id="m10">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 6</span>
+    <span class="wh-title">Self-learning + Morning intelligence</span>
+    <span class="wh-badge badge-ai">AI layer</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 10</div>
+          <div class="mod-title">Self-improvement + evaluation framework <span class="mod-new">V5: golden datasets</span></div>
+          <div class="mod-desc">New in v5: <strong>golden dataset benchmarking before any skill activation</strong>. The self-improvement loop is no longer flying blind — every new skill version is automatically scored against 20 reference examples before it can be activated.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Claude Code prompt — M10<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 19 (Self-learning + evaluation) in full.
+Read TECHNICAL_SPEC_v2.md Module 9 in full.
+
+1. Migration 0008_skill_versioning.sql:
+   - skill_versions (skill_slug, version, instructions, activated_at, created_by)
+   - skill_improvement_proposals (id, skill_slug, trigger_type, current_version,
+                                   proposed_instructions, status, golden_score_current,
+                                   golden_score_proposed, created_at)
+   - golden_datasets (skill_slug, examples_json — array of GoldenExample)
+   - benchmark_runs (proposal_id, score, run_at, examples_count)
+
+2. server/src/improvement/analyser.ts:
+   - analyseSkillPerformance(skillSlug, companyId) — checks if below 3.5 or damage control triggered
+   - generateImprovement(skillSlug, context) — calls T3 to propose new instructions
+
+3. server/src/improvement/benchmarker.ts:
+   - runGoldenBenchmark(skillSlug, proposedInstructions) → BenchmarkResult
+   - Runs T2 model (not T3) against each golden example
+   - Activation decision: new ≥ current + 5% → proceed; < current - 5% → block
+   - Blocking saves the result to benchmark_runs for operator visibility
+
+4. server/src/improvement/activator.ts:
+   - activateImprovement(proposalId) with the 6 safety invariants from spec
+   - Tier A → creates trust_proposals record (NOT auto-activates)
+   - Tier B → auto-activates + creates audit entry + notifies operator
+
+Test: Tier A skill creates proposal, NEVER auto-activates.
+Test: Golden benchmark score below threshold → activation blocked.</div>
+      </div>
+    </div>
+
+    <div class="module" id="m11">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULE 11</div>
+          <div class="mod-title">Morning intelligence + activation sequence <span class="mod-new">V5: entire module new</span></div>
+          <div class="mod-desc">Two completely new systems. Morning intelligence generates proactive cards daily. The activation sequence choreographs the 5 wow moments of the first week. Both are wired through BullMQ cron jobs.</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session A — Morning intelligence<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 11 (CEO Console — proactive intelligence) in full.
+Read EMOTIONAL_LAYER.md section 7 for all intelligence card copy templates.
+
+1. Migration 0009_intelligence.sql — intelligence_cards table
+2. server/src/intelligence/sweep.ts — runMorningSweep(companyId):
+   - 5 detector functions: pace anomaly, relationship gap, trust threshold, goal risk, budget trajectory
+   - Each returns an IntelligenceCard or null
+   - Sort by urgency: revenue-impacting > trust proposals > relationship gaps
+   - Take max 3 — never more
+   - Filter: skip if same insight shown in last 14 days for this company (check DB)
+
+3. server/src/intelligence/cards.ts — CardGenerator:
+   - generateAnomalyCard(agent, stat) → card with French copy from EMOTIONAL_LAYER.md
+   - generateRelationshipGapCard(contact, days) → card
+   - generateTrustProposalCard(agent, skill) → card
+   - ALL copy strings must reference EMOTIONAL_LAYER.md section 7 exactly
+
+4. BullMQ cron: schedule morningSweep for 8:00am per company timezone (default: Europe/Paris)
+
+Test: max 3 cards generated even if 10 anomalies detected.
+Test: same insight not shown again within 14 days.
+Test: cards generated at 8am (test with mocked time).</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session B — Activation sequence<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 7.4 (Designed first-week experience) in full.
+Read EMOTIONAL_LAYER.md section 2 for ALL notification copy strings.
+
+1. server/src/activation/sequence.ts — ActivationSequencer:
+   - loadSequence(packSlug) → reads activation-sequence.json from pack directory
+   - scheduleActivationChecks(companyId, installDate) — schedules 5 BullMQ jobs:
+     * Day 0: seed tasks fire (< 10 min after install)
+     * Day 2: check for first real task completion → send notification
+     * Day 4: check for Sophie's 5+ real CV qualifications → surface capability reveal card
+     * Day 6: check for qualified candidates with no contact → suggest emails
+     * Day 7: generate and send weekly summary + shareable card
+
+2. server/src/activation/notifications.ts:
+   - sendActivationNotification(companyId, moment, data) — SSE + push
+   - All copy must come from EMOTIONAL_LAYER.md section 2 EXACTLY
+   - Day 2 notification MUST include real candidate first name (from actual data)
+   - Day 7 generates the shareable card with real numbers from the week
+
+3. server/src/activation/microRewards.ts:
+   - recordApproval(agentId, skillType, rating) → incrementStreak → check milestones
+   - getMicroRewardMessage(streakCount, rating) → French string from EMOTIONAL_LAYER.md section 6
+   - Streak progress bar data: { current: N, total: 10, label: 'presque prête' }
+
+Test: Day 0 seed tasks fire within 10 minutes of installation.
+Test: Day 2 notification contains actual candidate name, not placeholder.
+Test: streak 10 → trust proposal created AND micro-reward message returned.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 7 -->
+<div id="m12">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 7</span>
+    <span class="wh-title">Shipping infrastructure — Pack installer + Console + Stripe + SSE</span>
+    <span class="wh-badge badge-pack">Ship</span>
+    <span class="wh-days">5 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">MODULES 12–15</div>
+          <div class="mod-title">Pack installer + CEO Console + Stripe + SSE granular feed</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 M12 — Pack installer + seed tasks<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 7.2 and 7.3 (seed tasks + pack architecture).
+Read TECHNICAL_SPEC_v2.md Module 10.
+
+Implement server/src/packs/installer.ts:
+- installPack(companyId, packSlug, wizardAnswers) → wraps all 8 steps in Drizzle transaction:
+  1. Generate Company DNA from wizard answers
+  2. Create agents from pack.json
+  3. Assign skills to agents
+  4. Create quality gates
+  5. Schedule workflows
+  6. Create initial goal
+  7. Schedule seed tasks (3 seed tasks to fire within 10 minutes)
+  8. Register activation sequence triggers via ActivationSequencer
+
+ATOMIC: if any step throws, full rollback. Customer never sees partial state.
+Template variable interpolation: {company_name}, {specialisation}, {zone_geo}
+
+Test: break step 5 deliberately → steps 1-4 fully rolled back.
+Test: seed tasks scheduled to fire within 10 minutes of install.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 M13 — CEO Console proactive mode<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 11.3 and 11.4 (Console proactive session).
+Read EMOTIONAL_LAYER.md section 8 for all console copy.
+
+Update server/src/console/service.ts:
+1. getConsoleSessions(companyId) now pre-loads unaddressed intelligence cards
+2. Console opening message: if unaddressed_cards > 0 → use the "proactive start" template
+   from EMOTIONAL_LAYER.md section 8 (listing card headlines, offering to address them)
+3. Approval action in console → calls emit.taskApproved() immediately
+4. Console context now includes: queue depth, trust state per agent, intelligence cards
+
+Test: open console with 2 unaddressed cards → opening message lists both cards.
+Test: approving task via console → agent execution starts within 2 seconds.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 M14 + M15 — Stripe + Granular SSE<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Modules 12 and 13.
+Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 6.10 (live activity feed) in full.
+
+M14 — Stripe:
+- Idempotent webhook: check stripeEventId before processing
+- Plan change → update company limits + emit task translation update
+- Test: same webhook twice → processed exactly once
+
+M15 — SSE granular events:
+- Per-company connection map (SSE)
+- Emit both task-level AND within-task events per spec section 6.10:
+  agent.reading, agent.analysing, agent.writing (within-task — live only)
+  task.started, task.completed, task.blocked, task.handoff (task-level — stored)
+- Within-task events: emitted during agent processing, auto-clear 60s after task completes
+- Keepalive ping every 30 seconds
+- All event messages in French: "[Prénom] [verbe présent] [objet]..."
+  e.g. { type: 'agent.reading', message: 'Sophie lit le CV de Martin Dupont...' }
+
+Test: within-task events stream live during processing.
+Test: granular events absent from stored history (task-level only persisted).</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEKS 8-9 -->
+<div id="pack">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEKS 8–9</span>
+    <span class="wh-title">Pack P1 — Recruitment agencies (full build)</span>
+    <span class="wh-badge badge-pack">Pack</span>
+    <span class="wh-days">8 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">PACK P1</div>
+          <div class="mod-title">All pack files — complete</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 1 — pack.json + onboarding.json<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read DOMAIN_PACK_SPEC.md in full.
+Read PLATFORM_FUNCTIONAL_SPEC_v5.md sections 7 and 24.
+Read EMOTIONAL_LAYER.md section for wizard step headings.
+
+Create packs/p1-recruitment/pack.json with:
+- 5 agents: Sophie (sourcing), Marc (client-relations), Clara (content),
+            Julien (admin), Iris (market-intelligence)
+- taskTranslations array: 7 tasks = 1 CV batch, 3 = 1 job posting, 1 = 1 email
+  (used by cost/translator.ts for the usage gauge)
+- activationSequence: 5 moment definitions with exact trigger conditions
+
+Create packs/p1-recruitment/onboarding.json with:
+- 7 wizard questions for recruitment agencies
+- Variable mappings to template variables used in Company DNA and skills
+- Sector detection: detect IT/finance/legal/executive from answers → personalise seed tasks
+
+Show me pack.json first. Do not create other files until approved.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 2 — seed-tasks.json (CRITICAL: must be indistinguishable from real work)<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 7.2 (seed task rules) carefully.
+
+Create packs/p1-recruitment/seed-tasks.json with 3 seed tasks.
+
+CRITICAL RULE: These tasks must be INDISTINGUISHABLE from real work.
+No "Test Candidate", no "Sample Company", no obviously fake names.
+Use real French names, real French companies (anonymised), real job titles.
+The CV text must read like a real CV from an IT recruitment sector.
+If the operator can tell this is a demo, the seed task has FAILED.
+
+Task 1 (Sophie — CV qualification):
+  - 5 anonymised CVs for a React Senior mission, 5 years experience, Paris
+  - Each CV must be realistic (real tech stack, real career progression)
+  - Sophie's expected output: 2 recommended, 3 not recommended, with reasons
+
+Task 2 (Marc — weekly client report):
+  - A realistic "Innotec" client with 2 active missions
+  - Marc drafts the weekly advancement report
+  - Format must match what a real recruitment cabinet would send
+
+Task 3 (Clara — LinkedIn post):
+  - A post about a real trend in French IT recruitment (AI impact, salary benchmarks, remote work)
+  - Tone must match the Company DNA tone field from the wizard
+
+All copy in French. Validate against spec sector requirements.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 3 — All 8 SKILL.md files with output schemas<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read DOMAIN_PACK_SPEC.md skills section.
+Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 14.1 for output schema format.
+
+Create all 8 skill files under packs/p1-recruitment/skills/:
+
+1. qualification-cv/SKILL.md — tier:1, gdpr_required:true, web_access:false
+   output.schema: { candidate_name, score(1-5), key_strengths[], concerns[], recommendation }
+   handoff_to: { condition: "score >= 4 AND recommendation == proceed",
+                 agent_role: "client-relations", task_template: "present-candidates" }
+
+2. job-posting-writer/SKILL.md — tier:1, gdpr_required:false, web_access:false
+   output.schema: { title, company_description, role_description, requirements[],
+                    nice_to_have[], salary_range, location, contract_type }
+
+3. candidate-sourcing/SKILL.md — tier:2, gdpr_required:false, web_access:true
+4. candidate-follow-up/SKILL.md — tier:1, gdpr_required:true, web_access:false
+5. candidate-re-engagement/SKILL.md — tier:1, gdpr_required:true, web_access:false
+6. client-email/SKILL.md — tier:1, gdpr_required:false, web_access:false
+7. weekly-client-report/SKILL.md — tier:2, gdpr_required:false, web_access:false
+8. market-intelligence/SKILL.md — tier:2, gdpr_required:false, web_access:true
+
+Each SKILL.md body must:
+- Be in French
+- Reference {company_name}, {specialisation}, {zone_geo} template variables
+- Include a 3-paragraph agent persona matching the Company DNA style</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 4 — Golden datasets (20 examples × 8 skills)<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 19.3 (Evaluation framework) for golden dataset structure.
+
+Create golden-dataset.json for each of the 8 skills.
+Each dataset needs 20 GoldenExample objects.
+
+For qualification-cv — golden dataset format:
+{
+  "skillSlug": "qualification-cv",
+  "examples": [
+    {
+      "id": "qcv-001",
+      "input": {
+        "taskTitle": "Qualification CV — Mission React Senior Paris",
+        "sampleCV": "[realistic anonymised CV text]",
+        "missionBrief": "React developer 5y exp, Paris, €65k-75k, startup"
+      },
+      "expectedOutput": {
+        "schema": { "score": 4, "recommendation": "proceed", "key_strengths": [...] },
+        "qualityCriteria": [
+          "Score accurately reflects experience match",
+          "Key strengths are specific and actionable",
+          "Concerns are honest if present",
+          "Recommendation aligns with score"
+        ]
+      },
+      "weight": 1.0
+    }
+  ]
+}
+
+Start with qualification-cv golden dataset (20 examples). I will review before you create the others.
+Focus on quality: these examples are used to auto-evaluate every new skill version.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item">20-minute test: non-technical person completes wizard in &lt; 20 real minutes</div>
+        <div class="test-item">Seed tasks produce visible output within 10 minutes of installation</div>
+        <div class="test-item">All French copy in skills matches EMOTIONAL_LAYER.md exactly</div>
+        <div class="test-item">Handoff fires: qualification-cv → client-email when score ≥ 4</div>
+        <div class="test-item">Output schema validation: missing "concerns" field → agent corrects silently</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- WEEK 10 -->
+<div id="ui">
+<div class="week-section">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <span class="wh-num">WEEK 10</span>
+    <span class="wh-title">React UI — All 9 screens</span>
+    <span class="wh-badge badge-ui">Frontend</span>
+    <span class="wh-days">6 days</span>
+    <span class="wh-toggle">▶</span>
+  </div>
+  <div class="week-body">
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">UI — Design system</div>
+          <div class="mod-title">Fonts, tokens, base components</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 1 — Design system + base components<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 5 (UI philosophy + design system) in full.
+Read EMOTIONAL_LAYER.md section 4 (agent card + status copy).
+
+Set up ui/src:
+1. Install: tailwindcss shadcn/ui lucide-react react-query
+   Google Fonts: 'Playfair Display' (headings), 'DM Sans' (body), 'DM Mono' (timestamps)
+
+2. ui/src/design-system/tokens.css — CSS variables:
+   --bg:#FAFAF8; --surface:#FFFFFF; --border:#E8E4DC;
+   --green:#1A9E68; --amber:#C97C0A; --trust-blue:#1A4E8C; --error:#B91C1C;
+   --text:#0F0F0D; --text2:#8A8680;
+
+3. Create base components in ui/src/components/:
+   - AgentCard (trust dot, current action, streak bar, status badge)
+   - TrustCard (proposal evidence, accept/modify/decline)
+   - IntelligenceCard (blue tint, headline, body, CTA, dismiss)
+   - ApprovalCard (micro-reward shown after approval)
+   - UsageGauge (task count + business language translation)
+   - LiveFeedItem (granular event, "🔴 En direct" indicator)
+   - HandoffIndicator (chain of agents)
+
+4. SSE hooks: ui/src/hooks/useCompanyEvents.ts
+   - Subscribes to /api/v1/events/:companyId
+   - Separates task-level from within-task events
+   - Auto-clears granular events after 60 seconds
+
+ESLint rule: no English strings in JSX text content.</div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="mod-header">
+        <div class="mod-check" onclick="toggleCheck(this)"></div>
+        <div class="mod-info">
+          <div class="mod-id">UI — All 9 screens</div>
+          <div class="mod-title">Dashboard · Team · Agent · Trust centre · Thread · Console · Reports · Contacts · Settings</div>
+        </div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 2 — Dashboard (screen 1) — most complex<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 6.1 (Dashboard) in full.
+Read EMOTIONAL_LAYER.md sections 3 (dashboard copy) and 7 (morning intelligence cards).
+
+Build ui/src/pages/Dashboard.tsx:
+
+Layout (top to bottom):
+1. Escalation banner — ONLY if approvals pending (never show empty)
+2. Header: French greeting from EMOTIONAL_LAYER.md section 3, date, team summary sentence
+3. Morning intelligence section (max 3 IntelligenceCard components, auto-surfaced)
+4. Two-column: live activity feed (left) + team status (right)
+5. Primary goal progress bar
+6. ROI this month (business language)
+
+Live activity feed must show:
+  - "🔴 En direct" when agent.reading/analysing/writing events active
+  - Within-task events in French: "Sophie lit le CV de Martin Dupont..."
+  - Task-level events below: "il y a 2 min · Sophie a qualifié Julia Mercier ★★★★★"
+
+Team status must show:
+  - Agent status badge (French: "✅ Travaille", "⚠ A besoin de vous" etc.)
+  - Trust dot (green=trusted, blue=upgrade available, grey=building)
+  - Streak progress bar if between 5–10
+
+Usage gauge: translate task count using taskTranslations from pack config.
+All copy from EMOTIONAL_LAYER.md. No English.</div>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <div class="prompt-hdr">🤖 Session 3 — Trust centre (screen 4) — new in v5<span class="copy-hint">click to copy</span></div>
+        <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v5.md section 6.4 (Trust centre) in full.
+Read EMOTIONAL_LAYER.md section 9 for all trust copy strings.
+
+Build ui/src/pages/TrustCentre.tsx:
+
+Two sections:
+1. PENDING PROPOSALS (if any):
+   For each pending trust_proposal:
+   - Agent name + skill type
+   - Current level description (French from EMOTIONAL_LAYER.md)
+   - Proposed level (what changes, what stays — from spec section 12.4)
+   - Evidence: batch count, average score, consecutive weeks, gate violation rate
+   - Three actions: "Accepter" / "Ajuster le seuil" / "Garder le niveau actuel"
+   Accepting fires POST /api/v1/trust/proposals/:id/accept
+
+2. ACTIVE TRUST LEVELS (all agents × all skill types):
+   Progress bar per skill type showing current autonomy level
+   Labels: "Supervise" / "Contrôle ponctuel" / "Résumé hebdo" / "Silencieux"
+   Color: grey=building, amber=supervised, blue=spot-checked, green=summarised+
+
+Page headline from EMOTIONAL_LAYER.md section 9.
+No invented French copy.</div>
+      </div>
+      <div class="test-block">
+        <div class="test-item">All 9 screens load in &lt; 2 seconds</div>
+        <div class="test-item"><span class="test-cmd">grep -r "heartbeat\|token\|adapter\|pgvector" ui/src/pages/</span> — 0 results</div>
+        <div class="test-item">Live feed: granular events appear within 2 seconds of SSE event</div>
+        <div class="test-item">Approval: micro-reward inline message appears after every approval click</div>
+        <div class="test-item">Mobile: approval cards full-width at 390px (iPhone 14)</div>
+        <div class="test-item">Zero English strings in any user-facing screen</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- RHYTHM -->
+<div style="height:1px;background:var(--border);margin:28px 0;"></div>
+<div id="rhythm">
+  <div class="section-title">⏱ Daily rhythm</div>
+  <p class="section-sub">The operational cadence that keeps vibe coding productive.</p>
+  <div class="rhythm-grid">
+    <div class="rhythm-card">
+      <div class="rc-title">Every morning</div>
+      <div class="rc-item">Read DEVLOG.md — what was last built?</div>
+      <div class="rc-item">Fresh Claude Code session (reads CLAUDE.md fresh)</div>
+      <div class="rc-item">1 module = 1 session = 1 focus area</div>
+      <div class="rc-item">Read spec section → prompt → review diff → approve → test</div>
+      <div class="rc-item">Never cross module boundaries in 1 session</div>
+    </div>
+    <div class="rhythm-card">
+      <div class="rc-title">End of session</div>
+      <div class="rc-item">All tests green before git commit</div>
+      <div class="rc-item"><code style="color:var(--green)">git commit -m "feat(mN): what was built"</code></div>
+      <div class="rc-item">Write 3 lines in DEVLOG.md: built / test passed / next</div>
+      <div class="rc-item">Close Claude Code — fresh start tomorrow</div>
+    </div>
+    <div class="rhythm-card">
+      <div class="rc-title">End of every week</div>
+      <div class="rc-item">Full end-to-end smoke test</div>
+      <div class="rc-item">Check Bull Board — stuck or failed jobs?</div>
+      <div class="rc-item">Check TablePlus — schema matches spec?</div>
+      <div class="rc-item">Talk to 1 potential customer — validate direction</div>
+      <div class="rc-item">20-minute test (Weeks 8+): time a non-technical person</div>
+    </div>
+  </div>
+</div>
+
+<!-- DoD -->
+<div style="height:1px;background:var(--border);margin:28px 0;"></div>
+<div id="dod">
+  <div class="section-title">✅ MVP — Definition of done</div>
+  <p class="section-sub">All 20 must be true before you call this shipped. Tick them as you verify each one.</p>
+  <div class="dod-grid" id="dod-grid">
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Pack P1 installs in &lt; 20 minutes (non-technical user test)</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Seed tasks produce visible output within 10 minutes of installation</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Day 2 notification fires within 5 min of first real task, contains real candidate name</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">All 5 activation moments trigger in correct order, Days 0–7</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Trust proposals generated after 10 consecutive 4+★ approvals</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Morning intelligence: max 3 cards/day; no card repeated within 14 days</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Live activity feed: within-task events stream within 2s via SSE</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">GDPR: zero DeepSeek calls for any gdpr_required:true skill</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Output schema: malformed outputs caught before reaching operator</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Damage control: recovery plan generated when comm marked as error</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Audit trail: immutable at DB level (DELETE attempt fails)</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Usage gauge shows "~95 sélections de CV restantes" (task translation working)</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Agent-to-agent handoff fires: qualification-cv → client-email when score ≥ 4</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">All UI copy in French, sourced from EMOTIONAL_LAYER.md</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Zero English strings visible in any user-facing screen</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">All 9 screens load in &lt; 2 seconds</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Mobile: approval flow works on iPhone 14 (390px width)</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Stripe: plan change updates limits within 60 seconds</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">Console proactive mode: opens with intelligence cards when unaddressed</div></div>
+    <div class="dod-item" onclick="toggleDod(this)"><div class="dod-cb"></div><div class="dod-text">10 design partner accounts onboarded and active</div></div>
+  </div>
+</div>
+
+</div><!-- end content -->
+</div><!-- end layout -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">Copié ✓</div>
+
+<script>
+// ── Week accordion ──
+function toggleWeek(header){
+  const body = header.nextElementSibling
+  const isOpen = body.classList.contains('open')
+  body.classList.toggle('open', !isOpen)
+  header.classList.toggle('open', !isOpen)
+}
+
+// ── Module checkbox ──
+function toggleCheck(el){
+  el.classList.toggle('done')
+  el.textContent = el.classList.contains('done') ? '✓' : ''
+  updateProgress()
+}
+
+// ── DoD checkbox ──
+function toggleDod(item){
+  item.classList.toggle('done')
+  const cb = item.querySelector('.dod-cb')
+  cb.classList.toggle('done')
+  cb.textContent = cb.classList.contains('done') ? '✓' : ''
+  updateProgress()
+}
+
+// ── Progress ──
+function updateProgress(){
+  const checks = document.querySelectorAll('.mod-check, .dod-cb')
+  const done = [...checks].filter(c => c.classList.contains('done')).length
+  document.getElementById('pfill').style.width = (done/checks.length*100) + '%'
+  document.getElementById('pcnt').textContent = done + ' / ' + checks.length
+}
+
+// ── Copy prompt ──
+function copyPrompt(el){
+  const body = el.querySelector('.prompt-body')
+  if(!body) return
+  navigator.clipboard.writeText(body.innerText).then(()=>{
+    const t = document.getElementById('toast')
+    t.classList.add('show')
+    setTimeout(()=>t.classList.remove('show'), 2000)
+  })
+}
+
+updateProgress()
+</script>
+</body>
+</html>

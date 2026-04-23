@@ -1,0 +1,27 @@
+"use client";
+import { useCallback } from "react";
+import { createActionButton, } from "../../utils/createActionButton.js";
+import { useComposerSend as useComposerSendBehavior } from "@assistant-ui/core/react";
+export const useComposerSend = () => {
+    const { disabled, send } = useComposerSendBehavior();
+    const callback = useCallback(() => send(), [send]);
+    if (disabled)
+        return null;
+    return callback;
+};
+/**
+ * A button component that sends the current message in the composer.
+ *
+ * This component automatically handles the send functionality and is disabled
+ * when sending is not available (e.g., when the thread is running, the composer
+ * is empty, or not in editing mode).
+ *
+ * @example
+ * ```tsx
+ * <ComposerPrimitive.Send>
+ *   Send Message
+ * </ComposerPrimitive.Send>
+ * ```
+ */
+export const ComposerPrimitiveSend = createActionButton("ComposerPrimitive.Send", useComposerSend);
+//# sourceMappingURL=ComposerSend.js.map

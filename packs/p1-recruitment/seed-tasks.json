@@ -1,0 +1,133 @@
+{
+  "seed_tasks": [
+    {
+      "id": "seed-sophie-qualification",
+      "agent_slug": "sophie-sourcing",
+      "skill_slug": "qualification-cv",
+      "title": "Qualifier les 5 profils pour la mission React Senior",
+      "description": "Évaluer les 5 CV reçus pour la mission Développeur React Senior chez Innotec (50k-65k€, Paris, hybride). Identifier les 2 meilleurs profils à présenter en priorité.",
+      "priority": "high",
+      "fire_delay_minutes": 2,
+      "context": {
+        "mission": {
+          "title": "Développeur React Senior",
+          "client": "Innotec",
+          "location": "Paris 9e — 2 jours de télétravail",
+          "salary": "50 000 – 65 000 € brut annuel",
+          "start": "Dès que possible",
+          "requirements": ["React 5+ ans", "TypeScript", "Node.js apprécié", "Expérience en équipe agile"]
+        },
+        "candidates": [
+          {
+            "id": "cv-001",
+            "name": "Thomas Lefebvre",
+            "current_title": "Développeur Frontend Senior",
+            "current_company": "Doctolib",
+            "experience_years": 7,
+            "skills": ["React", "TypeScript", "Redux", "GraphQL", "Jest"],
+            "location": "Paris 11e",
+            "availability": "Disponible M+2",
+            "salary_expectation": "62 000 €",
+            "education": "Master Informatique — EPITA 2017"
+          },
+          {
+            "id": "cv-002",
+            "name": "Amira Benali",
+            "current_title": "Lead Developer Frontend",
+            "current_company": "Contentsquare",
+            "experience_years": 9,
+            "skills": ["React", "Vue.js", "TypeScript", "Webpack", "CI/CD"],
+            "location": "Paris 13e",
+            "availability": "Disponible M+3",
+            "salary_expectation": "72 000 €",
+            "education": "Diplôme d'ingénieur — CentraleSupélec 2015",
+            "note": "Au-dessus de la fourchette — à vérifier si le client peut s'aligner"
+          },
+          {
+            "id": "cv-003",
+            "name": "Romain Girard",
+            "current_title": "Développeur Fullstack",
+            "current_company": "Start-up SaaS B2B (8 pers.)",
+            "experience_years": 4,
+            "skills": ["React", "Node.js", "MongoDB", "TypeScript"],
+            "location": "Montreuil (93)",
+            "availability": "Immédiatement disponible (fin de CDD)",
+            "salary_expectation": "48 000 €",
+            "education": "Bachelor Développement Web — ESIEA 2020"
+          },
+          {
+            "id": "cv-004",
+            "name": "Julie Marchand",
+            "current_title": "Développeuse React",
+            "current_company": "Agence digitale",
+            "experience_years": 3,
+            "skills": ["React", "JavaScript", "CSS", "Figma"],
+            "location": "Vincennes (94)",
+            "availability": "Disponible M+1",
+            "salary_expectation": "44 000 €",
+            "education": "BUT Informatique — IUT Paris Rives de Seine 2021",
+            "note": "Expérience en agence, pas en produit — fit culturel à vérifier"
+          },
+          {
+            "id": "cv-005",
+            "name": "Karim Ouali",
+            "current_title": "Senior Frontend Engineer",
+            "current_company": "Criteo",
+            "experience_years": 8,
+            "skills": ["React", "TypeScript", "Performance web", "A/B testing", "DataDog"],
+            "location": "Paris 8e",
+            "availability": "Disponible M+2",
+            "salary_expectation": "68 000 €",
+            "education": "Diplôme d'ingénieur — Télécom Paris 2016"
+          }
+        ]
+      },
+      "thread_opening": "Voici ce que j'ai trouvé dans votre première mission.\nJ'ai regardé les 5 profils et retenu ceux qui correspondent vraiment à ce que vous cherchez. Mes recommandations :"
+    },
+    {
+      "id": "seed-marc-report",
+      "agent_slug": "marc-client",
+      "skill_slug": "weekly-client-report",
+      "title": "Rapport hebdomadaire pour Innotec — semaine de démarrage",
+      "description": "Préparer le rapport hebdomadaire de suivi de la mission Développeur React Senior pour le client Innotec.",
+      "priority": "medium",
+      "fire_delay_minutes": 5,
+      "context": {
+        "client": {
+          "name": "Innotec",
+          "contact": "Nathalie Perrin",
+          "contact_title": "DRH",
+          "contact_email": "n.perrin@innotec.fr",
+          "mission_start_date": "Lundi dernier",
+          "mission_title": "Développeur React Senior"
+        },
+        "week_summary": {
+          "cvs_received": 5,
+          "cvs_qualified": 5,
+          "recommended_profiles": 2,
+          "profiles_names": ["Thomas Lefebvre", "Karim Ouali"],
+          "next_step": "Validation par le client + organisation des entretiens"
+        }
+      },
+      "thread_opening": "Voici le rapport hebdomadaire pour Innotec.\nJ'ai résumé l'avancement de la semaine et préparé le point pour Nathalie :"
+    },
+    {
+      "id": "seed-clara-linkedin",
+      "agent_slug": "clara-content",
+      "skill_slug": "job-posting-writer",
+      "title": "Post LinkedIn — Tendances recrutement IT",
+      "description": "Rédiger un post LinkedIn sur une tendance actuelle du recrutement dans votre secteur de spécialisation. À publier ou utiliser comme modèle.",
+      "priority": "low",
+      "fire_delay_minutes": 8,
+      "context": {
+        "format": "linkedin_post",
+        "sector": "{specialisation}",
+        "trend": "La demande de profils React / TypeScript en CDI a augmenté de 34% en Île-de-France au premier trimestre 2025 selon les données LinkedIn Jobs.",
+        "tone": "Professionnel et accessible — montrer l'expertise du cabinet sans jargon",
+        "length_chars": "800-1200",
+        "include_hashtags": true
+      },
+      "thread_opening": "Voici un post LinkedIn sur une tendance importante de votre secteur.\nVous pouvez le publier directement ou l'adapter à votre ton :"
+    }
+  ]
+}

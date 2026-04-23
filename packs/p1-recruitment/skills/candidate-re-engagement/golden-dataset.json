@@ -1,0 +1,426 @@
+{
+  "skill": "candidate-re-engagement",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "cre-001",
+      "input": {
+        "candidate": { "name": "Thomas Mercier", "email": "thomas.mercier@gmail.com" },
+        "mission": { "title": "Lead Data Engineer", "client": "Doctolib" },
+        "last_contact": "Email d'approche sourcing envoyé il y a 5 jours. Aucune réponse.",
+        "days_since_last_contact": 5,
+        "context": "Première relance après approche sourcing. Le candidat n'a pas candidaté — il a été prospecté."
+      },
+      "expected_output": {
+        "recipient_name": "Thomas Mercier",
+        "recipient_email": "thomas.mercier@gmail.com",
+        "subject": "Lead Data Engineer chez Doctolib — mon message vous est-il parvenu ?",
+        "body": "Bonjour Thomas,\n\nJe voulais m'assurer que mon message de la semaine dernière vous était bien parvenu.\n\nJe vous contactais au sujet d'un poste de Lead Data Engineer chez Doctolib — une opportunité qui m'a fait penser à votre profil.\n\nSi le timing n'est pas bon ou si votre situation a évolué, n'hésitez pas à me le dire — je comprends tout à fait.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 5,
+        "urgency_level": "low",
+        "if_no_response_action": "Archiver le dossier si pas de réponse dans 7 jours — 2 tentatives maximum pour une approche sourcing."
+      },
+      "rating": 5,
+      "notes": "Première relance sourcing après 5 jours. Ton léger et bienveillant, pas de pression. L'ouverture explicite ('si le timing n'est pas bon') désamorce le sentiment d'obligation et paradoxalement augmente le taux de réponse."
+    },
+    {
+      "id": "cre-002",
+      "input": {
+        "candidate": { "name": "Camille Vernet", "email": "c.vernet@qonto.eu" },
+        "mission": { "title": "Ingénieur Machine Learning Senior", "client": "Dataiku" },
+        "last_contact": "InMail LinkedIn envoyé il y a 6 jours. Profil consulté (LinkedIn indique 'message lu') mais aucune réponse.",
+        "days_since_last_contact": 6,
+        "context": "Message lu mais pas de réponse. Profil sourcé activement."
+      },
+      "expected_output": {
+        "recipient_name": "Camille Vernet",
+        "recipient_email": "c.vernet@qonto.eu",
+        "subject": "Dataiku — ML Senior — un mot suffit !",
+        "body": "Bonjour Camille,\n\nJe vois que mon message vous est parvenu — je comprends que votre agenda soit chargé.\n\nSi le poste chez Dataiku ne vous intéresse pas ou si vous n'êtes pas en recherche, un simple 'non merci' me suffit — je ne vous recontacte plus.\n\nSi en revanche vous souhaitez en savoir plus, je suis disponible pour un échange de 10 minutes.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 6,
+        "urgency_level": "low",
+        "if_no_response_action": "Clôturer le dossier après cette relance — ne pas dépasser 2 contacts non sollicités."
+      },
+      "rating": 5,
+      "notes": "Relance après message lu sans réponse. Illustre la technique du 'non facile' — proposer explicitement au candidat de répondre 'non merci' augmente paradoxalement le taux de réponse et respecte son temps."
+    },
+    {
+      "id": "cre-003",
+      "input": {
+        "candidate": { "name": "Adrien Lecomte", "email": "a.lecomte@criteo.com" },
+        "mission": { "title": "Ingénieur Machine Learning Senior", "client": "Dataiku" },
+        "last_contact": "Premier contact il y a 10 jours. La mission est urgente — le client presse.",
+        "days_since_last_contact": 10,
+        "context": "Profil prioritaire. Mission urgente. Deuxième tentative."
+      },
+      "expected_output": {
+        "recipient_name": "Adrien Lecomte",
+        "recipient_email": "a.lecomte@criteo.com",
+        "subject": "Dataiku — ML Senior — la mission est toujours ouverte",
+        "body": "Bonjour Adrien,\n\nJe reviens vers vous une dernière fois concernant le poste de ML Engineer Senior chez Dataiku.\n\nLa mission est toujours en cours — et votre profil reste le plus adapté parmi ceux que j'ai identifiés.\n\nSi vous avez quelques minutes cette semaine pour en discuter, je suis disponible. Dans le cas contraire, je comprends et ne vous recontacterai plus sur cette opportunité.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 10,
+        "urgency_level": "high",
+        "if_no_response_action": "Clôturer définitivement — c'est la deuxième relance. Passer à d'autres profils pour Dataiku."
+      },
+      "rating": 5,
+      "notes": "Deuxième et dernière relance sur un profil prioritaire urgent. 'Une dernière fois' et 'ne vous recontacterai plus' signalent clairement la clôture imminente. La mention du statut prioritaire ('votre profil reste le plus adapté') est sincère et valorisante."
+    },
+    {
+      "id": "cre-004",
+      "input": {
+        "candidate": { "name": "Nassim Brahimi", "email": "nassim.brahimi@sncf.fr" },
+        "mission": { "title": "Ingénieur Machine Learning Senior", "client": "Dataiku" },
+        "last_contact": "Email envoyé il y a 9 jours. Pas de réponse. Le candidat avait dit lors d'une rencontre passée qu'il était 'à l'écoute'.",
+        "days_since_last_contact": 9,
+        "context": "Candidat en base depuis 4 mois. A exprimé son intérêt précédemment."
+      },
+      "expected_output": {
+        "recipient_name": "Nassim Brahimi",
+        "recipient_email": "nassim.brahimi@sncf.fr",
+        "subject": "Dataiku — et votre projet d'évolution ?",
+        "body": "Bonjour Nassim,\n\nNous nous étions rencontrés il y a quelques mois et vous m'aviez dit être à l'écoute d'opportunités.\n\nJe vous avais contacté la semaine dernière au sujet d'un poste ML Senior chez Dataiku — je voulais vérifier si votre situation avait évolué ou si c'est simplement le mauvais moment.\n\nN'hésitez pas à me dire où vous en êtes — même un mot me suffit.\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 9,
+        "urgency_level": "medium",
+        "if_no_response_action": "Clôturer le dossier Dataiku. Garder le contact en base avec note 'difficile à joindre'."
+      },
+      "rating": 5,
+      "notes": "Relance d'un candidat en base avec historique. Illustre l'utilisation du contexte relationnel antérieur ('vous m'aviez dit') pour personnaliser la relance sans être intrusif."
+    },
+    {
+      "id": "cre-005",
+      "input": {
+        "candidate": { "name": "Léa Fontaine", "email": "lea.fontaine@meetic.fr" },
+        "mission": { "title": "Responsable Marketing Digital", "client": "BlaBlaCar" },
+        "last_contact": "Premier contact avec envoi de la description du poste il y a 4 jours. Pas de réponse.",
+        "days_since_last_contact": 4,
+        "context": "Premiere relance. Mission normale, pas d'urgence particulière."
+      },
+      "expected_output": {
+        "recipient_name": "Léa Fontaine",
+        "recipient_email": "lea.fontaine@meetic.fr",
+        "subject": "BlaBlaCar — avez-vous eu le temps de regarder ?",
+        "body": "Bonjour Léa,\n\nJe voulais juste vérifier que mon email de la semaine dernière ne s'était pas perdu dans votre boîte de réception.\n\nSi vous avez des questions sur le poste ou si vous préférez en parler par téléphone, je suis disponible.\n\nBonne semaine,\nSophie",
+        "days_since_last_contact": 4,
+        "urgency_level": "low",
+        "if_no_response_action": "Attendre 7 jours supplémentaires avant une éventuelle dernière relance."
+      },
+      "rating": 5,
+      "notes": "Relance légère à 4 jours. Ton non intrusif, phrase courte, invitation à un format alternatif (téléphone). Idéal pour ne pas effrayer un candidat qui n'a pas encore décidé s'il est intéressé."
+    },
+    {
+      "id": "cre-006",
+      "input": {
+        "candidate": { "name": "Marie Perrin", "email": "marie.perrin@cabinet-perrin.fr" },
+        "mission": { "title": "Expert Comptable", "client": "Cabinet lyonnais confidentiel" },
+        "last_contact": "Référencée par réseau. Premier contact il y a 8 jours. La source (le contact réseau) n'a pas eu de nouvelles non plus.",
+        "days_since_last_contact": 8,
+        "context": "Profil référencé par réseau. La source a confirmé l'ouverture initiale mais plus de nouvelles."
+      },
+      "expected_output": {
+        "recipient_name": "Marie Perrin",
+        "recipient_email": "marie.perrin@cabinet-perrin.fr",
+        "subject": "Suite à notre contact — Expert Comptable Lyon",
+        "body": "Bonjour Marie,\n\nJe me permets de revenir vers vous suite à notre prise de contact il y a quelques jours.\n\nJe comprends que la gestion d'un cabinet en parallèle laisse peu de place pour les échanges. Si l'opportunité ne correspond pas à vos projets actuels, dites-le moi sans hésiter.\n\nEn revanche, si vous êtes toujours curieuse d'en savoir plus, je reste disponible pour en discuter à votre convenance.\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 8,
+        "urgency_level": "medium",
+        "if_no_response_action": "Clôturer cette piste si pas de réponse. Recontacter la source réseau pour obtenir un feedback."
+      },
+      "rating": 5,
+      "notes": "Relance d'un expert-comptable gérant son propre cabinet. Illustre la prise en compte du contexte (candidat très occupé) dans le ton, et la suggestion discrète d'un échange à sa convenance plutôt qu'une date imposée."
+    },
+    {
+      "id": "cre-007",
+      "input": {
+        "candidate": { "name": "Xavier Fontaine", "email": "xavier.fontaine@elior.com" },
+        "mission": { "title": "Responsable Grands Comptes", "client": "Sodexo" },
+        "last_contact": "InMail envoyé il y a 12 jours. Mission urgente. Le candidat n'est pas en recherche active.",
+        "days_since_last_contact": 12,
+        "context": "Deuxième contact (le premier était un InMail). Mission urgente côté client."
+      },
+      "expected_output": {
+        "recipient_name": "Xavier Fontaine",
+        "recipient_email": "xavier.fontaine@elior.com",
+        "subject": "Sodexo — Grands Comptes — une opportunité qui vous correspond",
+        "body": "Bonjour Xavier,\n\nJe vous contacte une dernière fois concernant cette opportunité Grands Comptes.\n\nJe sais que vous n'êtes probablement pas en recherche active — mais la mission correspond vraiment à ce que vous faites chez Elior, et le client est pressé.\n\nSi la curiosité vous pousse à échanger 10 minutes, je suis disponible cette semaine. Sinon, je comprends parfaitement.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 12,
+        "urgency_level": "high",
+        "if_no_response_action": "Clôturer définitivement la piste Xavier Fontaine. Contacter les profils suivants de la liste sourcing."
+      },
+      "rating": 5,
+      "notes": "Deuxième relance sur un profil passif non en recherche. La mention de l'urgence côté client sans pression, et la proposition d'un échange de '10 minutes' (faible engagement) sont des techniques efficaces pour des candidats en poste qui hésitent."
+    },
+    {
+      "id": "cre-008",
+      "input": {
+        "candidate": { "name": "Bertrand Moulin", "email": "bertrand.moulin@lucca.fr" },
+        "mission": { "title": "Directeur Commercial", "client": "Scale-up SaaS HR" },
+        "last_contact": "InMail discret envoyé il y a 7 jours. Profil très senior, concurrent direct.",
+        "days_since_last_contact": 7,
+        "context": "Profil C-level en poste. Approche très délicate — c'est le concurrent direct du client."
+      },
+      "expected_output": {
+        "recipient_name": "Bertrand Moulin",
+        "recipient_email": "bertrand.moulin@lucca.fr",
+        "subject": "Direction Commerciale SaaS RH — votre avis m'intéresse",
+        "body": "Bonjour Bertrand,\n\nJe vous avais contacté la semaine dernière au sujet d'une opportunité de direction commerciale dans une scale-up SaaS RH comparable à Lucca.\n\nJe comprends que votre agenda soit chargé et que ce n'est peut-être pas le bon moment. Si à un moment votre curiosité est au rendez-vous, n'hésitez pas à revenir vers moi — la porte reste ouverte.\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 7,
+        "urgency_level": "low",
+        "if_no_response_action": "Ne pas relancer davantage un profil C-level passif. Garder en base et reprendre contact dans 6 mois."
+      },
+      "rating": 5,
+      "notes": "Relance sur profil C-level très senior. Illustre la retenue nécessaire avec les profils de direction — une seule relance légère, puis on laisse la porte ouverte sans s'imposer. La formulation 'votre avis m'intéresse' est moins directe qu'une proposition d'emploi."
+    },
+    {
+      "id": "cre-009",
+      "input": {
+        "candidate": { "name": "Stéphanie Moreau", "email": "s.moreau@ap-hp.fr" },
+        "mission": { "title": "Infirmière Puéricultrice", "client": "Clinique Pierre-Cherest" },
+        "last_contact": "A candidaté sur Staffsanté il y a 6 jours. Pas de réponse à notre mail de qualification envoyé il y a 5 jours.",
+        "days_since_last_contact": 5,
+        "context": "Candidature active (elle a postulé). La relance est sur notre mail de qualification, pas sur la candidature initiale."
+      },
+      "expected_output": {
+        "recipient_name": "Stéphanie Moreau",
+        "recipient_email": "s.moreau@ap-hp.fr",
+        "subject": "Votre candidature Clinique Pierre-Cherest — deux questions rapides",
+        "body": "Bonjour Stéphanie,\n\nJe reviens vers vous suite à votre candidature sur Staffsanté.\n\nJ'avais envoyé un premier email pour fixer un entretien téléphonique de qualification — il a peut-être été bloqué par votre filtre spam.\n\nSeriez-vous disponible cette semaine pour un échange de 15 minutes ? Je suis joignable de 8h à 12h.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 5,
+        "urgency_level": "medium",
+        "if_no_response_action": "Tenter un appel téléphonique si pas de réponse sous 48h — la candidature est active, le candidat est prioritairement motivé."
+      },
+      "rating": 5,
+      "notes": "Relance sur une candidature active (la candidate a postulé elle-même). Ton plus direct est justifié. L'hypothèse du filtre spam est délicate mais donne une porte de sortie à la candidate sans lui faire sentir coupable du silence."
+    },
+    {
+      "id": "cre-010",
+      "input": {
+        "candidate": { "name": "Laurent Faure", "email": "l.faure@kpmg.fr" },
+        "mission": { "title": "Expert Comptable", "client": "Cabinet lyonnais" },
+        "last_contact": "Premier contact il y a 16 jours. DEC en cours, disponible début 2026.",
+        "days_since_last_contact": 16,
+        "context": "Candidat 'à long terme' — son DEC n'est pas encore obtenu. La relance vise à garder le contact."
+      },
+      "expected_output": {
+        "recipient_name": "Laurent Faure",
+        "recipient_email": "l.faure@kpmg.fr",
+        "subject": "Votre DEC — et la suite ?",
+        "body": "Bonjour Laurent,\n\nJe voulais reprendre contact avec vous — votre dernière épreuve du DEC approche et je voulais vous dire que je pense à votre projet.\n\nLa opportunité en cabinet à Lyon reste d'actualité. Si vous souhaitez en reparler à votre rythme, ou même après l'obtention de votre diplôme, n'hésitez pas.\n\nBonne préparation pour la suite,\nSophie",
+        "days_since_last_contact": 16,
+        "urgency_level": "low",
+        "if_no_response_action": "Programmer un rappel automatique à J+60 (après l'épreuve DEC). Ne pas re-relancer entre-temps."
+      },
+      "rating": 5,
+      "notes": "Relance 'long terme' sur un candidat en cours de qualification (DEC). Illustre la gestion du pipeline aval — maintenir la relation sans créer de pression sur quelqu'un qui ne peut pas bouger avant son diplôme."
+    },
+    {
+      "id": "cre-011",
+      "input": {
+        "candidate": { "name": "Hugo Delmas", "email": "hugo.delmas@natixis.com" },
+        "mission": { "title": "Analyste Risques de Crédit", "client": "Société Générale CIB" },
+        "last_contact": "InMail LinkedIn envoyé il y a 11 jours. Le profil LinkedIn indique 'ouvert aux opportunités' (Open to Work pour recruteurs).",
+        "days_since_last_contact": 11,
+        "context": "Candidat passif avec signal Open to Work. Mission active, timing raisonnable."
+      },
+      "expected_output": {
+        "recipient_name": "Hugo Delmas",
+        "recipient_email": "hugo.delmas@natixis.com",
+        "subject": "Société Générale CIB — toujours ouvert ?",
+        "body": "Bonjour Hugo,\n\nJe reviens vers vous au sujet du poste d'Analyste Crédit à la Société Générale CIB dont je vous avais parlé il y a une dizaine de jours.\n\nVotre profil LinkedIn indique que vous êtes ouvert aux opportunités — je voulais simplement vérifier si ce poste pourrait vous intéresser, ou si vous avez déjà avancé sur d'autres pistes.\n\nJe suis disponible pour un échange rapide si vous souhaitez en savoir plus.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 11,
+        "urgency_level": "medium",
+        "if_no_response_action": "Dernière relance — si pas de réponse sous 5 jours, clôturer la piste et passer aux autres profils identifiés."
+      },
+      "rating": 5,
+      "notes": "Relance avec référence au signal 'Open to Work'. Utiliser ce signal est pertinent — c'est une information publique que le candidat a choisi de diffuser. La formulation 'avez-vous déjà avancé sur d'autres pistes' signale qu'on comprend qu'il est actif."
+    },
+    {
+      "id": "cre-012",
+      "input": {
+        "candidate": { "name": "Sonia Belhadj", "email": "s.belhadj@sanofi.com" },
+        "mission": { "title": "Attachée Commerciale Pharmaceutique", "client": "Servier" },
+        "last_contact": "InMail envoyé il y a 7 jours. Candidat travaillant dans une entreprise en restructuration — contexte sensible.",
+        "days_since_last_contact": 7,
+        "context": "Contexte de restructuration Sanofi — le candidat est peut-être en mode survie professionnelle."
+      },
+      "expected_output": {
+        "recipient_name": "Sonia Belhadj",
+        "recipient_email": "s.belhadj@sanofi.com",
+        "subject": "Servier — toujours à votre écoute",
+        "body": "Bonjour Sonia,\n\nJe voulais reprendre contact avec vous suite à mon message de la semaine dernière.\n\nJe sais que la période est sans doute chargée de votre côté — prenez le temps qu'il vous faut. L'opportunité chez Servier reste ouverte.\n\nQuand vous êtes disponible, même pour un échange de quelques minutes, je suis là.\n\nBonne continuation,\nSophie",
+        "days_since_last_contact": 7,
+        "urgency_level": "medium",
+        "if_no_response_action": "Attendre 10 jours supplémentaires compte tenu du contexte de restructuration — le candidat peut être sous pression. Ultima relance avant clôture."
+      },
+      "rating": 5,
+      "notes": "Relance dans un contexte de restructuration. Illustre l'adaptation du ton au contexte émotionnel du candidat — empathie sans voyeurisme, espace sans pression. La patience est une qualité commerciale dans ce type de situation."
+    },
+    {
+      "id": "cre-013",
+      "input": {
+        "candidate": { "name": "Kevin Tran", "email": "kevin.tran@capgemini.com" },
+        "mission": { "title": "Développeur Salesforce", "client": "Danone" },
+        "last_contact": "InMail il y a 7 jours. Le candidat est en fin de mission ESN dans 6 semaines.",
+        "days_since_last_contact": 7,
+        "context": "Timing parfait (fin de mission). L'urgence est réelle."
+      },
+      "expected_output": {
+        "recipient_name": "Kevin Tran",
+        "recipient_email": "kevin.tran@capgemini.com",
+        "subject": "Danone — Salesforce — le timing est bon",
+        "body": "Bonjour Kevin,\n\nJe reviens vers vous concernant le poste Salesforce Developer chez Danone.\n\nVotre fin de mission chez Capgemini approche — c'est sans doute un moment où les opportunités comme celle-ci méritent d'être explorées.\n\nSi vous souhaitez qu'on en discute avant la fin de la semaine, je suis disponible.\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 7,
+        "urgency_level": "high",
+        "if_no_response_action": "Tenter un appel direct si pas de réponse sous 3 jours — le timing de fin de mission ne durera pas. Clôturer si toujours sans réponse après l'appel."
+      },
+      "rating": 5,
+      "notes": "Relance avec argument temporel (fin de mission). Le timing est le meilleur argument de vente dans ce contexte — l'utiliser explicitement sans être lourd. La suggestion d'un échange 'avant la fin de semaine' crée une légère urgence calendaire naturelle."
+    },
+    {
+      "id": "cre-014",
+      "input": {
+        "candidate": { "name": "Théo Blanchard", "email": "theo.blanchard@deezer.com" },
+        "mission": { "title": "Ingénieur Machine Learning Senior", "client": "Dataiku" },
+        "last_contact": "En base depuis 8 mois. Un email avait été envoyé il y a 10 jours sans réponse. Il avait dit lors de la rencontre initiale qu'il 'rappellerait'.",
+        "days_since_last_contact": 10,
+        "context": "Candidat en base longue durée. A dit 'je rappelle' sans le faire."
+      },
+      "expected_output": {
+        "recipient_name": "Théo Blanchard",
+        "recipient_email": "theo.blanchard@deezer.com",
+        "subject": "Dataiku — ML Senior — votre situation a peut-être évolué ?",
+        "body": "Bonjour Théo,\n\nNous nous étions rencontrés il y a quelques mois — vous m'aviez dit que vous me rappelleriez. Je comprends que les projets professionnels évoluent et que les agendas sont chargés.\n\nJe vous contactais au sujet d'un poste ML Senior chez Dataiku qui m'a fait penser à votre profil.\n\nSi votre situation a évolué depuis notre rencontre — dans un sens comme dans l'autre — n'hésitez pas à me le dire.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 10,
+        "urgency_level": "medium",
+        "if_no_response_action": "Clôturer la piste Dataiku pour ce candidat. Mettre une note en base : 'difficile à engager, garder en veille passive'."
+      },
+      "rating": 5,
+      "notes": "Relance d'un candidat en base qui avait promis de rappeler sans le faire. La référence à la promesse initiale est discrète et non culpabilisante. L'ouverture 'dans un sens comme dans l'autre' permet au candidat de décliner facilement."
+    },
+    {
+      "id": "cre-015",
+      "input": {
+        "candidate": { "name": "Thomas Gauthier", "email": "thomas.gauthier@arkema.com" },
+        "mission": { "title": "Ingénieur Procédés Chimiques", "client": "TotalEnergies Normandie" },
+        "last_contact": "Contact initial il y a 8 jours sur la mobilité en Normandie. Pas de réponse.",
+        "days_since_last_contact": 8,
+        "context": "Candidat hors zone géographique (Lorraine). La mobilité est le point clé à qualifier."
+      },
+      "expected_output": {
+        "recipient_name": "Thomas Gauthier",
+        "recipient_email": "thomas.gauthier@arkema.com",
+        "subject": "TotalEnergies Normandie — votre projet de mobilité ?",
+        "body": "Bonjour Thomas,\n\nJe revenais sur mon email de la semaine dernière concernant le poste chez TotalEnergies en Normandie.\n\nJe sais que la question de la mobilité est importante et personnelle — je voulais simplement savoir si votre projet de déménagement en Normandie est toujours d'actualité, ou si votre situation a évolué.\n\nUne réponse rapide me permet de savoir si je dois continuer dans cette direction.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 8,
+        "urgency_level": "medium",
+        "if_no_response_action": "Clôturer cette piste si pas de réponse. La mobilité non confirmée bloque le process."
+      },
+      "rating": 5,
+      "notes": "Relance sur un candidat dont la mobilité est incertaine. Illustre la bonne pratique de qualifier le bloquant principal (mobilité) dès la relance plutôt que d'envoyer un email générique — gain de temps pour toutes les parties."
+    },
+    {
+      "id": "cre-016",
+      "input": {
+        "candidate": { "name": "Lucie Favre", "email": "lucie.favre@claranet.fr" },
+        "mission": { "title": "Architecte Cloud AWS", "client": "OVHcloud" },
+        "last_contact": "InMail il y a 5 jours. Situation urgente (mission critique côté client).",
+        "days_since_last_contact": 5,
+        "context": "Mission très urgente. Première relance mais délai serré."
+      },
+      "expected_output": {
+        "recipient_name": "Lucie Favre",
+        "recipient_email": "lucie.favre@claranet.fr",
+        "subject": "OVHcloud — Architecte Cloud — urgent",
+        "body": "Bonjour Lucie,\n\nJe reviens vers vous rapidement — la mission Cloud Architect chez OVHcloud est en cours de finalisation et le client est pressé.\n\nSi cela vous intéresse, un échange de 15 minutes cette semaine serait idéal. Si ce n'est pas le bon timing, dites-le moi — je comprends tout à fait.\n\nBonne journée,\nSophie",
+        "days_since_last_contact": 5,
+        "urgency_level": "high",
+        "if_no_response_action": "Appel téléphonique direct si pas de réponse sous 24h — mission trop urgente pour attendre. Clôturer cette piste si l'appel reste sans réponse."
+      },
+      "rating": 5,
+      "notes": "Relance urgente à 5 jours. Illustre l'adaptation de la fréquence de relance à l'urgence de la mission — dans un contexte critique, 5 jours est déjà long. La mention de l'urgence est explicite et honnête."
+    },
+    {
+      "id": "cre-017",
+      "input": {
+        "candidate": { "name": "Ines Sorel", "email": "ines.sorel@backmarket.com" },
+        "mission": { "title": "Développeur React Native", "client": "Mano (ONG)" },
+        "last_contact": "InMail il y a 9 jours. Candidat bien payé chez Back Market — le salaire ONG est un frein probable.",
+        "days_since_last_contact": 9,
+        "context": "Profil bien rémunéré dans une entreprise à impact. La contrainte salariale est explicite."
+      },
+      "expected_output": {
+        "recipient_name": "Ines Sorel",
+        "recipient_email": "ines.sorel@backmarket.com",
+        "subject": "Mano — Tech for Good — votre avis sur la mission",
+        "body": "Bonjour Ines,\n\nJe reviens vous solliciter une dernière fois sur la mission React Native chez Mano.\n\nJe sais que le package est différent de ce que vous avez aujourd'hui chez Back Market. Mais si l'impact de la mission (technologie au service des personnes sans-abri) vous touche, l'échange vaut la peine.\n\nSi ce n'est pas le bon moment ou si la question salariale est rédhibitoire, un simple mot me suffit.\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 9,
+        "urgency_level": "low",
+        "if_no_response_action": "Clôturer la piste ONG pour Ines Sorel. La contrainte salariale est probablement bloquante. Garder en base pour des opportunités mieux rémunérées à impact."
+      },
+      "rating": 5,
+      "notes": "Relance sur profil avec contrainte salariale ONG. Illustre l'honnêteté sur la contrainte (ne pas la nier) et le recadrage sur la valeur non-monétaire (impact). Le 'simple mot me suffit' est un signal de respect du temps du candidat."
+    },
+    {
+      "id": "cre-018",
+      "input": {
+        "candidate": { "name": "Morgane Petit", "email": "morgane.petit@startup.io" },
+        "mission": { "title": "Développeur Salesforce", "client": "Danone" },
+        "last_contact": "Mise en relation via contact réseau il y a 7 jours. Le contact intermédiaire a dit qu'elle était 'intéressée' mais aucun email de sa part.",
+        "days_since_last_contact": 7,
+        "context": "Mise en relation via réseau — la candide avait exprimé son intérêt via le contact commun."
+      },
+      "expected_output": {
+        "recipient_name": "Morgane Petit",
+        "recipient_email": "morgane.petit@startup.io",
+        "subject": "Suite à notre mise en relation — Salesforce chez Danone",
+        "body": "Bonjour Morgane,\n\nNos contacts communs m'avaient indiqué que cette opportunité Salesforce chez Danone avait retenu votre intérêt — je voulais vous recontacter directement pour en discuter.\n\nN'hésitez pas à me proposer un créneau cette semaine — même 20 minutes permettraient d'échanger sur le poste et de voir si ça vaut la peine d'aller plus loin.\n\nÀ bientôt,\nSophie",
+        "days_since_last_contact": 7,
+        "urgency_level": "medium",
+        "if_no_response_action": "Contacter à nouveau le contact intermédiaire pour vérifier si Morgane a changé d'avis. Ne pas relancer Morgane directement une troisième fois."
+      },
+      "rating": 5,
+      "notes": "Relance après mise en relation réseau. Illustre la référence discrète à l'intérêt exprimé via le contact commun ('m'avaient indiqué') sans mettre la candidate en porte-à-faux. La proposition d'un créneau est spécifique et actionnable."
+    },
+    {
+      "id": "cre-019",
+      "input": {
+        "candidate": { "name": "Damien Vial", "email": "damien.vial@distributeur-medical.fr" },
+        "mission": { "title": "Attaché Commercial Pharmaceutique", "client": "Servier" },
+        "last_contact": "A postulé sur Indeed il y a 15 jours. Pas de réponse à notre mail de qualification.",
+        "days_since_last_contact": 15,
+        "context": "Candidature active mais ancienne. Le candidat a peut-être trouvé autre chose."
+      },
+      "expected_output": {
+        "recipient_name": "Damien Vial",
+        "recipient_email": "damien.vial@distributeur-medical.fr",
+        "subject": "Votre candidature chez Servier — êtes-vous toujours disponible ?",
+        "body": "Bonjour Damien,\n\nVous avez candidaté au poste d'Attaché Commercial Pharmaceutique chez Servier il y a environ deux semaines.\n\nJe voulais vérifier si vous êtes toujours en recherche active — le processus de recrutement chez Servier avance et je dois confirmer votre intérêt.\n\nUne réponse rapide me suffit.\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 15,
+        "urgency_level": "medium",
+        "if_no_response_action": "Clôturer la candidature de Damien Vial si pas de réponse sous 48h. 15 jours sans réponse sur une candidature active est un signal fort de désengagement ou de situation résolue."
+      },
+      "rating": 5,
+      "notes": "Relance sur candidature ancienne (15 jours). Le ton est direct — à 15 jours d'une candidature active, il est légitime de demander une confirmation d'intérêt. La formulation 'êtes-vous toujours disponible' laisse une sortie propre au candidat."
+    },
+    {
+      "id": "cre-020",
+      "input": {
+        "candidate": { "name": "Christine Mallet", "email": "christine.mallet@ineos.com" },
+        "mission": { "title": "Formateur Sécurité Industrielle", "client": "Groupe Chimie Rouen" },
+        "last_contact": "Premier InMail il y a 19 jours. Candidat de réserve — le profil prioritaire (Patrick Renaud) a été préféré mais le client cherche un deuxième profil.",
+        "days_since_last_contact": 19,
+        "context": "Profil de réserve réactivé. Situation interne a évolué (besoin de 2 formateurs)."
+      },
+      "expected_output": {
+        "recipient_name": "Christine Mallet",
+        "recipient_email": "christine.mallet@ineos.com",
+        "subject": "Formation HSE Rouen — le besoin a évolué",
+        "body": "Bonjour Christine,\n\nJe vous avais contactée il y a quelques semaines concernant une mission de formation HSE en Normandie.\n\nLe projet a évolué — notre client recherche maintenant deux profils plutôt qu'un. Votre expérience opérationnelle en sécurité industrielle chez Ineos m'a de nouveau fait penser à vous.\n\nSeriez-vous disponible pour un échange cette semaine ?\n\nBien à vous,\nSophie",
+        "days_since_last_contact": 19,
+        "urgency_level": "medium",
+        "if_no_response_action": "Relancer une fois par téléphone si pas de réponse sous 5 jours."
+      },
+      "rating": 5,
+      "notes": "Relance d'un profil de réserve avec justification honnête de la réactivation (besoin évolué). Illustre la transparence sur l'évolution de la situation — ne pas prétendre que c'est le profil idéal initial, mais expliquer pourquoi on revient vers lui maintenant."
+    }
+  ]
+}

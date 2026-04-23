@@ -1,0 +1,94 @@
+import type { Unsubscribe } from "../../types/unsubscribe.js";
+import type { ThreadMessage } from "../../types/message.js";
+import type { ThreadRuntimeCore } from "../../runtime/interfaces/thread-runtime-core.js";
+import { BaseSubscribable } from "../../subscribable/subscribable.js";
+export declare class ReadonlyThreadRuntimeCore extends BaseSubscribable implements ThreadRuntimeCore {
+    private _messages;
+    get messages(): readonly ThreadMessage[];
+    setMessages(messages: readonly ThreadMessage[]): void;
+    getMessageById(messageId: string): {
+        parentId: string | null;
+        message: ThreadMessage;
+        index: number;
+    } | undefined;
+    getBranches(messageId: string): string[];
+    switchToBranch(): void;
+    append(): void;
+    startRun(): void;
+    resumeRun(): void;
+    cancelRun(): void;
+    addToolResult(): void;
+    resumeToolCall(): void;
+    speak(): void;
+    stopSpeaking(): void;
+    connectVoice(): void;
+    disconnectVoice(): void;
+    getVoiceVolume: () => number;
+    subscribeVoiceVolume: () => Unsubscribe;
+    muteVoice(): void;
+    unmuteVoice(): void;
+    submitFeedback(): void;
+    getModelContext(): {};
+    exportExternalState(): void;
+    importExternalState(): void;
+    unstable_loadExternalState(): void;
+    composer: {
+        attachments: never[];
+        attachmentAccept: string;
+        addAttachment(): Promise<never>;
+        removeAttachment(): Promise<never>;
+        isEditing: false;
+        canCancel: boolean;
+        isEmpty: boolean;
+        text: string;
+        setText(): never;
+        role: "user";
+        setRole(): never;
+        runConfig: {};
+        setRunConfig(): never;
+        reset(): Promise<void>;
+        clearAttachments(): Promise<void>;
+        send(): never;
+        cancel(): void;
+        dictation: undefined;
+        startDictation(): never;
+        stopDictation(): void;
+        quote: undefined;
+        setQuote(): never;
+        subscribe(): () => void;
+        unstable_on(): () => void;
+    };
+    getEditComposer(): undefined;
+    beginEdit(): void;
+    speech: undefined;
+    voice: undefined;
+    capabilities: {
+        readonly switchToBranch: false;
+        readonly switchBranchDuringRun: false;
+        readonly edit: false;
+        readonly reload: false;
+        readonly cancel: false;
+        readonly unstable_copy: false;
+        readonly speech: false;
+        readonly dictation: false;
+        readonly voice: false;
+        readonly attachments: false;
+        readonly feedback: false;
+        readonly queue: false;
+    };
+    isDisabled: boolean;
+    isLoading: boolean;
+    state: null;
+    suggestions: never[];
+    extras: undefined;
+    import(): void;
+    export(): {
+        messages: {
+            message: ThreadMessage;
+            parentId: string | null;
+        }[];
+    };
+    reset(): void;
+    unstable_on(): Unsubscribe;
+}
+//# sourceMappingURL=ReadonlyThreadRuntimeCore.d.ts.map

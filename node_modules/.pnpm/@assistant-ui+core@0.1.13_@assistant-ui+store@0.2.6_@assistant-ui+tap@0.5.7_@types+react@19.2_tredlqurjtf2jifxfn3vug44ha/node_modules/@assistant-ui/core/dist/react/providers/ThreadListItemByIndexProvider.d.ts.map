@@ -1,0 +1,1 @@
+{"version":3,"file":"ThreadListItemByIndexProvider.d.ts","sourceRoot":"","sources":["../../../src/react/providers/ThreadListItemByIndexProvider.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,EAAE,KAAK,iBAAiB,EAAE,MAAM,OAAO,CAAC;AAGxD,eAAO,MAAM,6BAA6B,EAAE,EAAE,CAC5C,iBAAiB,CAAC;IAChB,KAAK,EAAE,MAAM,CAAC;IACd,QAAQ,EAAE,OAAO,CAAC;CACnB,CAAC,CAWH,CAAC"}

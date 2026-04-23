@@ -1,0 +1,2 @@
+export type { ThreadListItemRuntimePath, ThreadRuntimePath, MessageRuntimePath, MessagePartRuntimePath, AttachmentRuntimePath, ComposerRuntimePath, } from "@assistant-ui/core";
+//# sourceMappingURL=RuntimePathTypes.d.ts.map

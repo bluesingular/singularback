@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Singular — Vibe Coding Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital@1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --surface: #161B22;
+  --surface2: #21262D;
+  --border: #30363D;
+  --border2: #3D4451;
+  --text: #E6EDF3;
+  --text2: #8B949E;
+  --muted: #484F58;
+  --green: #3FB950;
+  --green-light: rgba(63,185,80,.1);
+  --green-border: rgba(63,185,80,.3);
+  --blue: #58A6FF;
+  --blue-light: rgba(88,166,255,.1);
+  --blue-border: rgba(88,166,255,.3);
+  --purple: #BC8CFF;
+  --purple-light: rgba(188,140,255,.1);
+  --purple-border: rgba(188,140,255,.3);
+  --amber: #D29922;
+  --amber-light: rgba(210,153,34,.1);
+  --red: #F85149;
+  --red-light: rgba(248,81,73,.1);
+  --done-bg: rgba(63,185,80,.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  padding: 48px 48px 40px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(13,17,23,.95);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.header-sep { color: var(--muted); }
+
+.header-title {
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.progress-bar-mini {
+  width: 80px;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+}
+
+.progress-fill-mini {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+  width: 0%;
+  transition: width .5s ease;
+}
+
+/* ── LAYOUT ── */
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 89px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  position: sticky;
+  top: 89px;
+  height: calc(100vh - 89px);
+  overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+
+.sb-section {
+  padding: 0 16px;
+  margin-bottom: 8px;
+}
+
+.sb-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  color: var(--muted);
+  padding: 8px 8px 6px;
+  display: block;
+}
+
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+  color: var(--text2);
+  font-size: 12px;
+}
+
+.sb-item:hover { background: var(--surface); color: var(--text); }
+.sb-item.active { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-border); }
+
+.sb-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sb-check {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.sb-check.checked {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.sb-week-total {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── CONTENT ── */
+.content {
+  padding: 32px 40px 80px;
+  overflow-y: auto;
+}
+
+/* ── MINDSET BANNER ── */
+.mindset-banner {
+  background: linear-gradient(135deg, rgba(88,166,255,.08), rgba(188,140,255,.06));
+  border: 1px solid var(--blue-border);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mindset-banner::before {
+  content: '>';
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 80px;
+  color: rgba(88,166,255,.05);
+  font-family: 'JetBrains Mono', monospace;
+  pointer-events: none;
+}
+
+.mb-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+
+.mb-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.mb-body {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+.mb-body strong { color: var(--text); }
+
+/* ── SETUP SECTION ── */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-sub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.code-header {
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.code-lang {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.code-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.code-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.code-body {
+  padding: 16px 20px;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+}
+
+.code-body .c { color: var(--muted); font-style: italic; }
+.code-body .k { color: var(--purple); }
+.code-body .s { color: var(--green); }
+.code-body .v { color: var(--blue); }
+.code-body .cmd { color: var(--green); }
+.code-body .flag { color: var(--amber); }
+
+/* ── PROMPT BLOCK (Claude Code prompts) ── */
+.prompt-block {
+  background: rgba(63,185,80,.05);
+  border: 1px solid var(--green-border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+.prompt-block:hover { border-color: var(--green); }
+
+.prompt-header {
+  padding: 10px 16px;
+  background: rgba(63,185,80,.08);
+  border-bottom: 1px solid var(--green-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--green);
+}
+
+.prompt-header .ph-icon { font-size: 14px; }
+
+.prompt-copy {
+  margin-left: auto;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  opacity: .6;
+  transition: opacity .15s;
+}
+
+.prompt-block:hover .prompt-copy { opacity: 1; }
+
+.prompt-body {
+  padding: 16px 20px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.prompt-body .ph { color: var(--amber); font-style: italic; }
+
+/* ── WEEK CARD ── */
+.week-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+
+.week-card:hover { border-color: var(--border2); }
+.week-card.done { border-color: var(--green-border); background: var(--done-bg); }
+
+.week-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.week-card.done .week-header { border-color: var(--green-border); }
+
+.week-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2);
+  min-width: 60px;
+}
+
+.week-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+
+.week-card.done .week-title { color: var(--green); }
+
+.week-badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+.badge-infra { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+.badge-backend { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-border); }
+.badge-data { background: var(--amber-light); color: var(--amber); border: 1px solid rgba(210,153,34,.3); }
+.badge-ui { background: rgba(240,100,100,.1); color: #F08070; border: 1px solid rgba(240,100,100,.3); }
+.badge-ship { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+
+.week-est {
+  font-size: 11px;
+  color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.week-toggle {
+  font-size: 11px;
+  color: var(--muted);
+  transition: transform .2s;
+}
+
+.week-body {
+  padding: 20px;
+  display: none;
+}
+
+.week-body.open { display: block; }
+
+/* ── MODULE TASK ── */
+.module-task {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  align-items: flex-start;
+}
+
+.module-task:last-child { border-bottom: none; }
+
+.mt-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all .15s;
+  margin-top: 1px;
+}
+
+.mt-check:hover { border-color: var(--green); }
+.mt-check.checked { background: var(--green); border-color: var(--green); color: white; }
+
+.mt-content { flex: 1; }
+
+.mt-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.mt-check.checked ~ .mt-content .mt-title { text-decoration: line-through; color: var(--muted); }
+
+.mt-desc {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.mt-test {
+  font-size: 10px;
+  color: var(--green);
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mt-files {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mt-file {
+  font-size: 10px;
+  color: var(--purple);
+  background: var(--purple-light);
+  border: 1px solid var(--purple-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* ── RULES SECTION ── */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.rule-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  border-left: 3px solid var(--red);
+}
+
+.rule-card.green { border-left-color: var(--green); }
+.rule-card.blue { border-left-color: var(--blue); }
+.rule-card.amber { border-left-color: var(--amber); }
+
+.rc-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.rc-body { font-size: 11px; color: var(--text2); line-height: 1.6; }
+.rc-body code { color: var(--purple); background: var(--purple-light); padding: 1px 4px; border-radius: 3px; }
+
+/* ── RHYTHM SECTION ── */
+.rhythm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.rhythm-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.rhythm-period {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rhythm-item {
+  font-size: 11px;
+  color: var(--text2);
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.rhythm-item:last-child { border-bottom: none; }
+.rhythm-item::before { content: '▸'; color: var(--muted); flex-shrink: 0; }
+
+/* ── TRAPS ── */
+.traps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.trap-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.trap-icon { font-size: 18px; flex-shrink: 0; }
+.trap-title { font-size: 12px; font-weight: 600; color: var(--red); margin-bottom: 4px; }
+.trap-body { font-size: 11px; color: var(--text2); line-height: 1.6; }
+.trap-body strong { color: var(--text); }
+.trap-fix { margin-top: 6px; font-size: 11px; color: var(--green); }
+.trap-fix::before { content: '→ Fix: '; }
+
+/* ── TOOLING ── */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  transition: border-color .15s;
+}
+
+.tool-card:hover { border-color: var(--border2); }
+
+.tool-emoji { font-size: 20px; margin-bottom: 10px; }
+.tool-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.tool-purpose { font-size: 11px; color: var(--text2); line-height: 1.5; }
+.tool-install { margin-top: 10px; font-size: 10px; color: var(--green); font-family: 'JetBrains Mono', monospace; }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 32px 0;
+}
+
+/* ── PILL TAG ── */
+.tag { display: inline-block; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; padding: 2px 8px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+.tag-m { background: var(--purple-light); color: var(--purple); }
+.tag-d { background: var(--blue-light); color: var(--blue); }
+
+/* ── COPY TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--green);
+  color: #000;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all .3s;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">Singular</div>
+    <div class="header-sep">/</div>
+    <div class="header-title">Vibe Coding Plan — 8 weeks to MVP</div>
+    <div class="header-right">
+      <div class="progress-pill">
+        <span id="done-count">0</span>/<span id="total-count">0</span> modules
+        <div class="progress-bar-mini">
+          <div class="progress-fill-mini" id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-section">
+    <span class="sb-label">Overview</span>
+    <a href="#mindset" class="sb-item"><div class="sb-dot" style="background:var(--blue)"></div>The mindset</a>
+    <a href="#setup" class="sb-item"><div class="sb-dot" style="background:var(--purple)"></div>Environment setup</a>
+    <a href="#tooling" class="sb-item"><div class="sb-dot" style="background:var(--amber)"></div>Tooling</a>
+    <a href="#rules" class="sb-item"><div class="sb-dot" style="background:var(--red)"></div>Hard rules</a>
+    <a href="#rhythm" class="sb-item"><div class="sb-dot" style="background:var(--green)"></div>Daily rhythm</a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Week 1</span>
+    <a href="#w1" class="sb-item"><div class="sb-check" data-week="1" onclick="toggleWeek(event,1)"></div>M0 — Multi-tenancy<span class="sb-week-total">2d</span></a>
+    <a href="#w1" class="sb-item"><div class="sb-check" data-week="1b" onclick="toggleWeek(event,'1b')"></div>M1 — BullMQ EDA<span class="sb-week-total">3d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Week 2</span>
+    <a href="#w2" class="sb-item"><div class="sb-check" data-week="2" onclick="toggleWeek(event,2)"></div>M2 — Context pipeline<span class="sb-week-total">3d</span></a>
+    <a href="#w2" class="sb-item"><div class="sb-check" data-week="2b" onclick="toggleWeek(event,'2b')"></div>M3 — LLM router<span class="sb-week-total">2d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Week 3</span>
+    <a href="#w3" class="sb-item"><div class="sb-check" data-week="3" onclick="toggleWeek(event,3)"></div>M4 — Integration hub<span class="sb-week-total">3d</span></a>
+    <a href="#w3" class="sb-item"><div class="sb-check" data-week="3b" onclick="toggleWeek(event,'3b')"></div>M5 — Web browsing<span class="sb-week-total">2d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Week 4</span>
+    <a href="#w4" class="sb-item"><div class="sb-check" data-week="4" onclick="toggleWeek(event,4)"></div>M6 — Quality gates<span class="sb-week-total">3d</span></a>
+    <a href="#w4" class="sb-item"><div class="sb-check" data-week="4b" onclick="toggleWeek(event,'4b')"></div>M7 — Cost intel<span class="sb-week-total">2d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Week 5</span>
+    <a href="#w5" class="sb-item"><div class="sb-check" data-week="5" onclick="toggleWeek(event,5)"></div>M8 — Org memory<span class="sb-week-total">3d</span></a>
+    <a href="#w5" class="sb-item"><div class="sb-check" data-week="5b" onclick="toggleWeek(event,'5b')"></div>M9 — Self-learning<span class="sb-week-total">2d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Week 6</span>
+    <a href="#w6" class="sb-item"><div class="sb-check" data-week="6" onclick="toggleWeek(event,6)"></div>M10 — Pack installer<span class="sb-week-total">2d</span></a>
+    <a href="#w6" class="sb-item"><div class="sb-check" data-week="6b" onclick="toggleWeek(event,'6b')"></div>M11–13 — Console, Stripe, SSE<span class="sb-week-total">3d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">Weeks 7–8</span>
+    <a href="#w7" class="sb-item"><div class="sb-check" data-week="7" onclick="toggleWeek(event,7)"></div>Pack P1 — Recruitment<span class="sb-week-total">4d</span></a>
+    <a href="#w8" class="sb-item"><div class="sb-check" data-week="8" onclick="toggleWeek(event,8)"></div>React UI — All screens<span class="sb-week-total">6d</span></a>
+  </div>
+
+  <div class="sb-section">
+    <span class="sb-label">After ship</span>
+    <a href="#traps" class="sb-item"><div class="sb-dot" style="background:var(--red)"></div>Traps to avoid</a>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- MINDSET -->
+  <div id="mindset">
+    <div class="mindset-banner">
+      <div class="mb-label">// The vibe coding philosophy</div>
+      <div class="mb-title">You are the architect. Claude Code is the engineer.</div>
+      <p class="mb-body">
+        Vibe coding is not "let the AI do everything and hope." It's a specific workflow: <strong>you hold the architecture in your head, you write the prompts precisely, you review every output before it hits disk, and you run the tests before you move on.</strong> Claude Code will write 10,000 lines of correct TypeScript. Your job is knowing which 10,000 lines to ask for, in which order, and what "correct" means for each one.
+        <br><br>
+        The spec files are your weapon. Every prompt references TECHNICAL_SPEC_v2.md section and page. You never ask Claude Code to invent architecture — you ask it to implement what is already designed.
+      </p>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup">
+    <div class="section-title">⚙️ Day 0 — Environment setup</div>
+    <p class="section-sub">Do this before writing a single line of product code. Get this right once.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#FF5F57"></div>
+          <div class="code-dot" style="background:#FEBC2E"></div>
+          <div class="code-dot" style="background:#28C840"></div>
+        </div>
+        1. Fork Paperclip and set up repo
+        <span class="code-lang">bash</span>
+      </div>
+      <div class="code-body"><span class="c"># Fork then clone</span>
+<span class="cmd">git</span> clone https://github.com/YOUR_FORK/paperclip singular
+<span class="cmd">cd</span> singular
+<span class="cmd">git</span> remote rename origin paperclip-upstream
+
+<span class="c"># Drop your spec files at root</span>
+<span class="cmd">cp</span> ~/Downloads/CLAUDE.md .
+<span class="cmd">cp</span> ~/Downloads/TECHNICAL_SPEC_v2.md .
+<span class="cmd">cp</span> ~/Downloads/PLATFORM_FUNCTIONAL_SPEC_v4.md .
+<span class="cmd">cp</span> ~/Downloads/DOMAIN_PACK_SPEC.md .
+
+<span class="c"># Initial commit</span>
+<span class="cmd">git</span> add -A && git commit -m "feat: add spec files + begin Singular fork"</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#FF5F57"></div>
+          <div class="code-dot" style="background:#FEBC2E"></div>
+          <div class="code-dot" style="background:#28C840"></div>
+        </div>
+        2. Local services (Docker)
+        <span class="code-lang">bash</span>
+      </div>
+      <div class="code-body"><span class="c"># docker-compose.dev.yml — your local stack</span>
+<span class="k">version</span>: <span class="s">'3.9'</span>
+<span class="k">services</span>:
+  <span class="v">postgres</span>:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: singular_dev
+      POSTGRES_PASSWORD: dev
+    ports: [<span class="s">"5432:5432"</span>]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+
+  <span class="v">redis</span>:
+    image: redis:7-alpine
+    ports: [<span class="s">"6379:6379"</span>]
+
+<span class="cmd">docker</span> compose -f docker-compose.dev.yml up -d</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#FF5F57"></div>
+          <div class="code-dot" style="background:#FEBC2E"></div>
+          <div class="code-dot" style="background:#28C840"></div>
+        </div>
+        3. Environment variables
+        <span class="code-lang">.env</span>
+      </div>
+      <div class="code-body">DATABASE_URL=postgresql://postgres:dev@localhost:5432/singular_dev
+REDIS_URL=redis://localhost:6379
+
+<span class="c"># Get these before starting Week 1</span>
+OPENROUTER_API_KEY=sk-or-...
+FIRECRAWL_API_KEY=fc-...
+VAULT_MASTER_KEY=<span class="s">$(openssl rand -hex 32)</span>
+
+<span class="c"># Get these before Week 6</span>
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#FF5F57"></div>
+          <div class="code-dot" style="background:#FEBC2E"></div>
+          <div class="code-dot" style="background:#28C840"></div>
+        </div>
+        4. Install Claude Code
+        <span class="code-lang">bash</span>
+      </div>
+      <div class="code-body"><span class="cmd">npm</span> install -g @anthropic-ai/claude-code
+
+<span class="c"># Launch in your project root — it reads CLAUDE.md automatically</span>
+<span class="cmd">cd</span> singular && claude
+
+<span class="c"># Verify it reads the spec</span>
+<span class="flag">> What are the 8 hard rules from CLAUDE.md?</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TOOLING -->
+  <div id="tooling">
+    <div class="section-title">🛠 Tooling stack</div>
+    <p class="section-sub">Everything you need open simultaneously during a build session.</p>
+
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-emoji">🤖</div>
+        <div class="tool-name">Claude Code (terminal)</div>
+        <p class="tool-purpose">Primary coding agent. Reads CLAUDE.md on every session. Writes files to disk. Runs tests.</p>
+        <div class="tool-install">npm i -g @anthropic-ai/claude-code</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-emoji">💻</div>
+        <div class="tool-name">VS Code + Claude extension</div>
+        <p class="tool-purpose">Review diffs before approving. See file changes inline. Never merge blindly.</p>
+        <div class="tool-install">ext: claude-ai.claude-vscode</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-emoji">🐘</div>
+        <div class="tool-name">TablePlus / DBeaver</div>
+        <p class="tool-purpose">Inspect your PostgreSQL schema after every migration. Verify tables exist as spec'd.</p>
+        <div class="tool-install">tableplus.com (free tier ok)</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-emoji">📊</div>
+        <div class="tool-name">Bull Board</div>
+        <p class="tool-purpose">Monitor BullMQ queue depth, failed jobs, processing rates. Auto-setup in M1.</p>
+        <div class="tool-install">localhost:3000/internal/queues</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-emoji">⚡</div>
+        <div class="tool-name">HTTPie / Insomnia</div>
+        <p class="tool-purpose">Test every API route manually after Claude Code writes it. Don't trust tests alone.</p>
+        <div class="tool-install">insomnia.rest</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-emoji">📖</div>
+        <div class="tool-name">TECHNICAL_SPEC_v2.md open</div>
+        <p class="tool-purpose">Always visible in a second window. Every Claude Code prompt cites the spec section.</p>
+        <div class="tool-install">Split screen — spec + terminal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RULES -->
+  <div id="rules">
+    <div class="section-title">🚨 Rules of vibe coding</div>
+    <p class="section-sub">Non-negotiable. Violating any of these will cost you more time than it saves.</p>
+
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rc-title">Never prompt without a spec reference</div>
+        <p class="rc-body">Every Claude Code prompt must cite the spec. "Implement X" is bad. "Implement the HeartbeatWorker from TECHNICAL_SPEC_v2.md Module 1, section 'Workers'" is good. The spec is the ground truth — not Claude Code's interpretation.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rc-title">Review every file before it hits disk</div>
+        <p class="rc-body">Use Claude Code's review mode: <code>claude --review</code> shows diffs before writing. Never let Claude Code write directly without seeing what it's doing. One bad migration file can cost 2 hours to fix.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rc-title">One module per session, tests before next</div>
+        <p class="rc-body">Never start M2 until M1's tests pass. Context drift between modules is real — Claude Code loses coherence across long sessions. Fresh session per module, spec re-read at the start.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rc-title">The GDPR rule is a code test, not a review</div>
+        <p class="rc-body">After M3, run: <code>yarn test --grep "GDPR routing"</code> before every commit. This test must never fail. If Claude Code changes the router, it must not break GDPR enforcement.</p>
+      </div>
+      <div class="rule-card green">
+        <div class="rc-title">Commit after every passing module</div>
+        <p class="rc-body">One commit per module, passing tests, descriptive message. This gives you rollback points at every step. If M5 breaks something, <code>git revert</code> to M4 cleanly.</p>
+      </div>
+      <div class="rule-card green">
+        <div class="rc-title">Keep a session log</div>
+        <p class="rc-body">After each Claude Code session, write 3 lines in a DEVLOG.md: what was built, what test passed, what's next. This is your continuity across sessions — Claude Code doesn't remember, but you do.</p>
+      </div>
+      <div class="rule-card blue">
+        <div class="rc-title">Never let Claude Code touch migrations</div>
+        <p class="rc-body">Ask Claude Code to <em>generate</em> the migration SQL. You run <code>drizzle-kit push</code> yourself. Never let it auto-migrate in a session without your explicit review of every SQL statement.</p>
+      </div>
+      <div class="rule-card blue">
+        <div class="rc-title">Split large modules into 3 prompts</div>
+        <p class="rc-body">Module 4 (Integration Hub) is complex. Split into: (1) schema + vault, (2) MCP router, (3) webhook handler. Each prompt must be under ~500 words. Long prompts → context overflow → drift.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WEEK 1 -->
+  <div id="w1">
+    <div class="section-title">Week 1 — Foundation</div>
+    <p class="section-sub">The most important week. Nothing else works without this. Take your time.</p>
+
+    <div class="week-card" id="card-m0">
+      <div class="week-header" onclick="toggleCard('m0')">
+        <div class="week-num">M0</div>
+        <div class="week-title">Multi-tenancy foundation</div>
+        <span class="week-badge badge-infra">Infrastructure</span>
+        <span class="week-est">~2 days</span>
+        <span class="week-toggle" id="toggle-m0">▼</span>
+      </div>
+      <div class="week-body open" id="body-m0">
+
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header">
+            <span class="ph-icon">🤖</span>
+            Session 1 — Claude Code prompt (copy & paste)
+            <span class="prompt-copy">click to copy</span>
+          </div>
+          <div class="prompt-body">Read CLAUDE.md and TECHNICAL_SPEC_v2.md Module 0 in full before writing any code.
+
+Implement Module 0 — Multi-tenancy foundation:
+
+1. Create the database migration file `migrations/0001_multi_tenancy_foundation.sql` with the exact SQL from the spec (companies, users, company_members, sessions tables, plus ALTER TABLE statements for existing Paperclip tables)
+
+2. Create `server/src/middleware/auth.ts` with the RequestContext interface and authMiddleware function
+
+3. Create `server/src/routes/auth.ts` with the 6 auth routes (/me, /switch, /login, /logout, /google, /google/callback)
+
+Show me the migration file first for review before writing anything else.</div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Migration 0001 reviewed and applied</div>
+            <div class="mt-desc">Open TablePlus and verify: companies, users, company_members, sessions tables exist. Check that agents table now has company_id FK column.</div>
+            <div class="mt-test">✓ Test: SELECT * FROM companies LIMIT 1; — should return empty table</div>
+            <div class="mt-files"><span class="mt-file">migrations/0001_*.sql</span></div>
+          </div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Auth middleware injects companyId on every request</div>
+            <div class="mt-desc">Test with Insomnia: call any /api/v1/ route without a JWT — should get 401. Call with valid JWT for user belonging to company — should get 200 with companyId in context.</div>
+            <div class="mt-test">✓ Test: yarn test --grep "auth middleware"</div>
+            <div class="mt-files"><span class="mt-file">src/middleware/auth.ts</span></div>
+          </div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Company switcher works — data isolated</div>
+            <div class="mt-desc">Create 2 test companies, 1 test user member of both. Switch between companies via /api/v1/auth/switch. Verify that agent queries from Company A return nothing when logged in as Company B.</div>
+            <div class="mt-test">✓ Test: user sees only their company's data after switch</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="week-card" id="card-m1">
+      <div class="week-header" onclick="toggleCard('m1')">
+        <div class="week-num">M1</div>
+        <div class="week-title">BullMQ EDA — Replace the polling scheduler</div>
+        <span class="week-badge badge-infra">Infrastructure</span>
+        <span class="week-est">~3 days</span>
+        <span class="week-toggle" id="toggle-m1">▼</span>
+      </div>
+      <div class="week-body open" id="body-m1">
+
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header">
+            <span class="ph-icon">🤖</span>
+            Session 2 — Claude Code prompt
+            <span class="prompt-copy">click to copy</span>
+          </div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 1 in full.
+
+Implement Module 1 — BullMQ EDA:
+
+1. `yarn add bullmq ioredis @bull-board/api @bull-board/express`
+2. Create `server/src/queue/redis.ts` — ioredis connections (main + blocking duplicate)
+3. Create `server/src/queue/jobs.ts` — all Zod job schemas (HeartbeatJob, EmailReceivedJob, TaskApprovedJob, WebhookReceivedJob, MemoryExtractionJob, SkillImprovementJob)
+4. Create `server/src/queue/queues.ts` — agentQueue, backgroundQueue, systemQueue with default options
+5. Create `server/src/queue/emit.ts` — type-safe emit API (heartbeat, emailReceived, taskApproved, webhookReceived, extractMemory, improveSkill, scheduleMonthlyReset)
+
+Do NOT implement the workers yet. Show me emit.ts before writing it.</div>
+        </div>
+
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header">
+            <span class="ph-icon">🤖</span>
+            Session 3 — Workers + scheduler
+            <span class="prompt-copy">click to copy</span>
+          </div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 1 — Workers section.
+
+Now implement the workers:
+1. `server/src/workers/heartbeat.worker.ts` — replaces Paperclip's setInterval polling loop. Must be idempotent (jobId deduplication).
+2. `server/src/workers/emailReceived.worker.ts`
+3. `server/src/workers/taskApproved.worker.ts`
+4. `server/src/queue/scheduler.ts` — bootstrapScheduler() seeds all active agents
+5. `server/src/routes/monitoring.ts` — Bull Board at /internal/queues
+6. Update server entry point to: (a) call bootstrapScheduler(), (b) start all workers, (c) REMOVE any existing setInterval polling loop from Paperclip
+
+Show me the diff of the Paperclip scheduler removal before writing.</div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Polling loop removed, BullMQ scheduler active</div>
+            <div class="mt-desc">Search codebase for setInterval — should return 0 results in server/src/ (except keepalive pings). Open Bull Board at localhost:3000/internal/queues — should show 3 queues.</div>
+            <div class="mt-test">✓ Test: grep -r "setInterval" server/src/ — returns 0 results</div>
+          </div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Heartbeat is idempotent</div>
+            <div class="mt-desc">Manually enqueue the same heartbeat job twice for the same agentId. Verify only 1 task is created (not 2) due to jobId deduplication.</div>
+            <div class="mt-test">✓ Test: yarn test --grep "heartbeat job is idempotent"</div>
+          </div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Task approval triggers immediate execution</div>
+            <div class="mt-desc">Approve a task via the API. Verify the agent heartbeat fires within 2 seconds (not at next scheduled cycle).</div>
+            <div class="mt-test">✓ Test: approval → heartbeat latency &lt; 2000ms</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WEEKS 2-6 condensed -->
+  <div id="w2">
+    <div class="section-title">Week 2 — Intelligence layer</div>
+    <p class="section-sub">Context assembly + LLM routing. The quality of every agent output depends on these two modules.</p>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m2')">
+        <div class="week-num">M2</div>
+        <div class="week-title">Context assembly pipeline</div>
+        <span class="week-badge badge-backend">Backend</span>
+        <span class="week-est">~3 days</span>
+        <span class="week-toggle" id="toggle-m2">▶</span>
+      </div>
+      <div class="week-body" id="body-m2">
+
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M2<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 2 — Context Assembly Pipeline in full.
+
+Implement in this order:
+1. Migration 0002_company_dna.sql
+2. `server/src/context/dna.ts` — getDnaFull() and getDnaCompressed()
+3. `server/src/context/memory.ts` — retrieveMemory() with pgvector cosine similarity query and weighted re-ranking
+4. `server/src/context/assembler.ts` — assembleContext() with all 6 layers and TOKEN_BUDGETS constant
+
+Critical invariant: the currentTask layer in assembleContext() must NEVER be truncated regardless of budget. Add a runtime assertion that throws if this invariant is violated.
+
+Show me the TOKEN_BUDGETS object and the compression logic before writing assembler.ts.</div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">T1 context stays under 7,000 tokens</div>
+            <div class="mt-test">✓ Test: yarn test --grep "context assembly"</div>
+          </div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Task content never truncated — assertion fires if violated</div>
+            <div class="mt-test">✓ Test: yarn test --grep "task context never truncated"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m3')">
+        <div class="week-num">M3</div>
+        <div class="week-title">LLM router — T0→T3 + GDPR enforcement</div>
+        <span class="week-badge badge-backend">Backend</span>
+        <span class="week-est">~2 days</span>
+        <span class="week-toggle" id="toggle-m3">▶</span>
+      </div>
+      <div class="week-body" id="body-m3">
+
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M3<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 3 — LLM Router in full.
+
+Implement:
+1. `server/src/skills/parser.ts` — parseSkill() using gray-matter, returns ParsedSkill interface
+2. `server/src/llm/router.ts` — MODEL_REGISTRY, routeModel() with GDPR hard rule
+3. `server/src/llm/openrouter.ts` — callLLM() with token usage tracking
+
+The GDPR rule is a hard code invariant: if skill.gdprRequired is true, routeModel() must throw an error if the resolved model contains "deepseek" or is not a Mistral EU model. This must be enforced as a runtime check, not just documentation.
+
+Write the GDPR test first as a failing test, then make it pass.</div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">GDPR routing test passes — DeepSeek never used for personal data</div>
+            <div class="mt-test">✓ Test: yarn test --grep "GDPR routing"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKS 3-6 as collapsed cards -->
+  <div id="w3" style="margin-top:32px">
+    <div class="section-title">Week 3 — Integrations</div>
+    <p class="section-sub">MCP router, credential vault, web browsing. Everything that connects the platform to the outside world.</p>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m4')">
+        <div class="week-num">M4</div>
+        <div class="week-title">Integration Hub — vault + MCP + webhooks</div>
+        <span class="week-badge badge-backend">Backend</span>
+        <span class="week-est">~3 days</span>
+        <span class="week-toggle" id="toggle-m4">▶</span>
+      </div>
+      <div class="week-body" id="body-m4">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session A — Schema + vault<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 4 — Integration Hub, sections: Database migrations and Credential vault only.
+
+1. Create migration 0003_integration_hub.sql
+2. Create `server/src/integrations/vault.ts` — encryptCredential() and decryptCredential() using AES-256-GCM with per-company HKDF key derivation from VAULT_MASTER_KEY env var
+
+The vault master key must never touch the database. Show me the HKDF key derivation before writing.</div>
+        </div>
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session B — MCP Router<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 4 — MCP Router section.
+
+Implement `server/src/integrations/mcp.ts` — MCPRouter class with callTool() method that:
+- Checks agent permission
+- Decrypts token from vault
+- Refreshes OAuth if expired
+- Executes the MCP call server-side
+- Logs every call to tool_call_log table (audit trail)
+
+The LLM must never receive the raw API token — enforce this with a comment + lint rule.</div>
+        </div>
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session C — Webhook ingress<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 4 — Inbound webhook handler section.
+
+Implement `server/src/routes/webhooks.ts`:
+- POST /webhooks/:companyId/:agentSlug
+- Acknowledge immediately (res.json before processing)
+- Validate HMAC signature
+- Store in webhook_events table
+- Call emit.webhookReceived()
+
+Test: send a fake webhook with wrong signature — should log warning but still return 200 (acknowledge first).</div>
+        </div>
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Credentials encrypted at rest — DB contains only ciphertext</div>
+            <div class="mt-test">✓ Test: credentials encrypted in DB; decrypts correctly with vault key</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m5')">
+        <div class="week-num">M5</div>
+        <div class="week-title">Web browsing — Firecrawl + Jina fallback</div>
+        <span class="week-badge badge-backend">Backend</span>
+        <span class="week-est">~2 days</span>
+        <span class="week-toggle" id="toggle-m5">▶</span>
+      </div>
+      <div class="week-body" id="body-m5">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M5<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 5 — Web Browsing Tool in full.
+yarn add @mendable/firecrawl-js
+
+Implement `server/src/tools/webBrowse.ts`:
+- webBrowse() function with Firecrawl primary + Jina Reader fallback
+- Permission check: throw ForbiddenError if skill.webAccess !== true
+- Domain whitelist check for restricted scope
+- GDPR flag for personal data content
+- Log every URL to tool_call_log (AI Act requirement)
+
+Test: call webBrowse() for a skill without web_access: true — must throw. Call for allowed skill — must return markdown content.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="w4" style="margin-top:32px">
+    <div class="section-title">Week 4 — Safety & cost</div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m6')">
+        <div class="week-num">M6</div>
+        <div class="week-title">Quality gates + immutable audit trail</div>
+        <span class="week-badge badge-backend">Backend</span>
+        <span class="week-est">~3 days</span>
+        <span class="week-toggle" id="toggle-m6">▶</span>
+      </div>
+      <div class="week-body" id="body-m6">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M6<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 6 — Quality Gates in full.
+
+1. Migration 0004_quality_gates.sql — include the database-level RULE statements that prevent UPDATE and DELETE on audit_entries. This immutability is an AI Act requirement.
+2. `server/src/gates/engine.ts` — runGates() and all 4 gate checkers (volume_limit, recipient_whitelist, budget_limit, content_forbidden)
+3. Escalation path: blocked action → create approval_requests record → notifyOperatorSSE()
+
+Write the immutability test first: try to DELETE from audit_entries — should fail at DB level, not application level.</div>
+        </div>
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Audit trail is immutable at DB level</div>
+            <div class="mt-test">✓ Test: yarn test --grep "audit immutable"</div>
+          </div>
+        </div>
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Volume limit blocks at 50 emails/day</div>
+            <div class="mt-test">✓ Test: yarn test --grep "volume limit"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m7')">
+        <div class="week-num">M7</div>
+        <div class="week-title">Cost intelligence — micro-euro precision</div>
+        <span class="week-badge badge-data">Data</span>
+        <span class="week-est">~2 days</span>
+        <span class="week-toggle" id="toggle-m7">▶</span>
+      </div>
+      <div class="week-body" id="body-m7">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M7<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 7 — Cost Intelligence in full.
+
+1. Migration 0005_cost_intelligence.sql including the materialized view
+2. `server/src/costs/service.ts` — recordUsage() with MODEL_COSTS table and micro-euro precision, checkBudgetBeforeCall() hard stop, checkT3Cap()
+3. Register the monthly cost reset as a BullMQ cron job via emit.scheduleMonthlyReset()
+
+Important: costs stored in micro-euros (integers), never floats. Test that (0.0017 * 1000000) is stored as integer 1700, not 1699.9999999.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="w5" style="margin-top:32px">
+    <div class="section-title">Week 5 — Memory & learning</div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m8')">
+        <div class="week-num">M8</div>
+        <div class="week-title">Org memory — pgvector retrieval</div>
+        <span class="week-badge badge-data">Data</span>
+        <span class="week-est">~3 days</span>
+        <span class="week-toggle" id="toggle-m8">▶</span>
+      </div>
+      <div class="week-body" id="body-m8">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M8<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 8 — Org Memory in full.
+
+1. Migration 0006_org_memory.sql — include CREATE EXTENSION IF NOT EXISTS vector and ivfflat index
+2. `server/src/memory/retrieval.ts` — retrieveMemory() with the exact weighted pgvector SQL query from the spec (relevance × importance × recency decay)
+3. `server/src/workers/memoryExtraction.worker.ts` — BullMQ worker for memory.extract jobs, runs after task completion
+
+Verify pgvector is available: SELECT * FROM pg_extension WHERE extname = 'vector' should return a row.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m9')">
+        <div class="week-num">M9</div>
+        <div class="week-title">Self-learning — skill versioning + Tier A/B autonomy</div>
+        <span class="week-badge badge-data">Data</span>
+        <span class="week-est">~2 days</span>
+        <span class="week-toggle" id="toggle-m9">▶</span>
+      </div>
+      <div class="week-body" id="body-m9">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Claude Code prompt — M9<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 9 — Self-learning in full.
+
+1. Migration 0007_skill_versioning.sql
+2. `server/src/improvement/analyser.ts` — analyseSkillPerformance() and generateImprovement()
+3. `server/src/improvement/activator.ts` — activateImprovement() with 6 safety invariants and Tier A/B routing
+
+The Tier A test must pass before any other improvement logic: if skill.autonomyTier === 'A', activateImprovement() must create a pending proposal record, never auto-activate. Test this invariant explicitly.</div>
+        </div>
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Tier A skill never auto-activates</div>
+            <div class="mt-test">✓ Test: yarn test --grep "Tier A skill requires operator approval"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="w6" style="margin-top:32px">
+    <div class="section-title">Week 6 — Shipping infrastructure</div>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('m10')">
+        <div class="week-num">M10–13</div>
+        <div class="week-title">Pack installer · Console · Stripe · SSE</div>
+        <span class="week-badge badge-ship">Ship</span>
+        <span class="week-est">~5 days</span>
+        <span class="week-toggle" id="toggle-m10">▶</span>
+      </div>
+      <div class="week-body" id="body-m10">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session — Pack installer<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Module 10 — Pack Installer in full.
+
+Implement `server/src/packs/installer.ts`:
+- installPack() function wrapping all 7 steps in a single Drizzle ORM transaction
+- If any step throws, the entire transaction rolls back — the customer must never see a partial state
+- Template variable interpolation for Company DNA ({company_name}, {sector}, etc.)
+- Heartbeat seeded 5 minutes after install (not immediately)
+
+Test: manually break step 4 — verify steps 1-3 are fully rolled back in the DB.</div>
+        </div>
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session — Stripe + SSE<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read TECHNICAL_SPEC_v2.md Modules 12 and 13.
+
+1. Migration 0008_billing.sql
+2. `server/src/routes/stripe.ts` — idempotent Stripe webhook handler. First action on every webhook: check if stripeEventId already exists in billing_events — if yes, return 200 immediately without processing.
+3. `server/src/realtime/sse.ts` — per-company SSE connection map, notifyOperatorSSE(), 30s keepalive ping
+
+Test: send the same Stripe webhook event ID twice — verify it's processed exactly once.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="w7" style="margin-top:32px">
+    <div class="section-title">Week 7 — Pack P1 (Recruitment)</div>
+    <p class="section-sub">Build the first domain pack. This is the product that your first 10 design partners will use.</p>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('p1')">
+        <div class="week-num">P1</div>
+        <div class="week-title">Recruitment agency pack — all 8 skills</div>
+        <span class="week-badge badge-ship">Ship</span>
+        <span class="week-est">~4 days</span>
+        <span class="week-toggle" id="toggle-p1">▶</span>
+      </div>
+      <div class="week-body" id="body-p1">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session — Pack structure<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read DOMAIN_PACK_SPEC.md in full. Read TECHNICAL_SPEC_v2.md Module 10 Pack manifest schema.
+
+Create the full Pack P1 directory structure at `packs/p1-recruitment/`:
+- pack.json with all 5 agents and their configurations
+- onboarding.json with the 7 wizard questions and their variable mappings
+- company-dna.json template with {company_name}, {specialisation}, {zone_geo}, {client_type} placeholders
+- goals.json with 1 starter goal
+- quality-gates.json with 3 gates (French employment law, batch limit, email tone)
+- integrations.json with Gmail (required), LinkedIn, Notion, Google Calendar
+
+Show me pack.json before creating any other files.</div>
+        </div>
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session — The 8 SKILL.md files<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read DOMAIN_PACK_SPEC.md skills section and PLATFORM_FUNCTIONAL_SPEC_v4.md Pack P1 entry.
+
+Create all 8 SKILL.md files for Pack P1 at `packs/p1-recruitment/skills/`:
+1. qualification-cv — tier: 1, gdpr_required: true, web_access: false
+2. job-posting-writer — tier: 1, gdpr_required: false, web_access: false
+3. candidate-sourcing — tier: 2, gdpr_required: false, web_access: true (LinkedIn scraping)
+4. candidate-follow-up — tier: 1, gdpr_required: true, web_access: false
+5. candidate-re-engagement — tier: 1, gdpr_required: true, web_access: false
+6. client-email — tier: 1, gdpr_required: false, web_access: false
+7. weekly-client-report — tier: 2, gdpr_required: false, web_access: false
+8. market-intelligence — tier: 2, gdpr_required: false, web_access: true
+
+Each SKILL.md must start with YAML frontmatter. Each body must be in French and reference {company_name}, {specialisation} variables.</div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">20-minute test passes</div>
+            <div class="mt-desc">Ask a non-technical person (friend, partner) to complete the full Pack P1 wizard from account creation to first heartbeat. Time them. Must be under 20 real minutes. If they fail, the pack is not ready.</div>
+            <div class="mt-test">✓ Test: non-technical user completes in &lt; 20min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="w8" style="margin-top:32px">
+    <div class="section-title">Week 8 — React UI</div>
+    <p class="section-sub">Build all 7 screens. Reference PLATFORM_FUNCTIONAL_SPEC_v4.md sections 5 and 6 for every screen.</p>
+
+    <div class="week-card">
+      <div class="week-header" onclick="toggleCard('ui')">
+        <div class="week-num">UI</div>
+        <div class="week-title">All 7 screens — business language throughout</div>
+        <span class="week-badge badge-ui">Frontend</span>
+        <span class="week-est">~6 days</span>
+        <span class="week-toggle" id="toggle-ui">▶</span>
+      </div>
+      <div class="week-body" id="body-ui">
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session — Design system setup<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v4.md Section 5 — UI Philosophy and Design System in full.
+
+Set up the React UI at `ui/src/`:
+1. Install: tailwindcss, shadcn/ui, lucide-react, react-query, google fonts (Playfair Display, DM Sans)
+2. Create `ui/src/design-system/tokens.css` with all CSS variables from the spec (--bg: #FAFAF8, --green: #1A9E68, etc.)
+3. Create base components: Card, Badge (status), AgentAvatar, TaskTag, UsageGauge, ApprovalCard
+4. Create SSE hook: useCompanyEvents() that subscribes to /api/v1/events/:companyId
+
+The design language rule: NEVER display technical terms to the user. "Heartbeat" → "Working hours". "Token" → never visible. "Agent" → employee first name. Enforce with an ESLint custom rule if possible.</div>
+        </div>
+        <div class="prompt-block" onclick="copyPrompt(this)">
+          <div class="prompt-header"><span class="ph-icon">🤖</span>Session — Dashboard screen<span class="prompt-copy">click to copy</span></div>
+          <div class="prompt-body">Read PLATFORM_FUNCTIONAL_SPEC_v4.md Section 6.1 — Home Dashboard.
+
+Build `ui/src/pages/Dashboard.tsx`:
+- Escalation banner (only shown when approvals pending, never shown empty)
+- Header with greeting, date, weekend summary sentence, usage gauge
+- Two-column layout: activity feed (left) + team status (right)
+- Primary goal progress bar
+- ROI this month summary
+
+All copy is in French. Agent statuses use: "Travaille" / "En pause" / "Besoin de vous" / "Erreur"
+Team status uses real-time SSE data from useCompanyEvents().
+Activity feed items come from /api/v1/audit?limit=5&companyId=:id</div>
+        </div>
+
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">All 7 screens load in &lt; 2 seconds</div>
+            <div class="mt-test">✓ Test: Lighthouse performance score &gt; 80 on all pages</div>
+          </div>
+        </div>
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Zero technical terms visible in any screen</div>
+            <div class="mt-desc">Do a UI review: search all .tsx files for: "token", "heartbeat", "adapter", "embedding", "pgvector", "BullMQ". Any hit in user-facing copy is a bug.</div>
+            <div class="mt-test">✓ Test: grep -r "heartbeat\|token\|adapter" ui/src/pages/ — 0 results</div>
+          </div>
+        </div>
+        <div class="module-task">
+          <div class="mt-check" onclick="toggleCheck(this)"></div>
+          <div class="mt-content">
+            <div class="mt-title">Approval flow works on mobile (iPhone 14)</div>
+            <div class="mt-desc">Open in Chrome DevTools mobile view (390px width). Approval cards must have full-width Approve/Reject buttons. No horizontal scroll anywhere.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RHYTHM -->
+  <div id="rhythm">
+    <div class="section-title">⏱ Daily & weekly rhythm</div>
+    <p class="section-sub">This is the operational cadence that keeps vibe coding productive and non-chaotic.</p>
+
+    <div class="rhythm-grid">
+      <div class="rhythm-card">
+        <div class="rhythm-period">Every morning</div>
+        <div class="rhythm-item">Read DEVLOG.md — what did you last build?</div>
+        <div class="rhythm-item">Fresh Claude Code session — it reads CLAUDE.md fresh</div>
+        <div class="rhythm-item">One module = one session = one focus</div>
+        <div class="rhythm-item">Prompt → review diff → approve → run tests</div>
+      </div>
+      <div class="rhythm-card">
+        <div class="rhythm-period">End of every session</div>
+        <div class="rhythm-item">All tests green before committing</div>
+        <div class="rhythm-item">git commit -m "feat(m{N}): {what was built}"</div>
+        <div class="rhythm-item">Update DEVLOG.md: built / test passed / next</div>
+        <div class="rhythm-item">Close Claude Code — fresh start tomorrow</div>
+      </div>
+      <div class="rhythm-card">
+        <div class="rhythm-period">End of every week</div>
+        <div class="rhythm-item">Smoke test the full user flow end-to-end</div>
+        <div class="rhythm-item">Check Bull Board — any stuck/failed jobs?</div>
+        <div class="rhythm-item">Check TablePlus — schema matches spec?</div>
+        <div class="rhythm-item">Talk to 1 potential customer — validate direction</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TRAPS -->
+  <div id="traps">
+    <div class="section-title">💀 Traps that will cost you days</div>
+    <p class="section-sub">Every one of these has happened to someone building this kind of system.</p>
+
+    <div class="traps-list">
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Asking Claude Code to "just fix it" without spec reference</div>
+          <p class="trap-body">When a test fails, the temptation is to paste the error and say "fix this". Claude Code will fix it in a way that violates the spec. <strong>Always say: "Fix this bug while respecting TECHNICAL_SPEC_v2.md Module N constraints."</strong></p>
+          <div class="trap-fix">Always reference the spec even for bugfixes</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Running migrations without reviewing the SQL</div>
+          <p class="trap-body">Claude Code might generate a migration that drops a column, changes a type, or adds a constraint that breaks existing data. <strong>Every migration SQL must be read line by line before running drizzle-kit push.</strong></p>
+          <div class="trap-fix">Read every SQL statement in every migration file before executing</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Long Claude Code sessions (context drift)</div>
+          <p class="trap-body">After 2+ hours in a session, Claude Code starts making choices that contradict earlier decisions. The context window fills and it "forgets" constraints. <strong>Maximum 90 minutes per session. Fresh session for each new module.</strong></p>
+          <div class="trap-fix">1 module = 1 session. Never cross module boundaries in one session.</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Skipping the idempotency tests for BullMQ workers</div>
+          <p class="trap-body">BullMQ delivers at-least-once. If your heartbeat worker isn't idempotent, you'll get duplicate tasks, duplicate emails, duplicate memory entries. This corruption is hard to clean up at scale. <strong>Idempotency tests before every worker ships.</strong></p>
+          <div class="trap-fix">Write the idempotency test first, then implement the worker</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Building UI before the API is tested</div>
+          <p class="trap-body">The UI depends on 9 API endpoints. If those endpoints change shape, the UI breaks. <strong>Every API route must be tested with Insomnia before building the UI component that consumes it.</strong></p>
+          <div class="trap-fix">API contract first, UI second. Document the contract in a routes.md file.</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">The 20-minute test failure</div>
+          <p class="trap-body">You build the Pack P1 wizard, it works perfectly for you. You give it to a non-technical person and they spend 20 minutes on step 2. <strong>Run the 20-minute test with a real non-technical person before claiming Pack P1 is done.</strong> Every friction point they hit is a bug.</p>
+          <div class="trap-fix">Test with your least-technical friend/family member, not yourself</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+// ── Accordion ──
+function toggleCard(id) {
+  const body = document.getElementById('body-' + id)
+  const toggle = document.getElementById('toggle-' + id)
+  if (!body) return
+  const isOpen = body.classList.contains('open')
+  body.classList.toggle('open', !isOpen)
+  if (toggle) toggle.textContent = isOpen ? '▶' : '▼'
+}
+
+// ── Checkboxes ──
+let checks = {}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked')
+  if (el.classList.contains('checked')) el.textContent = '✓'
+  else el.textContent = ''
+  updateProgress()
+}
+
+function toggleWeek(e, week) {
+  e.preventDefault()
+  e.stopPropagation()
+  // Toggle week completion indicator in sidebar
+}
+
+function updateProgress() {
+  const all = document.querySelectorAll('.mt-check')
+  const done = document.querySelectorAll('.mt-check.checked')
+  document.getElementById('done-count').textContent = done.length
+  document.getElementById('total-count').textContent = all.length
+  const pct = all.length ? (done.length / all.length * 100) : 0
+  document.getElementById('progress-fill').style.width = pct + '%'
+}
+
+// ── Copy prompts ──
+function copyPrompt(el) {
+  const body = el.querySelector('.prompt-body')
+  if (!body) return
+  const text = body.innerText
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('toast')
+    toast.classList.add('show')
+    setTimeout(() => toast.classList.remove('show'), 2500)
+  })
+}
+
+// ── Init ──
+updateProgress()
+
+// Highlight active sidebar item on scroll
+window.addEventListener('scroll', () => {
+  const sections = ['mindset','setup','tooling','rules','rhythm','w1','w2','w3','w4','w5','w6','w7','w8','traps']
+  let current = ''
+  for (const id of sections) {
+    const el = document.getElementById(id)
+    if (el && el.getBoundingClientRect().top < 120) current = id
+  }
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import { useAui, AuiProvider, Derived } from "@assistant-ui/store";
+export const ThreadListItemByIndexProvider = ({ index, archived, children }) => {
+    const aui = useAui({
+        threadListItem: Derived({
+            source: "threads",
+            query: { type: "index", index, archived },
+            get: (aui) => aui.threads().item({ index, archived }),
+        }),
+    });
+    return _jsx(AuiProvider, { value: aui, children: children });
+};
+//# sourceMappingURL=ThreadListItemByIndexProvider.js.map

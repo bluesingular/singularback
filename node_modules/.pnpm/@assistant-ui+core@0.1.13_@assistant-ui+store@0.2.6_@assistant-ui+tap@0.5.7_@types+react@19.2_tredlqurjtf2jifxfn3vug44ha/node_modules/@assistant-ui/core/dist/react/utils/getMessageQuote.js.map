@@ -1,0 +1,1 @@
+{"version":3,"file":"getMessageQuote.js","sourceRoot":"","sources":["../../../src/react/utils/getMessageQuote.ts"],"names":[],"mappings":"AAQA,MAAM,CAAC,MAAM,eAAe,GAAG,CAC7B,KAAwB,EACD,EAAE;IACzB,MAAM,QAAQ,GAAG,KAAK,CAAC,OAAO,CAAC,QAAQ,CAAC;IACxC,IAAI,CAAC,QAAQ,IAAI,OAAO,QAAQ,KAAK,QAAQ;QAAE,OAAO,SAAS,CAAC;IAEhE,OAAQ,QAAiD,CAAC,MAAM,EAAE,KAErD,CAAC;AAChB,CAAC,CAAC"}

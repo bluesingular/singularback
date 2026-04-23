@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentis — P&L Agressif 3 ans</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0b0f0d;
+  --surface: #111614;
+  --border: rgba(255,255,255,0.07);
+  --green: #22c97f;
+  --green-dim: rgba(34,201,127,0.15);
+  --amber: #f0a030;
+  --amber-dim: rgba(240,160,48,0.12);
+  --red: #e24b4a;
+  --red-dim: rgba(226,75,74,0.12);
+  --blue: #4db8ff;
+  --blue-dim: rgba(77,184,255,0.1);
+  --text: #e8e4dc;
+  --muted: #5a6660;
+  --serif: 'Georgia', serif;
+  --mono: 'Menlo', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; font-size: 13px; -webkit-font-smoothing: antialiased; }
+
+/* ── HEADER ── */
+.header { padding: 32px 32px 0; border-bottom: 1px solid var(--border); }
+.header-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+.logo { font-family: var(--serif); font-size: 22px; color: var(--green); }
+.scenario-pills { display: flex; gap: 6px; }
+.spill { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 11px; cursor: pointer; transition: all .15s; color: var(--muted); }
+.spill.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.tabs { display: flex; gap: 0; }
+.tab { padding: 10px 20px; font-size: 12px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
+.tab.active { color: var(--text); border-bottom-color: var(--green); }
+.tab:hover { color: var(--text); }
+
+/* ── LAYOUT ── */
+.page { display: none; padding: 28px 32px; max-width: 1300px; }
+.page.active { display: block; }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 24px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.kpi-val { font-size: 22px; font-weight: 500; line-height: 1; margin-bottom: 3px; }
+.kpi-sub { font-size: 10px; color: var(--muted); }
+.kpi.green .kpi-val { color: var(--green); }
+.kpi.amber .kpi-val { color: var(--amber); }
+.kpi.blue  .kpi-val { color: var(--blue); }
+
+/* ── CHARTS ── */
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+.chart-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 220px; }
+.charts-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+
+/* ── TABLE ── */
+.tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.tbl-head { padding: 14px 20px; font-size: 11px; color: var(--muted); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+thead tr { background: rgba(255,255,255,0.02); }
+th { text-align: right; padding: 8px 12px; font-weight: 500; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+th:first-child { text-align: left; }
+td { text-align: right; padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #bbb; }
+td:first-child { text-align: left; color: var(--text); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+tr.milestone td { background: rgba(34,201,127,0.04); }
+tr.milestone td:first-child { color: var(--green); }
+.pos { color: var(--green) !important; }
+.neg { color: var(--red) !important; }
+.muted { color: var(--muted) !important; }
+.tag { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+.tag-v { background: var(--green-dim); color: var(--green); }
+.tag-viral { background: rgba(255,140,0,0.15); color: var(--amber); }
+.tag-hire { background: var(--blue-dim); color: var(--blue); }
+.tag-fnaim { background: rgba(127,119,221,0.15); color: #a39fe0; }
+
+/* ── ASSUMPTIONS ── */
+.assum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.assum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.assum-head { font-size: 11px; font-weight: 500; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+.assum-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.assum-row:last-child { border-bottom: none; }
+.al { color: var(--muted); }
+.av { font-weight: 500; color: var(--text); }
+.av.g { color: var(--green); }
+.av.a { color: var(--amber); }
+.av.r { color: var(--red); }
+
+/* ── MILESTONES ── */
+.milestones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.ms-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.ms-time { font-size: 10px; color: var(--green); margin-bottom: 6px; font-family: var(--mono); }
+.ms-title { font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+.ms-metric { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.ms-metric strong { color: var(--text); }
+
+/* ── RUNWAY BAR ── */
+.runway { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.runway-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.runway-bars { display: flex; gap: 3px; align-items: flex-end; height: 60px; }
+.rbar { flex: 1; border-radius: 3px 3px 0 0; transition: height .3s; cursor: pointer; position: relative; }
+.rbar-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; color: var(--muted); white-space: nowrap; }
+
+/* ── INVESTOR BOX ── */
+.investor-box { background: var(--green-dim); border: 1px solid rgba(34,201,127,0.3); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.investor-box h3 { font-size: 13px; color: var(--green); margin-bottom: 12px; }
+.investor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.inv-item { }
+.inv-label { font-size: 10px; color: rgba(34,201,127,0.7); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.inv-val { font-size: 18px; font-weight: 500; color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="logo">Agentis</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">P&L Agressif — Scénario Founder-Bootstrapped → Series A</div>
+    </div>
+    <div class="scenario-pills">
+      <div class="spill active" onclick="setScenario('aggressive')">Agressif ×1.0</div>
+      <div class="spill" onclick="setScenario('base')">Base ×0.75</div>
+      <div class="spill" onclick="setScenario('conservative')">Conservateur ×0.55</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showPage('overview')">Vue d'ensemble</div>
+    <div class="tab" onclick="showPage('y1')">Année 1 — Mensuel</div>
+    <div class="tab" onclick="showPage('y23')">Années 2–3 — Trimestriel</div>
+    <div class="tab" onclick="showPage('assumptions')">Hypothèses</div>
+    <div class="tab" onclick="showPage('investor')">Deck investisseur</div>
+  </div>
+</div>
+
+<!-- ══ PAGE: OVERVIEW ══ -->
+<div class="page active" id="page-overview">
+
+  <div class="kpi-strip">
+    <div class="kpi green"><div class="kpi-label">ARR fin Année 1</div><div class="kpi-val">€1.27M</div><div class="kpi-sub">198 clients actifs</div></div>
+    <div class="kpi green"><div class="kpi-label">ARR fin Année 2</div><div class="kpi-val">€5.49M</div><div class="kpi-sub">887 clients actifs</div></div>
+    <div class="kpi green"><div class="kpi-label">ARR fin Année 3</div><div class="kpi-val">€19.4M</div><div class="kpi-sub">2 836 clients actifs</div></div>
+    <div class="kpi amber"><div class="kpi-label">Gross Margin</div><div class="kpi-val">92%+</div><div class="kpi-sub">Dès M4, stable</div></div>
+    <div class="kpi blue"><div class="kpi-label">EBITDA Y1 cumulé</div><div class="kpi-val">€363k</div><div class="kpi-sub">Positif dès M3</div></div>
+    <div class="kpi blue"><div class="kpi-label">CAC moyen</div><div class="kpi-val">€0</div><div class="kpi-sub">Growth hacking only</div></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">ARR — Trajectoire 36 mois</div>
+      <div class="chart-wrap"><canvas id="chartARR"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Mix revenus — Répartition Y1</div>
+      <div class="chart-wrap"><canvas id="chartMix"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-3">
+    <div class="chart-card">
+      <div class="chart-title">MRR mensuel Y1</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="chartMRR"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Gross Margin % — évolution</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="chartGM"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">EBITDA cumulé (€k)</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="chartEBITDA"></canvas></div>
+    </div>
+  </div>
+
+  <div class="milestones">
+    <div class="ms-card">
+      <div class="ms-time">M3 — Semaine 10</div>
+      <div class="ms-title">🎬 Vidéo virale recrutement</div>
+      <div class="ms-metric">MRR : <strong>€3 685</strong><br>Clients : <strong>16</strong><br>EBITDA : <strong style="color:var(--green)">+€1 211</strong></div>
+    </div>
+    <div class="ms-card">
+      <div class="ms-time">M6 — Partenariat FNAIM</div>
+      <div class="ms-title">🏠 Activation vertical immobilier</div>
+      <div class="ms-metric">MRR : <strong>€23 393</strong><br>Clients : <strong>56</strong><br>EBITDA : <strong style="color:var(--green)">+€15 138</strong></div>
+    </div>
+    <div class="ms-card">
+      <div class="ms-time">M11 — Mois 11</div>
+      <div class="ms-title">🚀 ARR > €1M</div>
+      <div class="ms-metric">MRR : <strong>€88 763</strong><br>Clients : <strong>168</strong><br>EBITDA : <strong style="color:var(--green)">+€72 898/mois</strong></div>
+    </div>
+    <div class="ms-card">
+      <div class="ms-time">Q3 Y2 — Mois 21</div>
+      <div class="ms-title">💎 Series A ready</div>
+      <div class="ms-metric">ARR : <strong>€3.96M</strong><br>Clients : <strong>638</strong><br>EBITDA : <strong style="color:var(--green)">87% margin</strong></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ PAGE: Y1 ══ -->
+<div class="page" id="page-y1">
+  <div class="kpi-strip" style="grid-template-columns:repeat(5,1fr)">
+    <div class="kpi green"><div class="kpi-label">Revenue Y1</div><div class="kpi-val">€464k</div><div class="kpi-sub">Cumul 12 mois</div></div>
+    <div class="kpi green"><div class="kpi-label">EBITDA Y1</div><div class="kpi-val">€363k</div><div class="kpi-sub">78% du revenue</div></div>
+    <div class="kpi amber"><div class="kpi-label">Break-even</div><div class="kpi-val">M3</div><div class="kpi-sub">Mois 3 = premier profit</div></div>
+    <div class="kpi blue"><div class="kpi-label">MRR fin Y1</div><div class="kpi-val">€106k</div><div class="kpi-sub">↑ 150× vs M1</div></div>
+    <div class="kpi blue"><div class="kpi-label">Clients fin Y1</div><div class="kpi-val">198</div><div class="kpi-sub">3 verticaux actifs</div></div>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><span>P&L mensuel Année 1 — détail complet</span><span style="color:var(--green);font-size:10px">Scénario agressif</span></div>
+    <table>
+      <thead><tr>
+        <th>Mois</th><th>Nouveaux</th><th>Total clients</th>
+        <th>MRR</th><th>Revenue</th><th>COGS</th><th>Gross Profit</th><th>GM%</th>
+        <th>OpEx</th><th>EBITDA</th><th>EBITDA%</th>
+      </tr></thead>
+      <tbody id="tbody-y1"></tbody>
+    </table>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><span>Détail OpEx Année 1</span></div>
+    <table>
+      <thead><tr><th>Mois</th><th>Fondateurs</th><th>CS Hire</th><th>Outils</th><th>Legal/AI Act</th><th>Événements</th><th>Total OpEx</th></tr></thead>
+      <tbody id="tbody-opex"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PAGE: Y2-3 ══ -->
+<div class="page" id="page-y23">
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi green"><div class="kpi-label">Revenue Y2</div><div class="kpi-val">€3.17M</div><div class="kpi-sub">+583% vs Y1</div></div>
+    <div class="kpi green"><div class="kpi-label">Revenue Y3</div><div class="kpi-val">€12.2M</div><div class="kpi-sub">+284% vs Y2</div></div>
+    <div class="kpi amber"><div class="kpi-label">EBITDA Y2</div><div class="kpi-val">€2.75M</div><div class="kpi-sub">86.6% margin</div></div>
+    <div class="kpi amber"><div class="kpi-label">EBITDA Y3</div><div class="kpi-val">€10.9M</div><div class="kpi-sub">89% margin</div></div>
+  </div>
+  <div class="tbl-wrap" style="margin-bottom:16px">
+    <div class="tbl-head"><span>P&L trimestriel Année 2</span></div>
+    <table>
+      <thead><tr><th>Trimestre</th><th>Nouveaux clients</th><th>Total clients</th><th>ARR</th><th>Revenue</th><th>COGS</th><th>Gross Profit</th><th>GM%</th><th>OpEx</th><th>EBITDA</th><th>EBITDA%</th></tr></thead>
+      <tbody id="tbody-y2"></tbody>
+    </table>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><span>P&L trimestriel Année 3</span></div>
+    <table>
+      <thead><tr><th>Trimestre</th><th>Nouveaux clients</th><th>Total clients</th><th>ARR</th><th>Revenue</th><th>COGS</th><th>Gross Profit</th><th>GM%</th><th>OpEx</th><th>EBITDA</th><th>EBITDA%</th></tr></thead>
+      <tbody id="tbody-y3"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PAGE: ASSUMPTIONS ══ -->
+<div class="page" id="page-assumptions">
+  <div class="assum-grid">
+    <div class="assum-card">
+      <div class="assum-head">💰 Pricing</div>
+      <div class="assum-row"><span class="al">Solo</span><span class="av">€149/mois</span></div>
+      <div class="assum-row"><span class="al">Growth (principal)</span><span class="av g">€399/mois</span></div>
+      <div class="assum-row"><span class="al">Pro</span><span class="av">€799/mois</span></div>
+      <div class="assum-row"><span class="al">Enterprise (avg)</span><span class="av">€2 200/mois</span></div>
+      <div class="assum-row"><span class="al">Remise design partners M1-3</span><span class="av a">-40%</span></div>
+      <div class="assum-row"><span class="al">Expansion MRR/mois</span><span class="av">+0.5%</span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">📊 Mix clients (fin Y1)</div>
+      <div class="assum-row"><span class="al">Solo</span><span class="av muted">8%</span></div>
+      <div class="assum-row"><span class="al">Growth</span><span class="av">60%</span></div>
+      <div class="assum-row"><span class="al">Pro</span><span class="av g">28%</span></div>
+      <div class="assum-row"><span class="al">Enterprise</span><span class="av a">4%</span></div>
+      <div class="assum-row"><span class="al">ARPU blended fin Y1</span><span class="av g">~€480</span></div>
+      <div class="assum-row"><span class="al">ARPU blended fin Y3</span><span class="av g">~€540</span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">📉 Churn</div>
+      <div class="assum-row"><span class="al">Churn M1-M3 (design)</span><span class="av a">5%/mois</span></div>
+      <div class="assum-row"><span class="al">Churn M4-M6</span><span class="av a">3-4%/mois</span></div>
+      <div class="assum-row"><span class="al">Churn M7-M12</span><span class="av">1.2-1.8%/mois</span></div>
+      <div class="assum-row"><span class="al">Churn Y2 (moat actif)</span><span class="av g">1%/mois = 11.4%/an</span></div>
+      <div class="assum-row"><span class="al">Churn Y3 (org memory)</span><span class="av g">0.8%/mois = 9.2%/an</span></div>
+      <div class="assum-row"><span class="al">NRR cible Y2-Y3</span><span class="av g">>115%</span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">💸 COGS</div>
+      <div class="assum-row"><span class="al">LLM (OpenRouter routing)</span><span class="av g">~3.5% revenue</span></div>
+      <div class="assum-row"><span class="al">Stripe (paiement)</span><span class="av">1.4% revenue</span></div>
+      <div class="assum-row"><span class="al">Hosting (Render/Railway)</span><span class="av">€400→€2k/mois</span></div>
+      <div class="assum-row"><span class="al">COGS total blended</span><span class="av g">5.5% → 3.8% (Y3)</span></div>
+      <div class="assum-row"><span class="al">Gross Margin Y1</span><span class="av g">92%+ (dès M4)</span></div>
+      <div class="assum-row"><span class="al">Gross Margin Y3</span><span class="av g">94.7%</span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">👥 Équipe</div>
+      <div class="assum-row"><span class="al">Fondateurs M1-5</span><span class="av a">Salaire €0</span></div>
+      <div class="assum-row"><span class="al">Fondateurs M6+</span><span class="av">€2k/mois chacun</span></div>
+      <div class="assum-row"><span class="al">1er CS (M9)</span><span class="av">€3k/mois</span></div>
+      <div class="assum-row"><span class="al">Dev hire (Q2 Y2)</span><span class="av">€5k/mois</span></div>
+      <div class="assum-row"><span class="al">Sales AE (Q1 Y3)</span><span class="av">€6k/mois</span></div>
+      <div class="assum-row"><span class="al">Équipe Y3 total</span><span class="av">8 personnes</span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">📣 Acquisition (CAC = €0)</div>
+      <div class="assum-row"><span class="al">Paid ads</span><span class="av r">Zéro</span></div>
+      <div class="assum-row"><span class="al">Vidéo virale recrutement</span><span class="av g">M3 → +14 clients M4</span></div>
+      <div class="assum-row"><span class="al">Partenariat FNAIM</span><span class="av g">M6 → +16 clients/mois</span></div>
+      <div class="assum-row"><span class="al">Vidéo virale immobilier</span><span class="av g">M7 → +20 clients/mois</span></div>
+      <div class="assum-row"><span class="al">Groupes Facebook/LinkedIn</span><span class="av">Continu</span></div>
+      <div class="assum-row"><span class="al">Référrals (€200/referral)</span><span class="av">~15% des nouveaux</span></div>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Sensibilité — impact d'une variation de churn sur l'ARR fin Y2</div>
+    <table style="width:100%">
+      <thead><tr><th>Churn mensuel Y2</th><th>Clients fin Y2</th><th>ARR fin Y2</th><th>Delta vs scénario agressif</th></tr></thead>
+      <tbody>
+        <tr><td>0.8%/mois (best case)</td><td>~1 020</td><td class="pos">€6.3M</td><td class="pos">+€815k</td></tr>
+        <tr class="milestone"><td>1.0%/mois (scénario agressif)</td><td>887</td><td class="pos">€5.49M</td><td>—</td></tr>
+        <tr><td>1.5%/mois (base)</td><td>~720</td><td>€4.1M</td><td class="neg">-€1.4M</td></tr>
+        <tr><td>2.5%/mois (conservateur)</td><td>~480</td><td>€2.7M</td><td class="neg">-€2.8M</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PAGE: INVESTOR ══ -->
+<div class="page" id="page-investor">
+  <div class="investor-box">
+    <h3>📊 Métriques pour deck investisseur — Série A (M18-24)</h3>
+    <div class="investor-grid">
+      <div class="inv-item"><div class="inv-label">ARR au moment du raise</div><div class="inv-val">€3-4M</div></div>
+      <div class="inv-item"><div class="inv-label">MoM growth</div><div class="inv-val">18-22%</div></div>
+      <div class="inv-item"><div class="inv-label">Gross Margin</div><div class="inv-val">93%+</div></div>
+      <div class="inv-item"><div class="inv-label">NRR</div><div class="inv-val">>115%</div></div>
+      <div class="inv-item"><div class="inv-label">CAC payback</div><div class="inv-val"><3 mois</div></div>
+      <div class="inv-item"><div class="inv-label">LTV:CAC</div><div class="inv-val">>20x</div></div>
+      <div class="inv-item"><div class="inv-label">Verticaux actifs</div><div class="inv-val">3</div></div>
+      <div class="inv-item"><div class="inv-label">Montant visé</div><div class="inv-val">€5-10M</div></div>
+    </div>
+  </div>
+  <div class="assum-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="assum-card" style="border-color:rgba(34,201,127,0.3)">
+      <div class="assum-head">Usage du capital Series A</div>
+      <div class="assum-row"><span class="al">Équipe commerciale (4 AE)</span><span class="av">€1.2M</span></div>
+      <div class="assum-row"><span class="al">Engineering (3 devs)</span><span class="av">€1.5M</span></div>
+      <div class="assum-row"><span class="al">Expansion EU (UK, DE)</span><span class="av">€800k</span></div>
+      <div class="assum-row"><span class="al">Build 3 nouveaux packs</span><span class="av">€400k</span></div>
+      <div class="assum-row"><span class="al">Infra self-hosted T1/T2</span><span class="av">€300k</span></div>
+      <div class="assum-row"><span class="al">Marketing & brand</span><span class="av">€500k</span></div>
+      <div class="assum-row"><span class="al">Réserve / fonds de roulement</span><span class="av a">€800k</span></div>
+      <div class="assum-row"><span class="al"><strong>Total</strong></span><span class="av g"><strong>€5.5M</strong></span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">Multiples valorisation SaaS 2026</div>
+      <div class="assum-row"><span class="al">Multiple ARR médian (Series A)</span><span class="av">8-12×</span></div>
+      <div class="assum-row"><span class="al">Pour Vertical SaaS (premium)</span><span class="av g">12-18×</span></div>
+      <div class="assum-row"><span class="al">Valorisation pre-money visée</span><span class="av g">€40-60M</span></div>
+      <div class="assum-row"><span class="al">Sur base ARR €4M × 12×</span><span class="av g">= €48M</span></div>
+      <div class="assum-row"><span class="al">Dilution fondateurs (15-20%)</span><span class="av a">€8-10M levés</span></div>
+      <div class="assum-row"><span class="al">Valorisation post-money</span><span class="av g">~€55-70M</span></div>
+    </div>
+    <div class="assum-card">
+      <div class="assum-head">Arguments différenciants pour VCs</div>
+      <div class="assum-row"><span class="al">CAC</span><span class="av g">€0 — growth hacking prouvé</span></div>
+      <div class="assum-row"><span class="al">Gross Margin</span><span class="av g">93%+ — rare en SaaS IA</span></div>
+      <div class="assum-row"><span class="al">Moat défendable</span><span class="av g">Org memory = données uniques</span></div>
+      <div class="assum-row"><span class="al">Réglementation</span><span class="av g">AI Act = barrière d'entrée US</span></div>
+      <div class="assum-row"><span class="al">Market size EU SMB IA</span><span class="av g">€50Md+ (Gartner 2026)</span></div>
+      <div class="assum-row"><span class="al">Bootstrapped to €1M ARR</span><span class="av g">Proof without dilution</span></div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><span>Comparables SaaS verticaux récents</span></div>
+    <table>
+      <thead><tr><th>Comparable</th><th>Vertical</th><th>ARR au Series A</th><th>Multiple</th><th>Valorisation</th><th>Analogie Agentis</th></tr></thead>
+      <tbody>
+        <tr><td>Veeva Systems (early)</td><td>Pharma SaaS</td><td>$8M</td><td>15×</td><td>$120M</td><td>Vertical SaaS dominant, moat data</td></tr>
+        <tr><td>Procore (early)</td><td>Construction</td><td>$5M</td><td>12×</td><td>$60M</td><td>Non-technique, ops-first</td></tr>
+        <tr><td>ServiceTitan</td><td>Services locaux</td><td>$7M</td><td>14×</td><td>$98M</td><td>PME non-tech, marché FR non capturé</td></tr>
+        <tr class="milestone"><td><strong>Agentis (projection)</strong></td><td><strong>Multi-vertical FR</strong></td><td><strong>€4M</strong></td><td><strong>12×</strong></td><td><strong>€48M</strong></td><td><strong>AI-native + AI Act = moat EU unique</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const DATA = {
+  y1: [{"month":1,"new_customers":3,"total_customers":3,"mrr":709,"arr":8510,"revenue":709,"cogs":489,"gross_profit":220,"gm_pct":31.1,"opex":1700,"ebitda":-1480,"ebitda_pct":-208.6,"llm_cost":39,"founder_sal":0,"cs_hire":0},{"month":2,"new_customers":5,"total_customers":8,"mrr":1859,"arr":22311,"revenue":1859,"cogs":608,"gross_profit":1251,"gm_pct":67.3,"opex":1700,"ebitda":-449,"ebitda_pct":-24.1,"llm_cost":102,"founder_sal":0,"cs_hire":0},{"month":3,"new_customers":8,"total_customers":16,"mrr":3685,"arr":44225,"revenue":3685,"cogs":774,"gross_profit":2911,"gm_pct":79.0,"opex":1700,"ebitda":1211,"ebitda_pct":32.9,"llm_cost":203,"founder_sal":0,"cs_hire":0},{"month":4,"new_customers":14,"total_customers":29,"mrr":10342,"arr":124099,"revenue":10342,"cogs":1274,"gross_profit":9068,"gm_pct":87.7,"opex":2000,"ebitda":7068,"ebitda_pct":68.3,"llm_cost":569,"founder_sal":0,"cs_hire":0},{"month":5,"new_customers":12,"total_customers":40,"mrr":15919,"arr":191028,"revenue":15919,"cogs":1698,"gross_profit":14221,"gm_pct":89.3,"opex":2000,"ebitda":12221,"ebitda_pct":76.8,"llm_cost":876,"founder_sal":0,"cs_hire":0},{"month":6,"new_customers":16,"total_customers":56,"mrr":23393,"arr":280710,"revenue":23393,"cogs":2254,"gross_profit":21138,"gm_pct":90.4,"opex":6000,"ebitda":15138,"ebitda_pct":64.7,"llm_cost":1287,"founder_sal":4000,"cs_hire":0},{"month":7,"new_customers":20,"total_customers":74,"mrr":34349,"arr":412190,"revenue":34349,"cogs":3050,"gross_profit":31299,"gm_pct":91.1,"opex":5600,"ebitda":25699,"ebitda_pct":74.8,"llm_cost":1889,"founder_sal":4000,"cs_hire":0},{"month":8,"new_customers":22,"total_customers":95,"mrr":46358,"arr":556299,"revenue":46358,"cogs":3919,"gross_profit":42440,"gm_pct":91.5,"opex":5600,"ebitda":36840,"ebitda_pct":79.5,"llm_cost":2550,"founder_sal":4000,"cs_hire":0},{"month":9,"new_customers":24,"total_customers":118,"mrr":59408,"arr":712891,"revenue":59408,"cogs":4859,"gross_profit":54548,"gm_pct":91.8,"opex":8900,"ebitda":45648,"ebitda_pct":76.8,"llm_cost":3267,"founder_sal":4000,"cs_hire":3000},{"month":10,"new_customers":26,"total_customers":142,"mrr":73512,"arr":882144,"revenue":73512,"cogs":5872,"gross_profit":67640,"gm_pct":92.0,"opex":8900,"ebitda":58740,"ebitda_pct":79.9,"llm_cost":4043,"founder_sal":4000,"cs_hire":3000},{"month":11,"new_customers":28,"total_customers":168,"mrr":88763,"arr":1065150,"revenue":88763,"cogs":6965,"gross_profit":81798,"gm_pct":92.2,"opex":8900,"ebitda":72898,"ebitda_pct":82.1,"llm_cost":4882,"founder_sal":4000,"cs_hire":3000},{"month":12,"new_customers":32,"total_customers":198,"mrr":106158,"arr":1273902,"revenue":106158,"cogs":8205,"gross_profit":97954,"gm_pct":92.3,"opex":8900,"ebitda":89054,"ebitda_pct":83.9,"llm_cost":5839,"founder_sal":4000,"cs_hire":3000}],
+  y2: [{"quarter":"Q1 Y2","customers":306,"new_customers":115,"mrr":160619,"arr":1927425,"revenue":424105,"cogs":26522,"gross_profit":397582,"gm_pct":93.7,"opex":44400,"ebitda":353182,"ebitda_pct":83.3},{"quarter":"Q2 Y2","customers":451,"new_customers":156,"mrr":234395,"arr":2812739,"revenue":625663,"cogs":39014,"gross_profit":586649,"gm_pct":93.8,"opex":59400,"ebitda":527249,"ebitda_pct":84.3},{"quarter":"Q3 Y2","customers":638,"new_customers":202,"mrr":329767,"arr":3957206,"revenue":889252,"cogs":55166,"gross_profit":834086,"gm_pct":93.8,"opex":63900,"ebitda":770186,"ebitda_pct":86.6},{"quarter":"Q4 Y2","customers":887,"new_customers":270,"mrr":457153,"arr":5485832,"revenue":1234633,"cogs":76143,"gross_profit":1158490,"gm_pct":93.8,"opex":63900,"ebitda":1094590,"ebitda_pct":88.7}],
+  y3: [{"quarter":"Q1 Y3","customers":1253,"new_customers":390,"mrr":670901,"arr":8050811,"revenue":1787881,"cogs":96570,"gross_profit":1691311,"gm_pct":94.6,"opex":171000,"ebitda":1520311,"ebitda_pct":85.0},{"quarter":"Q2 Y3","customers":1699,"new_customers":480,"mrr":934632,"arr":11215578,"revenue":2529024,"cogs":136009,"gross_profit":2393014,"gm_pct":94.6,"opex":171000,"ebitda":2222014,"ebitda_pct":87.9},{"quarter":"Q3 Y3","customers":2224,"new_customers":570,"mrr":1248645,"arr":14983739,"revenue":3420714,"cogs":183277,"gross_profit":3237437,"gm_pct":94.6,"opex":171000,"ebitda":3066437,"ebitda_pct":89.6},{"quarter":"Q4 Y3","customers":2836,"new_customers":670,"mrr":1618643,"arr":19423721,"revenue":4469257,"cogs":238701,"gross_profit":4230556,"gm_pct":94.7,"opex":171000,"ebitda":4059556,"ebitda_pct":90.8}]
+};
+
+const SCENARIO_MULT = { aggressive: 1.0, base: 0.75, conservative: 0.55 };
+let scenario = 'aggressive';
+
+// ── UTILS ──
+const fmt = (n) => n >= 1e6 ? '€' + (n/1e6).toFixed(2) + 'M' : n >= 1e3 ? '€' + Math.round(n/1e3) + 'k' : '€' + Math.round(n);
+const fmtFull = (n) => '€' + Math.round(n).toLocaleString('fr-FR');
+const pct = (n) => n.toFixed(1) + '%';
+const cls = (n) => n >= 0 ? 'pos' : 'neg';
+const MILESTONE_MONTHS = { 3: '🎬 Vidéo virale', 6: '🏠 FNAIM', 9: '👤 CS embauché', 11: '🚀 ARR>€1M' };
+const MILESTONE_Q = { 'Q1 Y2': '🌍 UK/DE', 'Q3 Y2': '💎 Series A ready', 'Q1 Y3': '🏦 Post Series A' };
+
+// ── TABLES ──
+function buildY1Table() {
+  const mult = SCENARIO_MULT[scenario];
+  const tb = document.getElementById('tbody-y1');
+  const to = document.getElementById('tbody-opex');
+  tb.innerHTML = '';
+  to.innerHTML = '';
+  DATA.y1.forEach(m => {
+    const rev = Math.round(m.revenue * mult);
+    const cogs = Math.round(m.cogs * mult);
+    const gp = rev - cogs;
+    const gmpct = rev > 0 ? (gp/rev*100).toFixed(1) : '0';
+    const opex = Math.round(m.opex * (mult < 1 ? 1 : 1)); // opex doesn't scale with revenue
+    const ebitda = gp - opex;
+    const epct = rev > 0 ? (ebitda/rev*100).toFixed(1) : '0';
+    const mil = MILESTONE_MONTHS[m.month];
+    const isM = !!mil;
+
+    const tag = m.month === 3 ? '<span class="tag tag-viral">Vidéo</span>' :
+                m.month === 6 ? '<span class="tag tag-fnaim">FNAIM</span>' :
+                m.month === 9 ? '<span class="tag tag-hire">CS hire</span>' : '';
+
+    tb.innerHTML += `<tr class="${isM ? 'milestone' : ''}">
+      <td>M${String(m.month).padStart(2,'0')}${tag}</td>
+      <td>+${Math.round(m.new_customers * mult)}</td>
+      <td>${Math.round(m.total_customers * mult)}</td>
+      <td>${fmtFull(m.mrr * mult)}</td>
+      <td>${fmtFull(rev)}</td>
+      <td class="muted">${fmtFull(cogs)}</td>
+      <td class="pos">${fmtFull(gp)}</td>
+      <td>${gmpct}%</td>
+      <td class="muted">${fmtFull(opex)}</td>
+      <td class="${cls(ebitda)}">${fmtFull(ebitda)}</td>
+      <td class="${cls(ebitda)}">${epct}%</td>
+    </tr>`;
+
+    // OpEx detail
+    const tools = 600, legal = m.month <= 6 ? 800 : 400;
+    const events = m.month <= 3 ? 0 : m.month <= 8 ? 300 : 600;
+    const misc = 300;
+    to.innerHTML += `<tr>
+      <td>M${String(m.month).padStart(2,'0')}</td>
+      <td>${fmtFull(m.founder_sal)}</td>
+      <td>${fmtFull(m.cs_hire)}</td>
+      <td>${fmtFull(tools)}</td>
+      <td>${fmtFull(legal)}</td>
+      <td>${fmtFull(events)}</td>
+      <td class="muted">${fmtFull(m.opex)}</td>
+    </tr>`;
+  });
+}
+
+function buildY2Table() {
+  const mult = SCENARIO_MULT[scenario];
+  const tb = document.getElementById('tbody-y2');
+  tb.innerHTML = '';
+  DATA.y2.forEach(q => {
+    const rev = Math.round(q.revenue * mult);
+    const cogs = Math.round(q.cogs * mult);
+    const gp = rev - cogs;
+    const gmpct = (gp/rev*100).toFixed(1);
+    const ebitda = Math.round(q.ebitda * mult);
+    const epct = (ebitda/rev*100).toFixed(1);
+    const mil = MILESTONE_Q[q.quarter] || '';
+    tb.innerHTML += `<tr class="${mil ? 'milestone' : ''}">
+      <td>${q.quarter} ${mil ? '<span class="tag tag-v">'+mil+'</span>' : ''}</td>
+      <td>+${Math.round(q.new_customers * mult)}</td>
+      <td>${Math.round(q.customers * mult)}</td>
+      <td>${fmt(q.arr * mult)}</td>
+      <td>${fmtFull(rev)}</td>
+      <td class="muted">${fmtFull(cogs)}</td>
+      <td class="pos">${fmtFull(gp)}</td>
+      <td>${gmpct}%</td>
+      <td class="muted">${fmtFull(q.opex)}</td>
+      <td class="pos">${fmtFull(ebitda)}</td>
+      <td class="pos">${epct}%</td>
+    </tr>`;
+  });
+}
+
+function buildY3Table() {
+  const mult = SCENARIO_MULT[scenario];
+  const tb = document.getElementById('tbody-y3');
+  tb.innerHTML = '';
+  DATA.y3.forEach(q => {
+    const rev = Math.round(q.revenue * mult);
+    const cogs = Math.round(q.cogs * mult);
+    const gp = rev - cogs;
+    const gmpct = (gp/rev*100).toFixed(1);
+    const ebitda = Math.round(q.ebitda * mult);
+    const epct = (ebitda/rev*100).toFixed(1);
+    const mil = MILESTONE_Q[q.quarter] || '';
+    tb.innerHTML += `<tr class="${mil ? 'milestone' : ''}">
+      <td>${q.quarter} ${mil ? '<span class="tag tag-v">'+mil+'</span>' : ''}</td>
+      <td>+${Math.round(q.new_customers * mult)}</td>
+      <td>${Math.round(q.customers * mult)}</td>
+      <td>${fmt(q.arr * mult)}</td>
+      <td>${fmtFull(rev)}</td>
+      <td class="muted">${fmtFull(cogs)}</td>
+      <td class="pos">${fmtFull(gp)}</td>
+      <td>${gmpct}%</td>
+      <td class="muted">${fmtFull(q.opex)}</td>
+      <td class="pos">${fmtFull(ebitda)}</td>
+      <td class="pos">${epct}%</td>
+    </tr>`;
+  });
+}
+
+// ── CHARTS ──
+let charts = {};
+function destroyCharts() { Object.values(charts).forEach(c => { if(c) c.destroy(); }); charts = {}; }
+
+const C = (id) => document.getElementById(id)?.getContext('2d');
+const GREEN = '#22c97f';
+const AMBER = '#f0a030';
+const BLUE = '#4db8ff';
+const RED = '#e24b4a';
+const GRID = 'rgba(255,255,255,0.05)';
+
+function buildCharts() {
+  destroyCharts();
+  const mult = SCENARIO_MULT[scenario];
+
+  // ARR 36m
+  const arrLabels = DATA.y1.map(m => `M${m.month}`)
+    .concat(DATA.y2.flatMap(q => [q.quarter,'','']))
+    .concat(DATA.y3.flatMap(q => [q.quarter,'','']));
+  const arrVals = DATA.y1.map(m => Math.round(m.arr * mult / 1000))
+    .concat(DATA.y2.flatMap(q => [Math.round(q.arr*mult/1000), null, null]))
+    .concat(DATA.y3.flatMap(q => [Math.round(q.arr*mult/1000), null, null]));
+
+  charts.arr = new Chart(C('chartARR'), {
+    type: 'line',
+    data: {
+      labels: DATA.y1.map(m=>`M${m.month}`).concat(DATA.y2.map(q=>q.quarter)).concat(DATA.y3.map(q=>q.quarter)),
+      datasets: [{
+        label: 'ARR (€k)',
+        data: DATA.y1.map(m=>Math.round(m.arr*mult/1000))
+          .concat(DATA.y2.map(q=>Math.round(q.arr*mult/1000)))
+          .concat(DATA.y3.map(q=>Math.round(q.arr*mult/1000))),
+        borderColor: GREEN,
+        backgroundColor: 'rgba(34,201,127,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: GREEN,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: GRID }, ticks: { color: '#555', maxTicksLimit: 10, font: { size: 10 } } },
+        y: { grid: { color: GRID }, ticks: { color: '#555', font: { size: 10 }, callback: v => '€'+v+'k' } }
+      }
+    }
+  });
+
+  // Mix Y1 pie
+  charts.mix = new Chart(C('chartMix'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Solo 8%', 'Growth 60%', 'Pro 28%', 'Enterprise 4%'],
+      datasets: [{ data: [8, 60, 28, 4], backgroundColor: ['#333', GREEN, AMBER, BLUE], borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#888', font: { size: 10 }, boxWidth: 10 } } }
+    }
+  });
+
+  // MRR bar
+  charts.mrr = new Chart(C('chartMRR'), {
+    type: 'bar',
+    data: {
+      labels: DATA.y1.map(m=>`M${m.month}`),
+      datasets: [{ label: 'MRR', data: DATA.y1.map(m=>Math.round(m.mrr*mult)), backgroundColor: GREEN, borderRadius: 3 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#555', font: { size: 9 } } },
+        y: { grid: { color: GRID }, ticks: { color: '#555', font: { size: 9 }, callback: v => '€'+Math.round(v/1000)+'k' } }
+      }
+    }
+  });
+
+  // GM% line
+  const allGM = DATA.y1.map(m=>m.gm_pct).concat(DATA.y2.map(q=>q.gm_pct)).concat(DATA.y3.map(q=>q.gm_pct));
+  const allLbl = DATA.y1.map(m=>`M${m.month}`).concat(DATA.y2.map(q=>q.quarter)).concat(DATA.y3.map(q=>q.quarter));
+  charts.gm = new Chart(C('chartGM'), {
+    type: 'line',
+    data: {
+      labels: allLbl,
+      datasets: [{ label: 'GM%', data: allGM, borderColor: AMBER, backgroundColor: 'rgba(240,160,48,0.06)', fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: AMBER }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: GRID }, ticks: { color: '#555', maxTicksLimit: 8, font: { size: 9 } } },
+        y: { min: 20, max: 100, grid: { color: GRID }, ticks: { color: '#555', font: { size: 9 }, callback: v => v+'%' } }
+      }
+    }
+  });
+
+  // EBITDA cumul
+  let cum = 0;
+  const cumulE = DATA.y1.map(m=>{ cum += m.ebitda*mult; return Math.round(cum/1000); });
+  charts.ebitda = new Chart(C('chartEBITDA'), {
+    type: 'line',
+    data: {
+      labels: DATA.y1.map(m=>`M${m.month}`),
+      datasets: [{
+        label: 'EBITDA cumulé',
+        data: cumulE,
+        borderColor: BLUE,
+        backgroundColor: 'rgba(77,184,255,0.06)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+        pointBackgroundColor: BLUE,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: GRID }, ticks: { color: '#555', font: { size: 9 } } },
+        y: { grid: { color: GRID }, ticks: { color: '#555', font: { size: 9 }, callback: v => '€'+v+'k' } }
+      }
+    }
+  });
+}
+
+// ── NAV ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const tabs = ['overview','y1','y23','assumptions','investor'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
+  if (id === 'overview') setTimeout(buildCharts, 50);
+}
+
+function setScenario(s) {
+  scenario = s;
+  document.querySelectorAll('.spill').forEach((p,i) => {
+    p.classList.toggle('active', ['aggressive','base','conservative'][i] === s);
+  });
+  buildY1Table(); buildY2Table(); buildY3Table();
+  buildCharts();
+}
+
+// ── INIT ──
+buildY1Table(); buildY2Table(); buildY3Table();
+setTimeout(buildCharts, 100);
+</script>
+</body>
+</html>

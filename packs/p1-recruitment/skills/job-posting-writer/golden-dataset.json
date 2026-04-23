@@ -1,0 +1,566 @@
+{
+  "skill": "job-posting-writer",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "jpw-001",
+      "input": {
+        "job_title": "Ingénieur Backend Python",
+        "client": "Confidentiel (scale-up FinTech Paris)",
+        "location": "Paris 9e — 3 jours télétravail",
+        "contract": "CDI",
+        "salary": "58 000 – 72 000 €",
+        "missions": ["Développer et maintenir des APIs RESTful à fort volume", "Concevoir des pipelines de traitement de données financières", "Participer aux revues de code et à l'amélioration continue"],
+        "requirements": ["Python 3.10+", "FastAPI ou Django REST", "PostgreSQL", "3+ ans d'expérience", "Sensibilité au Clean Code"],
+        "perks": ["BSPCE", "Tickets resto + mutuelle premium", "Budget formation 1 500 €/an"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Ingénieur Backend Python H/F/X — Paris (3j télétravail)",
+        "format": "job_board",
+        "content": "**Ingénieur Backend Python H/F/X — Paris 9e (3 jours télétravail)**\n\n**L'entreprise**\nScale-up FinTech parisienne en forte croissance, notre plateforme traite chaque jour des millions de transactions pour des milliers d'entreprises. Nous construisons une infrastructure financière fiable et scalable, avec une équipe technique de 25 personnes.\n\n**Le poste**\nNous renforçons notre équipe Backend pour accompagner la croissance de notre infrastructure de paiements. Vous rejoindrez une squad de 5 ingénieurs pour concevoir et maintenir des systèmes à haute disponibilité.\n\n**Vos missions**\n• Développer et maintenir des APIs RESTful traitant plusieurs millions de requêtes par jour\n• Concevoir des pipelines de traitement de données financières robustes\n• Participer aux revues de code et à la culture d'amélioration continue\n\n**Votre profil**\n• Python 3.10+ maîtrisé (FastAPI ou Django REST)\n• PostgreSQL et conception de bases de données relationnelles\n• 3 ans d'expérience minimum en développement backend\n• Sensibilité au Clean Code et aux tests automatisés\n\n**Ce que nous proposons**\n• Rémunération : 58 000 – 72 000 € selon profil\n• BSPCE dès le premier jour\n• Tickets restaurant + mutuelle premium\n• Budget formation 1 500 €/an\n\n**Pour candidater**\nEnvoyez votre CV et un court message sur votre parcours à recrutement@cabinet-exemple.fr",
+        "word_count": 198,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre au format H/F/X. Aucun critère d'âge, nationalité ou situation personnelle. Client confidentiel décrit par secteur uniquement."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre job board classique pour un poste tech. Illustre la bonne pratique de décrire un client confidentiel par secteur sans le nommer, et l'inclusion des BSPCE comme avantage différenciant en FinTech."
+    },
+    {
+      "id": "jpw-002",
+      "input": {
+        "job_title": "Responsable Marketing Digital",
+        "client": "L'Oréal",
+        "location": "Paris 9e — Hybride 2j/semaine",
+        "contract": "CDI",
+        "salary": "55 000 – 68 000 €",
+        "missions": ["Piloter la stratégie SEO/SEA des marques grand public", "Manager une équipe de 3 personnes", "Analyser la performance et produire des rapports mensuels"],
+        "requirements": ["5+ ans en marketing digital", "Expérience management", "Google Ads + Meta Ads", "Analytique avancée"],
+        "perks": ["Participation + intéressement", "CE groupe", "Remises produits", "Formation continue"],
+        "format": "linkedin_post",
+        "tone": "premium"
+      },
+      "expected_output": {
+        "job_title": "Responsable Marketing Digital H/F/X — L'Oréal Paris",
+        "format": "linkedin_post",
+        "content": "**Responsable Marketing Digital H/F/X — L'Oréal Paris**\n\nL'Oréal recherche un(e) Responsable Marketing Digital pour piloter la performance digitale de ses marques grand public en France.\n\n**Votre rôle**\nAu sein de la direction marketing, vous pilotez la stratégie SEO/SEA, managez une équipe de 3 experts digitaux et transformez la data en décisions.\n\n**Ce que vous apportez**\n✦ 5 ans minimum en marketing digital, dont expérience management\n✦ Maîtrise Google Ads, Meta Ads et outils analytiques\n✦ Capacité à travailler avec plusieurs marques simultanément\n\n**Ce que vous trouverez**\n✦ Rémunération 55 000 – 68 000 € selon profil\n✦ Participation + intéressement groupe\n✦ Formation continue dans un groupe international\n✦ 2 jours de télétravail par semaine\n\nPoste basé à Paris 9e.\n\n→ Candidatures : recrutement@cabinet-exemple.fr",
+        "word_count": 131,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Format LinkedIn post adapté avec ✦ pour la lisibilité mobile. Aucun critère discriminatoire. Ton premium aligné avec la marque L'Oréal."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre LinkedIn pour un grand groupe. Illustre l'adaptation du format (symboles ✦, structure courte) au canal LinkedIn et le ton premium attendu pour une marque comme L'Oréal."
+    },
+    {
+      "id": "jpw-003",
+      "input": {
+        "job_title": "Juriste Droit Social",
+        "client": "Confidentiel (groupe industriel, 5 000 salariés)",
+        "location": "Lyon Part-Dieu — présentiel majoritaire",
+        "contract": "CDI",
+        "salary": "52 000 – 62 000 €",
+        "missions": ["Conseiller les managers sur le droit social au quotidien", "Gérer les contentieux prud'homaux", "Participer aux négociations avec les IRP"],
+        "requirements": ["Master 2 Droit Social", "3+ ans en droit social entreprise", "Expérience contentieux", "Rigueur et pédagogie"],
+        "perks": ["Statut cadre", "RTT", "Mutuelle famille", "Participation"],
+        "format": "job_board",
+        "tone": "formel"
+      },
+      "expected_output": {
+        "job_title": "Juriste Droit Social H/F/X — Lyon",
+        "format": "job_board",
+        "content": "**Juriste Droit Social H/F/X — Lyon**\n\n**L'entreprise**\nGroupe industriel français de 5 000 collaborateurs, implanté sur plusieurs sites en région Auvergne-Rhône-Alpes. La direction juridique accompagne les opérations et les RH dans leurs enjeux quotidiens.\n\n**Le poste**\nRattaché(e) à la Direction Juridique, vous êtes l'interlocuteur(trice) de référence sur toutes les questions de droit social pour les managers et la DRH.\n\n**Vos missions**\n• Conseiller les managers sur l'ensemble des problématiques de droit social\n• Gérer les contentieux prud'homaux en lien avec les avocats externes\n• Préparer et participer aux réunions avec les instances représentatives du personnel\n\n**Votre profil**\n• Master 2 Droit Social ou Droit du Travail\n• 3 ans minimum d'expérience en droit social, en entreprise ou en cabinet\n• Expérience en gestion de contentieux\n• Rigueur, pédagogie et sens du conseil\n\n**Ce que nous proposons**\n• Rémunération : 52 000 – 62 000 € selon profil\n• Statut cadre, 12 jours de RTT\n• Mutuelle famille prise en charge à 80 %\n• Participation aux résultats du groupe\n\n**Pour candidater**\nAdressez votre candidature à recrutement@cabinet-exemple.fr avec la référence JS-LYO-26.",
+        "word_count": 188,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Ton formel adapté au secteur juridique/industriel. Client confidentiel décrit par taille et secteur. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre juridique avec ton formel. Illustre l'adaptation du ton au secteur (droit social, industrie) et la bonne pratique d'inclure une référence de candidature pour faciliter le suivi."
+    },
+    {
+      "id": "jpw-004",
+      "input": {
+        "job_title": "Commercial(e) B2B",
+        "client": "Pennylane",
+        "location": "Paris 2e — 2j télétravail",
+        "contract": "CDI",
+        "salary": "40 000 – 50 000 € fixe + variable déplafonné",
+        "missions": ["Prospecter et convertir des TPE/PME sur notre solution SaaS", "Gérer un portefeuille de 80-120 clients", "Collaborer avec les équipes Customer Success"],
+        "requirements": ["1-3 ans en vente SaaS ou B2B", "Appétit pour la technologie", "Résilience commerciale", "Bonne aisance téléphonique"],
+        "perks": ["Variable déplafonné", "MacBook Pro", "Carte Swile", "Coaching commercial"],
+        "format": "linkedin_post",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Commercial(e) B2B SaaS H/F/X — Pennylane Paris",
+        "format": "linkedin_post",
+        "content": "**Commercial(e) B2B SaaS H/F/X — Pennylane Paris**\n\nPennylane simplifie la comptabilité de 20 000 entreprises françaises. Pour accompagner notre croissance, nous cherchons des commerciaux B2B qui aiment convaincre et construire des relations durables.\n\n**Votre quotidien**\n→ Prospecter et convaincre des dirigeants de TPE/PME\n→ Gérer un portefeuille de 80 à 120 clients\n→ Travailler main dans la main avec le Customer Success\n\n**Votre profil**\n→ 1 à 3 ans en vente B2B ou SaaS\n→ Vous aimez le téléphone et le challenge commercial\n→ La tech ne vous fait pas peur\n\n**Ce qu'on offre**\n→ 40 000 – 50 000 € fixe + variable déplafonné\n→ MacBook Pro + carte Swile\n→ Coaching commercial régulier\n→ Paris 2e, 2 jours de remote\n\n📩 recrutement@cabinet-exemple.fr",
+        "word_count": 127,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Format LinkedIn mobile-first avec flèches pour la lisibilité. Variable déplafonné mis en avant. Aucun critère discriminatoire. Ton startup accessible."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre commercial SaaS pour LinkedIn. Illustre le ton startup accessible et la mise en valeur du variable déplafonné comme différenciateur. Format mobile-first avec flèches."
+    },
+    {
+      "id": "jpw-005",
+      "input": {
+        "job_title": "Infirmier(ère) de nuit",
+        "client": "Clinique privée (Ile-de-France)",
+        "location": "Créteil — poste de nuit fixe",
+        "contract": "CDI",
+        "salary": "36 000 – 44 000 € (primes nuit incluses)",
+        "missions": ["Assurer les soins infirmiers de nuit", "Surveiller les patients post-opératoires", "Gérer les urgences en lien avec le médecin de garde"],
+        "requirements": ["Diplôme d'État Infirmier", "Expérience en milieu hospitalier ou clinique", "Autonomie de nuit"],
+        "perks": ["Primes de nuit", "Parking gratuit", "Repas pris en charge", "Planning stable 3 nuits/semaine"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Infirmier(ère) de Nuit H/F/X — Créteil",
+        "format": "job_board",
+        "content": "**Infirmier(ère) de Nuit H/F/X — Créteil**\n\n**L'établissement**\nClinique chirurgicale privée de 150 lits en Île-de-France, spécialisée en chirurgie orthopédique et viscérale. Équipe soignante stable et environnement de travail organisé.\n\n**Le poste**\nPoste de nuit fixe (3 nuits par semaine), rattaché(e) au cadre de santé. Vous intervenez sur un service de chirurgie post-opératoire avec une équipe de 4 soignants par nuit.\n\n**Vos missions**\n• Assurer la surveillance et les soins infirmiers des patients post-opératoires\n• Gérer les situations urgentes en lien avec le médecin de garde\n• Assurer les transmissions en fin de nuit\n\n**Votre profil**\n• Diplôme d'État Infirmier requis\n• Expérience en milieu hospitalier ou clinique (tout niveau accepté)\n• Autonomie et réactivité la nuit\n\n**Ce que nous proposons**\n• Rémunération : 36 000 – 44 000 € brut/an primes de nuit incluses\n• Planning stable : 3 nuits par semaine\n• Parking gratuit sur site\n• Repas pris en charge\n\n**Pour candidater**\nCV à recrutement@cabinet-exemple.fr — Réponse garantie sous 48h.",
+        "word_count": 183,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Aucune mention d'âge ou de condition physique. 'Tout niveau accepté' élargit le vivier sans discriminer. Salaire toutes primes comprises clairement mentionné."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre secteur santé. Illustre l'importance de détailler le planning (3 nuits/sem) et les primes incluses dans le salaire affiché — critères de décision clés pour les infirmiers de nuit."
+    },
+    {
+      "id": "jpw-006",
+      "input": {
+        "job_title": "Directeur Technique",
+        "client": "Confidentiel (scale-up Series B, 80 salariés)",
+        "location": "Paris — Full remote possible",
+        "contract": "CDI",
+        "salary": "120 000 – 145 000 €",
+        "missions": ["Diriger une équipe tech de 25 ingénieurs", "Définir et exécuter la roadmap technique", "Être interlocuteur tech auprès du board et des investisseurs"],
+        "requirements": ["10+ ans dont 3+ en management tech", "Expérience scale-up", "Profil hands-on et stratégique"],
+        "perks": ["Package BSPCE significatif", "Budget illimité conférences/formations", "Full remote"],
+        "format": "job_board",
+        "tone": "premium"
+      },
+      "expected_output": {
+        "job_title": "Directeur(trice) Technique H/F/X — Paris (Full Remote)",
+        "format": "job_board",
+        "content": "**Directeur(trice) Technique H/F/X — Paris / Full Remote**\n\n**L'entreprise**\nScale-up française en Series B, 80 collaborateurs, acteur reconnu sur un marché B2B en forte croissance. Produit complexe, ambitions européennes, investisseurs de référence. La tech est au cœur de l'avantage concurrentiel.\n\n**Le rôle**\nNous cherchons un(e) CTO opérationnel(le) pour structurer et accélérer notre capacité d'exécution technique. Vous pilotez une équipe de 25 ingénieurs, portez la vision technique auprès du board, et restez proche du code quand cela compte.\n\n**Vos responsabilités**\n• Diriger et faire grandir une équipe technique de 25 personnes\n• Définir et exécuter la roadmap technique en lien avec le produit\n• Être l'interlocuteur tech privilégié du board et des investisseurs\n\n**Votre profil**\n• 10 ans d'expérience dont 3 ans minimum en management tech\n• Expérience en scale-up ou startup en forte croissance\n• Profil hybride : vision stratégique ET solidité technique\n\n**Ce que nous proposons**\n• Rémunération : 120 000 – 145 000 € selon profil\n• Package BSPCE significatif\n• Budget formation et conférences sans plafond\n• Full remote\n\n**Process discret**\nCandidatures confidentielles : cto@cabinet-exemple.fr",
+        "word_count": 195,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Confidentialité du client préservée. Aucun critère discriminatoire. Ton premium adapté à un profil C-level. Process discret mentionné pour les candidats en poste."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre CTO premium. Illustre le ton adapté aux profils C-level, la mention de la confidentialité et du process discret, et la mise en valeur du package BSPCE Series B comme différenciateur."
+    },
+    {
+      "id": "jpw-007",
+      "input": {
+        "job_title": "Chargé de Recrutement",
+        "client": "Capgemini",
+        "location": "Issy-les-Moulineaux — 2j télétravail",
+        "contract": "CDI",
+        "salary": "38 000 – 46 000 €",
+        "missions": ["Gérer les recrutements IT et conseil pour des BU France", "Sourcer sur LinkedIn et job boards", "Conduire les entretiens et présenter les candidats aux managers"],
+        "requirements": ["2+ ans en recrutement", "Connaissance du secteur IT ou conseil", "ATS maîtrisé"],
+        "perks": ["Grand groupe, mobilité interne", "Accord intéressement", "CE groupe"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Chargé(e) de Recrutement IT H/F/X — Issy-les-Moulineaux",
+        "format": "job_board",
+        "content": "**Chargé(e) de Recrutement IT H/F/X — Issy-les-Moulineaux (2j télétravail)**\n\n**L'entreprise**\nCapgemini est un leader mondial du conseil, des services technologiques et de la transformation digitale. En France, le groupe recrute plusieurs centaines d'experts IT et conseil chaque année.\n\n**Le poste**\nAu sein de l'équipe Talent Acquisition France, vous gérez les recrutements pour des Business Units IT et conseil. Vous êtes l'interlocuteur(trice) des managers et accompagnez les candidats du premier contact à l'intégration.\n\n**Vos missions**\n• Prendre en charge les recrutements IT et conseil de A à Z\n• Sourcer activement sur LinkedIn et les job boards\n• Conduire les entretiens et présenter vos shortlists aux managers\n\n**Votre profil**\n• 2 ans minimum en recrutement, en cabinet ou en entreprise\n• Connaissance du secteur IT ou ESN appréciée\n• ATS maîtrisé (Taleo, SmartRecruiters ou équivalent)\n\n**Ce que nous proposons**\n• Rémunération : 38 000 – 46 000 € selon profil\n• Intéressement groupe\n• Mobilité interne dans un groupe de 50 000 collaborateurs en France\n• Comité d'entreprise groupe\n\n**Pour candidater**\nCV + lettre courte à recrutement@cabinet-exemple.fr",
+        "word_count": 184,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. La mobilité interne est mise en valeur — argument fort pour Capgemini. Aucun critère discriminatoire. 'En cabinet ou en entreprise' élargit le vivier."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre recrutement grand groupe. Illustre la mise en valeur de la mobilité interne comme avantage spécifique aux grands groupes, et l'ouverture du profil (cabinet ou entreprise)."
+    },
+    {
+      "id": "jpw-008",
+      "input": {
+        "job_title": "Product Designer",
+        "client": "Contentsquare",
+        "location": "Paris 9e — 3j télétravail",
+        "contract": "CDI",
+        "salary": "65 000 – 78 000 €",
+        "missions": ["Concevoir des expériences UX pour la plateforme analytique", "Collaborer avec les PM et les ingénieurs", "Mener des tests utilisateurs"],
+        "requirements": ["Figma expert", "4+ ans UX/Product Design", "Expérience SaaS B2B", "Anglais courant"],
+        "perks": ["BSPCE", "Budget remote setup 500€", "30j congés"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Product Designer H/F/X — Contentsquare Paris",
+        "format": "job_board",
+        "content": "**Product Designer H/F/X — Paris 9e (3j télétravail)**\n\n**L'entreprise**\nContentsquare est la plateforme d'experience analytics de référence mondiale, utilisée par 3 500 marques dans 70 pays. L'équipe Design joue un rôle central dans la simplicité de notre produit complexe.\n\n**Le poste**\nAu sein de l'équipe Product Design (15 designers), vous prenez en charge un périmètre fonctionnel de la plateforme analytique et travaillez en squad avec des PM et des ingénieurs.\n\n**Vos missions**\n• Concevoir des parcours UX clairs pour une plateforme analytique avancée\n• Mener des tests utilisateurs et intégrer les retours dans vos itérations\n• Collaborer avec les PM et ingénieurs en cycle agile\n\n**Votre profil**\n• 4 ans d'expérience en Product Design ou UX Design\n• Figma expert et curiosité pour les données\n• Expérience SaaS B2B souhaitée\n• Anglais courant (équipe internationale)\n\n**Ce que nous proposons**\n• Rémunération : 65 000 – 78 000 € selon profil\n• BSPCE\n• Budget setup remote 500 €\n• 30 jours de congés\n\n**Pour candidater**\nPortfolio + CV à design@cabinet-exemple.fr",
+        "word_count": 181,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Mention du portfolio dans le processus de candidature — pratique standard pour les designers. Aucun critère discriminatoire. L'anglais courant est justifié par l'environnement international."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre Product Designer scale-up. Illustre la demande de portfolio dans le process de candidature pour les profils créatifs, et la mise en valeur de la taille de l'équipe design (signal d'un vrai investissement UX)."
+    },
+    {
+      "id": "jpw-009",
+      "input": {
+        "job_title": "Responsable Paie et Administration du Personnel",
+        "client": "Groupe Sodexo",
+        "location": "Saint-Denis (93) — présentiel majoritaire",
+        "contract": "CDI",
+        "salary": "48 000 – 58 000 €",
+        "missions": ["Superviser la paie de 800 collaborateurs", "Gérer les relations avec les URSSAF et caisses", "Manager une équipe de 3 gestionnaires paie"],
+        "requirements": ["Expert paie", "SILAE ou ADP maîtrisé", "5+ ans dont management", "Convention collective restauration ou services"],
+        "perks": ["Stabilité grand groupe", "Tickets resto", "13e mois", "Mutuelle famille"],
+        "format": "job_board",
+        "tone": "formel"
+      },
+      "expected_output": {
+        "job_title": "Responsable Paie et Administration du Personnel H/F/X — Saint-Denis (93)",
+        "format": "job_board",
+        "content": "**Responsable Paie et Administration du Personnel H/F/X — Saint-Denis (93)**\n\n**L'entreprise**\nSodexo est un leader mondial des services de qualité de vie, présent dans 45 pays. En France, le groupe emploie plus de 40 000 collaborateurs dans la restauration collective et les services aux entreprises.\n\n**Le poste**\nRattaché(e) à la DRH France, vous supervisez la paie de 800 collaborateurs sur plusieurs sites et managez une équipe de 3 gestionnaires paie.\n\n**Vos missions**\n• Superviser et contrôler la production de paie mensuelle (800 bulletins)\n• Gérer les déclarations sociales et les relations avec les organismes (URSSAF, caisses de retraite)\n• Manager, former et accompagner l'équipe de 3 gestionnaires paie\n\n**Votre profil**\n• Expert(e) paie, maîtrise de SILAE ou ADP Decidium\n• 5 ans d'expérience minimum dont 2 ans en management d'équipe paie\n• Connaissance de la convention collective de la restauration ou des services appréciée\n\n**Ce que nous proposons**\n• Rémunération : 48 000 – 58 000 € selon profil\n• 13e mois\n• Tickets restaurant + mutuelle famille\n• Stabilité et perspectives d'évolution dans un groupe international\n\n**Pour candidater**\nCV à paie-recrutement@cabinet-exemple.fr — Référence RPAD-SDX-26",
+        "word_count": 195,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Ton formel adapté à la fonction paie dans un grand groupe. Aucun critère discriminatoire. Convention collective citée comme atout (pas comme exigence exclusive)."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre paie grand groupe. Illustre la mention de la convention collective comme 'appréciée' et non 'obligatoire' pour élargir le vivier, et l'importance du volume de bulletins comme indicateur du niveau de responsabilité."
+    },
+    {
+      "id": "jpw-010",
+      "input": {
+        "job_title": "Chef de Projet Marketing",
+        "client": "BNP Paribas",
+        "location": "Paris 9e — Hybride 2j",
+        "contract": "CDI",
+        "salary": "52 000 – 62 000 €",
+        "missions": ["Coordonner les campagnes marketing retail France", "Gérer les agences et prestataires", "Analyser la performance et reporting mensuel"],
+        "requirements": ["4+ ans en marketing projet", "Banque ou assurance appréciée", "Excel avancé", "Autonomie et rigueur"],
+        "perks": ["Avantages bancaires", "Intéressement", "Formations certifiantes", "Mobilité interne"],
+        "format": "job_board",
+        "tone": "formel"
+      },
+      "expected_output": {
+        "job_title": "Chef(fe) de Projet Marketing H/F/X — BNP Paribas Paris",
+        "format": "job_board",
+        "content": "**Chef(fe) de Projet Marketing H/F/X — Paris 9e (Hybride 2j/semaine)**\n\n**L'entreprise**\nBNP Paribas est la première banque de la zone euro et l'un des acteurs financiers mondiaux de référence. La direction Marketing France pilote les campagnes et la communication pour l'ensemble du réseau retail.\n\n**Le poste**\nAu sein de la direction Marketing Retail France, vous coordonnez les campagnes et gérez les partenaires et agences pour des projets à fort enjeu de visibilité.\n\n**Vos missions**\n• Coordonner les campagnes marketing du réseau retail France (digital et offline)\n• Piloter les agences et prestataires : briefs, suivi, livrables\n• Analyser la performance des actions et produire les reportings mensuels\n\n**Votre profil**\n• 4 ans minimum en gestion de projet marketing\n• Expérience en banque, assurance ou secteur financier appréciée\n• Excel avancé et maîtrise des outils analytiques\n• Autonomie, rigueur et sens de l'organisation\n\n**Ce que nous proposons**\n• Rémunération : 52 000 – 62 000 € selon profil\n• Avantages bancaires groupe\n• Intéressement et participation\n• Formations certifiantes et mobilité interne\n\n**Pour candidateur**\nCV + lettre de motivation à recrutement@cabinet-exemple.fr",
+        "word_count": 192,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. 'Expérience banque appréciée' — formulation ouverte, pas exclusive. Aucun critère discriminatoire. Ton formel adapté au secteur bancaire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre marketing secteur bancaire. Illustre l'utilisation d'un secteur 'appréciée' et non 'obligatoire' pour la finance, qui élarfit le vivier tout en ciblant les bons profils."
+    },
+    {
+      "id": "jpw-011",
+      "input": {
+        "job_title": "Ingénieur QA Automatisation",
+        "client": "Deezer",
+        "location": "Paris 9e — 3j télétravail",
+        "contract": "CDI",
+        "salary": "55 000 – 68 000 €",
+        "missions": ["Développer et maintenir les frameworks de tests automatisés", "Collaborer avec les squads produit", "Améliorer la couverture de tests sur les APIs et le front"],
+        "requirements": ["Selenium/Playwright", "Python ou Java", "3+ ans QA", "CI/CD (Jenkins/GitHub Actions)"],
+        "perks": ["Abonnement Deezer Premium", "BSPCE", "Flex office", "Budget conférences"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Ingénieur(e) QA Automatisation H/F/X — Deezer Paris",
+        "format": "job_board",
+        "content": "**Ingénieur(e) QA Automatisation H/F/X — Paris 9e (3j télétravail)**\n\n**L'entreprise**\nDeezer est la plateforme de streaming musical française de référence, utilisée par des millions d'abonnés dans le monde. La qualité logicielle est au cœur de l'expérience d'écoute.\n\n**Le poste**\nAu sein de la tribu Engineering, vous construisez et maintenez l'infrastructure de tests automatisés pour garantir la fiabilité de notre plateforme sur tous les supports.\n\n**Vos missions**\n• Développer et maintenir les frameworks de tests automatisés (API, web, mobile)\n• Intégrer les tests dans les pipelines CI/CD\n• Collaborer avec les squads produit pour élever la culture qualité\n\n**Votre profil**\n• 3 ans minimum en QA automatisation\n• Selenium ou Playwright maîtrisé\n• Python ou Java pour les scripts de tests\n• Expérience CI/CD (Jenkins, GitHub Actions)\n\n**Ce que nous proposons**\n• Rémunération : 55 000 – 68 000 € selon profil\n• Abonnement Deezer Premium Family\n• BSPCE\n• Budget conférences techniques\n• Flex office Paris 9e\n\n**Pour candidater**\nCV à engineering@cabinet-exemple.fr",
+        "word_count": 175,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. L'abonnement Premium est un avantage en nature cohérent avec le produit. Aucun critère discriminatoire. L'expression 'élever la culture qualité' évite le jargon technique."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre QA tech pour une entreprise culturelle. Illustre l'alignement de l'avantage (abonnement Premium) avec le produit de l'entreprise — signal authentique d'une culture interne saine."
+    },
+    {
+      "id": "jpw-012",
+      "input": {
+        "job_title": "Technicien de Maintenance Industrielle",
+        "client": "Michelin (site de Clermont-Ferrand)",
+        "location": "Clermont-Ferrand — postes en 3×8",
+        "contract": "CDI",
+        "salary": "34 000 – 42 000 € primes incluses",
+        "missions": ["Assurer la maintenance préventive et curative des équipements", "Diagnostiquer les pannes sur lignes automatisées", "Renseigner la GMAO"],
+        "requirements": ["BTS Maintenance Industrielle ou équivalent", "Habilitations électriques", "2+ ans en industrie"],
+        "perks": ["Primes 3x8", "Intéressement", "Formation continue", "CSE"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Technicien(ne) de Maintenance Industrielle H/F/X — Clermont-Ferrand",
+        "format": "job_board",
+        "content": "**Technicien(ne) de Maintenance Industrielle H/F/X — Clermont-Ferrand**\n\n**L'entreprise**\nMichelin est le leader mondial du pneumatique, implanté à Clermont-Ferrand depuis plus de 130 ans. Le site de production local est l'un des plus technologiques du groupe.\n\n**Le poste**\nIntégré(e) à l'équipe Maintenance du site de production, vous assurez la disponibilité des équipements industriels en poste 3×8.\n\n**Vos missions**\n• Réaliser les opérations de maintenance préventive et curative sur lignes automatisées\n• Diagnostiquer et résoudre les pannes mécaniques, électriques et pneumatiques\n• Renseigner les interventions dans la GMAO\n\n**Votre profil**\n• BTS Maintenance Industrielle, électrotechnique ou équivalent\n• Habilitations électriques (B0, B1, BR a minima)\n• 2 ans minimum en maintenance industrielle\n\n**Ce que nous proposons**\n• Rémunération : 34 000 – 42 000 € brut/an primes 3×8 incluses\n• Intéressement groupe\n• Formation continue aux nouvelles technologies Michelin\n• Comité Social et Économique actif\n\n**Pour candidater**\nCV à maintenance-clermont@cabinet-exemple.fr",
+        "word_count": 170,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Salaire primes incluses clairement mentionné. Habilitations électriques citées comme pré-requis professionnel objectif. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre industrie technique. Illustre la bonne pratique de mentionner les habilitations électriques (critère professionnel objectif, non discriminant) et de clarifier le salaire toutes primes incluses pour les postes en équipe."
+    },
+    {
+      "id": "jpw-013",
+      "input": {
+        "job_title": "Data Scientist",
+        "client": "Doctolib",
+        "location": "Paris 12e — Full remote possible",
+        "contract": "CDI",
+        "salary": "72 000 – 88 000 €",
+        "missions": ["Développer des modèles prédictifs sur les parcours patients", "Collaborer avec les équipes produit et médicales", "Contribuer à la culture data de l'équipe"],
+        "requirements": ["Python", "ML (scikit-learn, PyTorch)", "SQL", "3+ ans expérience", "Sens éthique des données de santé"],
+        "perks": ["Mission à impact", "BSPCE", "Budget formation 2 000€", "Mutuelle Alan"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Data Scientist H/F/X — Doctolib Paris",
+        "format": "job_board",
+        "content": "**Data Scientist H/F/X — Paris 12e (Full Remote possible)**\n\n**L'entreprise**\nDoctolib facilite l'accès aux soins pour 80 millions de patients en France, Allemagne et Italie. Notre équipe Data travaille sur des données de santé avec un niveau d'exigence éthique et technique élevé.\n\n**Le poste**\nAu sein de l'équipe Data Science, vous développez des modèles prédictifs qui améliorent l'accès aux soins et l'expérience patients. Vous travaillez en lien direct avec les équipes produit et nos partenaires médicaux.\n\n**Vos missions**\n• Construire et déployer des modèles prédictifs sur des données de parcours patients\n• Collaborer avec les PM et les équipes médicales sur des sujets à fort impact\n• Contribuer à la culture data science de l'équipe\n\n**Votre profil**\n• 3 ans minimum en Data Science appliquée\n• Python, ML (scikit-learn, PyTorch), SQL\n• Rigueur sur l'éthique des données de santé\n\n**Ce que nous proposons**\n• Rémunération : 72 000 – 88 000 € selon profil\n• BSPCE\n• Budget formation 2 000 €/an\n• Mutuelle Alan (100% employeur)\n• Full remote selon préférences\n\n**Pour candidater**\nCV + GitHub/portfolio à data@cabinet-exemple.fr",
+        "word_count": 187,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. 'Rigueur sur l'éthique des données de santé' est un critère professionnel objectif, non discriminant. GitHub demandé dans le process — pratique standard pour les profils data."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre Data Scientist santé. Illustre la mise en avant de l'éthique des données de santé comme valeur différenciante (pas comme contrainte), et la demande de GitHub dans le process."
+    },
+    {
+      "id": "jpw-014",
+      "input": {
+        "job_title": "Comptable Général",
+        "client": "PME agroalimentaire (confidentielle, 120 salariés, Bretagne)",
+        "location": "Lorient — présentiel",
+        "contract": "CDI",
+        "salary": "35 000 – 42 000 €",
+        "missions": ["Tenir la comptabilité générale", "Préparer les clôtures mensuelles et annuelles", "Assister l'expert-comptable pour le bilan"],
+        "requirements": ["BTS Comptabilité ou DCG", "3+ ans", "Sage ou EBP maîtrisé"],
+        "perks": ["Environnement stable", "Parking", "Intéressement", "Ambiance familiale"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Comptable Général(e) H/F/X — Lorient",
+        "format": "job_board",
+        "content": "**Comptable Général(e) H/F/X — Lorient**\n\n**L'entreprise**\nPME agroalimentaire bretonne de 120 collaborateurs, implantée depuis 30 ans sur le bassin lorientais. Entreprise à taille humaine avec une culture de stabilité et de fidélité à ses équipes.\n\n**Le poste**\nRattaché(e) directement au responsable administratif et financier, vous gérez l'ensemble de la comptabilité générale en autonomie et préparez les éléments de clôture.\n\n**Vos missions**\n• Tenir la comptabilité générale et analytique au quotidien\n• Préparer les clôtures mensuelles et le bilan annuel avec l'expert-comptable\n• Gérer les rapprochements bancaires et les déclarations de TVA\n\n**Votre profil**\n• BTS Comptabilité, DCG ou équivalent\n• 3 ans minimum en comptabilité générale\n• Sage ou EBP maîtrisé\n\n**Ce que nous proposons**\n• Rémunération : 35 000 – 42 000 € selon profil\n• CDI stable, parking gratuit\n• Intéressement aux résultats\n• Équipe à taille humaine\n\n**Pour candidater**\nCV à recrutement@cabinet-exemple.fr",
+        "word_count": 166,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. 'Ambiance familiale' reformulé en 'équipe à taille humaine' — plus professionnel. Client confidentiel décrit par secteur et taille. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre PME régionale. Illustre la reformulation de 'ambiance familiale' (vague) en 'équipe à taille humaine' (concret), et la bonne description d'un client confidentiel PME sans le trahir."
+    },
+    {
+      "id": "jpw-015",
+      "input": {
+        "job_title": "Chef de Projet Transformation Digitale",
+        "client": "Veolia",
+        "location": "Aubervilliers — 2j télétravail",
+        "contract": "CDI",
+        "salary": "68 000 – 82 000 €",
+        "missions": ["Piloter des projets de digitalisation des processus opérationnels", "Animer les comités de pilotage avec les métiers", "Gérer le change management"],
+        "requirements": ["7+ ans en transformation digitale ou AMOA", "Change management", "Secteur industrie ou utilities"],
+        "perks": ["Grand groupe mondial", "RTT", "Intéressement", "Plan épargne entreprise"],
+        "format": "job_board",
+        "tone": "formel"
+      },
+      "expected_output": {
+        "job_title": "Chef(fe) de Projet Transformation Digitale H/F/X — Aubervilliers",
+        "format": "job_board",
+        "content": "**Chef(fe) de Projet Transformation Digitale H/F/X — Aubervilliers (2j télétravail)**\n\n**L'entreprise**\nVeolia est le leader mondial de la transformation écologique, présent dans 290 villes et 57 pays. La direction Transformation Digitale pilote la modernisation des processus opérationnels à l'échelle mondiale.\n\n**Le poste**\nRattaché(e) au Directeur Transformation, vous pilotez des projets de digitalisation sur des périmètres métiers variés (eau, déchets, énergie) et accompagnez les équipes dans le changement.\n\n**Vos missions**\n• Piloter des projets de digitalisation des processus opérationnels (budget, planning, risques)\n• Animer les comités de pilotage avec les directions métiers\n• Conduire le change management : formation, adoption, mesure\n\n**Votre profil**\n• 7 ans minimum en transformation digitale, conduite du changement ou AMOA\n• Expérience en secteur industriel ou utilities appréciée\n• Maîtrise des méthodes de gestion de projet (Prince2, PMI ou équivalent)\n\n**Ce que nous proposons**\n• Rémunération : 68 000 – 82 000 € selon profil\n• 12 jours de RTT\n• Intéressement et plan épargne entreprise groupe\n• Contexte international dans un groupe coté\n\n**Pour candidater**\nCV à transformation@cabinet-exemple.fr — Réf. CPT-VEO-26",
+        "word_count": 197,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. 'Secteur industriel ou utilities appréciée' — pas exclusive, ouvre le vivier. Aucun critère discriminatoire. Ton formel adapté à Veolia et au niveau responsabilité."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre transformation digitale grands groupes. Illustre la bonne pratique de mentionner la méthode de gestion de projet comme 'ou équivalent' pour ne pas fermer le vivier inutilement."
+    },
+    {
+      "id": "jpw-016",
+      "input": {
+        "job_title": "Community Manager",
+        "client": "Ynsect (start-up deeptech, 200 personnes)",
+        "location": "Évry ou Paris — 3j télétravail",
+        "contract": "CDI",
+        "salary": "36 000 – 44 000 €",
+        "missions": ["Gérer les réseaux sociaux LinkedIn, Instagram, X", "Créer du contenu sur les insectes et la protéine durable", "Animer la communauté et répondre aux commentaires"],
+        "requirements": ["2+ ans Community Management", "Création contenu (Canva ou Adobe)", "Anglais courant (audience internationale)"],
+        "perks": ["Mission à impact", "BSPCE", "Tickets Swile", "Environnement deeptech unique"],
+        "format": "linkedin_post",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Community Manager H/F/X — Ÿnsect",
+        "format": "linkedin_post",
+        "content": "**Community Manager H/F/X — Ÿnsect (Évry / Paris)**\n\nŸnsect transforme les insectes en protéines durables pour l'alimentation animale et humaine. Notre mission est au cœur de la transition alimentaire mondiale — et on cherche quelqu'un pour la raconter.\n\n**Votre rôle**\nVous animez notre communauté sur LinkedIn, Instagram et X. Vous créez du contenu qui rend notre science accessible — parce que les insectes méritent une bonne communication.\n\n**Ce qu'on recherche**\n→ 2 ans min en Community Management\n→ Aisance en création de contenu (Canva, Adobe ou autre)\n→ Anglais courant — notre audience est internationale\n→ Curiosité pour la deeptech et l'alimentation durable\n\n**Ce qu'on offre**\n→ 36 000 – 44 000 € + BSPCE\n→ Tickets Swile\n→ Évry ou Paris, 3 jours de remote\n→ Une mission qu'on ne trouve nulle part ailleurs\n\n📩 recrutement@cabinet-exemple.fr",
+        "word_count": 142,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Format LinkedIn adapté avec ton startup. 'Curiosité pour la deeptech' est un critère d'affinité, non discriminant. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre startup deeptech LinkedIn. Illustre l'utilisation d'un ton narratif engagé ('les insectes méritent une bonne communication') pour se différencier et attirer des profils alignés avec la mission."
+    },
+    {
+      "id": "jpw-017",
+      "input": {
+        "job_title": "Responsable ADV",
+        "client": "Groupe Rossignol",
+        "location": "Voiron (38) — présentiel",
+        "contract": "CDI",
+        "salary": "42 000 – 52 000 €",
+        "missions": ["Superviser la gestion des commandes B2B (distributeurs sport)", "Manager une équipe de 5 assistants ADV", "Optimiser les processus de livraison"],
+        "requirements": ["5+ ans ADV ou supply chain", "SAP SD maîtrisé", "Management", "Anglais B2 minimum"],
+        "perks": ["Dotation équipement sport", "Intéressement", "Semaines de 4,5 jours en été"],
+        "format": "job_board",
+        "tone": "accessible"
+      },
+      "expected_output": {
+        "job_title": "Responsable ADV H/F/X — Voiron (38)",
+        "format": "job_board",
+        "content": "**Responsable Administration des Ventes H/F/X — Voiron (38)**\n\n**L'entreprise**\nRossignol est l'une des marques de sport d'hiver les plus emblématiques au monde, distribuée dans plus de 40 pays. Depuis son siège des Alpes françaises, le groupe gère ses opérations commerciales B2B pour des milliers de revendeurs.\n\n**Le poste**\nVous supervisez l'ensemble des flux de commandes B2B pour les marchés sportifs Europe et pilotez une équipe de 5 assistants ADV.\n\n**Vos missions**\n• Superviser la gestion des commandes distributeurs de la prise de commande à la livraison\n• Manager et accompagner l'équipe de 5 assistants ADV\n• Optimiser les processus et réduire les délais de traitement\n\n**Votre profil**\n• 5 ans minimum en ADV ou supply chain\n• SAP SD maîtrisé\n• Expérience management d'équipe\n• Anglais B2 minimum (clients et fournisseurs internationaux)\n\n**Ce que nous proposons**\n• Rémunération : 42 000 – 52 000 € selon profil\n• Dotation équipement Rossignol\n• Intéressement groupe\n• Semaines de 4,5 jours pendant la saison estivale\n\n**Pour candidater**\nCV à adv-recrutement@cabinet-exemple.fr",
+        "word_count": 186,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Dotation équipement sportif cohérente avec l'entreprise. Anglais B2 justifié par le contexte international. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre ADV industrie sport. Illustre l'utilisation d'un avantage en nature sectoriel (dotation équipement) pour attirer des candidats ayant une affinité avec la marque."
+    },
+    {
+      "id": "jpw-018",
+      "input": {
+        "job_title": "Chef de Projet IA Générative",
+        "client": "Crédit Mutuel Alliance Fédérale",
+        "location": "Strasbourg ou Paris — Hybride",
+        "contract": "CDI",
+        "salary": "80 000 – 98 000 €",
+        "missions": ["Piloter des projets d'intégration IA générative dans les processus bancaires", "Coordonner les équipes data, IT et conformité", "Produire les analyses risque et les dossiers pour le régulateur"],
+        "requirements": ["7+ ans IT ou data", "Expérience IA ou ML", "Secteur financier ou réglementé", "Rigueur documentaire"],
+        "perks": ["Banque mutualiste stable", "Accord télétravail généreux", "Formation IA financée"],
+        "format": "job_board",
+        "tone": "formel"
+      },
+      "expected_output": {
+        "job_title": "Chef(fe) de Projet IA Générative H/F/X — Strasbourg ou Paris",
+        "format": "job_board",
+        "content": "**Chef(fe) de Projet IA Générative H/F/X — Strasbourg ou Paris (Hybride)**\n\n**L'entreprise**\nCrédit Mutuel Alliance Fédérale est l'un des premiers groupes bancaires français, avec 80 000 collaborateurs. La direction de l'innovation pilote l'intégration responsable de l'IA dans l'ensemble des métiers du groupe.\n\n**Le poste**\nDans un contexte d'accélération de l'IA générative en banque, vous pilotez des projets d'intégration au sein des processus métiers, en lien avec les équipes IT, data, conformité et le régulateur.\n\n**Vos missions**\n• Piloter l'intégration de solutions IA générative dans les processus bancaires\n• Coordonner les équipes pluridisciplinaires : data, IT, conformité, métiers\n• Préparer les dossiers pour la gouvernance interne et le régulateur (BCE, ACPR)\n\n**Votre profil**\n• 7 ans minimum en gestion de projet IT ou data\n• Expérience en IA, machine learning ou traitement du langage\n• Connaissance du secteur financier réglementé appréciée\n• Rigueur documentaire et capacité à vulgariser des sujets techniques\n\n**Ce que nous proposons**\n• Rémunération : 80 000 – 98 000 € selon profil\n• Accord télétravail favorable\n• Formation et certifications IA financées\n• Stabilité d'une banque mutualiste de référence\n\n**Pour candidater**\nCV à ia-recrutement@cabinet-exemple.fr — Réf. CPIA-CMF-26",
+        "word_count": 200,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. 'Vulgariser des sujets techniques' est un soft skill pertinent pour le rôle, non discriminant. Secteur financier 'appréciée' — pas exclusive. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre émergente IA en banque. Illustre comment positionner un poste nouveau (IA générative dans la banque) avec le bon niveau de maturité secteur, en citant les régulateurs pertinents (BCE, ACPR) pour signaler la connaissance du contexte."
+    },
+    {
+      "id": "jpw-019",
+      "input": {
+        "job_title": "Chargé de Mission RSE",
+        "client": "Kering",
+        "location": "Paris 8e — Hybride 2j",
+        "contract": "CDI",
+        "salary": "52 000 – 62 000 €",
+        "missions": ["Contribuer au reporting RSE groupe (CSRD)", "Piloter des projets sur la chaîne d'approvisionnement responsable", "Animer les correspondants RSE dans les Maisons"],
+        "requirements": ["Master RSE ou développement durable", "3+ ans RSE en grand groupe", "CSRD/DPEF maîtrisé", "Anglais courant"],
+        "perks": ["Univers luxe et mode", "Mission à impact concret", "Accès aux Maisons", "Intéressement"],
+        "format": "job_board",
+        "tone": "premium"
+      },
+      "expected_output": {
+        "job_title": "Chargé(e) de Mission RSE H/F/X — Kering Paris",
+        "format": "job_board",
+        "content": "**Chargé(e) de Mission RSE H/F/X — Paris 8e (Hybride 2j/semaine)**\n\n**L'entreprise**\nKering est l'un des premiers groupes de luxe mondiaux, réunissant des Maisons comme Gucci, Saint Laurent et Bottega Veneta. Le groupe a placé la durabilité au cœur de sa stratégie avec des engagements parmi les plus ambitieux du secteur.\n\n**Le poste**\nAu sein de la direction RSE groupe, vous contribuez au déploiement de la stratégie de durabilité et accompagnez les Maisons dans leur transformation responsable.\n\n**Vos missions**\n• Contribuer au reporting RSE groupe dans le cadre de la CSRD\n• Piloter des projets sur la chaîne d'approvisionnement responsable\n• Animer le réseau des correspondants RSE dans les Maisons du groupe\n\n**Votre profil**\n• Master RSE, développement durable ou équivalent\n• 3 ans d'expérience RSE en grand groupe\n• Maîtrise des référentiels CSRD, GRI, SBTi\n• Anglais courant (groupe international)\n\n**Ce que nous proposons**\n• Rémunération : 52 000 – 62 000 € selon profil\n• Accès à l'univers des Maisons de luxe Kering\n• Mission à impact mesurable sur des enjeux concrets\n• Intéressement groupe\n\n**Pour candidater**\nCV + lettre de motivation à rse@cabinet-exemple.fr",
+        "word_count": 195,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. Ton premium aligné avec Kering et le secteur luxe. Référentiels techniques (CSRD, GRI, SBTi) cités pour cibler les bons profils. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre RSE luxe. Illustre l'utilisation des référentiels techniques spécifiques (CSRD, GRI, SBTi) pour qualifier les candidats experts, et le ton premium adapté à l'univers Kering."
+    },
+    {
+      "id": "jpw-020",
+      "input": {
+        "job_title": "Pharmacien Responsable de Production",
+        "client": "Servier",
+        "location": "Gidy (45) — présentiel",
+        "contract": "CDI",
+        "salary": "75 000 – 92 000 €",
+        "missions": ["Assurer la responsabilité pharmaceutique de l'unité de production", "Garantir la conformité BPF et les dossiers AMM", "Manager une équipe de 10 collaborateurs"],
+        "requirements": ["Doctorat en Pharmacie", "5+ ans industrie pharmaceutique", "BPF expérimenté", "Management"],
+        "perks": ["Groupe pharmaceutique français indépendant", "Statut cadre", "Intéressement", "Plan épargne retraite"],
+        "format": "job_board",
+        "tone": "formel"
+      },
+      "expected_output": {
+        "job_title": "Pharmacien(ne) Responsable de Production H/F/X — Gidy (45)",
+        "format": "job_board",
+        "content": "**Pharmacien(ne) Responsable de Production H/F/X — Gidy (45)**\n\n**L'entreprise**\nServier est un groupe pharmaceutique français indépendant, présent dans 150 pays. Le site de Gidy est l'un des sites de production majeurs du groupe, certifié BPF et soumis aux inspections FDA et EMA.\n\n**Le poste**\nVous assumez la responsabilité pharmaceutique d'une unité de production et garantissez la conformité réglementaire et la qualité de fabrication dans un environnement BPF exigeant.\n\n**Vos missions**\n• Assurer la responsabilité pharmaceutique réglementaire de l'unité\n• Garantir la conformité BPF, les dossiers AMM et les réponses aux inspections\n• Manager et développer une équipe de 10 collaborateurs\n\n**Votre profil**\n• Doctorat en Pharmacie obligatoire (exigence réglementaire)\n• 5 ans minimum en industrie pharmaceutique de production\n• Expérience confirmée en environnement BPF\n• Expérience management d'équipe\n\n**Ce que nous proposons**\n• Rémunération : 75 000 – 92 000 € selon profil\n• Statut cadre\n• Intéressement groupe\n• Plan épargne retraite collectif\n\n**Pour candidater**\nCV à pharma-recrutement@cabinet-exemple.fr — Réf. PRP-SRV-26",
+        "word_count": 183,
+        "compliance_check": {
+          "inclusive_title": true,
+          "no_discrimination": true,
+          "notes": "Titre H/F/X. 'Doctorat en Pharmacie obligatoire (exigence réglementaire)' — critère légal objectif, non discriminant et justifié. Inspections FDA/EMA citées pour signaler le niveau d'exigence. Aucun critère discriminatoire."
+        }
+      },
+      "rating": 5,
+      "notes": "Offre pharmaceutique réglementée. Illustre la bonne pratique de mentionner 'exigence réglementaire' pour les qualifications obligatoires par la loi (doctorat en pharmacie), ce qui est un critère objectif et non discriminant."
+    }
+  ]
+}

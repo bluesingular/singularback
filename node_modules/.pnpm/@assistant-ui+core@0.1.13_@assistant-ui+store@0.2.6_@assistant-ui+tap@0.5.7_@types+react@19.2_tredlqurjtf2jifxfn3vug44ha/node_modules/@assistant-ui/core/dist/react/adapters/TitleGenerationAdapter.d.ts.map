@@ -1,0 +1,1 @@
+{"version":3,"file":"TitleGenerationAdapter.d.ts","sourceRoot":"","sources":["../../../src/react/adapters/TitleGenerationAdapter.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,aAAa,EAAE,+BAA4B;AAEzD,MAAM,MAAM,sBAAsB,GAAG;IACnC,aAAa,CAAC,QAAQ,EAAE,SAAS,aAAa,EAAE,GAAG,OAAO,CAAC,MAAM,CAAC,CAAC;CACpE,CAAC;AAEF,eAAO,MAAM,wBAAwB,QAAO,sBAa3C,CAAC"}

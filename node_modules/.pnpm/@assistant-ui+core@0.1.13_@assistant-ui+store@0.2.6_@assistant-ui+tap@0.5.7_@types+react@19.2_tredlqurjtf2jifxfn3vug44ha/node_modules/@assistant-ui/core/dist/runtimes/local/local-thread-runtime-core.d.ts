@@ -1,0 +1,62 @@
+import type { ChatModelAdapter } from "../../runtime/utils/chat-model-adapter.js";
+import type { LocalRuntimeOptionsBase } from "./local-runtime-options.js";
+import type { AddToolResultOptions, ResumeToolCallOptions, ThreadSuggestion, ThreadRuntimeCore, StartRunConfig, ResumeRunConfig } from "../../runtime/interfaces/thread-runtime-core.js";
+import { BaseThreadRuntimeCore } from "../../runtime/base/base-thread-runtime-core.js";
+import type { AppendMessage } from "../../types/message.js";
+import type { ModelContextProvider } from "../../model-context/types.js";
+export declare class LocalThreadRuntimeCore extends BaseThreadRuntimeCore implements ThreadRuntimeCore {
+    readonly capabilities: {
+        switchToBranch: boolean;
+        switchBranchDuringRun: boolean;
+        edit: boolean;
+        reload: boolean;
+        cancel: boolean;
+        unstable_copy: boolean;
+        speech: boolean;
+        dictation: boolean;
+        voice: boolean;
+        attachments: boolean;
+        feedback: boolean;
+        queue: boolean;
+    };
+    private abortController;
+    readonly isDisabled = false;
+    private _isLoading;
+    get isLoading(): boolean;
+    private _suggestions;
+    private _suggestionsController;
+    get suggestions(): readonly ThreadSuggestion[];
+    get adapters(): {
+        chatModel: ChatModelAdapter;
+        history?: import("../..").ThreadHistoryAdapter | undefined;
+        attachments?: import("../..").AttachmentAdapter | undefined;
+        speech?: import("../..").SpeechSynthesisAdapter | undefined;
+        dictation?: import("../..").DictationAdapter | undefined;
+        voice?: import("../..").RealtimeVoiceAdapter | undefined;
+        feedback?: import("../..").FeedbackAdapter | undefined;
+        suggestion?: import("../..").SuggestionAdapter | undefined;
+    };
+    constructor(contextProvider: ModelContextProvider, options: LocalRuntimeOptionsBase);
+    private _options;
+    private _lastRunConfig;
+    private _getThreadId?;
+    __internal_setGetThreadId(getThreadId: () => string | undefined): void;
+    private _getInitializePromise?;
+    __internal_setGetInitializePromise(getPromise: () => Promise<unknown> | undefined): void;
+    get extras(): undefined;
+    __internal_setOptions(options: LocalRuntimeOptionsBase): void;
+    private _loadPromise;
+    __internal_load(): Promise<void>;
+    append(message: AppendMessage): Promise<void>;
+    resumeRun({ stream, ...startConfig }: ResumeRunConfig): Promise<void>;
+    exportExternalState(): any;
+    importExternalState(): void;
+    unstable_loadExternalState(): void;
+    startRun({ parentId, runConfig }: StartRunConfig, runCallback?: ChatModelAdapter["run"]): Promise<void>;
+    private performRoundtrip;
+    detach(): void;
+    cancelRun(): void;
+    addToolResult({ messageId, toolCallId, result, isError, artifact, }: AddToolResultOptions): void;
+    resumeToolCall(_options: ResumeToolCallOptions): void;
+}
+//# sourceMappingURL=local-thread-runtime-core.d.ts.map

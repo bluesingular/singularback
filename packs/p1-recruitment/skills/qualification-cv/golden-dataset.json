@@ -1,0 +1,902 @@
+{
+  "skill": "qualification-cv",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "qcv-001",
+      "input": {
+        "mission": {
+          "title": "Lead Data Engineer",
+          "client": "Doctolib",
+          "requirements": ["Python", "Spark", "dbt", "AWS", "5+ ans d'expérience", "Paris ou hybride"],
+          "salary_range": "65 000 – 80 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Thomas Mercier",
+          "current_title": "Senior Data Engineer",
+          "current_company": "Alan",
+          "experience_years": 7,
+          "skills": ["Python", "Spark", "dbt", "Airflow", "GCP", "AWS", "Snowflake"],
+          "education": "Centrale Paris — Ingénieur",
+          "location": "Paris 11e",
+          "availability": "Disponible dans 3 semaines (préavis négocié)",
+          "salary_expectation": "78 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-001",
+        "candidate_name": "Thomas Mercier",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "7 ans d'expérience data engineering, dont 4 chez Alan (contexte santé-tech similaire à Doctolib)",
+          "Stack technique parfaitement alignée : Python, Spark, dbt, AWS — tous les critères prioritaires couverts",
+          "Disponibilité dans 3 semaines, préavis déjà négocié — timing idéal",
+          "Prétentions salariales dans la fourchette haute mais compatible (78k vs max 80k)",
+          "Airflow et Snowflake en bonus, compétences valorisables sur les projets futurs"
+        ],
+        "concerns": [
+          "Principal cloud chez Alan est GCP — migration vers AWS à valider lors de l'entretien"
+        ],
+        "summary": "Thomas Mercier présente un profil exceptionnel pour la mission Lead Data Engineer chez Doctolib. Son expérience de 7 ans, dont 4 dans une health-tech de référence, couvre tous les critères prioritaires. La légère différence GCP/AWS mérite vérification mais ne constitue pas un obstacle pour un profil de ce niveau. Disponibilité et salaire compatibles.",
+        "salary_fit": "Compatible — 78 000 € dans la fourchette (65k–80k)"
+      },
+      "rating": 5,
+      "notes": "Exemple représentatif d'un profil 5/5 : tous les critères techniques remplis, expérience sectorielle similaire, disponibilité et salaire alignés. Le seul concern (GCP vs AWS) est mineur et correctement signalé sans être dramatisé."
+    },
+    {
+      "id": "qcv-002",
+      "input": {
+        "mission": {
+          "title": "Responsable Marketing Digital",
+          "client": "BlaBlaCar",
+          "requirements": ["SEO/SEA", "Analytics", "3+ ans d'expérience", "Management d'équipe", "Paris"],
+          "salary_range": "48 000 – 58 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Léa Fontaine",
+          "current_title": "Traffic Manager",
+          "current_company": "Meetic",
+          "experience_years": 4,
+          "skills": ["Google Ads", "SEA", "Analytics", "Meta Ads", "Looker Studio"],
+          "education": "IAE Paris — Master Marketing",
+          "location": "Neuilly-sur-Seine",
+          "availability": "2 mois de préavis",
+          "salary_expectation": "55 000 €",
+          "languages": ["Français (natif)", "Anglais (B2)"],
+          "management_experience": "Non — profil individuel contributor"
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-002",
+        "candidate_name": "Léa Fontaine",
+        "score": 3,
+        "recommendation": "Possible — à garder en réserve",
+        "strengths": [
+          "4 ans d'expérience en acquisition digitale, stack SEA et Analytics bien maîtrisée",
+          "Expérience dans une marketplace consumer (Meetic) — culture produit similaire à BlaBlaCar",
+          "Prétentions salariales dans la fourchette (55k)",
+          "Looker Studio : compétence BI appréciée"
+        ],
+        "concerns": [
+          "Aucune expérience de management — le poste requiert la gestion d'une équipe de 2-3 personnes",
+          "SEO non mentionné dans les compétences — critère prioritaire de la fiche de poste",
+          "Préavis de 2 mois : timing long si le client est pressé"
+        ],
+        "summary": "Léa Fontaine est une bonne Traffic Manager avec une expérience solide en acquisition payante. Cependant, l'absence de management et le manque de SEO sont deux lacunes importantes sur un poste de responsable. Profil à garder en réserve si BlaBlaCar est prêt à accompagner une première prise de management, ou à repositionner sur un poste Traffic Manager senior.",
+        "salary_fit": "Compatible — 55 000 € dans la fourchette (48k–58k)"
+      },
+      "rating": 5,
+      "notes": "Exemple de profil 3/5 bien documenté : les concerns sont réels et clairement articulés (management manquant, SEO absent), sans être sévères. Illustration du principe de ne pas occulter les lacunes pour 'vendre' un profil."
+    },
+    {
+      "id": "qcv-003",
+      "input": {
+        "mission": {
+          "title": "Ingénieur Cybersécurité",
+          "client": "Société Générale",
+          "requirements": ["SIEM", "SOC", "pentest", "CISSP ou CEH", "5+ ans", "Paris La Défense"],
+          "salary_range": "70 000 – 90 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Karim Benali",
+          "current_title": "Analyste SOC N2",
+          "current_company": "Thales",
+          "experience_years": 6,
+          "skills": ["SIEM (Splunk, QRadar)", "Threat Intelligence", "pentest", "Python", "ISO 27001"],
+          "certifications": ["CEH", "Security+"],
+          "education": "EPITA — Ingénieur Sécurité",
+          "location": "Boulogne-Billancourt",
+          "availability": "Disponible immédiatement (rupture conventionnelle)",
+          "salary_expectation": "82 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)", "Arabe (natif)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-003",
+        "candidate_name": "Karim Benali",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "6 ans en cybersécurité dont expérience SOC N2 chez Thales — contexte grand groupe industriel comparable à la SG",
+          "Double SIEM (Splunk + QRadar) : couverture complète des outils standards en banque",
+          "Certification CEH validée, critère obligatoire du poste",
+          "Disponible immédiatement — atout majeur pour une urgence opérationnelle",
+          "ISO 27001 et pentest : compétences complémentaires très recherchées en secteur financier"
+        ],
+        "concerns": [
+          "Prétentions à 82k — dans la fourchette mais côté haut, à valider avec le client",
+          "Rupture conventionnelle en cours : à vérifier que la sortie est bien formalisée"
+        ],
+        "summary": "Karim Benali est un ingénieur cybersécurité confirmé dont le profil répond point par point aux exigences de la Société Générale. Expérience en grand groupe industriel, double expertise SIEM, et certification CEH font de lui un candidat prioritaire. Disponibilité immédiate est un avantage décisif. Prétentions dans la fourchette haute à valider.",
+        "salary_fit": "Compatible fourchette haute — 82 000 € (max 90k)"
+      },
+      "rating": 5,
+      "notes": "Profil 5/5 dans le secteur cybersécurité finance. Illustre la valorisation d'une disponibilité immédiate et d'une certification obligatoire. Les concerns sont factuels (salaire haut, rupture à formaliser) sans être bloquants."
+    },
+    {
+      "id": "qcv-004",
+      "input": {
+        "mission": {
+          "title": "Directeur Financier",
+          "client": "Maison Kering",
+          "requirements": ["Consolidation IFRS", "DAF expérimenté", "10+ ans", "Anglais courant", "Paris"],
+          "salary_range": "130 000 – 160 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Isabelle Rousseau",
+          "current_title": "Directrice Administrative et Financière",
+          "current_company": "LVMH (Division Parfums)",
+          "experience_years": 14,
+          "skills": ["Consolidation IFRS", "Treasury", "FP&A", "SAP", "Contrôle de gestion", "M&A"],
+          "education": "HEC Paris — Grande Ecole",
+          "location": "Paris 8e",
+          "availability": "3 mois de préavis",
+          "salary_expectation": "155 000 €",
+          "languages": ["Français (natif)", "Anglais (bilingue)", "Espagnol (intermédiaire)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-004",
+        "candidate_name": "Isabelle Rousseau",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "14 ans d'expérience DAF, dont 8 chez LVMH — secteur luxe français, culture maison similaire à Kering",
+          "Maîtrise consolidation IFRS et SAP : stack exact requis par le client",
+          "Expérience M&A : valeur ajoutée pour un groupe en acquisition permanente comme Kering",
+          "Anglais bilingue, critère clé pour un groupe international",
+          "HEC Paris : formation appréciée dans l'univers du luxe français"
+        ],
+        "concerns": [
+          "Préavis de 3 mois — délai standard pour un profil C-level, à anticiper avec le client",
+          "Prétentions à 155k — dans la fourchette mais proche du maximum"
+        ],
+        "summary": "Isabelle Rousseau est une DAF de haut niveau dont l'expérience chez LVMH constitue un atout différenciant pour Kering. Tous les critères techniques et sectoriels sont remplis. Le préavis de 3 mois est attendu à ce niveau et les prétentions restent dans la fourchette. Profil à présenter en priorité.",
+        "salary_fit": "Compatible — 155 000 € dans la fourchette (130k–160k)"
+      },
+      "rating": 5,
+      "notes": "Profil DAF luxe 5/5. Illustre comment l'expérience sectorielle (LVMH → Kering) est un critère de valorisation fort, et comment un préavis long est normalisé pour des profils C-level."
+    },
+    {
+      "id": "qcv-005",
+      "input": {
+        "mission": {
+          "title": "Développeur Full Stack React/Node",
+          "client": "Swile",
+          "requirements": ["React", "Node.js", "TypeScript", "3+ ans", "Paris ou full remote"],
+          "salary_range": "52 000 – 65 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Romain Petit",
+          "current_title": "Développeur Web",
+          "current_company": "Agence digitale indépendante",
+          "experience_years": 2,
+          "skills": ["HTML", "CSS", "JavaScript", "jQuery", "PHP", "WordPress"],
+          "education": "BTS SIO",
+          "location": "Lyon",
+          "availability": "Disponible immédiatement",
+          "salary_expectation": "40 000 €",
+          "languages": ["Français (natif)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-005",
+        "candidate_name": "Romain Petit",
+        "score": 1,
+        "recommendation": "Non retenu",
+        "strengths": [
+          "Disponibilité immédiate",
+          "Prétentions salariales bien en dessous de la fourchette"
+        ],
+        "concerns": [
+          "Stack technique non alignée : React et Node.js absents, profil orienté jQuery/PHP/WordPress",
+          "Seulement 2 ans d'expérience pour un poste qui en requiert 3 minimum",
+          "Aucune expérience TypeScript ni développement produit (uniquement agence)",
+          "Localisation Lyon pour un poste Paris/remote — mais le remote est possible"
+        ],
+        "summary": "Romain Petit est un développeur web junior dont le profil n'est pas aligné avec les exigences techniques de Swile. L'absence totale de React, Node.js et TypeScript dans la stack est rédhibitoire. Son expérience de 2 ans en agence web ne correspond pas au niveau attendu pour un poste produit dans une scale-up. Non retenu pour cette mission.",
+        "salary_fit": "Non pertinent — 40 000 € bien sous la fourchette (52k–65k), signe d'un écart de niveau"
+      },
+      "rating": 5,
+      "notes": "Exemple de profil 1/5 clairement non aligné. Illustre que les 'strengths' existent même pour les profils non retenus (disponibilité, salaire bas) mais que les concerns sont décisifs. Le résumé est direct sans être blessant."
+    },
+    {
+      "id": "qcv-006",
+      "input": {
+        "mission": {
+          "title": "Responsable RH",
+          "client": "Capgemini Engineering",
+          "requirements": ["HRBP", "Relations sociales", "5+ ans", "Accord collectif", "Île-de-France"],
+          "salary_range": "55 000 – 68 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Marie-Claire Dupont",
+          "current_title": "HRBP Senior",
+          "current_company": "Atos",
+          "experience_years": 8,
+          "skills": ["HRBP", "Relations sociales", "Négociation accords collectifs", "SIRH (SAP SuccessFactors)", "Droit social"],
+          "education": "Master RH — Paris Dauphine",
+          "location": "Versailles",
+          "availability": "1 mois de préavis",
+          "salary_expectation": "64 000 €",
+          "languages": ["Français (natif)", "Anglais (B1)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-006",
+        "candidate_name": "Marie-Claire Dupont",
+        "score": 4,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "8 ans d'expérience HRBP dont 5 en ESN (Atos) — contexte ESN quasi identique à Capgemini Engineering",
+          "Expérience en négociation d'accords collectifs, critère prioritaire du poste",
+          "SAP SuccessFactors : SIRH déjà utilisé par le groupe Capgemini",
+          "Droit social solide : atout dans un groupe avec fort volume de dossiers"
+        ],
+        "concerns": [
+          "Anglais limité (B1) — peut être un frein si le poste implique des reportings en anglais vers le groupe",
+          "Versailles : nécessite de vérifier la praticabilité du trajet vers les sites Capgemini Île-de-France"
+        ],
+        "summary": "Marie-Claire Dupont présente un profil très solide pour Capgemini Engineering. Son expérience HRBP en ESN et sa maîtrise des relations sociales répondent exactement aux besoins du poste. L'anglais limité est le seul point d'attention à valider selon les exigences réelles du rôle. Profil à présenter.",
+        "salary_fit": "Compatible — 64 000 € dans la fourchette (55k–68k)"
+      },
+      "rating": 5,
+      "notes": "Profil 4/5 RH en ESN. Illustre la valorisation de l'expérience sectorielle identique (Atos → Capgemini) et la signalisation d'un concern réel mais non bloquant (anglais B1) sans dramatiser."
+    },
+    {
+      "id": "qcv-007",
+      "input": {
+        "mission": {
+          "title": "Chef de Projet Marketing",
+          "client": "L'Oréal",
+          "requirements": ["Gestion de projet", "Marketing produit", "FMCG", "3+ ans", "Paris"],
+          "salary_range": "45 000 – 55 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Amira Khalil",
+          "current_title": "Chef de Projet Marketing Junior",
+          "current_company": "Unilever France",
+          "experience_years": 3,
+          "skills": ["Gestion de projet", "Marketing mix", "P&L", "Nielsen", "FMCG", "PowerPoint avancé"],
+          "education": "ESSEC — Grande Ecole",
+          "location": "Paris 17e",
+          "availability": "2 mois de préavis",
+          "salary_expectation": "52 000 €",
+          "languages": ["Français (natif)", "Anglais (bilingue)", "Arabe (natif)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-007",
+        "candidate_name": "Amira Khalil",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "3 ans en marketing FMCG chez Unilever — concurrence directe de L'Oréal, culture et processus très similaires",
+          "Maîtrise du P&L et des outils Nielsen : indispensable en marketing produit grand groupe",
+          "ESSEC Grande École : profil cible de L'Oréal",
+          "Anglais bilingue : atout dans un groupe international où les meetings en anglais sont fréquents",
+          "Prétentions salariales dans la fourchette médiane (52k)"
+        ],
+        "concerns": [
+          "Profil 'Junior' dans le titre actuel — vérifier que les responsabilités étaient bien au niveau chef de projet autonome"
+        ],
+        "summary": "Amira Khalil présente un profil très attractif pour L'Oréal. Son expérience chez Unilever dans un rôle marketing FMCG similaire, combinée à sa formation Grande École, en fait une candidate idéale. Le seul point à creuser en entretien est le niveau réel d'autonomie sur les projets. Disponibilité dans 2 mois, compatible.",
+        "salary_fit": "Compatible — 52 000 € dans la fourchette (45k–55k)"
+      },
+      "rating": 5,
+      "notes": "Profil 5/5 marketing FMCG illustrant la valeur de l'expérience chez un concurrent direct. Le concern sur le titre 'Junior' est un signal utile pour l'entretien, pas un motif de rejet."
+    },
+    {
+      "id": "qcv-008",
+      "input": {
+        "mission": {
+          "title": "Ingénieur DevOps Senior",
+          "client": "OVHcloud",
+          "requirements": ["Kubernetes", "Terraform", "CI/CD", "OpenStack", "5+ ans", "Roubaix ou remote"],
+          "salary_range": "58 000 – 75 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Nicolas Garnier",
+          "current_title": "DevOps Engineer",
+          "current_company": "Criteo",
+          "experience_years": 5,
+          "skills": ["Kubernetes", "Terraform", "GitLab CI", "Ansible", "AWS", "Python", "Prometheus"],
+          "education": "INSA Lyon — Ingénieur Informatique",
+          "location": "Toulouse",
+          "availability": "3 semaines (préavis réduit accepté)",
+          "salary_expectation": "72 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-008",
+        "candidate_name": "Nicolas Garnier",
+        "score": 4,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "5 ans d'expérience DevOps exactement au niveau requis, stack Kubernetes/Terraform parfaitement alignée",
+          "Expérience Criteo : infrastructure à très grande échelle, culture engineering exigeante appréciée par OVH",
+          "Disponibilité dans 3 semaines : timing excellent",
+          "Prometheus : compétences monitoring cloud natives très pertinentes"
+        ],
+        "concerns": [
+          "OpenStack absent du CV — compétence clé de l'infrastructure OVHcloud à vérifier impérativement",
+          "Localisation Toulouse pour un poste basé à Roubaix — full remote à confirmer avec le client",
+          "AWS dominant chez Criteo — migration vers infrastructure souveraine OVH à évaluer"
+        ],
+        "summary": "Nicolas Garnier est un DevOps senior solide avec une stack technique largement alignée. L'absence d'OpenStack est le point critique à valider — compétence centrale chez OVHcloud. Si ce gap est gérable, le profil mérite d'être présenté. Le remote doit être confirmé pour la localisation Toulouse. Prétentions dans la fourchette haute mais justifiées.",
+        "salary_fit": "Compatible — 72 000 € dans la fourchette (58k–75k)"
+      },
+      "rating": 5,
+      "notes": "Profil 4/5 DevOps avec concern technique central bien identifié (OpenStack). Illustre comment signaler un gap sur une compétence clé sans rejeter un profil globalement solide."
+    },
+    {
+      "id": "qcv-009",
+      "input": {
+        "mission": {
+          "title": "Juriste Droit des Sociétés",
+          "client": "Veolia",
+          "requirements": ["M&A", "Due diligence", "Droit des sociétés", "4+ ans", "Paris"],
+          "salary_range": "60 000 – 75 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Sophie Leblanc",
+          "current_title": "Juriste Corporate",
+          "current_company": "Cabinet d'avocats Linklaters Paris",
+          "experience_years": 5,
+          "skills": ["M&A", "Due diligence", "Contrats commerciaux", "Droit des sociétés", "Anglais juridique"],
+          "education": "Master 2 Droit des Affaires — Paris II Panthéon-Assas",
+          "certifications": ["CAPA"],
+          "location": "Paris 15e",
+          "availability": "3 mois de préavis",
+          "salary_expectation": "71 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)", "Allemand (B2)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-009",
+        "candidate_name": "Sophie Leblanc",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "5 ans chez Linklaters — cabinet Magic Circle, expérience M&A et due diligence de très haut niveau",
+          "Compétences M&A et droit des sociétés parfaitement alignées avec les exigences Veolia",
+          "Anglais juridique courant : indispensable pour les opérations internationales du groupe",
+          "Allemand B2 : atout différenciant pour les opérations Veolia en Allemagne (marché clé)",
+          "CAPA : profil avocat en reconversion grand groupe, trajectoire classique et appréciée"
+        ],
+        "concerns": [
+          "Préavis de 3 mois : long mais standard pour un profil cabinet. À anticiper avec Veolia.",
+          "Passage cabinet → in-house : vérifier les motivations et l'appétit pour la gestion de projets internes"
+        ],
+        "summary": "Sophie Leblanc est une juriste M&A de très haut niveau. Son expérience chez Linklaters et sa maîtrise de l'anglais juridique et de l'allemand font d'elle une candidate exceptionnelle pour Veolia. La transition cabinet→in-house est à explorer en entretien mais est un schéma courant à ce stade de carrière. Prétentions dans la fourchette.",
+        "salary_fit": "Compatible — 71 000 € dans la fourchette (60k–75k)"
+      },
+      "rating": 5,
+      "notes": "Profil juriste 5/5. Illustre la valorisation d'un 'reverse prestige' (Linklaters → Veolia in-house) et d'une langue rare (allemand) comme différenciateur. Le concern sur la motivation est actionnable en entretien."
+    },
+    {
+      "id": "qcv-010",
+      "input": {
+        "mission": {
+          "title": "Responsable Supply Chain",
+          "client": "Airbus",
+          "requirements": ["Supply chain industrielle", "SAP MM", "Lean", "7+ ans", "Toulouse"],
+          "salary_range": "70 000 – 85 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Antoine Moreau",
+          "current_title": "Supply Chain Manager",
+          "current_company": "Safran",
+          "experience_years": 9,
+          "skills": ["Supply chain aéronautique", "SAP MM/PP", "Lean Six Sigma", "S&OP", "Gestion de crise fournisseurs"],
+          "certifications": ["Black Belt Lean Six Sigma"],
+          "education": "ISAE-SUPAERO — Ingénieur",
+          "location": "Toulouse",
+          "availability": "Disponible dans 6 semaines",
+          "salary_expectation": "82 000 €",
+          "languages": ["Français (natif)", "Anglais (bilingue)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-010",
+        "candidate_name": "Antoine Moreau",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "9 ans en supply chain aéronautique chez Safran — concurrent direct d'Airbus, culture et contraintes identiques",
+          "SAP MM/PP maîtrisé : outil central de la supply chain Airbus",
+          "Black Belt Lean Six Sigma : certification exigeante, directement valorisable",
+          "Basé à Toulouse : aucune contrainte de mobilité",
+          "Anglais bilingue : indispensable dans l'environnement international Airbus"
+        ],
+        "concerns": [
+          "Prétentions à 82k — côté haut de la fourchette (max 85k), à valider",
+          "Motivations de départ de Safran à comprendre : quitter un leader pour un autre leader mérite d'être explicité"
+        ],
+        "summary": "Antoine Moreau est un profil exceptionnel pour Airbus. Ingénieur ISAE-SUPAERO avec 9 ans chez Safran en supply chain aéronautique, il connaît les contraintes et la culture de l'industrie. La localisation Toulouse et l'anglais bilingue sont des atouts supplémentaires. Prétentions dans la fourchette haute. Les motivations de mobilité sont à clarifier en premier entretien.",
+        "salary_fit": "Compatible fourchette haute — 82 000 € (max 85k)"
+      },
+      "rating": 5,
+      "notes": "Profil 5/5 industrie aéronautique. Illustre le cas idéal 'concurrent direct même ville' et la bonne pratique d'explorer les motivations de mobilité même pour un excellent profil."
+    },
+    {
+      "id": "qcv-011",
+      "input": {
+        "mission": {
+          "title": "Développeur Mobile iOS",
+          "client": "Cdiscount",
+          "requirements": ["Swift", "SwiftUI", "3+ ans", "Bordeaux ou remote partiel"],
+          "salary_range": "50 000 – 62 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Lucas Bernard",
+          "current_title": "Développeur Android",
+          "current_company": "Rakuten France",
+          "experience_years": 4,
+          "skills": ["Kotlin", "Android", "Jetpack Compose", "Firebase", "Java"],
+          "education": "Licence Informatique — Université de Bordeaux",
+          "location": "Bordeaux",
+          "availability": "1 mois de préavis",
+          "salary_expectation": "56 000 €",
+          "languages": ["Français (natif)", "Anglais (B2)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-011",
+        "candidate_name": "Lucas Bernard",
+        "score": 2,
+        "recommendation": "Non retenu",
+        "strengths": [
+          "4 ans de développement mobile en contexte e-commerce (Rakuten) — culture proche de Cdiscount",
+          "Localisation Bordeaux : idéale pour le poste",
+          "Prétentions salariales dans la fourchette"
+        ],
+        "concerns": [
+          "Profil exclusivement Android — aucune expérience Swift ou iOS documentée",
+          "Swift et SwiftUI absents : critères obligatoires du poste",
+          "Kotlin/Compose ≠ Swift/SwiftUI : les paradigmes sont différents, la transition nécessite 6-12 mois minimum",
+          "Repositionner sur un poste Android chez Cdiscount si le besoin existe"
+        ],
+        "summary": "Lucas Bernard est un développeur mobile Android compétent dont le profil ne correspond pas aux besoins iOS de Cdiscount. L'absence totale de Swift et SwiftUI est rédhibitoire — la maîtrise d'Android ne se transfère pas directement à iOS. Non retenu pour cette mission. À garder en base si Cdiscount ouvre un poste Android.",
+        "salary_fit": "Non pertinent compte tenu du mismatch technique"
+      },
+      "rating": 5,
+      "notes": "Profil 2/5 illustrant le cas 'bonne personne, mauvais poste'. Les strengths sont réels mais le concern technique est éliminatoire. La suggestion de repositionnement (Android chez Cdiscount) est une bonne pratique de service client."
+    },
+    {
+      "id": "qcv-012",
+      "input": {
+        "mission": {
+          "title": "Chargé de Recrutement",
+          "client": "Sodexo",
+          "requirements": ["Sourcing", "ATS", "Volume", "2+ ans", "Saint-Denis (93)"],
+          "salary_range": "32 000 – 38 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Chloé Martin",
+          "current_title": "Chargée de Recrutement",
+          "current_company": "Manpower",
+          "experience_years": 3,
+          "skills": ["Sourcing LinkedIn", "Entretiens téléphoniques", "ATS (Taleo)", "Recrutement volume", "Job boards"],
+          "education": "Licence Psychologie du Travail — Paris X",
+          "location": "Clichy (92)",
+          "availability": "Disponible immédiatement (fin de CDD)",
+          "salary_expectation": "35 000 €",
+          "languages": ["Français (natif)", "Anglais (B1)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-012",
+        "candidate_name": "Chloé Martin",
+        "score": 4,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "3 ans en recrutement volume chez Manpower — expérience directement applicable chez Sodexo (restauration collective, services)",
+          "Maîtrise Taleo ATS utilisé par Sodexo",
+          "Disponibilité immédiate : atout fort pour un besoin opérationnel urgent",
+          "Localisation Clichy : trajet Saint-Denis (93) facilement gérable"
+        ],
+        "concerns": [
+          "Expérience en intérim/CDD — vérifier la motivation pour un recrutement interne en CDI vs agence",
+          "Anglais B1 : à valider si des reportings en anglais sont attendus"
+        ],
+        "summary": "Chloé Martin présente un profil opérationnel solide pour Sodexo. Son expérience en recrutement volume chez Manpower et sa maîtrise de Taleo la rendent immédiatement opérationnelle. La disponibilité immédiate est un atout décisif. La transition intérim → recrutement interne mérite d'être explorée en entretien.",
+        "salary_fit": "Compatible — 35 000 € dans la fourchette (32k–38k)"
+      },
+      "rating": 5,
+      "notes": "Profil 4/5 recrutement volume. Illustre la valeur de la disponibilité immédiate et de la maîtrise d'un ATS spécifique. Le concern sur la transition intérim→CDI interne est pertinent et actionnable."
+    },
+    {
+      "id": "qcv-013",
+      "input": {
+        "mission": {
+          "title": "Product Manager",
+          "client": "Mirakl",
+          "requirements": ["Product Management", "Marketplace", "APIs", "4+ ans", "Paris"],
+          "salary_range": "70 000 – 90 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Julie Marchand",
+          "current_title": "Product Manager",
+          "current_company": "Cdiscount",
+          "experience_years": 5,
+          "skills": ["Product roadmap", "User stories", "APIs REST", "SQL", "Marketplace B2C et B2B", "Agile/Scrum"],
+          "education": "Epitech",
+          "location": "Bordeaux (remote 4j/5)",
+          "availability": "6 semaines",
+          "salary_expectation": "85 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-013",
+        "candidate_name": "Julie Marchand",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "5 ans PM chez Cdiscount sur un périmètre marketplace B2B/B2C — exactement le core business de Mirakl",
+          "Compétences APIs REST et SQL : PM technique capable de travailler avec les équipes engineering",
+          "Expérience Agile/Scrum dans un contexte produit à fort volume",
+          "Anglais courant : indispensable chez Mirakl (clients et équipes internationaux)"
+        ],
+        "concerns": [
+          "Basée à Bordeaux en remote 4j/5 — Mirakl requiert au moins 1 jour/semaine à Paris. À confirmer.",
+          "Prétentions à 85k — côté haut de la fourchette"
+        ],
+        "summary": "Julie Marchand est une PM marketplace expérimentée dont le profil est directement aligné avec la mission de Mirakl. Son expérience chez Cdiscount sur les marketplaces B2B et B2C est une référence parfaite. Le remote partiel depuis Bordeaux est le point à valider avec le client. Profil à présenter rapidement.",
+        "salary_fit": "Compatible — 85 000 € dans la fourchette (70k–90k)"
+      },
+      "rating": 5,
+      "notes": "Profil PM marketplace 5/5. Le concern géographique est réel mais gérable (1j/sem). Illustre comment traiter le remote partiel comme un point à valider plutôt qu'un motif de rejet."
+    },
+    {
+      "id": "qcv-014",
+      "input": {
+        "mission": {
+          "title": "Commercial B2B SaaS",
+          "client": "Pennylane",
+          "requirements": ["Vente SaaS", "Cycle court", "PME cibles", "2+ ans", "Paris"],
+          "salary_range": "42 000 – 52 000 € fixe + variable non plafonné",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Hugo Lefort",
+          "current_title": "Business Developer",
+          "current_company": "Qonto",
+          "experience_years": 2,
+          "skills": ["Outbound", "HubSpot", "Discovery call", "Closing", "SaaS fintech", "Salesforce"],
+          "education": "Bachelor ESCP",
+          "location": "Paris 20e",
+          "availability": "4 semaines",
+          "salary_expectation": "48 000 € fixe + variable",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-014",
+        "candidate_name": "Hugo Lefort",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "2 ans en BizDev SaaS fintech chez Qonto — concurrent direct de Pennylane, même cible PME, même cycle de vente",
+          "Maîtrise HubSpot et Salesforce : outils standard chez Pennylane",
+          "Expérience outbound et closing dès le début de carrière : autonomie commerciale avérée",
+          "Prétentions salariales dans la fourchette médiane"
+        ],
+        "concerns": [
+          "2 ans d'expérience seulement — minimum requis, mais à vérifier avec les KPIs atteints chez Qonto",
+          "Départ de Qonto : s'assurer qu'il ne s'agit pas d'une sortie contrainte"
+        ],
+        "summary": "Hugo Lefort est un commercial SaaS dont l'expérience chez Qonto est une recommandation directe pour Pennylane — même cible, même produit, même cycle. À 2 ans d'expérience, le niveau minimum est atteint. Les KPIs commerciaux chez Qonto (taux de closing, quota atteint) sont à valider en premier entretien. Profil à présenter rapidement avant qu'il soit capté par la concurrence.",
+        "salary_fit": "Compatible — 48 000 € fixe dans la fourchette (42k–52k)"
+      },
+      "rating": 5,
+      "notes": "Profil commercial SaaS 5/5 avec l'argument 'concurrent direct même cible' au centre. L'urgence à présenter le profil ('avant qu'il soit capté') est un conseil de service pertinent."
+    },
+    {
+      "id": "qcv-015",
+      "input": {
+        "mission": {
+          "title": "Infirmier Coordinateur",
+          "client": "Korian (EHPAD Paris 13e)",
+          "requirements": ["IADE ou IDE expérimenté", "Coordination équipe soignante", "3+ ans", "Paris"],
+          "salary_range": "38 000 – 45 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Fatima Ouldali",
+          "current_title": "Infirmière",
+          "current_company": "AP-HP Hôpital Lariboisière",
+          "experience_years": 6,
+          "skills": ["Soins infirmiers", "Urgences", "Coordination équipe", "Transmissions", "Gestion des priorités"],
+          "education": "Diplôme d'État Infirmier — IFSI Paris",
+          "location": "Paris 18e",
+          "availability": "2 mois de préavis",
+          "salary_expectation": "42 000 €",
+          "languages": ["Français (natif)", "Arabe (natif)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-015",
+        "candidate_name": "Fatima Ouldali",
+        "score": 4,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "6 ans d'expérience infirmière à l'AP-HP, dont coordination d'équipe en urgences — niveau d'exigence très élevé",
+          "Gestion des priorités et transmissions : compétences clés en EHPAD",
+          "Arabe natif : atout en EHPAD dans un arrondissement multiculturel",
+          "Prétentions dans la fourchette médiane"
+        ],
+        "concerns": [
+          "Passage urgences hospitalières → EHPAD : changement de rythme et de culture importants. Les motivations doivent être solides.",
+          "Préavis de 2 mois à confirmer avec Korian si besoin urgent"
+        ],
+        "summary": "Fatima Ouldali est une infirmière expérimentée à l'AP-HP dont les compétences de coordination sont réelles et prouvées. La transition urgences → EHPAD est significative et doit être explorée en entretien (motivations, projet professionnel). Si la motivation est avérée, son niveau est largement suffisant pour le poste de coordinatrice.",
+        "salary_fit": "Compatible — 42 000 € dans la fourchette (38k–45k)"
+      },
+      "rating": 5,
+      "notes": "Profil santé 4/5. Illustre comment gérer un changement de contexte professionnel majeur (urgences → EHPAD) avec nuance — ni bloquer le profil, ni ignorer le risque de motivation."
+    },
+    {
+      "id": "qcv-016",
+      "input": {
+        "mission": {
+          "title": "Contrôleur de Gestion Senior",
+          "client": "TotalEnergies",
+          "requirements": ["Contrôle de gestion", "SAP BPC", "Reporting consolidé", "6+ ans", "La Défense"],
+          "salary_range": "72 000 – 88 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Pierre-Emmanuel Tardif",
+          "current_title": "Contrôleur de Gestion",
+          "current_company": "Engie",
+          "experience_years": 7,
+          "skills": ["Contrôle de gestion", "SAP BPC", "Power BI", "Budgétisation", "Clôtures mensuelles", "Reporting IFRS"],
+          "education": "DSCG + Master CCA — Dauphine",
+          "location": "Nanterre",
+          "availability": "3 mois de préavis",
+          "salary_expectation": "83 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-016",
+        "candidate_name": "Pierre-Emmanuel Tardif",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "7 ans de contrôle de gestion chez Engie — contexte grand groupe énergie identique à TotalEnergies",
+          "SAP BPC maîtrisé : outil central du reporting TotalEnergies",
+          "IFRS et Power BI : compétences directement valorisables sur les projets de modernisation du reporting",
+          "Localisation Nanterre : idéale pour La Défense",
+          "DSCG + Master Dauphine : formation de référence en contrôle de gestion"
+        ],
+        "concerns": [
+          "Préavis de 3 mois : standard pour ce niveau mais à anticiper",
+          "Prétentions à 83k — dans la fourchette, côté haut"
+        ],
+        "summary": "Pierre-Emmanuel Tardif est un contrôleur de gestion senior dont le profil est parfaitement aligné avec TotalEnergies. Son expérience chez Engie dans un contexte grand groupe énergie est la référence idéale. SAP BPC et IFRS couvrent les exigences techniques. Profil à présenter en priorité.",
+        "salary_fit": "Compatible — 83 000 € dans la fourchette (72k–88k)"
+      },
+      "rating": 5,
+      "notes": "Profil finance énergie 5/5. Illustre le pattern 'même industrie concurrent direct' (Engie → TotalEnergies) comme facteur de recommandation prioritaire."
+    },
+    {
+      "id": "qcv-017",
+      "input": {
+        "mission": {
+          "title": "Chef de Projet SI",
+          "client": "Crédit Agricole SA",
+          "requirements": ["Gestion de projet", "AMOA", "Bancaire", "5+ ans", "Montrouge"],
+          "salary_range": "58 000 – 72 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Vanessa Touré",
+          "current_title": "Chef de Projet AMOA",
+          "current_company": "Société Générale",
+          "experience_years": 6,
+          "skills": ["AMOA", "Gestion de projet (Prince2)", "Spécifications fonctionnelles", "Tests de recette", "JIRA", "Secteur bancaire"],
+          "certifications": ["Prince2 Practitioner"],
+          "education": "Master MIAGE — Nanterre",
+          "location": "Issy-les-Moulineaux",
+          "availability": "6 semaines",
+          "salary_expectation": "67 000 €",
+          "languages": ["Français (natif)", "Anglais (B2)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-017",
+        "candidate_name": "Vanessa Touré",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "6 ans en AMOA bancaire chez Société Générale — contexte grand groupe bancaire directement transférable au Crédit Agricole",
+          "Prince2 Practitioner : certification reconnue en gestion de projet SI",
+          "Tests de recette et JIRA : compétences opérationnelles immédiatement mobilisables",
+          "Localisation Issy-les-Moulineaux : proche de Montrouge, aucune contrainte de trajet"
+        ],
+        "concerns": [
+          "Mobilité Société Générale → Crédit Agricole : deux cultures d'entreprise différentes. Les motivations de mobilité sont à comprendre.",
+          "Anglais B2 : à valider si des projets internationaux sont prévus"
+        ],
+        "summary": "Vanessa Touré est une chef de projet AMOA expérimentée dont le profil bancaire est directement opérationnel pour le Crédit Agricole. Son expérience à la Société Générale couvre tous les critères techniques et sectoriels. Les motivations de mobilité entre deux grands groupes bancaires méritent d'être explicitées. Profil à présenter.",
+        "salary_fit": "Compatible — 67 000 € dans la fourchette (58k–72k)"
+      },
+      "rating": 5,
+      "notes": "Profil SI bancaire 5/5. Illustre comment la mobilité entre deux grands groupes concurrents est un sujet à explorer en entretien sans être un motif de rejet."
+    },
+    {
+      "id": "qcv-018",
+      "input": {
+        "mission": {
+          "title": "Responsable Communication Interne",
+          "client": "Michelin",
+          "requirements": ["Communication interne", "Conduite du changement", "5+ ans", "Clermont-Ferrand"],
+          "salary_range": "52 000 – 65 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Emilie Castaing",
+          "current_title": "Chargée de Communication",
+          "current_company": "Agence RP Publicis",
+          "experience_years": 4,
+          "skills": ["Relations presse", "Communication externe", "Réseaux sociaux", "Event management"],
+          "education": "Sciences Po Paris — Communication",
+          "location": "Paris 7e",
+          "availability": "2 mois",
+          "salary_expectation": "55 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-018",
+        "candidate_name": "Emilie Castaing",
+        "score": 2,
+        "recommendation": "Non retenu",
+        "strengths": [
+          "Formation Sciences Po solide",
+          "Anglais courant",
+          "Prétentions dans la fourchette basse"
+        ],
+        "concerns": [
+          "Aucune expérience en communication interne — le poste est exclusivement internal comms",
+          "Profil communication externe et RP : compétences différentes (audience, canaux, objectifs)",
+          "Conduite du changement absente du profil — critère clé pour Michelin en transformation industrielle",
+          "Localisation Paris pour un poste à Clermont-Ferrand : mobilité géographique à confirmer mais non mentionnée"
+        ],
+        "summary": "Emilie Castaing est une communicante externe dont le profil n'est pas aligné avec les besoins de communication interne de Michelin. L'absence d'expérience en comms interne et en conduite du changement sont des lacunes trop importantes pour ce poste. La relocalisation à Clermont-Ferrand n'est pas mentionnée. Non retenu.",
+        "salary_fit": "Non pertinent compte tenu du mismatch de profil"
+      },
+      "rating": 5,
+      "notes": "Profil 2/5 illustrant le mismatch communication externe / communication interne. Cas courant en recrutement où la confusion entre les deux métiers aboutit à des candidatures hors-cible. Les concerns sont multiples et cumulatifs."
+    },
+    {
+      "id": "qcv-019",
+      "input": {
+        "mission": {
+          "title": "Ingénieur Procédés",
+          "client": "Sanofi",
+          "requirements": ["Chimie procédés", "GMP", "Validation process", "4+ ans", "Vitry-sur-Seine"],
+          "salary_range": "55 000 – 68 000 € brut/an",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Maxime Girard",
+          "current_title": "Ingénieur Procédés",
+          "current_company": "Pierre Fabre",
+          "experience_years": 5,
+          "skills": ["Procédés pharmaceutiques", "GMP", "Validation process", "DoE", "Lean Manufacturing", "Python (data analysis)"],
+          "education": "ENSIC Nancy — Ingénieur Chimie",
+          "location": "Toulouse",
+          "availability": "Ouvert à la mobilité sur Paris",
+          "salary_expectation": "62 000 €",
+          "languages": ["Français (natif)", "Anglais (courant)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-019",
+        "candidate_name": "Maxime Girard",
+        "score": 4,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "5 ans en procédés pharmaceutiques chez Pierre Fabre — secteur pharma identique à Sanofi, culture GMP bien installée",
+          "GMP et validation process maîtrisés : critères obligatoires du poste",
+          "DoE et Lean Manufacturing : compétences d'optimisation très recherchées en production pharma",
+          "Python pour l'analyse de données : différenciateur dans un contexte de digitalisation des procédés",
+          "Ouverture à la mobilité sur Paris confirmée"
+        ],
+        "concerns": [
+          "Mobilité depuis Toulouse : à valider concrètement (logement, famille, timing)",
+          "Pierre Fabre est un laboratoire plus petit que Sanofi — adaptation à l'échelle et aux processus d'un grand groupe à évaluer"
+        ],
+        "summary": "Maxime Girard est un ingénieur procédés pharma solide dont le profil répond aux exigences de Sanofi. Expérience GMP avérée, compétences de validation et différenciateurs techniques appréciables. La mobilité Toulouse-Paris est à concrétiser avant de soumettre au client. Profil à présenter sous condition de confirmation de la mobilité.",
+        "salary_fit": "Compatible — 62 000 € dans la fourchette (55k–68k)"
+      },
+      "rating": 5,
+      "notes": "Profil 4/5 industrie pharmaceutique. Illustre comment conditionner la recommandation à un facteur à confirmer (mobilité) sans le bloquer — bon équilibre conseil/rigueur."
+    },
+    {
+      "id": "qcv-020",
+      "input": {
+        "mission": {
+          "title": "Chargé d'Affaires Grands Comptes",
+          "client": "Veepee",
+          "requirements": ["Account management", "Grands comptes retail/mode", "Négociation", "4+ ans", "Paris"],
+          "salary_range": "55 000 – 70 000 € fixe + variable",
+          "contract": "CDI"
+        },
+        "candidate": {
+          "name": "Sébastien Collin",
+          "current_title": "Key Account Manager",
+          "current_company": "Zalando France",
+          "experience_years": 5,
+          "skills": ["Account management", "Négociation partenaires", "Mode et retail", "P&L partenaires", "HubSpot", "Excel avancé"],
+          "education": "Master Commerce International — EM Lyon",
+          "location": "Paris 10e",
+          "availability": "5 semaines",
+          "salary_expectation": "67 000 € fixe + variable",
+          "languages": ["Français (natif)", "Anglais (courant)", "Espagnol (B2)"]
+        }
+      },
+      "expected_output": {
+        "cv_id": "qcv-020",
+        "candidate_name": "Sébastien Collin",
+        "score": 5,
+        "recommendation": "Recommandé — à présenter au client",
+        "strengths": [
+          "5 ans en Key Account Management chez Zalando France — concurrent direct de Veepee sur le e-commerce mode",
+          "Gestion de P&L partenaires : compétence clé pour les grands comptes en vente événementielle",
+          "Expérience mode et retail : secteur exact de Veepee",
+          "EM Lyon et espagnol B2 : profil polyvalent, potentiel développement marché ibérique",
+          "Prétentions dans la fourchette médiane avec variable : structure de rémunération alignée"
+        ],
+        "concerns": [
+          "Zalando → Veepee : modèles différents (marketplace permanente vs vente flash). La compréhension du modèle Veepee est à explorer.",
+          "Motivations de départ de Zalando à comprendre"
+        ],
+        "summary": "Sébastien Collin est un KAM mode et e-commerce expérimenté dont le profil est idéal pour Veepee. Son expérience chez Zalando sur des comptes mode et retail est une référence directe. La différence de modèle commercial (marketplace vs flash sale) est le seul point d'attention en entretien. Profil à présenter en priorité.",
+        "salary_fit": "Compatible — 67 000 € fixe dans la fourchette (55k–70k)"
+      },
+      "rating": 5,
+      "notes": "Profil commercial 5/5 e-commerce mode. Illustre la nuance entre 'concurrent direct' et 'modèle différent' — les deux points peuvent coexister, l'un comme force, l'autre comme point d'exploration."
+    }
+  ]
+}

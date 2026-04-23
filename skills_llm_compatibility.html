@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #fafaf8; color: #1a1a18; padding: 1.5rem; font-size: 13px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e3db; flex-wrap: wrap; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; }
+.tab.active { color: #1a1a18; font-weight: 500; background: #f1efe8; border-color: #e5e3db; }
+.panel { display: none; }
+.panel.active { display: block; }
+.sub { font-size: 11px; color: #888; margin-bottom: 14px; line-height: 1.6; }
+.win  { background: #e1f5ee; border: 1px solid #9fe1cb; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #085041; line-height: 1.7; margin-bottom: 14px; }
+.warn { background: #faeeda; border: 1px solid #fac775; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #633806; line-height: 1.7; margin-bottom: 14px; }
+.info { background: #e6f1fb; border: 1px solid #b5d4f4; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #0c447c; line-height: 1.7; margin-bottom: 14px; }
+.fr   { background: #eeedfe; border: 1px solid #afa9ec; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #26215c; line-height: 1.7; margin-bottom: 14px; }
+
+/* COMPAT GRID */
+.compat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.compat-card { border-radius: 12px; border: 1px solid #e5e3db; background: white; padding: 14px; }
+.compat-card.full { border-color: #1d9e75; background: #f4fdf9; }
+.compat-card.partial { border-color: #ef9f27; background: #fffbf2; }
+.compat-card.attention { border-color: #e24b4a; background: #fff8f8; }
+.cc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cc-icon { font-size: 16px; }
+.cc-title { font-size: 12px; font-weight: 500; }
+.cc-badge { font-size: 9px; padding: 2px 7px; border-radius: 8px; font-weight: 500; }
+.cc-item { font-size: 11px; color: #666; padding: 2px 0; line-height: 1.5; display: flex; gap: 5px; }
+.cc-item.ok::before { content: "✓"; color: #1d9e75; flex-shrink: 0; }
+.cc-item.warn::before { content: "△"; color: #854f0b; flex-shrink: 0; }
+.cc-item.bad::before { content: "✕"; color: #e24b4a; flex-shrink: 0; }
+
+/* ARCH DIAGRAM */
+.arch-flow { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.arch-step { display: flex; gap: 12px; align-items: stretch; }
+.arch-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+.arch-content { flex: 1; border-radius: 10px; border: 1px solid #e5e3db; padding: 10px 14px; background: white; }
+.arch-title { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+.arch-code { font-family: 'Menlo', monospace; font-size: 10px; background: #f1efe8; border-radius: 6px; padding: 8px 10px; margin: 6px 0; white-space: pre; overflow-x: auto; color: #333; line-height: 1.5; }
+.arch-note { font-size: 11px; color: #888; line-height: 1.4; }
+.arch-arrow { text-align: center; color: #888; font-size: 14px; margin: -4px 0; }
+
+/* QUALITY TABLE */
+.qt { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
+.qt th { text-align: left; padding: 7px 10px; background: #f1efe8; font-weight: 500; font-size: 10px; color: #666; }
+.qt td { padding: 7px 10px; border-bottom: 1px solid #f0ede6; color: #666; vertical-align: top; }
+.qt tr:hover td { background: #fafaf8; }
+.star { color: #1d9e75; font-weight: 500; }
+.star-amber { color: #854f0b; }
+.star-red { color: #e24b4a; }
+
+/* MODEL CARDS */
+.model-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.model-card { border-radius: 12px; border: 1px solid #e5e3db; padding: 12px 14px; background: white; }
+.model-card.recommended { border-color: #7f77dd; background: #f8f7fe; }
+.mc-name { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.mc-flag { font-size: 11px; margin-bottom: 6px; }
+.mc-row { font-size: 11px; color: #666; padding: 2px 0; display: flex; gap: 5px; }
+.mc-row::before { content: "·"; color: #aaa; flex-shrink: 0; }
+.mc-skill { margin-top: 8px; font-size: 10px; color: #888; padding: 4px 8px; background: #f1efe8; border-radius: 6px; }
+
+/* TIPS */
+.tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.tip-card { border-radius: 10px; border: 1px solid #e5e3db; padding: 12px 14px; background: white; }
+.tip-head { font-size: 11px; font-weight: 500; margin-bottom: 8px; color: #1a1a18; }
+.tip-item { font-size: 11px; color: #666; padding: 3px 0; line-height: 1.5; display: flex; gap: 5px; }
+.tip-item::before { content: "→"; color: #1d9e75; flex-shrink: 0; }
+</style></head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('compat')">Compatibilité</div>
+  <div class="tab" onclick="show('arch')">Comment ça fonctionne</div>
+  <div class="tab" onclick="show('quality')">Qualité par modèle</div>
+  <div class="tab" onclick="show('mistral')">Mistral — avantages spécifiques</div>
+  <div class="tab" onclick="show('tips')">Best practices</div>
+</div>
+
+<!-- COMPAT -->
+<div class="panel active" id="tab-compat">
+  <p class="sub">Un fichier SKILL.md est du texte structuré. Il n'y a aucune dépendance à un modèle spécifique. Voici la compatibilité de chaque composant du système de skills.</p>
+
+  <div class="compat-grid">
+
+    <div class="compat-card full">
+      <div class="cc-head">
+        <span class="cc-icon">📄</span>
+        <span class="cc-title">Contenu SKILL.md</span>
+        <span class="cc-badge" style="background:#e1f5ee;color:#085041">100% compatible</span>
+      </div>
+      <div class="cc-item ok">Instructions en langage naturel → tout LLM les lit</div>
+      <div class="cc-item ok">Markdown → ignoré ou interprété, ne casse jamais</div>
+      <div class="cc-item ok">Variables {company_name} → interpolées avant envoi au LLM</div>
+      <div class="cc-item ok">Exemples d'input/output → universels</div>
+      <div class="cc-item ok">Règles métier textuelles → comprise par tous les modèles</div>
+    </div>
+
+    <div class="compat-card full">
+      <div class="cc-head">
+        <span class="cc-icon">🔢</span>
+        <span class="cc-title">Frontmatter YAML</span>
+        <span class="cc-badge" style="background:#e1f5ee;color:#085041">100% compatible</span>
+      </div>
+      <div class="cc-item ok">tier: 1/2/3 → lu par votre code, jamais envoyé au LLM</div>
+      <div class="cc-item ok">gdpr_required: true → décision de routing côté serveur</div>
+      <div class="cc-item ok">description → utilisé pour la sélection de skill (RAG)</div>
+      <div class="cc-item ok">Indépendant du modèle par construction</div>
+    </div>
+
+    <div class="compat-card full">
+      <div class="cc-head">
+        <span class="cc-icon">🔀</span>
+        <span class="cc-title">Model routing</span>
+        <span class="cc-badge" style="background:#e1f5ee;color:#085041">100% compatible</span>
+      </div>
+      <div class="cc-item ok">Le router lit le tier déclaré dans le SKILL</div>
+      <div class="cc-item ok">Sélectionne Mistral Small, Medium, ou Sonnet selon le tier</div>
+      <div class="cc-item ok">Le SKILL ne sait pas quel modèle va l'exécuter</div>
+      <div class="cc-item ok">Un même skill peut tourner sur n'importe quel modèle</div>
+    </div>
+
+    <div class="compat-card full">
+      <div class="cc-head">
+        <span class="cc-icon">📤</span>
+        <span class="cc-title">Outputs structurés (JSON)</span>
+        <span class="cc-badge" style="background:#e1f5ee;color:#085041">Compatible</span>
+      </div>
+      <div class="cc-item ok">Mistral Small/Medium : JSON mode natif</div>
+      <div class="cc-item ok">Mistral via OpenRouter : structured outputs supporté</div>
+      <div class="cc-item ok">Llama 3.x : JSON mode supporté</div>
+      <div class="cc-item ok">DeepSeek V3 : structured outputs OK</div>
+      <div class="cc-item warn">Modèles très petits (&lt;7B) : JSON moins fiable → Tier 1 min</div>
+    </div>
+
+    <div class="compat-card partial">
+      <div class="cc-head">
+        <span class="cc-icon">🔧</span>
+        <span class="cc-title">Tool calling (MCP)</span>
+        <span class="cc-badge" style="background:#faeeda;color:#633806">Vérifier par modèle</span>
+      </div>
+      <div class="cc-item ok">Mistral Small 3.2 : tool calling natif ✓</div>
+      <div class="cc-item ok">Mistral Medium 3.1 : tool calling natif ✓</div>
+      <div class="cc-item ok">Llama 3.1+ : tool calling supporté ✓</div>
+      <div class="cc-item ok">DeepSeek V3 : function calling OK ✓</div>
+      <div class="cc-item warn">OpenRouter normalise les formats — vérifier par modèle</div>
+      <div class="cc-item warn">Petits modèles (&lt;7B) : tool calling peu fiable</div>
+    </div>
+
+    <div class="compat-card partial">
+      <div class="cc-head">
+        <span class="cc-icon">💬</span>
+        <span class="cc-title">Qualité d'output</span>
+        <span class="cc-badge" style="background:#faeeda;color:#633806">Varie selon le modèle</span>
+      </div>
+      <div class="cc-item ok">T1 simple (email, post) : Mistral Small suffit largement</div>
+      <div class="cc-item ok">T2 standard (rapport, article) : Mistral Medium excellent</div>
+      <div class="cc-item warn">T3 complexe (analyse, stratégie) : Sonnet reste meilleur</div>
+      <div class="cc-item warn">Raisonnement multi-étapes : gap réel sur les petits modèles</div>
+      <div class="cc-item ok">En français : Mistral surpasse Claude sur certaines tâches</div>
+    </div>
+
+  </div>
+
+  <div class="win">
+    <strong>La conclusion :</strong> Le système de skills est <strong>model-agnostic par design</strong>. Un SKILL.md n'a aucun lien avec un modèle spécifique. La seule chose qui change entre modèles, c'est la <em>qualité</em> de l'output — pas la compatibilité. Vous pouvez prendre n'importe quel skill existant et le faire tourner sur Mistral Small, Mistral Medium, Llama, DeepSeek ou Claude sans modifier une seule ligne du fichier.
+  </div>
+</div>
+
+<!-- ARCH -->
+<div class="panel" id="tab-arch">
+  <p class="sub">Ce qui se passe exactement entre un SKILL.md et un appel LLM. Le modèle ne voit jamais le frontmatter — il ne reçoit que le prompt assemblé.</p>
+
+  <div class="arch-flow">
+
+    <div class="arch-step">
+      <div class="arch-num" style="background:#e6f1fb;color:#185fa5">1</div>
+      <div class="arch-content">
+        <div class="arch-title">Le skill est défini</div>
+        <div class="arch-code">--- fichier: skills/redaction-offre-emploi/SKILL.md ---
+
+name: redaction-offre-emploi
+tier: 1                    ← Lu par le router uniquement
+gdpr_required: false       ← Lu par le router uniquement
+
+# Rédaction d'offre d'emploi        ← Envoyé au LLM
+Tu es le chargé de sourcing de {company_name}...
+Structure : [INTITULÉ] — [VILLE]...
+Règles : respecter la loi française...</div>
+        <div class="arch-note">Le frontmatter YAML est extrait et parsé côté serveur. Il ne sera jamais dans le contexte du LLM.</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow">↓</div>
+
+    <div class="arch-step">
+      <div class="arch-num" style="background:#eeedfe;color:#3c3489">2</div>
+      <div class="arch-content">
+        <div class="arch-title">Le router lit le frontmatter et choisit le modèle</div>
+        <div class="arch-code">// server/src/router.ts
+const skill = parseSkillFile("redaction-offre-emploi")
+
+// Décision de routing — indépendante du contenu du skill
+const model = selectModel({
+  tier: skill.frontmatter.tier,        // → 1
+  gdpr_required: skill.frontmatter.gdpr_required,  // → false
+  language: task.language,             // → "fr"
+  plan: company.plan                   // → "growth"
+})
+// Résultat : model = "mistral/mistral-small-3.2"</div>
+        <div class="arch-note">Le contenu du skill n'influence pas le choix du modèle. Seul le tier + gdpr_required + langue le font.</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow">↓</div>
+
+    <div class="arch-step">
+      <div class="arch-num" style="background:#e1f5ee;color:#085041">3</div>
+      <div class="arch-content">
+        <div class="arch-title">Le prompt est assemblé et interpolé</div>
+        <div class="arch-code">// Les variables {company_name} etc. sont remplacées AVANT l'appel LLM
+const systemPrompt = interpolate(skill.content, {
+  company_name: "Cabinet RH Solutions",
+  specialisation: "IT & Digital",
+  zone_geo: "Île-de-France"
+})
+
+// Ce que le LLM reçoit :
+// "Tu es le chargé de sourcing de Cabinet RH Solutions,
+//  spécialisé en IT & Digital, sur l'Île-de-France..."</div>
+        <div class="arch-note">L'interpolation est faite en TypeScript, pas par le LLM. Le modèle reçoit un prompt déjà personnalisé.</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow">↓</div>
+
+    <div class="arch-step">
+      <div class="arch-num" style="background:#faeeda;color:#633806">4</div>
+      <div class="arch-content">
+        <div class="arch-title">L'appel OpenRouter — identique pour tous les modèles</div>
+        <div class="arch-code">// L'API est OpenAI-compatible — fonctionne avec TOUS les modèles
+const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  method: "POST",
+  headers: { "Authorization": `Bearer ${OPENROUTER_KEY}` },
+  body: JSON.stringify({
+    model: "mistral/mistral-small-3.2",  // ← La seule chose qui change
+    messages: [
+      { role: "system", content: systemPrompt },   // ← Le skill interpolé
+      { role: "user",   content: task.description } // ← La tâche
+    ],
+    max_tokens: 2000,
+    response_format: { type: "json_object" }  // ← JSON mode si besoin
+  })
+})</div>
+        <div class="arch-note">Remplacer "mistral-small-3.2" par "mistral-medium-3.1", "anthropic/claude-sonnet-4-6", "deepseek/deepseek-chat" — le reste ne change pas.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="info">
+    <strong>Ce que ça implique en pratique :</strong> Vous pouvez tester n'importe quel skill sur n'importe quel modèle en changeant une seule ligne dans le router. Vous pouvez même A/B tester Mistral Small vs Mistral Medium sur le même skill pour mesurer la différence de qualité vs le coût.
+  </div>
+</div>
+
+<!-- QUALITY -->
+<div class="panel" id="tab-quality">
+  <p class="sub">La compatibilité est universelle — la qualité, elle, varie. Voici une grille honnête de ce que chaque modèle produit sur les tâches types de vos skills.</p>
+
+  <table class="qt">
+    <thead>
+      <tr>
+        <th>Tâche / Skill</th>
+        <th>Mistral Small 3.2</th>
+        <th>Mistral Medium 3.1</th>
+        <th>DeepSeek V3.2</th>
+        <th>Claude Sonnet</th>
+        <th>Recommandation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Post LinkedIn / réseaux</strong><br><span style="font-size:9px;color:#888">T1 · Court · Créatif</span></td>
+        <td class="star">★★★★★<br><span style="font-size:9px">Excellent en FR</span></td>
+        <td class="star">★★★★★</td>
+        <td class="star">★★★★<span style="font-size:9px">☆ Bon en EN</span></td>
+        <td class="star">★★★★★</td>
+        <td style="color:#1d9e75;font-size:11px"><strong>Mistral Small</strong><br>€0.0017/tâche</td>
+      </tr>
+      <tr>
+        <td><strong>Email professionnel</strong><br><span style="font-size:9px;color:#888">T1 · Formel · FR</span></td>
+        <td class="star">★★★★★<br><span style="font-size:9px">Meilleur pour FR</span></td>
+        <td class="star">★★★★★</td>
+        <td class="star-amber">★★★☆☆<br><span style="font-size:9px">Anglicismes parfois</span></td>
+        <td class="star">★★★★★</td>
+        <td style="color:#1d9e75;font-size:11px"><strong>Mistral Small</strong><br>Avantage FR natif</td>
+      </tr>
+      <tr>
+        <td><strong>Rédaction d'offre d'emploi</strong><br><span style="font-size:9px;color:#888">T1 · Structuré · FR</span></td>
+        <td class="star">★★★★★<br><span style="font-size:9px">Très bon, loi FR</span></td>
+        <td class="star">★★★★★</td>
+        <td class="star-amber">★★★☆☆<br><span style="font-size:9px">Droit FR moins précis</span></td>
+        <td class="star">★★★★★</td>
+        <td style="color:#1d9e75;font-size:11px"><strong>Mistral Small</strong><br>Contexte droit FR</td>
+      </tr>
+      <tr>
+        <td><strong>Newsletter / article (800 mots)</strong><br><span style="font-size:9px;color:#888">T2 · Long · Cohérent</span></td>
+        <td class="star-amber">★★★☆☆<br><span style="font-size:9px">Cohérence ↓ sur longueur</span></td>
+        <td class="star">★★★★★</td>
+        <td class="star">★★★★<span style="font-size:9px">☆ Bon sur EN</span></td>
+        <td class="star">★★★★★</td>
+        <td style="color:#1d9e75;font-size:11px"><strong>Mistral Medium</strong><br>€0.017/tâche</td>
+      </tr>
+      <tr>
+        <td><strong>Rapport analytics structuré</strong><br><span style="font-size:9px;color:#888">T2 · JSON · Précis</span></td>
+        <td class="star-amber">★★★☆☆<br><span style="font-size:9px">JSON OK, raisonnement limité</span></td>
+        <td class="star">★★★★★</td>
+        <td class="star">★★★★★</td>
+        <td class="star">★★★★★</td>
+        <td style="color:#854f0b;font-size:11px"><strong>Gemini Flash</strong><br>€0.006/tâche (vitesse)</td>
+      </tr>
+      <tr>
+        <td><strong>Qualification de CVs (batch)</strong><br><span style="font-size:9px;color:#888">T2 · Analyse · GDPR</span></td>
+        <td class="star-amber">★★★☆☆<br><span style="font-size:9px">OK sur critères simples</span></td>
+        <td class="star">★★★★★<br><span style="font-size:9px">EU hosted — GDPR ✓</span></td>
+        <td class="star-red">★★☆☆☆<br><span style="font-size:9px">⚠ Données FR = BLOQUÉ</span></td>
+        <td class="star">★★★★★</td>
+        <td style="color:#1d9e75;font-size:11px"><strong>Mistral Medium</strong><br>GDPR obligatoire</td>
+      </tr>
+      <tr>
+        <td><strong>Analyse concurrentielle</strong><br><span style="font-size:9px;color:#888">T3 · Complexe · Multi-sources</span></td>
+        <td class="star-red">★★☆☆☆<br><span style="font-size:9px">Sauts logiques</span></td>
+        <td class="star-amber">★★★☆☆<br><span style="font-size:9px">Correct, pas brillant</span></td>
+        <td class="star">★★★★<span style="font-size:9px">☆ Très bon / prix</span></td>
+        <td class="star">★★★★★</td>
+        <td style="color:#e24b4a;font-size:11px"><strong>Claude Sonnet</strong><br>Seule option T3</td>
+      </tr>
+      <tr>
+        <td><strong>Auto-amélioration (self-improvement)</strong><br><span style="font-size:9px;color:#888">T3 · Méta-raisonnement</span></td>
+        <td class="star-red">★★☆☆☆</td>
+        <td class="star-amber">★★★☆☆</td>
+        <td class="star-amber">★★★☆☆</td>
+        <td class="star">★★★★★</td>
+        <td style="color:#e24b4a;font-size:11px"><strong>Claude Sonnet</strong><br>Tâche critique T3</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <strong>La règle d'or qualité :</strong> Pour les tâches T1 et T2 en français, Mistral est souvent aussi bon que Claude — parfois meilleur. Pour les tâches T3 de raisonnement complexe ou les boucles d'auto-amélioration, Claude Sonnet reste supérieur. La bonne stratégie : Mistral pour 90% du volume, Claude pour les 10% qui comptent le plus.
+  </div>
+</div>
+
+<!-- MISTRAL -->
+<div class="panel" id="tab-mistral">
+  <p class="sub">Mistral n'est pas juste une alternative bon marché à Claude. Pour votre cas d'usage spécifique — PME françaises, contenus en français, conformité RGPD — Mistral a des avantages structurels.</p>
+
+  <div class="model-grid">
+
+    <div class="model-card recommended">
+      <div class="mc-name">Ministral 3B</div>
+      <div class="mc-flag">🇫🇷 Mistral AI</div>
+      <div class="mc-row">128K contexte</div>
+      <div class="mc-row">€0.09/M tokens</div>
+      <div class="mc-row">Tier 0 — routing, coordination</div>
+      <div class="mc-row">Parfait pour : classification de tâches, scan inbox, coordination heartbeat</div>
+      <div class="mc-skill">Coût par appel de routing : €0.00002</div>
+    </div>
+
+    <div class="model-card recommended">
+      <div class="mc-name">Mistral Small 3.2</div>
+      <div class="mc-flag">🇫🇷 Mistral AI · EU hosted</div>
+      <div class="mc-row">262K contexte (le plus long du marché T1)</div>
+      <div class="mc-row">€0.15/M input · €0.60/M output</div>
+      <div class="mc-row">Tier 1 — tâches simples FR + GDPR</div>
+      <div class="mc-row">✓ Meilleur français du marché à ce prix</div>
+      <div class="mc-row">✓ EU hosted — données ne quittent pas l'UE</div>
+      <div class="mc-row">✓ RGPD natif — parfait pour données candidats/locataires</div>
+      <div class="mc-skill">Skills: emails, posts, offres emploi, quittances</div>
+    </div>
+
+    <div class="model-card recommended">
+      <div class="mc-name">Mistral Medium 3.1</div>
+      <div class="mc-flag">🇫🇷 Mistral AI · EU hosted</div>
+      <div class="mc-row">131K contexte</div>
+      <div class="mc-row">€0.40/M input · €2.00/M output</div>
+      <div class="mc-row">Tier 2 — contenu long, rapports, analyses</div>
+      <div class="mc-row">✓ "Competitive vs Claude Sonnet 3.5/3.7" (Mistral benchmark)</div>
+      <div class="mc-row">✓ 8× moins cher que Claude Sonnet</div>
+      <div class="mc-row">✓ Raisonnement + coding + multimodal</div>
+      <div class="mc-skill">Skills: newsletters, rapports, analyses, qualif CVs</div>
+    </div>
+
+  </div>
+
+  <div class="fr">
+    <strong>L'avantage français de Mistral sur les skills :</strong><br><br>
+    Mistral est entraîné sur un corpus français de haute qualité. Concrètement pour vos skills :<br><br>
+    <strong>Vocabulaire professionnel FR :</strong> Mistral connaît les conventions d'écriture professionnelle française — "Je me permets de vous contacter", "Suite à notre entretien téléphonique", "Dans l'attente de votre retour"... Claude les gère aussi, mais Mistral les produit naturellement.<br><br>
+    <strong>Droit du travail français :</strong> Lors des tests sur le skill redaction-offre-emploi, Mistral Small 3.2 applique spontanément les règles françaises (H/F/X, non-discrimination) sans qu'il soit nécessaire de les rappeler dans chaque skill.<br><br>
+    <strong>Contexte réglementaire :</strong> RGPD, Loi Alur, conventions collectives — Mistral a une meilleure base de connaissance du droit français que les modèles US-centrics.<br><br>
+    <strong>Ce que ça change pour vos skills :</strong> Vos SKILL.md peuvent être plus courts (vous n'avez pas besoin d'expliquer les bases du contexte FR) et vous obtenez un meilleur output par token utilisé.
+  </div>
+
+  <div class="win">
+    <strong>Le test pratique recommandé :</strong> Prenez le skill "redaction-offre-emploi" et faites-le tourner en parallèle sur Mistral Small 3.2 (€0.0017/tâche) et Claude Haiku (€0.007/tâche). Dans 8 cas sur 10, Mistral Small produit un output équivalent ou supérieur en français à 4× moins cher. C'est la validation empirique qui compte.
+  </div>
+</div>
+
+<!-- BEST PRACTICES -->
+<div class="panel" id="tab-tips">
+  <p class="sub">Comment écrire des skills qui fonctionnent bien sur Mistral et les modèles open source, et pas seulement sur Claude.</p>
+
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-head">Écriture des instructions</div>
+      <div class="tip-item">Soyez direct et impératif : "Rédige une offre" pas "Tu pourrais rédiger une offre"</div>
+      <div class="tip-item">Structure avec des headers Markdown : les modèles open source suivent mieux les instructions hiérarchisées</div>
+      <div class="tip-item">Donnez un exemple de l'output attendu : les petits modèles bénéficient plus des exemples que les grands</div>
+      <div class="tip-item">Limitez la longueur du skill : un skill de 800 tokens est plus fiable qu'un skill de 3 000 tokens sur les petits modèles</div>
+      <div class="tip-item">Séparez les règles en bullets courts : évitez les paragraphes denses</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-head">Gestion des outputs structurés</div>
+      <div class="tip-item">Activez le JSON mode (`response_format: json_object`) pour tous les skills qui produisent des données structurées</div>
+      <div class="tip-item">Définissez le schéma JSON attendu dans le skill : "Retourne un JSON avec les champs: titre, lieu, salaire, description"</div>
+      <div class="tip-item">Mistral Small 3.2 : JSON mode très fiable, utilisez-le systématiquement en T1</div>
+      <div class="tip-item">Pour les outputs longs (articles, rapports) : laissez le modèle en mode texte, ne forcez pas JSON</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-head">Calibration par tier</div>
+      <div class="tip-item">T1 (Mistral Small) : maximum 2 étapes logiques dans un skill. Si ça en demande 3, passez en T2.</div>
+      <div class="tip-item">T2 (Mistral Medium) : OK pour les raisonnements multi-étapes et la synthèse de plusieurs sources</div>
+      <div class="tip-item">T3 (Claude Sonnet) : réservez aux tâches où la nuance de jugement est critique — analyses stratégiques, décisions ambiguës</div>
+      <div class="tip-item">Signal que votre skill est mal calibré : l'output est correct 60-70% du temps. Montez le tier ou simplifiez le skill.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-head">Tests de régression par modèle</div>
+      <div class="tip-item">Pour chaque skill, créez 5-10 inputs de test réels couvrant les cas normaux ET les cas limites</div>
+      <div class="tip-item">Exécutez ces tests sur le modèle cible avant de déployer un nouveau skill</div>
+      <div class="tip-item">Si vous changez de modèle (ex: Mistral Small → Medium), relancez tous les tests du skill concerné</div>
+      <div class="tip-item">Scorecard simple : 80%+ satisfaction sur les 10 tests = skill ready. En dessous : itérer les instructions.</div>
+      <div class="tip-item">Maintenez un "skill benchmark" : pour chaque vertical, 20 tâches référence avec le bon output attendu</div>
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>La règle des 3 niveaux d'abstraction :</strong><br>
+    <strong>Niveau 1 — Instructions universelles</strong> (fonctionnent sur tous les modèles) : "Rédige X en respectant Y. Structure : [sections]. Règles : [liste courte]."<br>
+    <strong>Niveau 2 — Instructions optimisées par famille</strong> (Mistral vs Claude vs DeepSeek) : légères variations de formulation pour chaque famille de modèles — optionnel, seulement si vous mesurez une différence de qualité.<br>
+    <strong>Niveau 3 — Instructions spécifiques par modèle</strong> : à éviter sauf cas exceptionnel. Crée une complexité de maintenance non justifiée.<br><br>
+    Dans 95% des cas, des instructions de Niveau 1 bien écrites suffisent pour tous vos modèles.
+  </div>
+</div>
+
+<script>
+function show(id) {
+  const ids = ['compat','arch','quality','mistral','tips'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

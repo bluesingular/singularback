@@ -1,0 +1,54 @@
+{
+  "goals": [
+    {
+      "type": "volume_placements",
+      "title": "Augmenter le nombre de placements par consultant",
+      "description": "Augmenter le nombre de placements réussis chaque mois grâce à un sourcing plus efficace et un meilleur suivi des missions.",
+      "kpi": "placements_per_consultant_per_month",
+      "target_baseline": 2,
+      "target_value": 4,
+      "days_to_target": 90,
+      "agents_contributing": ["sophie-sourcing", "marc-client"]
+    },
+    {
+      "type": "reduce_time_to_shortlist",
+      "title": "Présenter une shortlist en moins de 72h",
+      "description": "De la réception du brief client à la présentation des premiers profils : moins de 72 heures.",
+      "kpi": "time_to_shortlist_hours",
+      "target_baseline": 168,
+      "target_value": 72,
+      "days_to_target": 60,
+      "agents_contributing": ["sophie-sourcing"]
+    },
+    {
+      "type": "improve_client_satisfaction",
+      "title": "Améliorer la satisfaction client (NPS > 40)",
+      "description": "Améliorer la régularité et la qualité des communications client pour atteindre un NPS supérieur à 40.",
+      "kpi": "client_nps",
+      "target_baseline": 20,
+      "target_value": 40,
+      "days_to_target": 120,
+      "agents_contributing": ["marc-client"]
+    },
+    {
+      "type": "develop_visibility",
+      "title": "Publier 3 posts LinkedIn par semaine",
+      "description": "Maintenir une présence LinkedIn régulière pour développer la notoriété du cabinet et attirer candidats et clients.",
+      "kpi": "linkedin_posts_per_week",
+      "target_baseline": 0,
+      "target_value": 3,
+      "days_to_target": 30,
+      "agents_contributing": ["clara-content", "iris-intelligence"]
+    },
+    {
+      "type": "reduce_admin_load",
+      "title": "Déléguer 80% des tâches administratives",
+      "description": "Identifier et déléguer les tâches récurrentes à faible valeur ajoutée pour libérer du temps consultant.",
+      "kpi": "admin_tasks_delegated_pct",
+      "target_baseline": 10,
+      "target_value": 80,
+      "days_to_target": 30,
+      "agents_contributing": ["julien-admin", "sophie-sourcing"]
+    }
+  ]
+}

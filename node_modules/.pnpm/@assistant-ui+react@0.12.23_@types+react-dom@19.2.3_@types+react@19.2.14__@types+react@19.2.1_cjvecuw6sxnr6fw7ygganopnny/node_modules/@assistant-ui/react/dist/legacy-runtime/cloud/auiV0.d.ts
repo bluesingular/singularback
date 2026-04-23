@@ -1,0 +1,62 @@
+import type { MessageStatus, ThreadMessage } from "@assistant-ui/core";
+import { CloudMessage } from "assistant-cloud";
+import { ReadonlyJSONObject, ReadonlyJSONValue } from "assistant-stream/utils";
+import { ExportedMessageRepositoryItem } from "../runtime-cores/utils/MessageRepository.js";
+type AuiV0MessagePart = {
+    readonly type: "text";
+    readonly text: string;
+} | {
+    readonly type: "reasoning";
+    readonly text: string;
+} | {
+    readonly type: "source";
+    readonly sourceType: "url";
+    readonly id: string;
+    readonly url: string;
+    readonly title?: string;
+} | {
+    readonly type: "tool-call";
+    readonly toolCallId: string;
+    readonly toolName: string;
+    readonly args: ReadonlyJSONObject;
+    readonly result?: ReadonlyJSONValue;
+    readonly isError?: true;
+} | {
+    readonly type: "tool-call";
+    readonly toolCallId: string;
+    readonly toolName: string;
+    readonly argsText: string;
+    readonly result?: ReadonlyJSONValue;
+    readonly isError?: true;
+} | {
+    readonly type: "image";
+    readonly image: string;
+} | {
+    readonly type: "file";
+    readonly data: string;
+    readonly mimeType: string;
+    readonly filename?: string;
+};
+type AuiV0Message = {
+    readonly role: "assistant" | "user" | "system";
+    readonly status?: MessageStatus;
+    readonly content: readonly AuiV0MessagePart[];
+    readonly metadata: {
+        readonly unstable_state?: ReadonlyJSONValue;
+        readonly unstable_annotations: readonly ReadonlyJSONValue[];
+        readonly unstable_data: readonly ReadonlyJSONValue[];
+        readonly steps: readonly {
+            readonly usage?: {
+                readonly inputTokens: number;
+                readonly outputTokens: number;
+            };
+        }[];
+        readonly custom: ReadonlyJSONObject;
+    };
+};
+export declare function auiV0Encode(message: ThreadMessage): AuiV0Message;
+export declare function auiV0Decode(cloudMessage: CloudMessage & {
+    format: "aui/v0";
+}): ExportedMessageRepositoryItem;
+export {};
+//# sourceMappingURL=auiV0.d.ts.map

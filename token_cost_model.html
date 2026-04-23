@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #fafaf8; color: #1a1a18; padding: 1.5rem; font-size: 13px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e3db; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; }
+.tab.active { color: #1a1a18; font-weight: 500; background: #f1efe8; border-color: #e5e3db; }
+.panel { display: none; }
+.panel.active { display: block; }
+.sub { font-size: 11px; color: #888; margin-bottom: 14px; line-height: 1.5; }
+
+.danger-box { background: #fcebeb; border: 1px solid #f09595; border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #501313; line-height: 1.7; margin-bottom: 14px; }
+.fix-box { background: #e1f5ee; border: 1px solid #9fe1cb; border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #085041; line-height: 1.7; margin-bottom: 14px; }
+.warn-box { background: #faeeda; border: 1px solid #fac775; border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #633806; line-height: 1.7; margin-bottom: 14px; }
+
+/* COST TABLE */
+.cost-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
+.cost-table th { text-align: left; padding: 7px 10px; background: #f1efe8; font-weight: 500; font-size: 10px; color: #666; }
+.cost-table td { padding: 7px 10px; border-bottom: 1px solid #f0ede6; color: #666; }
+.cost-table tr.red td { background: #fff5f5; color: #791f1f; }
+.cost-table tr.green td { background: #f4fdf9; color: #085041; }
+.cost-table tr.total td { font-weight: 500; color: #1a1a18; background: #f1efe8; }
+
+/* ARCHITECTURE */
+.arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.arch-card { border-radius: 12px; border: 1px solid #e5e3db; padding: 14px; background: white; }
+.arch-head { font-size: 12px; font-weight: 500; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #f0ede6; }
+.arch-item { font-size: 11px; color: #666; padding: 3px 0; line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
+.arch-item::before { content: "→"; color: #1d9e75; flex-shrink: 0; }
+
+/* ROUTING TABLE */
+.routing-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
+.routing-table th { text-align: left; padding: 7px 10px; background: #f1efe8; font-weight: 500; font-size: 10px; color: #666; }
+.routing-table td { padding: 7px 10px; border-bottom: 1px solid #f0ede6; color: #666; vertical-align: top; }
+
+/* REVISED PRICING */
+.plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.plan { border-radius: 12px; border: 1px solid #e5e3db; background: white; overflow: hidden; }
+.plan.featured { border-color: #1d9e75; }
+.plan-head { padding: 14px 14px 10px; }
+.plan-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.plan-price { font-size: 22px; font-weight: 500; margin-bottom: 2px; }
+.plan-unit { font-size: 10px; color: #888; }
+.plan-divider { height: 1px; background: #f0ede6; }
+.plan-features { padding: 10px 14px 14px; }
+.feat { font-size: 11px; color: #666; padding: 3px 0; line-height: 1.4; display: flex; gap: 6px; }
+.feat::before { content: "·"; color: #b4b2a9; flex-shrink: 0; }
+.feat.key { color: #1a1a18; font-weight: 500; }
+.feat.key::before { content: "✓"; color: #1d9e75; }
+.margin-row { background: #f4fdf9; border-top: 1px solid #e5e3db; padding: 8px 14px; font-size: 11px; color: #085041; }
+</style></head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('problem')">The real problem</div>
+  <div class="tab" onclick="show('routing')">Model routing</div>
+  <div class="tab" onclick="show('caps')">Token caps</div>
+  <div class="tab" onclick="show('revised')">Revised pricing</div>
+  <div class="tab" onclick="show('simulation')">Margin simulation</div>
+</div>
+
+<!-- PROBLEM -->
+<div class="panel active" id="tab-problem">
+  <p class="sub">The exact scenario where you go bankrupt. Real numbers, not estimates.</p>
+
+  <div class="danger-box">
+    <strong>The fatal scenario:</strong> A Growth customer (€399/month) has 6 agents running complex tasks — research, writing, competitor analysis. Each heartbeat runs Claude Sonnet with 30,000 token context + 5,000 token output. They run 500 tasks/month. Your LLM cost: 500 × (30k × €0.003 + 5k × €0.015) = 500 × (€0.09 + €0.075) = <strong>€82.50 in LLM costs alone</strong> — 21% of their plan revenue. Margin: still okay. Now they run 2,000 tasks. Cost: €330. You made €69 gross on a €399 plan. Now they go over 2,000. You're paying to serve them.
+  </div>
+
+  <table class="cost-table">
+    <thead>
+      <tr><th>Task type</th><th>Model</th><th>Avg input tokens</th><th>Avg output tokens</th><th>Cost/task</th><th>500 tasks/mo</th><th>2,000 tasks/mo</th></tr>
+    </thead>
+    <tbody>
+      <tr class="green">
+        <td>Post social update</td><td>Haiku 3.5</td><td>3,000</td><td>500</td>
+        <td>€0.003</td><td>€1.50</td><td>€6</td>
+      </tr>
+      <tr class="green">
+        <td>Reply to email</td><td>Haiku 3.5</td><td>5,000</td><td>1,000</td>
+        <td>€0.006</td><td>€3</td><td>€12</td>
+      </tr>
+      <tr>
+        <td>Write newsletter draft</td><td>Sonnet 4</td><td>15,000</td><td>3,000</td>
+        <td>€0.09</td><td>€45</td><td>€180</td>
+      </tr>
+      <tr>
+        <td>Research + report</td><td>Sonnet 4</td><td>40,000</td><td>6,000</td>
+        <td>€0.21</td><td>€105</td><td>€420</td>
+      </tr>
+      <tr class="red">
+        <td>Deep competitive analysis</td><td>Sonnet 4</td><td>80,000</td><td>10,000</td>
+        <td>€0.39</td><td>€195</td><td><strong>€780 — destroys Growth plan</strong></td>
+      </tr>
+      <tr class="total">
+        <td colspan="4">Mixed workload (realistic Growth customer)</td>
+        <td>€0.04 avg</td><td>€20</td><td><strong>€80 — 20% of €399</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:11px;color:#888;margin-bottom:10px">Pricing used: Claude Haiku 3.5 at €0.0008/1k input, €0.004/1k output. Claude Sonnet 4 at €0.003/1k input, €0.015/1k output. April 2026 rates.</p>
+
+  <div class="warn-box">
+    <strong>The three levers you must control:</strong><br>
+    1. <strong>Which model</strong> runs each task (routing by complexity = 80% cost reduction on simple tasks)<br>
+    2. <strong>How many tokens</strong> the context can consume per heartbeat (hard cap = cost certainty)<br>
+    3. <strong>How many tasks</strong> are included before overage kicks in (volume cap = revenue floor)<br><br>
+    Without all three, you don't have a business — you have a subsidy programme for your customers.
+  </div>
+</div>
+
+<!-- ROUTING -->
+<div class="panel" id="tab-routing">
+  <p class="sub">Model routing is the single biggest lever on your COGS. Routing a simple task to Haiku instead of Sonnet costs 15x less. Done correctly, your blended cost per task drops from €0.09 to €0.02.</p>
+
+  <table class="routing-table">
+    <thead>
+      <tr><th>Task category</th><th>Examples</th><th>Model assigned</th><th>Token budget</th><th>Cost/task</th><th>Routing rule</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tier 0 — Coordination</strong></td>
+        <td>Heartbeat check-in, task status check, inbox scan</td>
+        <td>Haiku 3.5</td><td>2k/1k</td><td>€0.002</td>
+        <td>No output generation. API calls only.</td>
+      </tr>
+      <tr>
+        <td><strong>Tier 1 — Simple generation</strong></td>
+        <td>Social post, short email reply, status update, meeting summary</td>
+        <td>Haiku 3.5</td><td>8k/2k</td><td>€0.014</td>
+        <td>Output &lt; 500 words. Single-source context.</td>
+      </tr>
+      <tr>
+        <td><strong>Tier 2 — Standard generation</strong></td>
+        <td>Blog draft, email campaign, client report, research summary</td>
+        <td>Sonnet 4</td><td>25k/4k</td><td>€0.135</td>
+        <td>Output 500–2,000 words OR multi-source context.</td>
+      </tr>
+      <tr>
+        <td><strong>Tier 3 — Complex reasoning</strong></td>
+        <td>Competitive analysis, strategy brief, complex research</td>
+        <td>Sonnet 4</td><td>60k/8k</td><td>€0.30</td>
+        <td>Multi-step reasoning, multiple sources, long output.</td>
+      </tr>
+      <tr style="background:#fcebeb">
+        <td><strong>Tier 3+ — Blocked by default</strong></td>
+        <td>Tasks requiring &gt;60k context or &gt;8k output</td>
+        <td>Blocked</td><td>Hard stop</td><td>N/A</td>
+        <td>Requires operator explicit approval + Pro plan minimum.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-head">How routing is determined</div>
+      <div class="arch-item">Task title + description classified at heartbeat start (Haiku classifier call — €0.001)</div>
+      <div class="arch-item">Skill file declares its tier in frontmatter: <code>tier: 1</code></div>
+      <div class="arch-item">If classification conflicts with skill declaration: use the higher tier</div>
+      <div class="arch-item">Operator can override tier per task from the dashboard</div>
+      <div class="arch-item">Default all new skills to Tier 1 until measured</div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-head">Blended cost with smart routing</div>
+      <div class="arch-item">Typical Growth customer workload: 60% T1, 30% T2, 10% T3</div>
+      <div class="arch-item">Blended cost: (0.6×€0.014) + (0.3×€0.135) + (0.1×€0.30) = <strong>€0.079/task</strong></div>
+      <div class="arch-item">2,000 tasks/month = €158 in LLM costs on €399 plan = 40% COGS</div>
+      <div class="arch-item">Without routing (all Sonnet): 2,000 × €0.135 = €270 — margin destroyed</div>
+      <div class="arch-item">Routing saves €112/customer/month at full utilisation</div>
+    </div>
+  </div>
+
+  <div class="fix-box">
+    <strong>The routing implementation rule:</strong> Every SKILL.md file must declare its tier in frontmatter. The platform enforces it. No skill can run at a higher tier than declared without operator approval. This makes costs predictable at the skill level before you even run the task.
+  </div>
+</div>
+
+<!-- CAPS -->
+<div class="panel" id="tab-caps">
+  <p class="sub">Three layers of protection. Each is independent. Together they make your cost structure predictable to within ±5% per customer.</p>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-head">Layer 1 — Token budget per heartbeat</div>
+      <div class="arch-item">Every heartbeat has a hard token ceiling per tier (see routing table)</div>
+      <div class="arch-item">If an agent would exceed its tier's token budget: truncate context, not output</div>
+      <div class="arch-item">Context truncation priority: oldest org memory first, then secondary research, then task history</div>
+      <div class="arch-item">Core context (Company DNA, current task, goal) is never truncated</div>
+      <div class="arch-item">Agent always informed: "Context was compressed — older memory omitted"</div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-head">Layer 2 — Monthly token budget per plan</div>
+      <div class="arch-item">Solo: 5M tokens/month included (≈ 500 avg tasks)</div>
+      <div class="arch-item">Growth: 20M tokens/month included (≈ 2,000 avg tasks)</div>
+      <div class="arch-item">Pro: 60M tokens/month included (≈ 6,000 avg tasks)</div>
+      <div class="arch-item">Dashboard shows token burn in real-time (shown as tasks remaining, not raw tokens)</div>
+      <div class="arch-item">Alert at 80%. Hard pause at 100% unless operator increases cap.</div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-head">Layer 3 — Overage pricing (cost-positive)</div>
+      <div class="arch-item">Overage priced at 3× your marginal LLM cost — always margin-positive</div>
+      <div class="arch-item">Solo overage: €0.024/task equivalent (your cost ~€0.007)</div>
+      <div class="arch-item">Growth overage: €0.018/task equivalent (your cost ~€0.006 at scale)</div>
+      <div class="arch-item">Pro overage: €0.012/task equivalent (your cost ~€0.004 at scale)</div>
+      <div class="arch-item">Operator sets a hard monthly overage ceiling: "never charge me more than €X extra"</div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-head">Layer 4 — Context compression (hidden cost lever)</div>
+      <div class="arch-item">Org memory retrieval: top-10 chunks only, not full knowledge base</div>
+      <div class="arch-item">Company DNA: compressed to 800 tokens max (summary version for Tier 1 tasks)</div>
+      <div class="arch-item">Task history: last 5 comments only, not full thread</div>
+      <div class="arch-item">Goal ancestry: title + one-line summary per level, not full descriptions</div>
+      <div class="arch-item">This alone reduces average context by 40-60% vs naive injection</div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>What to build in the platform vs what to monitor:</strong><br>
+    Build into the platform: token budgets per tier, context truncation, overage alerts, hard monthly cap.<br>
+    Monitor manually at first: per-customer cost vs revenue weekly. Flag any customer where LLM cost exceeds 35% of their plan MRR. Those customers need to be upsold to Pro or their task mix needs adjustment.
+  </div>
+</div>
+
+<!-- REVISED PRICING -->
+<div class="panel" id="tab-revised">
+  <p class="sub">The corrected pricing model. The fundamental change: tasks are now defined as token-budget-inclusive units, not open-ended. This makes your COGS calculable before the month starts.</p>
+
+  <div class="plan-grid">
+
+    <div class="plan">
+      <div class="plan-head">
+        <div class="plan-name">Solo</div>
+        <div class="plan-price">€149<span style="font-size:13px;color:#888">/mo</span></div>
+        <div class="plan-unit">5M tokens/month included</div>
+        <div class="plan-unit">≈ 500 standard tasks</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="feat">Max 2 active agents</div>
+        <div class="feat">Tier 1 + Tier 2 tasks only</div>
+        <div class="feat">No Tier 3 (complex research)</div>
+        <div class="feat">Hard monthly token ceiling</div>
+        <div class="feat">Overage: €0.024/task (optional)</div>
+      </div>
+      <div class="margin-row">Your LLM cost: ~€10–25/month<br>Gross margin floor: <strong>83%</strong></div>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-head">
+        <div class="plan-name" style="color:#085041">Growth</div>
+        <div class="plan-price">€399<span style="font-size:13px;color:#888">/mo</span></div>
+        <div class="plan-unit">20M tokens/month included</div>
+        <div class="plan-unit">≈ 2,000 standard tasks</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="feat key">Max 6 active agents</div>
+        <div class="feat key">Tier 1 + 2 + 3 tasks</div>
+        <div class="feat key">Tier 3 capped at 10% of monthly volume</div>
+        <div class="feat key">Context compression enabled</div>
+        <div class="feat key">Overage: €0.018/task (capped by operator)</div>
+      </div>
+      <div class="margin-row">Your LLM cost: ~€60–100/month at full use<br>Gross margin floor: <strong>75%</strong></div>
+    </div>
+
+    <div class="plan">
+      <div class="plan-head">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">€799<span style="font-size:13px;color:#888">/mo</span></div>
+        <div class="plan-unit">60M tokens/month included</div>
+        <div class="plan-unit">≈ 6,000 standard tasks</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="feat key">Max 15 active agents</div>
+        <div class="feat key">All tiers unlimited within budget</div>
+        <div class="feat key">Priority model routing</div>
+        <div class="feat key">Custom token ceiling per agent</div>
+        <div class="feat key">Overage: €0.012/task (capped by operator)</div>
+      </div>
+      <div class="margin-row">Your LLM cost: ~€120–200/month at full use<br>Gross margin floor: <strong>75%</strong></div>
+    </div>
+
+  </div>
+
+  <div class="fix-box">
+    <strong>Key change vs the original spec:</strong> Tasks are now defined as "token-budget-inclusive." When you sell "2,000 tasks" you mean "2,000 tasks within the tier routing system with a 20M token monthly ceiling." This makes your COGS range calculable: minimum €0 (no activity), maximum ~€100 (full 20M tokens at blended model rate). You can price with confidence because you know your worst case.
+  </div>
+</div>
+
+<!-- SIMULATION -->
+<div class="panel" id="tab-simulation">
+  <p class="sub">Monthly P&L per customer type. These are the numbers to track. If any customer segment goes below 60% gross margin, intervene immediately.</p>
+
+  <table class="cost-table">
+    <thead>
+      <tr><th>Customer type</th><th>Plan</th><th>Actual tasks/mo</th><th>Avg tier mix</th><th>LLM cost</th><th>Revenue</th><th>Gross margin</th><th>Action if &lt;60%</th></tr>
+    </thead>
+    <tbody>
+      <tr class="green">
+        <td>Light user</td><td>Solo €149</td><td>200 tasks</td><td>80% T1, 20% T2</td>
+        <td>€8</td><td>€149</td><td><strong>95%</strong></td><td>—</td>
+      </tr>
+      <tr class="green">
+        <td>Normal Growth user</td><td>Growth €399</td><td>1,200 tasks</td><td>60% T1, 35% T2, 5% T3</td>
+        <td>€58</td><td>€399</td><td><strong>85%</strong></td><td>—</td>
+      </tr>
+      <tr class="green">
+        <td>Heavy Growth user</td><td>Growth €399</td><td>2,000 tasks</td><td>50% T1, 40% T2, 10% T3</td>
+        <td>€98</td><td>€399</td><td><strong>75%</strong></td><td>Upsell to Pro</td>
+      </tr>
+      <tr>
+        <td>Normal Pro user</td><td>Pro €799</td><td>4,000 tasks</td><td>40% T1, 45% T2, 15% T3</td>
+        <td>€175</td><td>€799</td><td><strong>78%</strong></td><td>—</td>
+      </tr>
+      <tr>
+        <td>Heavy Pro user</td><td>Pro €799</td><td>6,000 tasks</td><td>30% T1, 50% T2, 20% T3</td>
+        <td>€294</td><td>€799</td><td><strong>63%</strong></td><td>Enterprise conversation</td>
+      </tr>
+      <tr class="red">
+        <td>Abuse case (no routing)</td><td>Growth €399</td><td>2,000 all T3</td><td>0% T1, 0% T2, 100% T3</td>
+        <td>€600</td><td>€399</td><td><strong style="color:#791f1f">-50% — bankrupt</strong></td><td>Token cap prevents this</td>
+      </tr>
+      <tr class="green">
+        <td>Overage revenue</td><td>Growth €399</td><td>2,500 tasks</td><td>Normal mix + 500 overage</td>
+        <td>€122</td><td>€399 + €9 overage</td><td><strong>74%</strong></td><td>Overage is margin-positive</td>
+      </tr>
+      <tr class="total">
+        <td colspan="3"><strong>Target blended (100 customers, realistic mix)</strong></td>
+        <td>Mixed</td><td>€71 avg/customer</td><td>€480 avg ARPU</td><td><strong>85%</strong></td><td>Monitor weekly</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-head">The 3 metrics to track weekly</div>
+      <div class="arch-item"><strong>LLM cost / MRR ratio</strong> — target &lt;20%. Alert if any customer exceeds 40%.</div>
+      <div class="arch-item"><strong>Blended cost per task</strong> — target €0.02–0.04. Rising = routing not working.</div>
+      <div class="arch-item"><strong>Tier 3 task % by customer</strong> — if any customer &gt;25% T3, they need Pro.</div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-head">Why the "abuse case" can't happen</div>
+      <div class="arch-item">20M token monthly ceiling → 2,000 T3 tasks = 60M tokens → hard blocked at 20M</div>
+      <div class="arch-item">10% T3 cap on Growth → 200 T3 tasks max per month at Growth tier</div>
+      <div class="arch-item">Worst case with caps: 200 T3 + 1,800 T1/T2 = €60 + €32 = €92 on €399 plan = 77% margin</div>
+      <div class="arch-item">The caps are your business model. They are not optional features.</div>
+    </div>
+  </div>
+
+  <div class="fix-box">
+    <strong>The bottom line:</strong> With model routing + token caps + tier limits, your worst-case gross margin on any plan is ~63%. Your average gross margin at realistic usage is 80-85%. The business works. Without these three controls, it does not.
+  </div>
+</div>
+
+<script>
+function show(id) {
+  const ids = ['problem','routing','caps','revised','simulation'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

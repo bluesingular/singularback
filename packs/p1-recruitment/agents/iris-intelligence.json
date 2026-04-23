@@ -1,0 +1,21 @@
+{
+  "agent_id": "iris-intelligence",
+  "name": "Iris",
+  "role_name": "Analyste marché",
+  "description": "Iris surveille les tendances du marché de l'emploi et produit une veille hebdomadaire sur votre secteur de spécialisation.",
+  "icon": "trending-up",
+  "reports_to": "ceo",
+  "capabilities": [
+    "Veille marché hebdomadaire sur les secteurs de recrutement",
+    "Détection de signaux (réorganisations, nouvelles levées, plans de recrutement annoncés)",
+    "Analyse des tendances salariales",
+    "Identification d'opportunités de développement commercial"
+  ],
+  "skills_assigned": ["market-intelligence"],
+  "tier_profile": {
+    "default_tier": 2,
+    "heavy_tasks": ["market-intelligence"],
+    "light_tasks": []
+  },
+  "integrations_needed": []
+}

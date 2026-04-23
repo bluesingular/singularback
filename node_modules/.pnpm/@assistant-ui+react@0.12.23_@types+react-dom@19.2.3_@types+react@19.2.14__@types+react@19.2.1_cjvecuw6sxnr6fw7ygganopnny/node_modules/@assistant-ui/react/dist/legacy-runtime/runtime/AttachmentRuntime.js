@@ -1,0 +1,2 @@
+export { AttachmentRuntimeImpl, ThreadComposerAttachmentRuntimeImpl, EditComposerAttachmentRuntimeImpl, MessageAttachmentRuntimeImpl, } from "@assistant-ui/core/internal";
+//# sourceMappingURL=AttachmentRuntime.js.map

@@ -1,0 +1,866 @@
+{
+  "skill": "market-intelligence",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "mi-001",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Tech & Digital, Paris",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["FinTech", "SaaS B2B", "Data", "Développement logiciel"]
+      },
+      "expected_output": {
+        "sector": "Tech & Digital",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "hiring_surge",
+            "headline": "Pennylane lève 40M€ et annonce 100 recrutements en 2025",
+            "description": "La scale-up SaaS de comptabilité pour PME vient de boucler une nouvelle levée et prévoit de doubler ses effectifs tech et commerciaux d'ici fin 2025. Profils prioritaires : ingénieurs backend, product managers, commerciaux B2B.",
+            "relevance": "high",
+            "action_suggested": "Prospecter Pennylane comme client potentiel. Identifier les profils tech dans notre base qui correspondent à leurs besoins déclarés. Surveiller les offres publiées pour affiner le brief."
+          },
+          {
+            "type": "layoffs",
+            "headline": "Restructuration chez Docler Holding France — 45 postes supprimés",
+            "description": "La filiale française de Docler Holding (plateforme entertainment) réduit ses effectifs tech suite à une réorganisation européenne. Profils impactés : développeurs React, chefs de projet digital, UI designers.",
+            "relevance": "medium",
+            "action_suggested": "Contacter les profils sortants identifiables (LinkedIn, réseaux dev). Source potentielle de candidats développeurs React disponibles immédiatement."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Les salaires Data Engineer à Paris franchissent les 70k en médiane (APEC Q1 2025)",
+            "description": "Selon le baromètre APEC du premier trimestre 2025, la rémunération médiane des Data Engineers à Paris atteint 71 500 €, contre 65 000 € en 2023. La tension sur le marché continue de tirer les salaires vers le haut.",
+            "relevance": "high",
+            "action_suggested": "Mettre à jour les fourchettes salariales dans nos briefs clients Data Engineer. Alerter les clients dont les grilles internes n'ont pas évolué — risque de perdre des candidats en phase d'offre."
+          }
+        ],
+        "summary": "Semaine marquée par deux signaux forts pour les cabinets spécialisés en Tech. La levée de Pennylane est une opportunité commerciale directe (nouveau client potentiel ou source d'une mission de recrutement). La restructuration Docler crée un vivier de profils React disponibles immédiatement. La tendance salariale data continue de monter : les briefs clients doivent être mis à jour pour éviter des pertes en phase d'offre.",
+        "sources": [
+          "Les Echos — 'Pennylane lève 40 millions d'euros' — 15 avril 2025",
+          "Maddyness — 'Docler Holding restructure sa filiale française' — 16 avril 2025",
+          "APEC — Baromètre Emploi Cadres T1 2025 — publié le 10 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille tech hebdomadaire complète. 3 signaux de types différents (hiring surge, layoffs, salary trend) avec des actions concrètes pour chaque. Le résumé synthétise les implications pratiques. Sources citées avec dates."
+    },
+    {
+      "id": "mi-002",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Finance & Banque, Paris",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "sectors_of_interest": ["Banque", "Assurance", "Finance de marché", "Fintech"]
+      },
+      "expected_output": {
+        "sector": "Finance & Banque",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "signals": [
+          {
+            "type": "company_event",
+            "headline": "BNP Paribas annonce la fusion de ses directions Corporate Banking et Trade Finance",
+            "description": "BNP Paribas va fusionner deux de ses grandes directions en CIB France, créant une nouvelle organisation au 1er juillet. Les réorganisations de ce type génèrent habituellement des départs volontaires et des recrutements de remplacement dans les 6 à 18 mois.",
+            "relevance": "high",
+            "action_suggested": "Contacter nos interlocuteurs RH chez BNP CIB pour anticiper les besoins de recrutement issus de la réorganisation. Mettre en veille les profils Corporate Banking disponibles en base."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "La demande pour les profils 'Finance Climatique' triple en 12 mois (LinkedIn Insights)",
+            "description": "Les offres d'emploi mentionnant 'climate finance', 'green bonds', 'finance durable' et 'taxonomie européenne' ont triplé en France entre avril 2024 et avril 2025. Les profils croisés Finance + ESG/Durabilité sont en pénurie.",
+            "relevance": "high",
+            "action_suggested": "Identifier les profils finance avec double compétence durabilité dans notre base. Développer une offre de service spécialisée 'Finance Climatique' pour capitaliser sur cette tendance. Prospecter les institutions financières actives sur ce segment (Amundi, Société Générale ESG, Mirova)."
+          },
+          {
+            "type": "market_move",
+            "headline": "Revolut obtient sa licence bancaire européenne — déploiement France prévu H2 2025",
+            "description": "Revolut a finalement obtenu sa licence bancaire au Lituanie avec passeport européen. Son déploiement renforcé en France prévu pour le second semestre 2025 devrait s'accompagner de recrutements significatifs (compliance, risk, commercial).",
+            "relevance": "medium",
+            "action_suggested": "Prospecter Revolut France pour des missions en compliance et risk management. Surveiller les offres publiées sur LinkedIn d'ici juillet 2025."
+          }
+        ],
+        "summary": "Semaine riche en signaux pour le secteur financier. La fusion BNP Paribas est le signal le plus opérationnel à court terme — les réorganisations créent toujours des opportunités de recrutement dans les 12 mois. La montée en puissance de la finance climatique est une tendance structurelle à capitaliser. L'arrivée de Revolut en mode banque pleine est un signal de recrutement à surveiller pour H2 2025.",
+        "sources": [
+          "Les Echos — 'BNP Paribas réorganise son CIB' — 22 avril 2025",
+          "LinkedIn Insights France — Rapport Tendances Emploi Finance — avril 2025",
+          "Le Figaro Économie — 'Revolut obtient sa licence bancaire' — 23 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille finance multi-signaux. Illustre comment connecter un événement corporate (fusion BNP) à une opportunité commerciale directe pour le cabinet. La tendance 'finance climatique' est un signal structurel à transformer en offre de service."
+    },
+    {
+      "id": "mi-003",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Industrie & Ingénierie, Ile-de-France",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "sectors_of_interest": ["Aéronautique", "Automobile", "Énergie", "Chimie industrielle"]
+      },
+      "expected_output": {
+        "sector": "Industrie & Ingénierie",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "signals": [
+          {
+            "type": "hiring_surge",
+            "headline": "Airbus ouvre 2 500 postes en France en 2025, dont 800 en Île-de-France",
+            "description": "Airbus France confirme son plan de recrutement massif pour accompagner la montée en cadence de l'A320 et le développement de l'hydrogène. Profils recherchés : ingénieurs procédés, supply chain, systèmes embarqués, programme.",
+            "relevance": "high",
+            "action_suggested": "Positionner le cabinet sur des mandats de sourcing Airbus en ingénierie. Identifier les profils ingénieurs aéronautiques disponibles en base. Contacter nos interlocuteurs RH Airbus Île-de-France."
+          },
+          {
+            "type": "layoffs",
+            "headline": "Stellantis annonce 1 200 départs en France dans l'électronique embarquée",
+            "description": "Stellantis réduit ses équipes d'ingénierie électronique en France dans le cadre de sa stratégie de sous-traitance vers des fournisseurs Tier 1. Les profils embarqués (C/C++, AUTOSAR, CAN) sont directement impactés.",
+            "relevance": "high",
+            "action_suggested": "Source immédiate de profils ingénieurs embarqués automobiles. Contacter les réseaux professionnels (AFIS, SIA) pour identifier les profils concernés. Opportunité de placements chez Valeo, Forvia, Aptiv."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "Les ingénieurs hydrogène : pénurie critique, salaires +25% en 2 ans (Dares)",
+            "description": "La Dares publie une étude sur la pénurie de compétences dans la filière hydrogène. Les profils electrochimie, pile à combustible et stockage hydrogène sont en tension extrême. Les salaires ont progressé de 25% en 2 ans sur ce segment.",
+            "relevance": "medium",
+            "action_suggested": "Cartographier les profils hydrogène en base et sur LinkedIn. Développer une verticale de recrutement 'Hydrogène & Nouvelles Énergies' comme niche différenciante. Cibles : Air Liquide, Lhyfe, Hyvia (Renault-Plug Power)."
+          }
+        ],
+        "summary": "Semaine contrastée en industrie. D'un côté, Airbus et la filière hydrogène créent une demande forte en ingénierie avancée. De l'autre, la restructuration Stellantis libère un vivier de profils embarqués qualifiés. Les deux signaux sont actionnables : l'un pour développer de nouveaux clients (Airbus, filière hydrogène), l'autre pour enrichir le pipeline candidats (profils Stellantis disponibles).",
+        "sources": [
+          "BFM Business — 'Airbus recrute massivement en France' — 8 avril 2025",
+          "L'Usine Nouvelle — 'Stellantis coupe dans l'ingénierie France' — 9 avril 2025",
+          "Dares — 'Tensions de recrutement dans la filière hydrogène' — rapport mars 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille industrie avec signaux opposés (recrutement Airbus vs restructuration Stellantis). Illustre comment un signal 'layoffs' est une opportunité pour le cabinet (vivier de candidats) et non seulement une mauvaise nouvelle."
+    },
+    {
+      "id": "mi-004",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Santé & MedTech, Paris",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["Pharmaceutique", "MedTech", "Santé numérique", "Biotechnologie"]
+      },
+      "expected_output": {
+        "sector": "Santé & MedTech",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "company_event",
+            "headline": "Sanofi cède sa division Consumer Healthcare à CD&R — 1 500 postes en mouvement",
+            "description": "Sanofi finalise la cession de sa division grand public (Doliprane, etc.) au fonds CD&R. Cette transaction va entraîner une réorganisation importante des équipes marketing, commercial et supply chain des marques concernées.",
+            "relevance": "high",
+            "action_suggested": "Surveiller les profils Sanofi Consumer Healthcare sur LinkedIn (ils vont bouger). Anticiper des recrutements chez CD&R pour renforcer les équipes de la nouvelle entité. Source potentielle de profils santé marketing expérimentés."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "Doctolib lance sa verticale 'Doctolib Pro' et recrute 200 profils en France",
+            "description": "Doctolib déploie une nouvelle offre B2B dédiée aux établissements de santé privés et prévoit 200 recrutements en 2025 : ingénieurs, chefs de produit, commerciaux santé, data scientists.",
+            "relevance": "high",
+            "action_suggested": "Contacter Talent Acquisition Doctolib pour positionner le cabinet. Identifier les profils tech et commerciaux santé dans notre base. Pertinent surtout pour les profils qui comprennent les enjeux réglementaires de santé numérique."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "La réglementation AI Act crée une nouvelle demande de 'Medical AI Officers' en Europe",
+            "description": "L'entrée en vigueur progressive de l'AI Act en 2025-2026 impose aux fabricants de dispositifs médicaux intégrant de l'IA des responsables qualité IA. Ce rôle (Medical AI Officer ou AI Quality Manager MedTech) est quasi-inexistant sur le marché.",
+            "relevance": "medium",
+            "action_suggested": "Identifier des profils Affaires Réglementaires MedTech avec une sensibilité IA. Développer une veille sur ce rôle émergent. Opportunité de se positionner comme expert avant que la concurrence ne s'y intéresse."
+          }
+        ],
+        "summary": "Semaine dense pour la santé. La cession Sanofi Consumer Healthcare est le signal le plus immédiat — des centaines de profils santé qualifiés vont se retrouver en transition dans les 12 prochains mois. L'expansion Doctolib est une opportunité commerciale directe pour les missions tech. Le rôle émergent de Medical AI Officer est à surveiller comme niche différenciante.",
+        "sources": [
+          "Les Echos — 'Sanofi finalise la cession de Doliprane à CD&R' — 15 avril 2025",
+          "Maddyness — 'Doctolib Pro : 200 recrutements prévus' — 16 avril 2025",
+          "EMA — Guidance on AI Act Application to Medical Devices — avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille santé avec signal réglementaire (AI Act). Illustre comment un signal réglementaire se traduit en opportunité de recrutement (nouveau rôle émergent). La cession Sanofi est correctement analysée comme un double signal (vivier candidats + client potentiel)."
+    },
+    {
+      "id": "mi-005",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement RH & Legal, Paris",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "sectors_of_interest": ["RH", "Droit Social", "Compliance", "Paie"]
+      },
+      "expected_output": {
+        "sector": "RH & Legal",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "signals": [
+          {
+            "type": "salary_trend",
+            "headline": "Les DRH de PME atteignent 80k en médiane — gap de 35% avec les grands groupes se réduit",
+            "description": "L'enquête de rémunération ANDRH 2025 montre que la médiane salariale des DRH de PME (200-500 salariés) à Paris atteint 80 000 €, contre 55 000 € en 2020. La tension sur ce profil s'intensifie avec la multiplication des obligations légales (CSRD, index égalité, BDESE).",
+            "relevance": "high",
+            "action_suggested": "Mettre à jour les fourchettes de rémunération DRH PME dans nos briefs. Alerter nos clients PME qui recrutent des RH que les prétentions ont significativement augmenté."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "Explosion de la demande pour les juristes RGPD — +60% d'offres en 12 mois",
+            "description": "La CNIL a intensifié ses contrôles en 2024-2025. Les entreprises de +250 salariés cherchent activement des DPO (Data Protection Officers) et des juristes spécialisés en protection des données. Le marché est en tension extrême — moins de 3 000 profils disponibles pour une demande estimée à 8 000.",
+            "relevance": "high",
+            "action_suggested": "Identifier les profils DPO et juristes RGPD dans notre base. Développer une verticale RGPD/DPO comme niche différenciante. Cibles : toutes les entreprises en croissance soumises au RGPD (scale-ups, groupes industriels, santé)."
+          },
+          {
+            "type": "company_event",
+            "headline": "Air France-KLM annonce une révision de sa convention collective — impact sur 30 000 salariés",
+            "description": "La révision de la convention collective Air France va mobiliser des équipes de relations sociales importantes. Ce type de chantier crée des besoins de juristes droit social et de spécialistes relations sociales pour l'accompagnement et les éventuelles négociations.",
+            "relevance": "medium",
+            "action_suggested": "Surveiller si Air France-KLM externalise des besoins en juristes droit social ou en DRH pour l'accompagnement. Prospecter les cabinets d'avocats travaillant pour Air France sur ce dossier."
+          }
+        ],
+        "summary": "Semaine marquée par deux tensions persistantes : la hausse des salaires DRH PME et la pénurie structurelle de juristes RGPD/DPO. Ces deux signaux sont actionnables immédiatement (mise à jour des grilles salariales pour les clients, développement d'une niche DPO). Le chantier Air France est à surveiller sur 6 mois.",
+        "sources": [
+          "ANDRH — Enquête de rémunération RH 2025 — publiée le 28 avril 2025",
+          "CNIL — Rapport annuel 2024 — publié avril 2025",
+          "Les Echos — 'Air France-KLM révise sa convention collective' — 30 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille RH & Legal avec signal sectoriel fort (DPO/RGPD). Illustre l'identification d'une niche de recrutement avant la concurrence — la pénurie DPO est structurelle et peu de cabinets généralistes s'y sont positionnés."
+    },
+    {
+      "id": "mi-006",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Marketing & Communication, Paris",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["Marketing digital", "E-commerce", "Communication", "Luxe & Mode"]
+      },
+      "expected_output": {
+        "sector": "Marketing & Communication",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "skill_demand",
+            "headline": "Les profils 'AI Marketing Manager' : +85% d'offres en 6 mois (LinkedIn)",
+            "description": "Les offres d'emploi mentionnant l'IA générative dans des rôles marketing (rédaction de contenus IA, personnalisation IA, growth hacking IA) ont explosé. Les entreprises cherchent des profils hybrides : marketeurs avec une forte appétence pour les outils IA (Midjourney, ChatGPT API, HubSpot AI).",
+            "relevance": "high",
+            "action_suggested": "Identifier les profils marketing avec une présence visible sur les outils IA (portfolio, posts LinkedIn). Développer une grille de qualification spécifique 'AI Marketing' pour les briefs clients."
+          },
+          {
+            "type": "company_event",
+            "headline": "LVMH Digital annonce la création d'un hub innovation Paris de 500 personnes",
+            "description": "LVMH va concentrer ses équipes digitales au hub 'Station A' à Paris. Ce regroupement va générer des recrutements en UX, product management, data marketing et direction digitale pour plusieurs Maisons du groupe.",
+            "relevance": "high",
+            "action_suggested": "Prospecter la direction Talent de LVMH Digital pour positionner le cabinet. Les profils UX, product et data avec une sensibilité luxe sont rares — notre spécialisation est un avantage compétitif sur ce segment."
+          },
+          {
+            "type": "market_move",
+            "headline": "Decathlon acquiert Trail.run et renforce son équipe marketing digital outdoor",
+            "description": "Decathlon intègre Trail.run, plateforme de running française, et annonce une dizaine de recrutements marketing et tech dans les 6 mois pour développer la communauté.",
+            "relevance": "low",
+            "action_suggested": "Signal à surveiller mais non prioritaire. Décathlon est accessible directement en interne. À garder en veille si une mission de recrutement marketing digital outdoor se présente."
+          }
+        ],
+        "summary": "Semaine marketing marquée par deux signaux forts : l'explosion des rôles IA marketing et l'expansion LVMH Digital. Ces deux tendances se renforcent mutuellement — les Maisons de luxe cherchent des profils capables d'allier excellence créative et maîtrise des outils IA. La niche 'AI Marketing pour le luxe' est une opportunité de positionnement différenciant pour le cabinet.",
+        "sources": [
+          "LinkedIn Insights — Jobs Report Marketing France — avril 2025",
+          "Frenchweb — 'LVMH créé son hub digital Station A' — 15 avril 2025",
+          "Maddyness — 'Decathlon rachète Trail.run' — 16 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille marketing avec signaux de transformation digitale et luxe. Illustre la construction d'une analyse transversale ('IA marketing pour le luxe') à partir de deux signaux indépendants — c'est ce qui donne de la valeur à une veille par rapport à un simple agrégateur de news."
+    },
+    {
+      "id": "mi-007",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Supply Chain & Logistique",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "sectors_of_interest": ["Supply chain", "Logistique", "Transport", "Commerce international"]
+      },
+      "expected_output": {
+        "sector": "Supply Chain & Logistique",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "signals": [
+          {
+            "type": "market_move",
+            "headline": "Maersk ouvre un hub logistique à Roissy — 400 emplois créés",
+            "description": "Le leader mondial du transport maritime et logistique ouvre un nouveau hub multimodal à Roissy-Charles de Gaulle, avec 400 emplois prévus sur 3 ans. Profils recherchés : opérateurs logistiques, chefs de projet transport, responsables douane, coordinateurs multimodaux.",
+            "relevance": "high",
+            "action_suggested": "Prospecter Maersk France pour des missions de recrutement sur ce hub. Identifier les profils logistique/transport en base ou sur LinkedIn dans la zone Roissy. Compétence douane : rareté croissante, à valoriser."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Les responsables supply chain +15% en 2 ans — pénurie post-Covid non résorbée (APEC)",
+            "description": "L'APEC confirme que la pénurie de responsables supply chain qualifiés persiste, 4 ans après le choc Covid. Les salaires ont progressé de 15% en médiane. Les profils maîtrisant la gestion de crise et la résilience des approvisionnements sont particulièrement recherchés.",
+            "relevance": "high",
+            "action_suggested": "Ajuster les fourchettes salariales supply chain dans tous nos briefs actifs. Mentionner la pénurie comme argument de valeur auprès des clients qui hésitent à recruter maintenant."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "La demande pour les profils 'Green Logistics' double en 12 mois",
+            "description": "Les entreprises françaises soumises aux nouvelles obligations de reporting transport (scope 3 carbone) cherchent des spécialistes en logistique verte : optimisation d'empreinte carbone, multimodalité ferroviaire, fleet management électrique.",
+            "relevance": "medium",
+            "action_suggested": "Cartographier les profils supply chain avec une expertise carbone/durabilité dans notre base. Opportunité de niche sur les postes 'Green Supply Chain Manager' chez les industriels soumis à la CSRD."
+          }
+        ],
+        "summary": "Semaine supply chain avec un signal d'opportunité claire (hub Maersk Roissy) et deux tendances de fond qui renforcent la valeur des profils expérimentés. La pénurie persistante et la hausse des salaires sont des arguments commerciaux à utiliser avec les clients qui ont des postes ouverts depuis longtemps.",
+        "sources": [
+          "Journal du Net — 'Maersk ouvre un hub à Roissy-CDG' — 8 avril 2025",
+          "APEC — Baromètre emploi cadres Supply Chain T1 2025",
+          "Actu-Environnement — 'Reporting transport scope 3 : les entreprises se préparent' — 10 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille supply chain avec signal concret actionnable (hub Maersk). Le conseil d'utiliser la pénurie comme argument commercial est une valeur ajoutée réelle pour un opérateur non spécialiste du marché."
+    },
+    {
+      "id": "mi-008",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement E-commerce & Retail",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "sectors_of_interest": ["E-commerce", "Retail physique", "Marketplace", "Consumer goods"]
+      },
+      "expected_output": {
+        "sector": "E-commerce & Retail",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "signals": [
+          {
+            "type": "layoffs",
+            "headline": "Fnac Darty annonce 1 300 suppressions de postes en France sur 2 ans",
+            "description": "Fnac Darty engage un plan de transformation qui prévoit 1 300 départs sur 2 ans, principalement dans les fonctions support (RH, finance, marketing siège) et une réduction du nombre de magasins. Source potentielle de profils retail et e-commerce expérimentés.",
+            "relevance": "high",
+            "action_suggested": "Surveiller les profils Fnac Darty sur LinkedIn (marketing retail, e-commerce, responsables de magasin). Source potentielle de candidats pour nos clients distributeurs et e-commerçants. Contacter les profils identifiés dans les 30 prochains jours."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "Shein ouvre son bureau parisien et recrute 80 profils mode et tech",
+            "description": "Shein ouvre un bureau mode et tech à Paris dans le cadre de sa stratégie de 'localisation européenne'. Profils recherchés : acheteurs mode, responsables fournisseurs, chefs de produit digital, ingénieurs logistique. Rémunérations supérieures au marché annoncées.",
+            "relevance": "medium",
+            "action_suggested": "Shein est un nouveau client potentiel mais un dossier à traiter avec discernement (controverses CSR). À évaluer selon la politique du cabinet sur les clients. Si positif, sourcer des profils mode et logistique e-commerce."
+          },
+          {
+            "type": "market_move",
+            "headline": "Amazon Fashion renforce sa présence en France — nouveau partenariat avec 50 marques françaises",
+            "description": "Amazon Fashion annonce un programme de référencement prioritaire pour les marques de mode françaises, nécessitant des recrutements de chefs de compte côté marque (Amazon Account Managers).",
+            "relevance": "medium",
+            "action_suggested": "Signal de demande à venir pour les profils 'Amazon Expert' (gestion catalogue, publicité Amazon, logistique FBA). À surveiller pour les 6 prochains mois."
+          }
+        ],
+        "summary": "Le signal le plus actionnable immédiatement est la restructuration Fnac Darty — source de profils retail et e-commerce expérimentés disponibles rapidement. L'ouverture Shein est une opportunité commerciale à évaluer au regard des valeurs du cabinet. La tendance Amazon Fashion crée une demande future pour des profils spécialisés marketplace.",
+        "sources": [
+          "BFM Business — 'Fnac Darty : 1300 suppressions de postes' — 22 avril 2025",
+          "Le Figaro — 'Shein ouvre un bureau à Paris' — 23 avril 2025",
+          "Le Monde — 'Amazon Fashion s'associe aux marques françaises' — 21 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille retail avec note de prudence sur Shein (controverses CSR). Illustre l'intelligence d'un analyste qui ne se contente pas de présenter les opportunités mais soulève les questions de compatibilité avec les valeurs du cabinet."
+    },
+    {
+      "id": "mi-009",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement IT Infrastructure & Cloud",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "sectors_of_interest": ["Cloud", "Infrastructure", "Cybersécurité", "DevOps"]
+      },
+      "expected_output": {
+        "sector": "IT Infrastructure & Cloud",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "signals": [
+          {
+            "type": "company_event",
+            "headline": "Microsoft investit 4 milliards € en France pour des datacenters cloud — 25 000 emplois indirects attendus",
+            "description": "Microsoft annonce un plan d'investissement massif en France (Île-de-France et Normandie) pour construire de nouveaux datacenters. Si l'emploi direct restera limité, l'effet d'entraînement sur les ESN, intégrateurs et éditeurs cloud sera considérable.",
+            "relevance": "high",
+            "action_suggested": "Fort signal de demande à venir pour les profils cloud Azure et infrastructure. Prospecter les intégrateurs Microsoft (Avanade, Capgemini Cloud Microsoft, Econocom) pour anticiper leurs besoins. Sourcer les profils Azure en avance."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Les salaires des ingénieurs cybersécurité : +18% en 2 ans, médiane à 72k (Apec Q1 2025)",
+            "description": "La pénurie de profils cybersécurité s'aggrave en France. La médiane salariale des ingénieurs cybersécurité à Paris atteint 72 000 € en 2025, avec des pics à 95 000 € pour les profils SIEM/SOC seniors. La demande est tirée par la directive NIS2 et les exigences ANSSI.",
+            "relevance": "high",
+            "action_suggested": "Mettre à jour les fourchettes cybersécurité dans tous les briefs actifs. Informer les clients qui recrutent des profils cyber que les grilles internes doivent être revues pour être compétitives."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "NIS2 : 600 RSSI supplémentaires attendus en France d'ici 2026 (ANSSI)",
+            "description": "La directive européenne NIS2, transposée en droit français en 2024, étend les obligations de cybersécurité à 15 000 nouvelles entités. L'ANSSI estime le besoin à 600 RSSI supplémentaires sur les 18 prochains mois.",
+            "relevance": "high",
+            "action_suggested": "Développer une offre recrutement RSSI dédiée. Identifier les profils RSSI dans notre base et sur le marché. Cibles : ETI et collectivités territoriales nouvellement soumises à NIS2."
+          }
+        ],
+        "summary": "Semaine exceptionnellement riche en signaux pour la cybersécurité et le cloud. La directive NIS2 crée une demande structurelle de 600 RSSI — opportunité de se positionner rapidement avant que le marché ne soit saturé de cabinets cyber. L'annonce Microsoft est un signal de demande cloud à 12-24 mois.",
+        "sources": [
+          "Le Monde — 'Microsoft investit 4 milliards en France' — 8 avril 2025",
+          "APEC — Baromètre emploi cadres IT T1 2025",
+          "ANSSI — 'Bilan NIS2 : 600 RSSI manquants en France' — rapport mars 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille cyber & cloud avec signal réglementaire fort (NIS2). La quantification de la pénurie par l'ANSSI (600 RSSI manquants) est une donnée crédible et sourcée qui donne de la légitimité à l'alerte et à la recommandation stratégique."
+    },
+    {
+      "id": "mi-010",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Immobilier & Construction",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "sectors_of_interest": ["Promotion immobilière", "Construction", "Property Management", "Facility Management"]
+      },
+      "expected_output": {
+        "sector": "Immobilier & Construction",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "signals": [
+          {
+            "type": "market_move",
+            "headline": "Nexity annonce la scission de sa branche services immobiliers — nouvelle entité cotée",
+            "description": "Nexity va séparer sa branche promotion de sa branche services (gestion locative, syndic, facilities). La création d'une nouvelle entité cotée entraîne une réorganisation managériale significative avec des besoins en direction (DAF, DRH, responsables régionaux).",
+            "relevance": "high",
+            "action_suggested": "Anticiper des besoins en recrutement de direction dans la nouvelle entité Services Nexity. Contacter nos interlocuteurs RH Nexity pour positionner le cabinet sur les recrutements issus de la scission."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Les chefs de projet MOA immobilier sous-tension : salaires +12% en Île-de-France",
+            "description": "La reprise partielle de l'immobilier de bureau et la montée de la rénovation énergétique créent une demande soutenue pour les profils de maîtrise d'ouvrage immobilière. Les salaires des chefs de projet MOA à Paris ont progressé de 12% en 12 mois.",
+            "relevance": "medium",
+            "action_suggested": "Actualiser les grilles MOA immobilier dans nos briefs. Signal de marché à partager avec les clients qui ont des postes ouverts depuis plus de 3 mois."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "RE2020 et rénovation énergétique : pénurie critique de thermiciens et experts DPE",
+            "description": "La RE2020 et les obligations de rénovation énergétique des bâtiments créent une demande explosive pour les profils thermique du bâtiment, DPE (Diagnostic de Performance Énergétique) et expertise en matériaux biosourcés. L'offre de profils qualifiés est très limitée.",
+            "relevance": "medium",
+            "action_suggested": "Développer une veille sur les profils thermiciens et DPE — niche émergente sous-couverte par les cabinets généralistes. Cibles : bureaux d'études thermiques (ICADE, AIA Life Designers, Technip Energies Buildings)."
+          }
+        ],
+        "summary": "Semaine immobilier avec un signal corporate fort (scission Nexity) et deux tendances de fond liées à la transition énergétique. La scission Nexity est actionnable immédiatement pour positionner le cabinet. La pénurie de thermiciens est une niche à développer sur 6-12 mois.",
+        "sources": [
+          "Le Figaro Immobilier — 'Nexity scinde ses activités' — 29 avril 2025",
+          "APEC — Baromètre emploi immobilier/construction T1 2025",
+          "Ministère du Logement — 'État d'avancement RE2020' — rapport avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille immobilier avec signal corporate (scission Nexity) et signal réglementaire (RE2020). Illustre comment une réglementation technique crée une demande de profils spécialisés — raisonnement à valoriser auprès des clients pour les alerter sur des tendances qu'ils ne voient pas."
+    },
+    {
+      "id": "mi-011",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement RSE & Développement Durable",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["RSE", "Développement durable", "CSRD", "Finance verte"]
+      },
+      "expected_output": {
+        "sector": "RSE & Développement Durable",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "skill_demand",
+            "headline": "CSRD : 5 000 entreprises françaises doivent déposer leur premier rapport en 2025 — pénurie de reporters",
+            "description": "La directive CSRD impose aux grandes entreprises (>500 salariés) de déposer leur premier rapport de durabilité en 2025. La DFCG estime que moins de 15% des entreprises concernées ont les ressources internes pour produire ce rapport. La demande de consultants et directeurs RSE CSRD explose.",
+            "relevance": "high",
+            "action_suggested": "Développer une offre 'Recrutement RSE CSRD' dédiée. Identifier les profils maîtrisant les référentiels ESRS dans notre base. Cibles : toutes les grandes entreprises sans DRS ou directeur RSE expérimenté CSRD."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "TotalEnergies crée une division 'Sustainable Investments' de 200 personnes",
+            "description": "TotalEnergies structure une nouvelle division dédiée aux investissements dans les énergies renouvelables et la capture carbone. 200 postes prévus sur 2 ans, dont des profils finance verte, ingénierie renouvelable et analyse ESG.",
+            "relevance": "high",
+            "action_suggested": "Contacter la direction Talent de TotalEnergies Sustainable Investments. Identifier les profils finance verte et ingénierie renouvelable en base. Compétences prioritaires : modélisation financière projets ENR, analyse ESG, gestion de portefeuille d'actifs verts."
+          },
+          {
+            "type": "market_move",
+            "headline": "Accenture rachète un cabinet français de conseil RSE (Tenzing) — consolidation du marché",
+            "description": "Accenture acquiert Tenzing, l'un des rares cabinets français spécialisés en conseil RSE stratégique. Cette consolidation va probablement déstabiliser des consultants RSE Tenzing qui ne souhaitent pas rejoindre un grand cabinet.",
+            "relevance": "medium",
+            "action_suggested": "Identifier les consultants RSE de Tenzing sur LinkedIn — certains vont chercher à rejoindre une entreprise en réponse à l'acquisition. Source potentielle de profils RSE expérimentés dans les 3-6 mois."
+          }
+        ],
+        "summary": "Semaine RSE exceptionnellement active. La CSRD crée une pénurie de profils reporters qui va durer plusieurs années — opportunité structurelle pour le cabinet. TotalEnergies est une source directe de missions de recrutement durabilité. L'acquisition Tenzing est un signal de mobilité potentielle de consultants RSE expérimentés.",
+        "sources": [
+          "DFCG — 'CSRD : état de préparation des grandes entreprises françaises' — rapport avril 2025",
+          "BFM Business — 'TotalEnergies crée une division Sustainable Investments' — 15 avril 2025",
+          "Actu-Environnement — 'Accenture rachète Tenzing' — 16 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille RSE avec quantification de la pénurie (15% de préparation CSRD). La donnée chiffrée transforme un signal qualitatif en argument commercial solide. Le rachat Tenzing comme source de candidats est un raisonnement sophistiqué qui distingue une vraie veille d'un simple suivi de news."
+    },
+    {
+      "id": "mi-012",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Commerce & Ventes B2B",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "sectors_of_interest": ["Commerce B2B", "SaaS commercial", "Distribution", "Grands comptes"]
+      },
+      "expected_output": {
+        "sector": "Commerce & Ventes B2B",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "signals": [
+          {
+            "type": "salary_trend",
+            "headline": "Les directeurs commerciaux B2B tech : médiane 120k + variable, en hausse de 20% en 2 ans",
+            "description": "L'enquête de rémunération commerciale B2B de Qonto & Salesforce France 2025 montre que la rémunération totale des directeurs commerciaux en SaaS B2B a atteint 120 000 € en médiane (fixe + variable). La pénurie de profils capables de structurer une équipe commerciale de 0 à 20 est extrême.",
+            "relevance": "high",
+            "action_suggested": "Réviser les fourchettes de rémunération VP Sales dans tous les briefs actifs. Informer les scale-ups clientes que le marché a significativement évolué depuis 2023."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "Salesforce France lance 'Salesforce Talent Alliance' — 1 000 recrutements en partenariat",
+            "description": "Salesforce France s'associe à des PME et ETI partenaires pour leur proposer des candidats formés Salesforce. Ce programme va générer des recrutements chez les entreprises partenaires, principalement des Account Executives et Customer Success Managers.",
+            "relevance": "medium",
+            "action_suggested": "Se renseigner sur le programme Salesforce Talent Alliance. Identifier les entreprises partenaires comme prospects potentiels pour nos missions de recrutement commercial."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "Le profil 'Revenue Operations Manager' explose : +120% d'offres en 12 mois",
+            "description": "La fonction RevOps (Revenue Operations) s'impose en France comme dans les pays anglophones. Les profils capables d'aligner ventes, marketing et customer success autour d'une vision unifiée du pipeline sont très recherchés et quasi-introuvables.",
+            "relevance": "high",
+            "action_suggested": "Identifier les profils RevOps et Sales Ops en base (anciens HubSpot, Salesforce Admins reconvertis). Développer une grille de qualification RevOps spécifique. Cibles : scale-ups SaaS en Series A+ qui structurent leurs processus commerciaux."
+          }
+        ],
+        "summary": "Semaine commerce B2B marquée par deux pénuries : les VP Sales tech et les profils RevOps. Ces deux segments sont en tension extrême et justifient une actualisation urgente des grilles salariales auprès des clients. Le programme Salesforce Talent Alliance est une opportunité de prospection ciblée.",
+        "sources": [
+          "Salesforce France & Qonto — Enquête Rémunération Commerciale B2B France 2025",
+          "LinkedIn Jobs — Analyse offres 'Revenue Operations' France — avril 2025",
+          "TechCrunch France — 'Salesforce Talent Alliance France' — 9 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille commerce avec émergence d'un rôle nouveau (RevOps). Illustre comment se positionner en expert sur un rôle émergent avant qu'il devienne mainstream — avantage de premier arrivant pour le cabinet."
+    },
+    {
+      "id": "mi-013",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Ressources Naturelles & Énergie",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["Énergie renouvelable", "Nucléaire", "Pétrole & Gaz", "Utilities"]
+      },
+      "expected_output": {
+        "sector": "Ressources Naturelles & Énergie",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "hiring_surge",
+            "headline": "EDF relance le recrutement de 3 000 ingénieurs pour le programme nucléaire français",
+            "description": "EDF annonce une vague de recrutements massifs pour accompagner la relance du programme nucléaire (6 EPR2 confirmés). Profils prioritaires : ingénieurs génie civil, sûreté nucléaire, thermique, procédés et électromécanique.",
+            "relevance": "high",
+            "action_suggested": "Positionner le cabinet sur des mandats EDF ingénierie nucléaire. Identifier les profils ingénieurs nucléaires dans notre base et sur LinkedIn. Compétences rares : sûreté nucléaire, qualifiés IN (Installations Nucléaires), thermique neutronique."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "La filière photovoltaïque manque de 8 000 techniciens en France (SER)",
+            "description": "Le Syndicat des Énergies Renouvelables alerte sur une pénurie critique de techniciens de maintenance photovoltaïque et d'installateurs qualifiés (Qualifelec, qualification PV). Les objectifs de transition énergétique ne pourront pas être tenus sans résoudre ce déficit de compétences.",
+            "relevance": "medium",
+            "action_suggested": "Segment de recrutement de terrain (techniciens PV) — moins dans notre coeur de cible si focus cadres. À évaluer selon le positionnement du cabinet. Si recrutement tout niveau : opportunité de volume."
+          },
+          {
+            "type": "market_move",
+            "headline": "TotalEnergies rachète VSB Énergies Nouvelles (filiale française) — 350 salariés intégrés",
+            "description": "TotalEnergies finalise l'acquisition de VSB Énergies Nouvelles en France. L'intégration de 350 salariés dans une culture différente (ETI → grand groupe) va générer des départs et des recrutements de remplacement.",
+            "relevance": "medium",
+            "action_suggested": "Surveiller les mouvements de profils VSB sur LinkedIn dans les 6-12 mois. Certains consultants et chefs de projet éolien préféreront l'indépendance à l'intégration dans un grand groupe."
+          }
+        ],
+        "summary": "Semaine énergie dominée par le retour du nucléaire et ses besoins massifs en ingénieurs spécialisés. EDF est le client le plus attractif mais aussi le plus exigeant en termes de qualifications (habilitations nucléaires). L'acquisition VSB est une source de candidats renouvelables qualifiés à anticiper.",
+        "sources": [
+          "Les Echos — 'EDF recrute 3000 ingénieurs pour le nucléaire' — 15 avril 2025",
+          "SER — 'Pénurie de techniciens photovoltaïques en France' — rapport avril 2025",
+          "BFM Business — 'TotalEnergies finalise le rachat de VSB' — 16 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille énergie avec signal nucléaire massif. La nuance sur les techniciens PV ('moins dans notre coeur de cible') illustre l'intelligence d'une veille qui s'adapte au positionnement du cabinet plutôt que de traiter tous les signaux comme équivalents."
+    },
+    {
+      "id": "mi-014",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Agroalimentaire & Cosmétique",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "sectors_of_interest": ["Agroalimentaire", "Cosmétique", "FMCG", "Biologique & Naturel"]
+      },
+      "expected_output": {
+        "sector": "Agroalimentaire & Cosmétique",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "signals": [
+          {
+            "type": "company_event",
+            "headline": "Danone cède 3 marques de produits laitiers frais — 400 postes en transition",
+            "description": "Danone poursuit sa stratégie de recentrage sur les produits à forte valeur ajoutée. La cession de 3 marques de produits laitiers frais va mettre en mouvement environ 400 salariés marketing, commercial et supply chain dans les 12 prochains mois.",
+            "relevance": "high",
+            "action_suggested": "Identifier les profils Danone (marketing FMCG, category management, supply chain alimentaire) sur LinkedIn. Source potentielle de candidats très qualifiés, habitués aux standards de qualité des grandes marques."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "Les formulateurs cosmétiques naturels : pénurie confirmée pour la 3e année consécutive",
+            "description": "La tendance 'clean beauty' et les nouvelles restrictions réglementaires sur les ingrédients synthétiques créent une demande structurelle pour les formulateurs spécialisés en chimie naturelle et verte. Le marché de l'emploi cosmétique naturel est en tension depuis 2022.",
+            "relevance": "high",
+            "action_suggested": "Cartographier les formulateurs cosmétiques avec expertise 'green chemistry' dans notre base. Cibles de clients : NAOS, Clarins, Nuxe, Weleda France, Yves Rocher. Niche différenciante pour le cabinet."
+          },
+          {
+            "type": "market_move",
+            "headline": "Nestlé France recentre sur 5 marques — suppression de 200 postes siège",
+            "description": "Nestlé France simplifie son portefeuille de marques et réduit ses équipes siège à Noisiel. Les postes impactés couvrent marketing, finance et fonctions support.",
+            "relevance": "medium",
+            "action_suggested": "Source de profils marketing FMCG disponibles à Noisiel (IDF Est). Surveiller les profils Nestlé France sur LinkedIn pour identifier les partants."
+          }
+        ],
+        "summary": "Semaine agroalimentaire et cosmétique avec deux sources de candidats qualifiés à saisir (Danone, Nestlé) et une pénurie structurelle en cosmétique naturelle. La filière clean beauty offre une niche de recrutement spécialisé à développer — peu de cabinets y sont positionnés avec expertise.",
+        "sources": [
+          "LSA — 'Danone cède ses marques de produits laitiers frais' — 29 avril 2025",
+          "Cosmétique Magazine — 'Pénurie de formulateurs naturels : état des lieux 2025' — avril 2025",
+          "Le Figaro Économie — 'Nestlé France recentre son portefeuille' — 30 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille FMCG avec double signal de candidats disponibles (Danone + Nestlé). Illustre comment deux signaux 'layoffs' dans le même secteur se cumulent pour créer un vivier significatif — observation utile pour planifier les prises de contact."
+    },
+    {
+      "id": "mi-015",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Conseil & Transformation",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["Conseil en stratégie", "Management consulting", "Transformation d'entreprise", "Digital consulting"]
+      },
+      "expected_output": {
+        "sector": "Conseil & Transformation",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "layoffs",
+            "headline": "McKinsey France réorganise — 80 postes de consultants supprimés",
+            "description": "McKinsey ajuste ses effectifs en France suite au ralentissement des missions de conseil post-Covid. Des consultants de niveau junior et senior manager (3-8 ans) vont se retrouver sur le marché. Ces profils sont extrêmement recherchés par les directions des grandes entreprises.",
+            "relevance": "high",
+            "action_suggested": "Approche prioritaire : identifier les consultants McKinsey France qui sortent. Ces profils sont parmi les plus courtisés du marché — il faut les approcher dans les premières semaines. Cibles pour leur placement : directions stratégie, transformation, M&A des CAC 40."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "Capgemini Invent recrute 600 consultants en France — focus IA et cloud",
+            "description": "Capgemini Invent, la branche conseil et innovation de Capgemini, annonce 600 recrutements en France en 2025. Priorités : consultants IA & Data, architectes cloud, spécialistes cybersécurité.",
+            "relevance": "medium",
+            "action_suggested": "Capgemini Invent peut être un client pour des recrutements spécialisés (IA, cyber). Les grands cabinets externalisent souvent les recrutements de niche. Contacter la Direction Talent."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Les salaires des ex-cabinets de conseil Big 4 continuent de grimper en entreprise (+22% vs 2022)",
+            "description": "L'étude Heidrick & Struggles 2025 confirme que les profils ex-conseil en stratégie (McKinsey, BCG, Bain, Roland Berger) obtiennent en moyenne 22% de plus en entreprise que leurs pairs sans parcours conseil, au même niveau d'expérience.",
+            "relevance": "medium",
+            "action_suggested": "Argument commercial à utiliser avec les clients qui recrutent : un profil ex-cabinet représente une prime de performance documentée. Mise à jour des fourchettes d'offre pour les profils conseil in-house."
+          }
+        ],
+        "summary": "Semaine consulting avec un signal majeur : la sortie de consultants McKinsey France. Ces profils sont parmi les plus recherchés du marché et les fenêtres d'approche se ferment vite. À traiter en urgence. Capgemini Invent offre une opportunité commerciale complémentaire pour les recrutements de niche.",
+        "sources": [
+          "BFM Business — 'McKinsey France réorganise ses équipes' — 15 avril 2025",
+          "Maddyness — 'Capgemini Invent recrute 600 consultants' — 16 avril 2025",
+          "Heidrick & Struggles — 'Étude rémunération profils consulting in-house France 2025'"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille conseil avec signal de candidats McKinsey très rare. Le conseil d'urgence ('approcher dans les premières semaines') est justifié par la rareté du profil et la compétition entre chasseurs de tête sur ces sortants."
+    },
+    {
+      "id": "mi-016",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Santé publique & Social",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "sectors_of_interest": ["Secteur médico-social", "Hôpital public", "Cliniques privées", "Aide à domicile"]
+      },
+      "expected_output": {
+        "sector": "Santé publique & Social",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "signals": [
+          {
+            "type": "salary_trend",
+            "headline": "Revalorisation du Ségur de la Santé : +83€ nets mensuels pour les infirmiers hospitaliers",
+            "description": "La troisième tranche du Ségur de la Santé entre en vigueur au 1er mai 2025. Les infirmiers hospitaliers bénéficient d'une revalorisation supplémentaire de 83 euros nets par mois. Cette revalorisation creuse l'écart avec le secteur privé et les associations.",
+            "relevance": "high",
+            "action_suggested": "Signal de compétitivité salariale : le secteur public hospitalier regagne de l'attractivité face au privé sur ce segment. Informer les clients cliniques privées et associations que la concurrence salariale avec l'hôpital public s'intensifie."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "Korian et Orpea fusionnent leurs EHPAD en France — 150 recrutements de direction attendus",
+            "description": "La consolidation du marché des EHPAD privés se poursuit. La fusion entre Korian et Orpea France crée une entité de 700 établissements nécessitant une refonte de l'organisation de direction (directeurs d'établissement, DRH régionaux, responsables qualité).",
+            "relevance": "high",
+            "action_suggested": "Opportunité de recrutement majeure dans le secteur médico-social privé. Contacter la Direction des Ressources Humaines de la nouvelle entité. Sourcer les directeurs d'EHPAD et DRH secteur médico-social en base."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "Les infirmiers coordinateurs SSIAD en pénurie critique dans toute la France (Fehap)",
+            "description": "La Fehap (Fédération des Établissements Hospitaliers et Aide à la personne privée non lucratif) alerte sur une pénurie sévère d'infirmiers coordinateurs pour les Services de Soins Infirmiers à Domicile. 1 200 postes non pourvus en France.",
+            "relevance": "medium",
+            "action_suggested": "Signal de demande pour une niche très spécialisée. Si le cabinet travaille avec les associations d'aide à domicile, opportunité de développer une offre dédiée SSIAD. Profils cibles : IDEC (Infirmiers Diplômés d'État Coordinateurs) avec expérience domicile."
+          }
+        ],
+        "summary": "Semaine santé publique avec deux opportunités majeures : la revalorisation Ségur (argument de compétitivité pour les clients privés) et la fusion Korian-Orpea (recrutements de direction massifs). La pénurie d'infirmiers SSIAD est une niche à explorer si le cabinet travaille le médico-social associatif.",
+        "sources": [
+          "FHF — 'Ségur de la Santé : troisième tranche au 1er mai' — communiqué 7 avril 2025",
+          "Les Echos — 'Korian et Orpea fusionnent leurs EHPAD français' — 8 avril 2025",
+          "Fehap — 'Pénurie d'infirmiers coordinateurs SSIAD' — rapport mars 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille santé publique avec angle compétitivité salariale public/privé. Le Ségur est utilisé non pas comme actualité neutre mais comme argument commercial pour les clients cliniques privées — exactement le type de valeur ajoutée attendu d'une veille marché."
+    },
+    {
+      "id": "mi-017",
+      "input": {
+        "cabinet": "Cabinet Singular — recrutement tous secteurs, Paris",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "sectors_of_interest": ["Transversal", "Toutes industries"]
+      },
+      "expected_output": {
+        "sector": "Transversal — Marché de l'emploi cadres France",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "signals": [
+          {
+            "type": "salary_trend",
+            "headline": "Le marché de l'emploi cadres repart — +12% de recrutements prévus en 2025 vs 2024 (APEC)",
+            "description": "L'APEC publie ses prévisions de recrutement cadres 2025 : après un ralentissement en 2024, le marché repart à la hausse avec 330 000 recrutements cadres attendus, soit +12% vs 2024. Les secteurs porteurs : IT, ingénierie, services financiers.",
+            "relevance": "high",
+            "action_suggested": "Signal positif pour l'activité du cabinet. Anticiper un regain d'activité dans les prochains mois. Recontacter des clients qui avaient mis leurs recrutements en attente en 2024."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "Promesse du plein emploi cadres : le taux de chômage des cadres atteint 2,9% (Dares)",
+            "description": "Le taux de chômage des cadres tombe à 2,9% en France — son plus bas historique. Cette situation crée structurellement un marché de candidats actifs très réduit. Les recrutements se font majoritairement sur des profils passifs (non en recherche).",
+            "relevance": "high",
+            "action_suggested": "Argument majeur pour justifier les honoraires de recrutement auprès des clients hésitants : le vivier de candidats actifs est extrêmement réduit, le sourcing de profils passifs est la seule solution efficace."
+          },
+          {
+            "type": "market_move",
+            "headline": "Le télétravail se stabilise à 1,7 jours/semaine en moyenne (Dares T1 2025)",
+            "description": "Après les tensions de 2023-2024, la pratique du télétravail se stabilise en France à 1,7 jours par semaine en moyenne. Les candidats ont intégré un minimum de 2 jours comme critère non-négociable dans leur recherche.",
+            "relevance": "medium",
+            "action_suggested": "Informer les clients dont les politiques télétravail sont en dessous de 2 jours : risque de perte de candidats en phase finale. Le télétravail est devenu un critère éliminatoire pour une part significative des cadres."
+          }
+        ],
+        "summary": "Vue macro positive : le marché cadres repart en 2025. Mais la tension extrême (chômage à 2,9%) maintient la pression sur les recruteurs — le vivier actif est quasi-inexistant. Le télétravail 2j minimum est un standard que les clients doivent accepter pour rester compétitifs.",
+        "sources": [
+          "APEC — Prévisions de recrutement cadres 2025 — publié le 14 avril 2025",
+          "Dares — Taux de chômage par catégorie T1 2025",
+          "Dares — Enquête télétravail France T1 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille macro marché de l'emploi cadres. Illustre comment transformer des statistiques macro (chômage 2,9%) en argument commercial concret (le sourcing passif est la seule solution) — ce qui donne de la valeur à la veille pour l'opérateur."
+    },
+    {
+      "id": "mi-018",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Tourisme & Hôtellerie",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "sectors_of_interest": ["Hôtellerie", "Restauration", "Tourisme", "Événementiel"]
+      },
+      "expected_output": {
+        "sector": "Tourisme & Hôtellerie",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "signals": [
+          {
+            "type": "hiring_surge",
+            "headline": "Accor recrute 8 000 personnes en France pour la saison 2025",
+            "description": "AccorHotels lance sa campagne de recrutement saisonnière 2025 avec un objectif de 8 000 embauches en France. Profils recherchés : réception, restauration, housekeeping, mais aussi plusieurs centaines de postes de direction et de management hôtelier.",
+            "relevance": "high",
+            "action_suggested": "Contacter les directions RH AccorHotels pour les postes de management (directeurs d'hôtel, F&B managers, revenue managers). Le volume saisonnier est géré en interne mais les postes de direction sont souvent externalisés."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Crise de l'attractivité en restauration : les chefs de cuisine augmentent de +28% leurs prétentions en 2 ans",
+            "description": "La crise d'attractivité de la restauration a conduit à une revalorisation salariale historique. Les chefs de cuisine exigent en moyenne 28% de plus qu'en 2022. Les restaurateurs font face à une compression de leurs marges et à une pénurie structurelle.",
+            "relevance": "high",
+            "action_suggested": "Information critique pour les clients restaurateurs qui recrutent. Les fourchettes salariales des briefs de 2022-2023 sont obsolètes. Mettre à jour toutes les missions ouvertes en cuisine."
+          },
+          {
+            "type": "market_move",
+            "headline": "Club Med ouvre 2 nouveaux resorts en France — recrutements de direction prévus",
+            "description": "Club Med annonce l'ouverture de deux nouveaux resorts premium en France (Pyrénées et Corse) pour 2026. La phase de recrutement de l'équipe de direction démarrera 12 à 18 mois avant l'ouverture.",
+            "relevance": "medium",
+            "action_suggested": "Signal de recrutement à anticiper pour fin 2025. Contacter Club Med RH pour se positionner dès maintenant sur les missions de direction. Profils : directeurs de resort, F&B directors, spa managers."
+          }
+        ],
+        "summary": "Semaine hôtellerie-restauration avec des enjeux d'attractivité forts. AccorHotels est une opportunité commerciale sur les postes de management. La revalorisation salariale des chefs de cuisine est urgente à communiquer aux clients — leurs offres sont hors marché. Club Med est à positionner sur 12 mois.",
+        "sources": [
+          "L'Hôtellerie Restauration — 'Accor recrute 8 000 personnes pour la saison 2025' — 29 avril 2025",
+          "Gault & Millau — 'Les salaires en cuisine : +28% en 2 ans' — enquête avril 2025",
+          "BFM Business — 'Club Med ouvre 2 nouveaux resorts en France' — 30 avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille tourisme avec focus sur la crise salariale en cuisine. Le chiffre (+28%) est impactant et directement actionnable pour mettre à jour les briefs clients. La recommandation d'anticiper Club Med à 12 mois illustre une veille orientée vers l'avenir, pas seulement le présent."
+    },
+    {
+      "id": "mi-019",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Tech & Startups françaises",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "sectors_of_interest": ["IA", "DeepTech", "BioTech", "Fintech"]
+      },
+      "expected_output": {
+        "sector": "Tech & Startups françaises",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "signals": [
+          {
+            "type": "hiring_surge",
+            "headline": "Mistral AI lève 600M€ et annonce 200 recrutements mondiaux dont 80 en France",
+            "description": "Mistral AI finalise une levée de fonds de 600 millions de dollars. 80 recrutements prévus en France, principalement des ingénieurs IA, des chercheurs et des profils go-to-market. La concurrence pour ces profils sera intense avec les autres acteurs IA européens.",
+            "relevance": "high",
+            "action_suggested": "Prospecter Mistral AI pour des missions de recrutement IA et go-to-market. Identifier les profils AI Engineer et MLOps en base pouvant correspondre. Compétition intense — positionnement rapide nécessaire."
+          },
+          {
+            "type": "company_event",
+            "headline": "Ledger (crypto) licencie 200 personnes, dont 90 en France",
+            "description": "Ledger, le leader français des wallets hardware crypto, restructure suite au ralentissement du marché des cryptoactifs. Les profils sortants : ingénieurs firmware (C/C++), ingénieurs sécurité hardware, product managers.",
+            "relevance": "high",
+            "action_suggested": "Source rare de profils firmware et sécurité hardware — compétences très demandées dans l'IoT, l'automobile et la défense. Contacter les profils Ledger sur LinkedIn dans les 30 jours."
+          },
+          {
+            "type": "skill_demand",
+            "headline": "La French Tech : 68% des CTO cherchent des profils MLOps en 2025 (Syntec Numérique)",
+            "description": "Le Syntec Numérique publie son enquête annuelle sur les pénuries de compétences en startups françaises. MLOps arrive en tête des compétences les plus recherchées, devant Platform Engineering et Cybersécurité.",
+            "relevance": "high",
+            "action_suggested": "Signal confirmant la tendance MLOps déjà identifiée. Développer la grille de qualification MLOps et enrichir la base de candidats sur ce segment. Signal fort pour les missions de recrutement IA en scale-up."
+          }
+        ],
+        "summary": "Semaine tech marquée par deux signaux opposés : la levée record de Mistral AI (recrutements offensifs) et la restructuration Ledger (vivier de profils rares disponibles). La pénurie MLOps confirmée par Syntec Numérique doit conduire à prioriser l'enrichissement de la base sur ce segment.",
+        "sources": [
+          "Les Echos — 'Mistral AI lève 600 millions de dollars' — 8 avril 2025",
+          "TechCrunch France — 'Ledger licencie 200 personnes' — 9 avril 2025",
+          "Syntec Numérique — 'Enquête pénuries de compétences French Tech 2025'"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille startup tech avec signaux de recrutements et de restructurations dans la même semaine. Illustre la bipolarité du marché tech (certaines startups recrutent massivement, d'autres restructurent) et comment tirer parti des deux mouvements simultanément."
+    },
+    {
+      "id": "mi-020",
+      "input": {
+        "cabinet": "Cabinet Singular — spécialiste recrutement Secteur Public & Parapublic",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "sectors_of_interest": ["Fonction publique", "Collectivités territoriales", "Établissements publics", "ESS"]
+      },
+      "expected_output": {
+        "sector": "Secteur Public & Parapublic",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "signals": [
+          {
+            "type": "market_move",
+            "headline": "Réforme de la haute fonction publique : les préfets de région ouverts au recrutement externe",
+            "description": "La réforme de la haute fonction publique française ouvre davantage les postes de direction de l'État à des candidats issus du secteur privé. Les postes de directeurs de service, secrétaires généraux d'administration centrale et directeurs de projet stratégique peuvent désormais être pourvus par concours ouvert.",
+            "relevance": "high",
+            "action_suggested": "Positionnement stratégique : le marché du recrutement pour les postes de direction publique s'ouvre. Développer une offre dédiée 'Public Sector Executive Search'. Cibles : candidats directeurs issus des grands groupes, intéressés par un engagement public."
+          },
+          {
+            "type": "hiring_surge",
+            "headline": "Bpifrance annonce 120 recrutements pour accompagner son plan stratégique 2025-2027",
+            "description": "La banque publique d'investissement renforce ses équipes pour déployer son plan de soutien à l'industrie verte et à l'innovation française. Profils recherchés : chargés d'affaires corporate, analystes financement, experts sectoriels.",
+            "relevance": "medium",
+            "action_suggested": "Bpifrance est un client potentiel pour des missions de recrutement d'analystes et chargés d'affaires. Le profil cible (grande école + expérience secteur, sens du service public) est dans notre vivier. Contacter la Direction des Ressources Humaines."
+          },
+          {
+            "type": "salary_trend",
+            "headline": "Collectivités territoriales : les DGS des grandes métropoles atteignent 110k — compétition avec le privé",
+            "description": "Les Directeurs Généraux des Services des grandes métropoles françaises (Lyon, Bordeaux, Lille, Nice) ont vu leurs rémunérations progresser de 25% en 3 ans pour rester compétitifs avec le secteur privé. La guerre des talents touche désormais le secteur public local.",
+            "relevance": "medium",
+            "action_suggested": "Signal à connaître pour les missions de recrutement en collectivités territoriales. Les candidats DGS et directeurs de service public ont des prétentions qui se rapprochent du privé — ajuster les grilles en conséquence."
+          }
+        ],
+        "summary": "Semaine secteur public avec un signal structurel majeur : l'ouverture progressive des postes de direction de l'État aux recrutements externes. Cette réforme crée un marché naissant pour les cabinets de chasse. La revalorisation salariale des collectivités confirme que la guerre des talents n'épargne plus le secteur public.",
+        "sources": [
+          "JORF — 'Décret relatif à la haute fonction publique' — 22 avril 2025",
+          "BFM Business — 'Bpifrance recrute 120 personnes pour son plan stratégique' — 23 avril 2025",
+          "La Gazette des Communes — 'Salaires DGS : la compétition avec le privé' — avril 2025"
+        ]
+      },
+      "rating": 5,
+      "notes": "Veille secteur public avec signal réglementaire majeur (ouverture recrutements externalité). Illustre comment un changement législatif crée un marché entièrement nouveau pour les cabinets de recrutement — opportunité de premier arrivant à saisir."
+    }
+  ]
+}

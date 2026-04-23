@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #fafaf8; color: #1a1a18; padding: 1.5rem; font-size: 13px; }
+h2 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.sub { color: #888; font-size: 12px; margin-bottom: 16px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid #e5e3db; background: white; font-size: 11px; cursor: pointer; color: #666; }
+.filter-btn.active { background: #1a1a18; color: white; border-color: #1a1a18; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.card { border-radius: 10px; border: 1px solid #e5e3db; background: white; overflow: hidden; cursor: pointer; transition: border-color .15s; }
+.card:hover { border-color: #b4b2a9; }
+.card.tier1 { border-color: #1d9e75; }
+.card.hidden { display: none; }
+.card-header { padding: 10px 12px 8px; }
+.card-name { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+.card-tagline { font-size: 10px; color: #888; line-height: 1.4; }
+.card-scores { display: flex; gap: 3px; padding: 0 12px 10px; flex-wrap: wrap; }
+.score { display: flex; align-items: center; gap: 3px; font-size: 10px; }
+.dots { display: flex; gap: 2px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: #e5e3db; }
+.dot.on { background: #1a1a18; }
+.dot.on.green { background: #1d9e75; }
+.tier-badge { font-size: 9px; padding: 2px 6px; border-radius: 8px; font-weight: 500; margin-left: auto; }
+.t1 { background: #e1f5ee; color: #085041; }
+.t2 { background: #e6f1fb; color: #185fa5; }
+.t3 { background: #f1efe8; color: #5f5e5a; }
+.card-detail { display: none; padding: 10px 12px; border-top: 1px solid #f0ede6; background: #fafaf8; }
+.card-detail.open { display: block; }
+.detail-row { margin-bottom: 6px; }
+.detail-label { font-size: 10px; color: #888; margin-bottom: 2px; }
+.detail-val { font-size: 11px; color: #1a1a18; line-height: 1.4; }
+.gap-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 8px; background: #faeeda; color: #633806; margin-right: 4px; margin-top: 2px; }
+.gap-tag.red { background: #fcebeb; color: #791f1f; }
+.legend { display: flex; gap: 16px; margin-bottom: 12px; font-size: 11px; color: #888; align-items: center; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+</style></head>
+<body>
+
+<h2>Underserved vertical domains</h2>
+<p class="sub">Scored for fit with a non-technical, full-company, managed agentic platform. Click any card to expand.</p>
+
+<div class="legend">
+  <span>Score criteria:</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#1a1a18"></span> Agent-amenable work across multiple functions</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#1a1a18"></span> Non-technical buyer</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#1a1a18"></span> No dominant AI company solution</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#1a1a18"></span> Clear ROI</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#1a1a18"></span> Accessible buyer</span>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="filter('all',this)">All (21)</button>
+  <button class="filter-btn" onclick="filter('tier1',this)">Tier 1 — Best fit (5)</button>
+  <button class="filter-btn" onclick="filter('tier2',this)">Tier 2 — Strong (8)</button>
+  <button class="filter-btn" onclick="filter('tier3',this)">Tier 3 — Viable (8)</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const verticals = [
+  {
+    name: "Recruitment & staffing agencies",
+    tagline: "Sourcing, screening, outreach, scheduling, client comms — all repetitive, all agentable",
+    tier: 1,
+    scores: [5,5,5,5,5],
+    functions: "Candidate sourcing · outreach sequences · interview scheduling · client reporting · candidate nurturing · compliance tracking",
+    gap: "11x / Artisan do SDR only. Nobody runs the whole agency.",
+    tools: "LinkedIn, ATS, email, phone — all fragmented",
+    roi: "Placements per recruiter, time-to-fill, revenue per headcount",
+    challenge: "High regulatory sensitivity around candidate data (GDPR)"
+  },
+  {
+    name: "Independent financial advisors",
+    tagline: "Client reporting, research, compliance, marketing — high-value, time-poor operators",
+    tier: 1,
+    scores: [5,5,5,5,4],
+    functions: "Client portfolio reports · market research · compliance documentation · prospect nurturing · content marketing · meeting prep",
+    gap: "Point tools exist (portfolio software, email) but no whole-firm AI OS",
+    tools: "Portfolio management, email, CRM, document tools — disconnected",
+    roi: "AUM per advisor, client retention rate, time saved on reporting",
+    challenge: "FCA/SEC compliance requirements — manageable with governance layer"
+  },
+  {
+    name: "Boutique PR agencies",
+    tagline: "Media monitoring, pitching, coverage tracking, client reporting — all manual today",
+    tier: 1,
+    scores: [5,5,5,4,5],
+    functions: "Media monitoring · journalist research · pitch writing · coverage tracking · client reports · press release drafting · social amplification",
+    gap: "Cision/Muck Rack do monitoring only. No AI runs the whole agency.",
+    tools: "Cision, email, Google Docs, spreadsheets — highly fragmented",
+    roi: "Coverage secured per account manager, client retention, pitch hit rate",
+    challenge: "Relationship-based industry — agents must feel human"
+  },
+  {
+    name: "Logistics & freight brokerages",
+    tagline: "Load matching, carrier comms, documentation, customer updates — extremely repetitive",
+    tier: 1,
+    scores: [5,4,5,5,4],
+    functions: "Load board monitoring · carrier outreach · rate negotiation · documentation · customer status updates · compliance · reporting",
+    gap: "TMS software exists but no AI company OS for SMB brokers",
+    tools: "DAT/Truckstop, email, TMS, spreadsheets",
+    roi: "Loads per broker, margin per load, error rate on documentation",
+    challenge: "Requires real-time integrations with load boards"
+  },
+  {
+    name: "Property management companies",
+    tagline: "Tenant comms, maintenance coordination, renewals, vendor management — acute pain",
+    tier: 1,
+    scores: [5,5,4,5,5],
+    functions: "Tenant communication · maintenance request routing · lease renewal campaigns · vendor coordination · vacancy marketing · owner reporting",
+    gap: "Buildium/AppFolio are ops tools, not AI workforce platforms",
+    tools: "PM software + email + spreadsheets — very fragmented for SMBs",
+    roi: "Properties per employee, response time, vacancy rate, renewal rate",
+    challenge: "Legal sensitivity around tenant communications"
+  },
+  {
+    name: "Event management agencies",
+    tagline: "Vendor coordination, client comms, logistics tracking — complex multi-function ops",
+    tier: 2,
+    scores: [4,5,5,4,4],
+    functions: "Vendor sourcing · client briefs · logistics tracking · supplier communication · budget management · post-event reporting · marketing",
+    gap: "No AI company solution in this space at all",
+    tools: "Email, spreadsheets, Asana/Trello, phone — very manual",
+    roi: "Events managed per coordinator, margin per event, client repeat rate",
+    challenge: "Project-based work (not recurring) affects churn economics"
+  },
+  {
+    name: "SMB accounting & bookkeeping firms",
+    tagline: "Client data collection, compliance chasing, reporting, advisory content — time-poor principals",
+    tier: 2,
+    scores: [4,5,4,5,4],
+    functions: "Client document collection · deadline chasing · report generation · compliance monitoring · advisory content · prospect marketing",
+    gap: "QuickBooks/Xero are ledgers, not AI workforce platforms",
+    tools: "Accounting software + email + document tools",
+    roi: "Clients per accountant, time per filing, advisory revenue uplift",
+    challenge: "Professional liability — must not give advice autonomously"
+  },
+  {
+    name: "Independent insurance brokerages",
+    tagline: "Renewals, client comms, claims follow-up, prospect nurturing — highly repetitive",
+    tier: 2,
+    scores: [4,5,4,4,4],
+    functions: "Renewal reminders · policy comparison research · client communication · claims tracking · new business prospecting · compliance reporting",
+    gap: "Agency management software (Applied Epic) is admin, not AI workforce",
+    tools: "Agency management system + email + phone",
+    roi: "Policies per broker, renewal retention rate, new business written",
+    challenge: "FCA/state regulation on advice and communication"
+  },
+  {
+    name: "Healthcare (non-clinical) — dental, physio, aesthetics",
+    tagline: "Patient comms, marketing, insurance follow-up, appointment management — clear pain",
+    tier: 2,
+    scores: [4,5,4,5,4],
+    functions: "Appointment reminders · patient nurture campaigns · insurance claim follow-up · review management · social content · staff scheduling",
+    gap: "Some point tools (Podium for reviews) but no whole-clinic AI OS",
+    tools: "Practice management + email + social + phone",
+    roi: "Chairs filled per week, no-show rate, patient LTV, review score",
+    challenge: "HIPAA/patient data privacy — requires careful data handling"
+  },
+  {
+    name: "Interior design & architecture studios",
+    tagline: "Client management, supplier coordination, project tracking, content marketing",
+    tier: 2,
+    scores: [4,5,5,4,4],
+    functions: "Client briefs · supplier sourcing · project timeline management · procurement tracking · portfolio content · new business outreach",
+    gap: "No AI company platform for creative services firms",
+    tools: "Email, AutoCAD, Houzz Pro, spreadsheets",
+    roi: "Projects per designer, margin per project, client referral rate",
+    challenge: "Creative industries move slowly on technology adoption"
+  },
+  {
+    name: "Franchise operators (multi-location)",
+    tagline: "Local marketing, compliance, staff comms, performance reporting across locations",
+    tier: 2,
+    scores: [5,4,4,4,3],
+    functions: "Local marketing content · compliance monitoring · staff communications · performance reporting · supplier coordination · customer feedback",
+    gap: "Franchise management tools are admin systems, not AI workforce platforms",
+    tools: "Franchisor systems + email + spreadsheets",
+    roi: "Revenue per location, compliance score, marketing ROI per location",
+    challenge: "Franchisor approval requirements for brand content"
+  },
+  {
+    name: "Sports & talent management agencies",
+    tagline: "Athlete/client comms, sponsorship outreach, social media, scheduling, reporting",
+    tier: 2,
+    scores: [4,5,5,3,3],
+    functions: "Social media management · sponsorship prospecting · contract tracking · press/media coordination · event scheduling · performance reporting",
+    gap: "Entirely underserved — no vertical AI solution exists",
+    tools: "Email, spreadsheets, social tools — totally manual",
+    roi: "Clients per agent, sponsorship revenue generated, media impressions",
+    challenge: "High relationship sensitivity — agents must be carefully supervised"
+  },
+  {
+    name: "Immigration law firms",
+    tagline: "Documentation-heavy, client comms intensive, deadline-critical — acute operational pain",
+    tier: 2,
+    scores: [4,4,5,4,3],
+    functions: "Case status updates · document collection · deadline tracking · client communication · form preparation support · compliance monitoring",
+    gap: "Legal tech (Clio) is case management, not AI workforce",
+    tools: "Case management software + email + document tools",
+    roi: "Cases per paralegal, documentation error rate, client satisfaction",
+    challenge: "Legal advice restrictions — agents must stay in non-advice zone"
+  },
+  {
+    name: "Non-profit organisations",
+    tagline: "Grant writing, donor comms, volunteer coordination, impact reporting — resource-starved",
+    tier: 3,
+    scores: [4,5,5,3,4],
+    functions: "Grant research & writing · donor newsletters · volunteer coordination · impact reporting · social media · event management · prospect research",
+    gap: "Bloomerang/Salesforce Nonprofit are CRMs, not AI workforce platforms",
+    tools: "Donor CRM + email + spreadsheets + social tools",
+    roi: "Grants won, donor retention rate, volunteer hours coordinated",
+    challenge: "Budget constraints — lower willingness/ability to pay"
+  },
+  {
+    name: "Childcare & nursery businesses",
+    tagline: "Parent comms, compliance documentation, staff management, marketing — highly underserved",
+    tier: 3,
+    scores: [4,5,5,4,3],
+    functions: "Parent daily updates · fee reminders · compliance documentation · ofsted reporting · social/marketing content · staff rotas · enquiry nurturing",
+    gap: "Eylog/Tapestry do observation recording only — no AI workforce platform",
+    tools: "EYFS software + email + WhatsApp groups — very manual",
+    roi: "Occupancy rate, staff admin hours saved, compliance audit results",
+    challenge: "Regulatory sensitivity around children's data"
+  },
+  {
+    name: "Sustainability & ESG consultancies",
+    tagline: "Data collection, reporting, research, client comms — growing fast, no tooling",
+    tier: 3,
+    scores: [4,4,5,4,3],
+    functions: "ESG data collection · benchmark research · regulatory monitoring · report writing · client communications · prospect content marketing",
+    gap: "No vertical AI solution — category is too new",
+    tools: "Email, Excel, Google Docs — almost no specialist tooling",
+    roi: "Reports per consultant, data collection time saved, client count",
+    challenge: "Fast-changing regulatory landscape requires up-to-date knowledge"
+  },
+  {
+    name: "Boutique investment & VC firms",
+    tagline: "Deal sourcing, research, LP communication, compliance documentation",
+    tier: 3,
+    scores: [4,4,5,3,3],
+    functions: "Deal flow monitoring · company research · LP reporting · compliance docs · portfolio comms · market landscape research · content marketing",
+    gap: "No AI company OS for boutique funds — only point tools",
+    tools: "Dealroom/PitchBook + email + spreadsheets + document tools",
+    roi: "Deals reviewed per partner, LP satisfaction, research speed",
+    challenge: "Investment advice compliance, sophisticated buyers with specific needs"
+  },
+  {
+    name: "Food & beverage brands (DTC)",
+    tagline: "Content marketing, customer service, distributor communication, compliance",
+    tier: 3,
+    scores: [4,4,3,4,4],
+    functions: "Social content · email marketing · customer service · retail buyer outreach · product compliance documentation · influencer coordination",
+    gap: "Many martech tools but no whole-brand AI OS",
+    tools: "Shopify + Klaviyo + social tools + email — moderately served",
+    roi: "ROAS, email revenue, customer LTV, support ticket volume",
+    challenge: "Crowded martech space — harder to differentiate"
+  },
+  {
+    name: "Veterinary practices",
+    tagline: "Client comms, appointment management, marketing, supplier coordination",
+    tier: 3,
+    scores: [3,5,5,4,4],
+    functions: "Appointment reminders · vaccination follow-ups · client nurture campaigns · social content · supplier orders · review management",
+    gap: "Practice management software only — no AI workforce platform",
+    tools: "VetSoft + email + social",
+    roi: "Appointments per vet, client retention, new client acquisition",
+    challenge: "Lower work density per function than other verticals"
+  },
+  {
+    name: "Independent travel agencies",
+    tagline: "Itinerary building, supplier comms, client servicing, content marketing",
+    tier: 3,
+    scores: [3,5,5,3,4],
+    functions: "Itinerary research · supplier communication · booking coordination · client follow-up · social/blog content · prospect nurturing",
+    gap: "No AI workforce platform — entirely underserved",
+    tools: "Amadeus/GDS + email + spreadsheets",
+    roi: "Bookings per advisor, revenue per booking, repeat rate",
+    challenge: "Market contraction vs OTAs; lower growth ceiling"
+  },
+  {
+    name: "Cleaning & facilities management",
+    tagline: "Scheduling, client comms, staff coordination, compliance — very manual today",
+    tier: 3,
+    scores: [3,5,5,4,4],
+    functions: "Job scheduling · client communication · staff rotas · invoice follow-up · quality check reporting · new business outreach",
+    gap: "Field service software (ServiceM8) is scheduling only",
+    tools: "Scheduling software + email + phone + WhatsApp",
+    roi: "Jobs per operative, client retention, invoice payment speed",
+    challenge: "Low-margin business — price sensitivity on software"
+  }
+];
+
+function dots(n, max=5, color='') {
+  return Array.from({length:max}, (_,i) =>
+    `<span class="dot${i<n?' on'+(color?' '+color:''):''}"></span>`
+  ).join('');
+}
+
+function scoreLabel(i) {
+  return ['Agentic depth','Non-tech buyer','Market gap','ROI clarity','Buy access'][i];
+}
+
+function renderCards(list) {
+  return list.map(v => `
+    <div class="card ${v.tier===1?'tier1':''}" onclick="toggle(this)">
+      <div class="card-header">
+        <div style="display:flex;align-items:flex-start;gap:6px">
+          <div style="flex:1">
+            <div class="card-name">${v.name}</div>
+            <div class="card-tagline">${v.tagline}</div>
+          </div>
+          <span class="tier-badge t${v.tier}">T${v.tier}</span>
+        </div>
+      </div>
+      <div class="card-scores">
+        ${v.scores.map((s,i) => `
+          <div class="score" title="${scoreLabel(i)}: ${s}/5">
+            <div class="dots">${dots(s,5,v.tier===1?'green':'')}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="card-detail">
+        <div class="detail-row">
+          <div class="detail-label">Functions agents handle</div>
+          <div class="detail-val">${v.functions}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Market gap</div>
+          <div class="detail-val">${v.gap}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Current tools (fragmented)</div>
+          <div class="detail-val">${v.tools}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">ROI metrics</div>
+          <div class="detail-val">${v.roi}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Key challenge</div>
+          <div class="detail-val"><span class="gap-tag red">${v.challenge}</span></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('grid').innerHTML = renderCards(verticals);
+
+function toggle(card) {
+  card.querySelector('.card-detail').classList.toggle('open');
+}
+
+function filter(tier, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(c => {
+    if (tier === 'all') c.classList.remove('hidden');
+    else c.classList.toggle('hidden', !c.classList.contains(tier));
+  });
+}
+</script>
+</body>
+</html>

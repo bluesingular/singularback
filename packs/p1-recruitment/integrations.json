@@ -1,0 +1,41 @@
+{
+  "integrations": [
+    {
+      "slug": "gmail",
+      "name": "Gmail",
+      "required": true,
+      "reason": "Communication avec vos candidats et clients",
+      "setup_time_minutes": 2,
+      "permissions_needed": ["read", "send"],
+      "agents_using": ["sophie-sourcing", "marc-client", "julien-admin"]
+    },
+    {
+      "slug": "linkedin",
+      "name": "LinkedIn",
+      "required": false,
+      "reason": "Sourcing de candidats et diffusion d'offres d'emploi",
+      "setup_time_minutes": 3,
+      "permissions_needed": ["search", "message"],
+      "agents_using": ["sophie-sourcing", "clara-content"],
+      "upsell_copy": "Avec LinkedIn, Sophie peut trouver des candidats passifs — ceux qui ne postulent pas mais seraient intéressés."
+    },
+    {
+      "slug": "notion",
+      "name": "Notion",
+      "required": false,
+      "reason": "Base de données candidats et suivi des missions",
+      "setup_time_minutes": 5,
+      "permissions_needed": ["read", "write"],
+      "agents_using": ["sophie-sourcing", "marc-client", "julien-admin"]
+    },
+    {
+      "slug": "google-calendar",
+      "name": "Google Agenda",
+      "required": false,
+      "reason": "Planification automatique des entretiens",
+      "setup_time_minutes": 2,
+      "permissions_needed": ["read", "write"],
+      "agents_using": ["julien-admin"]
+    }
+  ]
+}

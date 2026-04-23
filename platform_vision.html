@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #fafaf8; color: #1a1a18; padding: 1.5rem; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e3db; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; }
+.tab.active { color: #1a1a18; font-weight: 500; background: #f1efe8; border-color: #e5e3db; }
+.panel { display: none; }
+.panel.active { display: block; }
+.stack { display: flex; flex-direction: column; gap: 6px; }
+.layer { border-radius: 12px; border: 1px solid #e5e3db; overflow: hidden; cursor: pointer; }
+.layer-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.layer-num { font-size: 11px; color: #aaa; min-width: 20px; }
+.layer-name { font-size: 13px; font-weight: 500; flex: 1; }
+.layer-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.layer-body { padding: 0 16px 12px; font-size: 12px; color: #666; line-height: 1.6; display: none; }
+.layer-body.open { display: block; }
+.layer-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+.layer-item { background: #f7f5ee; border-radius: 8px; padding: 8px 10px; font-size: 11px; }
+.layer-item-title { font-weight: 500; margin-bottom: 2px; color: #1a1a18; }
+.layer-item-desc { color: #888; }
+.vs-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.vs-card { border-radius: 12px; border: 1px solid #e5e3db; padding: 14px; background: white; }
+.vs-card.highlight { border-color: #378add; background: #e6f1fb; }
+.vs-head { font-size: 12px; font-weight: 500; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e5e3db; }
+.vs-row { font-size: 11px; color: #666; padding: 4px 0; border-bottom: 1px solid #f0ede6; line-height: 1.4; }
+.vs-row:last-child { border-bottom: none; }
+.vertical-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.v-card { border-radius: 12px; border: 1px solid #e5e3db; padding: 14px; cursor: pointer; background: white; }
+.v-card.best { border-color: #378add; background: #e6f1fb; }
+.v-name { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.v-why { font-size: 11px; color: #666; margin-bottom: 8px; line-height: 1.5; }
+.v-scores { display: flex; gap: 6px; flex-wrap: wrap; }
+.v-pill { font-size: 10px; padding: 2px 7px; border-radius: 10px; }
+.note { margin-top: 12px; background: #f1efe8; border-radius: 12px; border: 1px solid #e5e3db; padding: 14px 16px; font-size: 12px; color: #666; line-height: 1.6; }
+</style></head>
+<body>
+<div class="tabs">
+  <div class="tab active" onclick="show('layers')">Product layers</div>
+  <div class="tab" onclick="show('vs')">vs. existing market</div>
+  <div class="tab" onclick="show('verticals')">Vertical selection</div>
+</div>
+
+<div class="panel active" id="tab-layers">
+  <p style="font-size:12px;color:#888;margin-bottom:10px">Click each layer to expand. Built top-down for the business operator — not the developer.</p>
+  <div class="stack">
+
+    <div class="layer" onclick="toggle(this)">
+      <div class="layer-header" style="background:#e6f1fb">
+        <span class="layer-num">1</span>
+        <span class="layer-name" style="color:#0c447c">Business onboarding</span>
+        <span class="layer-tag" style="background:#e6f1fb;color:#185fa5">non-technical entry point</span>
+      </div>
+      <div class="layer-body">Zero technical questions. Feels like setting up a company, not configuring software.
+        <div class="layer-cols">
+          <div class="layer-item"><div class="layer-item-title">Company intake</div><div class="layer-item-desc">Industry, size, team, tools used today, goals</div></div>
+          <div class="layer-item"><div class="layer-item-title">Auto org generation</div><div class="layer-item-desc">Org chart built from their answers automatically</div></div>
+          <div class="layer-item"><div class="layer-item-title">Tool connection</div><div class="layer-item-desc">OAuth connects Gmail, Slack, HubSpot — no API keys</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer" onclick="toggle(this)">
+      <div class="layer-header" style="background:#e1f5ee">
+        <span class="layer-num">2</span>
+        <span class="layer-name" style="color:#085041">Digital twin engine</span>
+        <span class="layer-tag" style="background:#e1f5ee;color:#0f6e56">your core differentiator</span>
+      </div>
+      <div class="layer-body">The company's identity, memory and processes encoded into the platform. This is what makes it THEIR company, not a generic template.
+        <div class="layer-cols">
+          <div class="layer-item"><div class="layer-item-title">Company DNA</div><div class="layer-item-desc">Brand voice, values, processes, terminology</div></div>
+          <div class="layer-item"><div class="layer-item-title">Process library</div><div class="layer-item-desc">How THIS company does things — learned over time</div></div>
+          <div class="layer-item"><div class="layer-item-title">Org memory</div><div class="layer-item-desc">Shared vector knowledge that grows with every task</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer" onclick="toggle(this)">
+      <div class="layer-header" style="background:#faeeda">
+        <span class="layer-num">3</span>
+        <span class="layer-name" style="color:#633806">Vertical agent workforce</span>
+        <span class="layer-tag" style="background:#faeeda;color:#854f0b">pre-built for their industry</span>
+      </div>
+      <div class="layer-body">Pre-configured agents for the specific vertical — roles, skills, integrations already set up. Business operator just enables them.
+        <div class="layer-cols">
+          <div class="layer-item"><div class="layer-item-title">Role templates</div><div class="layer-item-desc">CMO, Sales, Ops — preconfigured for vertical</div></div>
+          <div class="layer-item"><div class="layer-item-title">Skill packs</div><div class="layer-item-desc">Deep domain skills per role, not generic</div></div>
+          <div class="layer-item"><div class="layer-item-title">Workflow library</div><div class="layer-item-desc">Common tasks ready to run on day 1</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer" onclick="toggle(this)">
+      <div class="layer-header" style="background:#f1efe8">
+        <span class="layer-num">4</span>
+        <span class="layer-name">Governance in business language</span>
+        <span class="layer-tag" style="background:#e5e3db;color:#5f5e5a">from Paperclip — translated</span>
+      </div>
+      <div class="layer-body">Paperclip's governance model expressed in business-operator terms. Approval flows feel like signing off on work, not configuring software.
+        <div class="layer-cols">
+          <div class="layer-item"><div class="layer-item-title">Board console</div><div class="layer-item-desc">CEO chat + approve/reject in plain language</div></div>
+          <div class="layer-item"><div class="layer-item-title">Budget controls</div><div class="layer-item-desc">Spend shown as £/$ per function, not tokens</div></div>
+          <div class="layer-item"><div class="layer-item-title">Audit trail</div><div class="layer-item-desc">Every action explained in business terms</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer" onclick="toggle(this)">
+      <div class="layer-header" style="background:#f1efe8">
+        <span class="layer-num">5</span>
+        <span class="layer-name">Business outcomes dashboard</span>
+        <span class="layer-tag" style="background:#e5e3db;color:#5f5e5a">metrics that matter to the buyer</span>
+      </div>
+      <div class="layer-body">Not token costs or heartbeat counts. The KPIs their business already tracks.
+        <div class="layer-cols">
+          <div class="layer-item"><div class="layer-item-title">ROI dashboard</div><div class="layer-item-desc">Agent cost vs human equivalent per function</div></div>
+          <div class="layer-item"><div class="layer-item-title">Output log</div><div class="layer-item-desc">What was produced this week — plain English</div></div>
+          <div class="layer-item"><div class="layer-item-title">Health signals</div><div class="layer-item-desc">Green / amber / red per function. Simple.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer" onclick="toggle(this)">
+      <div class="layer-header" style="background:#f1efe8">
+        <span class="layer-num">6</span>
+        <span class="layer-name">Managed infrastructure</span>
+        <span class="layer-tag" style="background:#e5e3db;color:#5f5e5a">invisible to the buyer</span>
+      </div>
+      <div class="layer-body">The buyer never sees this. You run it. Paperclip fork + managed PostgreSQL + model routing + vertical compliance.
+        <div class="layer-cols">
+          <div class="layer-item"><div class="layer-item-title">Hosted Paperclip</div><div class="layer-item-desc">Forked, managed, multi-tenant</div></div>
+          <div class="layer-item"><div class="layer-item-title">Model router</div><div class="layer-item-desc">Best model per task, cost-optimised</div></div>
+          <div class="layer-item"><div class="layer-item-title">Vertical compliance</div><div class="layer-item-desc">GDPR + industry-specific data handling</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="panel" id="tab-vs">
+  <p style="font-size:12px;color:#888;margin-bottom:10px">How this sits in the current market.</p>
+  <div class="vs-grid">
+    <div class="vs-card">
+      <div class="vs-head" style="color:#888">Developer platforms</div>
+      <div class="vs-row">LangGraph, CrewAI, AutoGen</div>
+      <div class="vs-row">Code-first, engineer required</div>
+      <div class="vs-row">Horizontal, no vertical depth</div>
+      <div class="vs-row">No managed hosting</div>
+      <div class="vs-row">No business UX</div>
+      <div class="vs-row" style="color:#3b6d11">→ Your customer won't use these</div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-head" style="color:#888">Point agent solutions</div>
+      <div class="vs-row">Artisan, 11x, Lindy, Relevance AI</div>
+      <div class="vs-row">One function only (SDR, etc.)</div>
+      <div class="vs-row">No org-level governance</div>
+      <div class="vs-row">No digital twin concept</div>
+      <div class="vs-row">No cross-function coordination</div>
+      <div class="vs-row" style="color:#854f0b">→ Partial overlap, complementary</div>
+    </div>
+    <div class="vs-card highlight">
+      <div class="vs-head" style="color:#185fa5">Your platform</div>
+      <div class="vs-row" style="color:#185fa5">Full company digital twin</div>
+      <div class="vs-row" style="color:#185fa5">Non-developer, managed</div>
+      <div class="vs-row" style="color:#185fa5">Vertical depth + skill packs</div>
+      <div class="vs-row" style="color:#185fa5">Governance in business language</div>
+      <div class="vs-row" style="color:#185fa5">Cross-function coordination</div>
+      <div class="vs-row" style="color:#185fa5">→ Genuinely unoccupied space</div>
+    </div>
+  </div>
+  <div class="note">Enterprise players (Microsoft Copilot Studio, Salesforce Agentforce) are the long-term threat — but they're locked to their own ecosystems, require IT departments, and have zero vertical depth. A focused vertical product will own its niche before they catch up.</div>
+</div>
+
+<div class="panel" id="tab-verticals">
+  <p style="font-size:12px;color:#888;margin-bottom:10px">Score: agent-amenable work · clear ROI · accessible buyer · no dominant solution · your proximity.</p>
+  <div class="vertical-grid">
+    <div class="v-card best">
+      <div class="v-name" style="color:#185fa5">Marketing / creative agencies</div>
+      <div class="v-why">High operational complexity, fragmented tools, clear output metrics. Founder is the bottleneck — agents multiply capacity without hiring. Short sales cycle, clear before/after.</div>
+      <div class="v-scores">
+        <span class="v-pill" style="background:#eaf3de;color:#3b6d11">Agent-amenable</span>
+        <span class="v-pill" style="background:#eaf3de;color:#3b6d11">Clear ROI</span>
+        <span class="v-pill" style="background:#e6f1fb;color:#185fa5">Best start</span>
+      </div>
+    </div>
+    <div class="v-card">
+      <div class="v-name">E-commerce brands</div>
+      <div class="v-why">Marketing, customer service, ops, analytics — all high-volume and measurable. Tools are standardised (Shopify, Klaviyo, Meta). Margin pressure = strong ROI motivation.</div>
+      <div class="v-scores">
+        <span class="v-pill" style="background:#eaf3de;color:#3b6d11">Agent-amenable</span>
+        <span class="v-pill" style="background:#faeeda;color:#854f0b">Crowded tools space</span>
+      </div>
+    </div>
+    <div class="v-card">
+      <div class="v-name">Professional services</div>
+      <div class="v-why">Consulting, accounting, legal. High ACV, knowledge-intensive, compliance-aware. Agents handle research, drafting, reporting. Buyers have budget but long sales cycles.</div>
+      <div class="v-scores">
+        <span class="v-pill" style="background:#eaf3de;color:#3b6d11">High ACV</span>
+        <span class="v-pill" style="background:#faeeda;color:#854f0b">Long sales cycle</span>
+        <span class="v-pill" style="background:#fcebeb;color:#a32d2d">Compliance heavy</span>
+      </div>
+    </div>
+    <div class="v-card">
+      <div class="v-name">Real estate agencies</div>
+      <div class="v-why">Lead nurturing, content, market research, client comms — all repetitive. Small teams, high transaction value. Underserved by current AI tools, accessible buyer.</div>
+      <div class="v-scores">
+        <span class="v-pill" style="background:#eaf3de;color:#3b6d11">Underserved</span>
+        <span class="v-pill" style="background:#faeeda;color:#854f0b">Fragmented market</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['layers','vs','verticals'][i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+function toggle(layer) {
+  layer.querySelector('.layer-body').classList.toggle('open');
+}
+</script>
+</body>
+</html>

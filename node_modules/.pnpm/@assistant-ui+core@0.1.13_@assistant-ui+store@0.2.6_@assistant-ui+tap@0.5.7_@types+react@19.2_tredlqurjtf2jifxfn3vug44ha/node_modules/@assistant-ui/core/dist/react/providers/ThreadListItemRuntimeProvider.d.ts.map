@@ -1,0 +1,1 @@
+{"version":3,"file":"ThreadListItemRuntimeProvider.d.ts","sourceRoot":"","sources":["../../../src/react/providers/ThreadListItemRuntimeProvider.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,EAAE,KAAK,iBAAiB,EAAE,MAAM,OAAO,CAAC;AAExD,OAAO,KAAK,EAAE,qBAAqB,EAAE,uBAAc;AAGnD,eAAO,MAAM,6BAA6B,EAAE,EAAE,CAC5C,iBAAiB,CAAC;IAChB,OAAO,EAAE,qBAAqB,CAAC;CAChC,CAAC,CAOH,CAAC"}

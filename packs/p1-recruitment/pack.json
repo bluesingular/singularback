@@ -1,0 +1,144 @@
+{
+  "slug": "p1-recruitment",
+  "name": "Cabinet de recrutement",
+  "version": "1.0.0",
+  "description": "Automatisez le sourcing, la qualification de candidats, le suivi client et le reporting — en 20 minutes.",
+  "tagline": "Votre équipe RH IA, opérationnelle en 20 minutes.",
+  "category": "services-rh",
+  "language": "fr",
+  "target_company_size": "2-50",
+  "estimated_setup_minutes": 20,
+  "value_proposition": [
+    "Vos candidats sourcés et présélectionnés en automatique",
+    "Suivi client et reporting hebdomadaire sans effort",
+    "Offres d'emploi rédigées et diffusées en 2 minutes"
+  ],
+  "taskTranslations": [
+    { "tasks": 7, "unit": "1 lot de qualification CV", "plural": "lots de qualification CV" },
+    { "tasks": 3, "unit": "1 offre d'emploi rédigée", "plural": "offres d'emploi rédigées" },
+    { "tasks": 5, "unit": "1 rapport client hebdomadaire", "plural": "rapports clients hebdomadaires" },
+    { "tasks": 2, "unit": "1 email de suivi candidat", "plural": "emails de suivi candidats" },
+    { "tasks": 4, "unit": "1 veille marché", "plural": "veilles marché" },
+    { "tasks": 1, "unit": "1 email client", "plural": "emails clients" }
+  ],
+  "agents": [
+    {
+      "slug": "sophie-sourcing",
+      "name": "Sophie",
+      "role": "sourcing",
+      "title": "Chargée de sourcing",
+      "description": "Sophie recherche et présélectionne des candidats pour vos missions ouvertes.",
+      "icon": "search",
+      "skills": ["qualification-cv", "candidate-sourcing", "candidate-follow-up", "candidate-re-engagement"],
+      "heartbeat_frequency_ms": 14400000,
+      "budget_limit_month": 80,
+      "tier_profile": { "default_tier": 2, "heavy_tasks": ["candidate-sourcing"], "light_tasks": ["candidate-follow-up", "candidate-re-engagement", "qualification-cv"] },
+      "integrations_needed": ["gmail", "linkedin"],
+      "active_hours": { "start": "08:00", "end": "19:00", "days": ["MON","TUE","WED","THU","FRI"] }
+    },
+    {
+      "slug": "marc-client",
+      "name": "Marc",
+      "role": "client_relations",
+      "title": "Responsable relation client",
+      "description": "Marc gère la communication avec vos clients et prépare les présentations candidats.",
+      "icon": "users",
+      "skills": ["client-email", "weekly-client-report"],
+      "heartbeat_frequency_ms": 14400000,
+      "budget_limit_month": 60,
+      "tier_profile": { "default_tier": 1, "heavy_tasks": ["weekly-client-report"], "light_tasks": ["client-email"] },
+      "integrations_needed": ["gmail"],
+      "active_hours": { "start": "08:00", "end": "19:00", "days": ["MON","TUE","WED","THU","FRI"] }
+    },
+    {
+      "slug": "clara-content",
+      "name": "Clara",
+      "role": "content",
+      "title": "Chargée de contenu",
+      "description": "Clara rédige vos offres d'emploi, vos posts LinkedIn et vos fiches de poste.",
+      "icon": "pen-tool",
+      "skills": ["job-posting-writer"],
+      "heartbeat_frequency_ms": 28800000,
+      "budget_limit_month": 40,
+      "tier_profile": { "default_tier": 1, "heavy_tasks": ["job-posting-writer"], "light_tasks": [] },
+      "integrations_needed": ["gmail", "linkedin"],
+      "active_hours": { "start": "08:00", "end": "18:00", "days": ["MON","TUE","WED","THU","FRI"] }
+    },
+    {
+      "slug": "julien-admin",
+      "name": "Julien",
+      "role": "admin",
+      "title": "Assistant administratif",
+      "description": "Julien gère les tâches administratives et le suivi des missions.",
+      "icon": "clipboard",
+      "skills": ["candidate-follow-up"],
+      "heartbeat_frequency_ms": 28800000,
+      "budget_limit_month": 30,
+      "tier_profile": { "default_tier": 1, "heavy_tasks": [], "light_tasks": ["candidate-follow-up"] },
+      "integrations_needed": ["gmail"],
+      "active_hours": { "start": "09:00", "end": "18:00", "days": ["MON","TUE","WED","THU","FRI"] }
+    },
+    {
+      "slug": "iris-intelligence",
+      "name": "Iris",
+      "role": "market_intelligence",
+      "title": "Analyste marché",
+      "description": "Iris surveille les tendances du marché de l'emploi et détecte les opportunités.",
+      "icon": "trending-up",
+      "skills": ["market-intelligence"],
+      "heartbeat_frequency_ms": 86400000,
+      "budget_limit_month": 40,
+      "tier_profile": { "default_tier": 2, "heavy_tasks": ["market-intelligence"], "light_tasks": [] },
+      "integrations_needed": [],
+      "active_hours": { "start": "07:00", "end": "09:00", "days": ["MON","TUE","WED","THU","FRI"] }
+    }
+  ],
+  "integrations": [
+    { "type": "gmail", "required": true, "reason": "Communication candidats et clients" },
+    { "type": "linkedin", "required": false, "reason": "Sourcing et diffusion d'offres" },
+    { "type": "notion", "required": false, "reason": "Base candidats et suivi missions" },
+    { "type": "google-calendar", "required": false, "reason": "Planification entretiens" }
+  ],
+  "goals": [
+    {
+      "type": "volume_placements",
+      "title": "Augmenter le nombre de placements",
+      "description": "Augmenter le nombre de placements réussis par consultant chaque mois.",
+      "days_to_target": 90
+    },
+    {
+      "type": "reduce_time_to_shortlist",
+      "title": "Réduire le délai de présentation candidats",
+      "description": "Présenter une shortlist au client dans les 72h après l'ouverture d'une mission.",
+      "days_to_target": 60
+    },
+    {
+      "type": "improve_client_satisfaction",
+      "title": "Améliorer la satisfaction client",
+      "description": "Atteindre un NPS supérieur à 40 auprès des clients actifs.",
+      "days_to_target": 120
+    },
+    {
+      "type": "reduce_admin_load",
+      "title": "Réduire la charge administrative",
+      "description": "Déléguer 80% des tâches administratives récurrentes à l'équipe IA.",
+      "days_to_target": 30
+    },
+    {
+      "type": "develop_visibility",
+      "title": "Développer la visibilité du cabinet",
+      "description": "Publier 3 posts LinkedIn par semaine et augmenter la notoriété du cabinet.",
+      "days_to_target": 60
+    }
+  ],
+  "heartbeat_defaults": {
+    "frequency_hours": 4,
+    "active_days": ["MON","TUE","WED","THU","FRI"],
+    "active_hours_start": "08:00",
+    "active_hours_end": "19:00"
+  },
+  "budget_defaults": {
+    "per_agent_monthly_euros": 50,
+    "total_monthly_euros": 250
+  }
+}

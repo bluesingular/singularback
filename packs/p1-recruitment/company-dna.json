@@ -1,0 +1,24 @@
+{
+  "template": {
+    "description": "{cabinet_name} est un cabinet de recrutement spécialisé en {specialisation}, accompagnant des {client_type} dans leurs recrutements sur {zone_geo}. Fondé il y a {seniority}, le cabinet place des profils à {avg_salary_range} en CDI.",
+    "customer_profile": "Nos clients sont principalement des {client_type}. Ils recherchent des profils fiables et rapidement opérationnels. Ils valorisent la réactivité, la qualité des shortlists et la transparence sur l'avancement des missions.",
+    "tone": "Professionnel et chaleureux. Nous parlons à des candidats en recherche active ou passive, et à des DRH ou managers qui ont peu de temps. Nos communications sont concises, directes et bienveillantes.",
+    "what_we_never_say": [
+      "Ne jamais mentionner les noms de nos clients sans autorisation explicite",
+      "Ne jamais communiquer les fourchettes de salaire des autres candidats",
+      "Ne jamais promettre un placement ou un délai précis",
+      "Ne jamais envoyer d'email à un candidat sans avoir relu le contenu"
+    ],
+    "regulatory_context": [
+      "RGPD : toutes les données candidats sont traitées en conformité avec le règlement européen. Durée de conservation des CVs : 2 ans maximum sans prise de contact.",
+      "Loi Égalité et Citoyenneté : nos offres d'emploi ne mentionnent jamais l'âge, la nationalité, l'état civil ni l'origine.",
+      "Les candidats ont le droit de demander la suppression de leurs données à tout moment."
+    ],
+    "brand_personality": [
+      "Experts de notre secteur de spécialisation",
+      "Réactifs : nos clients ont toujours une réponse dans les 24h",
+      "Honnêtes sur les opportunités, les délais et les profils",
+      "Humains : chaque candidat est une personne, pas un CV"
+    ]
+  }
+}

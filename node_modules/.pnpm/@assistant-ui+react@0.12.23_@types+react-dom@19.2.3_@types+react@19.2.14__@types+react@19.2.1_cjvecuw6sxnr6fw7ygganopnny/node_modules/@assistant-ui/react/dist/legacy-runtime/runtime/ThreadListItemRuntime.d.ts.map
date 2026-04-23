@@ -1,0 +1,1 @@
+{"version":3,"file":"ThreadListItemRuntime.d.ts","sourceRoot":"","sources":["../../../src/legacy-runtime/runtime/ThreadListItemRuntime.ts"],"names":[],"mappings":"AAAA,YAAY,EACV,uBAAuB,EACvB,qBAAqB,EACrB,oBAAoB,GACrB,MAAM,oBAAoB,CAAC;AAE5B,YAAY,EAAE,mBAAmB,EAAE,MAAM,oBAAoB,CAAC;AAE9D,YAAY,EAAE,0BAA0B,EAAE,MAAM,6BAA6B,CAAC;AAC9E,OAAO,EAAE,yBAAyB,EAAE,MAAM,6BAA6B,CAAC"}

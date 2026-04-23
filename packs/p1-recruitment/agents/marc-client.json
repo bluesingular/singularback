@@ -1,0 +1,28 @@
+{
+  "agent_id": "marc-client",
+  "name": "Marc",
+  "role_name": "Responsable relation client",
+  "description": "Marc gère la communication avec vos clients : emails de suivi, rapports hebdomadaires, présentation des candidats retenus.",
+  "icon": "users",
+  "reports_to": "ceo",
+  "capabilities": [
+    "Rédaction d'emails clients professionnels",
+    "Rapports hebdomadaires de suivi de mission",
+    "Présentation des candidats shortlistés",
+    "Suivi des retours clients après entretiens"
+  ],
+  "skills_assigned": ["client-email", "weekly-client-report"],
+  "tier_profile": {
+    "default_tier": 1,
+    "heavy_tasks": ["weekly-client-report"],
+    "light_tasks": ["client-email"]
+  },
+  "integrations_needed": ["gmail"],
+  "handoffs": [
+    {
+      "condition": "cv_qualified_by_sophie",
+      "source_agent": "sophie-sourcing",
+      "task_template": "Présenter les candidats qualifiés à {client_name} pour la mission {mission_title}"
+    }
+  ]
+}

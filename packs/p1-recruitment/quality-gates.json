@@ -1,0 +1,90 @@
+{
+  "gates": [
+    {
+      "id": "gate-email-client-tone",
+      "name": "Validation email client avant envoi",
+      "applies_to_skills": ["client-email", "weekly-client-report"],
+      "checks": [
+        {
+          "type": "tone",
+          "description": "L'email est professionnel et adapté au client",
+          "model": "mistral-small"
+        },
+        {
+          "type": "keyword_forbidden",
+          "keywords": ["problème", "difficultés", "malheureusement", "impossible", "désolé", "erreur de notre part"],
+          "description": "Pas de formulations négatives dans les emails client"
+        }
+      ],
+      "on_fail": "require_approval",
+      "severity": "warn"
+    },
+    {
+      "id": "gate-job-posting-legal",
+      "name": "Conformité offre d'emploi — droit du travail français",
+      "applies_to_skills": ["job-posting-writer"],
+      "checks": [
+        {
+          "type": "keyword_forbidden",
+          "keywords": ["âge", "né(e) en", "nationalité", "état civil", "permis B obligatoire", "français(e)", "natif", "native speaker"],
+          "description": "Conformité loi française sur la non-discrimination à l'embauche"
+        },
+        {
+          "type": "word_count",
+          "min": 100,
+          "max": 400,
+          "description": "Longueur optimale de l'offre (trop longue = moins lue)"
+        },
+        {
+          "type": "required_element",
+          "element": "H/F/X",
+          "description": "Intitulé inclusif obligatoire"
+        }
+      ],
+      "on_fail": "block",
+      "severity": "error"
+    },
+    {
+      "id": "gate-cv-batch-limit",
+      "name": "Limite traitement CVs par batch",
+      "applies_to_skills": ["qualification-cv", "candidate-sourcing"],
+      "checks": [
+        {
+          "type": "volume",
+          "field": "item_count",
+          "max": 20,
+          "description": "Pas plus de 20 CVs traités par heartbeat"
+        }
+      ],
+      "on_fail": "warn",
+      "severity": "warn"
+    },
+    {
+      "id": "gate-gdpr-candidate-data",
+      "name": "Protection données candidats (RGPD)",
+      "applies_to_skills": ["qualification-cv", "candidate-follow-up", "candidate-re-engagement"],
+      "checks": [
+        {
+          "type": "gdpr_model_check",
+          "description": "Les données personnelles candidats ne transitent jamais via des modèles non-EU",
+          "enforcement": "hard_block"
+        }
+      ],
+      "on_fail": "block",
+      "severity": "critical"
+    },
+    {
+      "id": "gate-candidate-contact-whitelist",
+      "name": "Vérification avant contact candidat",
+      "applies_to_skills": ["candidate-follow-up", "candidate-re-engagement"],
+      "checks": [
+        {
+          "type": "requires_approval",
+          "description": "Tout email envoyé à un candidat doit être approuvé par l'opérateur"
+        }
+      ],
+      "on_fail": "require_approval",
+      "severity": "info"
+    }
+  ]
+}

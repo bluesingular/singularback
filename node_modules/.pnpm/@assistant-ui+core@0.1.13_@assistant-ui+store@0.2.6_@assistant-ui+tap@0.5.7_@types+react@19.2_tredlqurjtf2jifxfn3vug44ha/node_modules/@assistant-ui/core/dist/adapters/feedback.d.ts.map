@@ -1,0 +1,1 @@
+{"version":3,"file":"feedback.d.ts","sourceRoot":"","sources":["../../src/adapters/feedback.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,aAAa,EAAE,4BAAyB;AAEtD,KAAK,uBAAuB,GAAG;IAC7B,OAAO,EAAE,aAAa,CAAC;IACvB,IAAI,EAAE,UAAU,GAAG,UAAU,CAAC;CAC/B,CAAC;AAEF,MAAM,MAAM,eAAe,GAAG;IAC5B,MAAM,EAAE,CAAC,QAAQ,EAAE,uBAAuB,KAAK,IAAI,CAAC;CACrD,CAAC"}

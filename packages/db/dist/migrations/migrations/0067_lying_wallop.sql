@@ -1,0 +1,3 @@
+-- Snapshot sync: no schema changes.
+-- This migration exists solely to anchor the drizzle-kit snapshot
+-- for migrations 0057–0066 (added manually without drizzle-kit generate).

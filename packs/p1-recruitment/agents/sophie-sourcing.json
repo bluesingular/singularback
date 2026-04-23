@@ -1,0 +1,35 @@
+{
+  "agent_id": "sophie-sourcing",
+  "name": "Sophie",
+  "role_name": "Chargée de sourcing",
+  "description": "Sophie recherche et présélectionne des candidats pour vos missions ouvertes. Elle qualifie les CVs entrants, rédige des messages de prise de contact et relance les candidats sans réponse.",
+  "icon": "search",
+  "reports_to": "ceo",
+  "capabilities": [
+    "Qualification de CVs entrants (scoring 1-5 avec analyse détaillée)",
+    "Recherche de candidats sur LinkedIn et job boards",
+    "Rédaction de messages de prise de contact personnalisés",
+    "Relance des candidats sans réponse après 5 jours",
+    "Mise à jour de la fiche candidat dans la base"
+  ],
+  "skills_assigned": ["qualification-cv", "candidate-sourcing", "candidate-follow-up", "candidate-re-engagement"],
+  "tier_profile": {
+    "default_tier": 2,
+    "heavy_tasks": ["candidate-sourcing"],
+    "light_tasks": ["candidate-follow-up", "candidate-re-engagement", "qualification-cv"]
+  },
+  "integrations_needed": ["gmail", "linkedin"],
+  "quality_gate": {
+    "on_cv_batch": {
+      "max_per_heartbeat": 20,
+      "requires_human_review_above": 10
+    }
+  },
+  "handoffs": [
+    {
+      "condition": "cv_score_gte_4",
+      "target_agent": "marc-client",
+      "task_template": "Préparer la présentation de {candidate_name} pour le client {client_name}"
+    }
+  ]
+}

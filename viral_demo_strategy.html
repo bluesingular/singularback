@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #0d0d0b; color: #f0ede6; padding: 1.5rem; font-size: 13px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #666; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; transition: all .15s; }
+.tab:hover { color: #aaa; }
+.tab.active { color: #f0ede6; font-weight: 500; background: #1a1a18; border-color: rgba(255,255,255,0.1); }
+.panel { display: none; }
+.panel.active { display: block; }
+.sub { font-size: 11px; color: #666; margin-bottom: 14px; line-height: 1.6; }
+
+/* BOXES */
+.win  { background: rgba(29,158,104,0.12); border: 1px solid rgba(29,158,104,0.3); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #4dd99a; line-height: 1.7; margin-bottom: 14px; }
+.warn { background: rgba(212,130,26,0.12); border: 1px solid rgba(212,130,26,0.3); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #f0a030; line-height: 1.7; margin-bottom: 14px; }
+.info { background: rgba(55,138,221,0.12); border: 1px solid rgba(55,138,221,0.3); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #78b8f2; line-height: 1.7; margin-bottom: 14px; }
+.fire { background: rgba(226,75,74,0.12); border: 1px solid rgba(226,75,74,0.3); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #f07878; line-height: 1.7; margin-bottom: 14px; }
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 14px; }
+.tl-item { display: flex; gap: 14px; }
+.tl-line { display: flex; flex-direction: column; align-items: center; min-width: 80px; }
+.tl-time { font-size: 10px; color: #4dd99a; font-family: monospace; margin-bottom: 6px; white-space: nowrap; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tl-conn { width: 1px; flex: 1; margin: 3px 0; min-height: 16px; }
+.tl-content { padding-bottom: 20px; flex: 1; }
+.tl-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #f0ede6; }
+.tl-desc { font-size: 11px; color: #888; line-height: 1.6; }
+.tl-visual { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 11px; color: #aaa; font-style: italic; line-height: 1.5; }
+.tl-hook { background: rgba(29,158,104,0.08); border-left: 3px solid #1d9e75; padding: 8px 12px; margin-top: 8px; font-size: 11px; color: #4dd99a; line-height: 1.5; }
+
+/* SCRIPT */
+.script-block { margin-bottom: 12px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
+.script-head { padding: 8px 14px; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; display: flex; justify-content: space-between; }
+.script-body { padding: 10px 14px 12px; font-size: 12px; line-height: 1.7; }
+.script-visual { font-size: 11px; color: #888; font-style: italic; }
+.script-text { color: #f0ede6; }
+.script-note { font-size: 10px; color: #4dd99a; margin-top: 4px; }
+.tc { font-family: monospace; color: #4dd99a; font-size: 10px; }
+
+/* GROWTH */
+.growth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.growth-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: #111110; padding: 14px; }
+.growth-card.hot { border-color: rgba(29,158,104,0.4); }
+.gc-head { font-size: 12px; font-weight: 500; margin-bottom: 4px; color: #f0ede6; }
+.gc-sub { font-size: 10px; color: #666; margin-bottom: 10px; }
+.gc-step { font-size: 11px; color: #888; padding: 3px 0; line-height: 1.5; display: flex; gap: 6px; }
+.gc-step::before { content: "→"; color: #4dd99a; flex-shrink: 0; }
+.gc-step.hot-step { color: #f0ede6; }
+.gc-step.hot-step::before { color: #f0a030; content: "★"; }
+
+/* POST TEMPLATES */
+.post-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: #111110; padding: 16px; margin-bottom: 10px; }
+.post-platform { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.post-body { font-size: 12px; color: #ddd; line-height: 1.8; white-space: pre-line; }
+.post-note { font-size: 10px; color: #4dd99a; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; }
+
+/* METRICS */
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.metric-card { border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: #111110; padding: 12px; text-align: center; }
+.metric-num { font-size: 22px; font-weight: 500; color: #4dd99a; margin-bottom: 2px; }
+.metric-label { font-size: 10px; color: #666; line-height: 1.3; }
+
+/* VIRAL FORMULA */
+.formula { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; padding: 16px; background: #111110; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
+.formula-part { font-size: 13px; font-weight: 500; color: #f0ede6; padding: 8px 14px; border-radius: 8px; }
+.formula-op { font-size: 18px; color: #666; }
+</style></head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('concept')">Le concept</div>
+  <div class="tab" onclick="show('script')">Script seconde par seconde</div>
+  <div class="tab" onclick="show('tournage')">Tournage pratique</div>
+  <div class="tab" onclick="show('growth')">Growth hacking plan</div>
+  <div class="tab" onclick="show('posts')">Posts & textes viraux</div>
+</div>
+
+<!-- CONCEPT -->
+<div class="panel active" id="tab-concept">
+  <p class="sub">Avant d'écrire le script : comprendre exactement quelle émotion déclenche un partage. Dans le B2B, une seule émotion fait vraiment partager : la <strong>reconnaissance douloureuse</strong>. "C'est moi. C'est mon quotidien. Et maintenant il existe une solution."</p>
+
+  <div class="formula">
+    <div class="formula-part" style="background:rgba(226,75,74,0.15)">😤 Douleur ultra-spécifique</div>
+    <div class="formula-op">+</div>
+    <div class="formula-part" style="background:rgba(55,138,221,0.15)">😮 Moment "c'est pas possible"</div>
+    <div class="formula-op">+</div>
+    <div class="formula-part" style="background:rgba(29,158,104,0.15)">😌 Résolution évidente</div>
+    <div class="formula-op">=</div>
+    <div class="formula-part" style="background:rgba(29,158,104,0.25);color:#4dd99a">🔥 Viral</div>
+  </div>
+
+  <div class="win">
+    <strong>Le titre du concept :</strong> "Le lundi matin qui a tout changé"<br><br>
+    Un fondateur de cabinet de recrutement arrive au bureau un lundi matin. La scène de départ est sa réalité quotidienne — reconnaissable à 100%. Puis il ouvre son ordinateur. Et là, quelque chose d'impossible s'est passé pendant la nuit.
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+    <div style="border-radius:12px;border:1px solid rgba(226,75,74,0.3);background:rgba(226,75,74,0.06);padding:14px">
+      <div style="font-size:11px;color:#f07878;font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em">Acte 1 — La réalité (0:00–0:18)</div>
+      <div style="font-size:11px;color:#888;line-height:1.6">Lundi 8h30. Sophie, fondatrice d'un cabinet de recrutement IT, arrive au bureau. Son écran : 47 emails non lus. Une notification LinkedIn : "23 nouvelles candidatures pour votre offre". Un SMS client : "Bonjour Sophie, avez-vous des candidats pour nous ?" Elle ferme les yeux. Ce moment — votre audience le vit chaque semaine. Ils vous regardent et pensent : <em>"c'est moi."</em></div>
+    </div>
+    <div style="border-radius:12px;border:1px solid rgba(29,158,104,0.3);background:rgba(29,158,104,0.06);padding:14px">
+      <div style="font-size:11px;color:#4dd99a;font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em">Acte 2 — L'impossible (0:18–1:10)</div>
+      <div style="font-size:11px;color:#888;line-height:1.6">Elle ouvre la plateforme. Elle regarde l'écran. Elle ne comprend pas ce qu'elle voit. Ses 23 CVs ont été qualifiés. 8 matchent le poste. Les 8 ont reçu un email personnalisé. 3 ont déjà répondu. Le rapport client de vendredi a été envoyé. La nouvelle offre d'emploi pour la mission de mardi a été rédigée et diffusée. Et il est 8h37. Elle n'a encore rien fait. <em>Voilà le moment "c'est pas possible".</em></div>
+    </div>
+  </div>
+
+  <div class="fire">
+    <strong>Pourquoi ce concept spécifiquement :</strong><br><br>
+    1. <strong>Le personnage est réel</strong> — "Sophie" est une composite de 3 fondatrices réelles de cabinets de recrutement. Votre audience voit quelqu'un qui leur ressemble.<br><br>
+    2. <strong>La douleur est ultra-spécifique</strong> — "47 emails", "23 candidatures", "SMS client à 8h30" — pas "beaucoup de travail". Des chiffres. Des détails. Ça sonne vrai.<br><br>
+    3. <strong>Le wow est démontré, pas annoncé</strong> — vous ne dites pas "notre IA qualifie des CVs". Vous montrez la liste des CVs qualifiés, l'email envoyé, la réponse reçue. Preuve > promesse.<br><br>
+    4. <strong>Le héros c'est Sophie, pas la plateforme</strong> — votre produit est un outil qui libère Sophie. Pas un robot qui la remplace. Ça évite le backlash "vous tuez l'emploi".
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<div class="panel" id="tab-script">
+  <p class="sub">Script seconde par seconde pour une vidéo de 90 secondes. Format : vidéo réelle avec screen recording intégré. Pas d'animation. Pas de voix off artificielle. Une vraie personne, un vrai produit.</p>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">0:00–0:03</div>
+        <div class="tl-dot" style="background:#e24b4a"></div>
+        <div class="tl-conn" style="background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">L'ouverture — la douleur sans intro</div>
+        <div class="tl-visual">Écran : boîte mail avec "47 messages non lus". Aucune voix. Aucun titre. Juste l'écran et un soupir.</div>
+        <div class="tl-hook">Règle n°1 : ne jamais commencer par "Bonjour, je suis..." Les 3 premières secondes c'est l'écran, la douleur, le scroll infini d'emails. Le spectateur doit scroller et s'arrêter parce que c'est son quotidien.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">0:03–0:12</div>
+        <div class="tl-dot" style="background:#e24b4a"></div>
+        <div class="tl-conn" style="background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">La semaine type — 3 plans rapides</div>
+        <div class="tl-visual">
+          Plan 1 (2s) : LinkedIn — "23 nouvelles candidatures — Mission Dev Fullstack" avec barre de défilement infinie de CVs<br>
+          Plan 2 (2s) : SMS entrant à 8h28 — "Bonjour Sophie, des nouvelles sur notre mission ?"<br>
+          Plan 3 (4s) : Vue agenda — réunion à 9h, 10h, 14h. Post-it : "appeler candidats / finir rapport client Innotec / rédiger offre CTO"
+        </div>
+        <div class="tl-hook">Voix (en off, naturelle — pas de studio): "Lundi matin. Avant de regarder mes mails, j'ai déjà 3 trucs urgents."</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">0:12–0:18</div>
+        <div class="tl-dot" style="background:#ef9f27"></div>
+        <div class="tl-conn" style="background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">Le pivot — "Sauf que..."</div>
+        <div class="tl-visual">Sophie ouvre un autre onglet. Rien de spectaculaire. Interface simple, propre. Elle sourit légèrement.</div>
+        <div class="tl-hook">Voix : "Sauf que cette semaine, j'avais laissé tourner mes agents toute la nuit. Regardez ce qui s'est passé."</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">0:18–0:32</div>
+        <div class="tl-dot" style="background:#1d9e75"></div>
+        <div class="tl-conn" style="background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">🔥 Le wow #1 — Les CVs qualifiés</div>
+        <div class="tl-visual">
+          Écran plateforme — section "CVs reçus cette nuit"<br>
+          On voit : 23 CVs avec une évaluation automatique. 8 en vert "Match élevé", 12 en orange "Match partiel", 3 en rouge "Hors profil".<br>
+          Sophie clique sur le 1er CV "Match élevé" — fiche détaillée : "Correspondance 94% — 6 ans d'expérience React, disponible immédiatement, TJM cohérent"<br>
+          Elle scroll. Chaque CV a une note de synthèse de 2 lignes.
+        </div>
+        <div class="tl-hook">Voix : "23 CVs. Qualifiés, notés, classés. En 4 heures de nuit. J'ai juste relu les 8 qui matchaient."</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">0:32–0:48</div>
+        <div class="tl-dot" style="background:#1d9e75"></div>
+        <div class="tl-conn" style="background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">🔥 Le wow #2 — Les emails envoyés ET les réponses</div>
+        <div class="tl-visual">
+          Sophie passe sur la section "Emails envoyés cette nuit"<br>
+          On voit : 8 emails personnalisés — chaque email montre le prénom du candidat, une référence à son expérience spécifique, une question personnalisée<br>
+          <br>
+          PUIS — et c'est là le vrai coup — elle passe sur "Réponses reçues"<br>
+          3 candidats ont déjà répondu. Un dit "Oui, disponible pour un appel demain". Un autre demande plus d'infos sur le client. Le troisième est très intéressé.<br>
+          <br>
+          Horodatage visible : les emails ont été envoyés à 3h47. Les réponses sont arrivées à 6h15, 7h43, 8h02.
+        </div>
+        <div class="tl-hook">Voix (légèrement stupéfaite) : "Et là — j'ai 3 réponses. Des candidats qui ont répondu ce matin. Pendant que je dormais."</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">0:48–1:05</div>
+        <div class="tl-dot" style="background:#1d9e75"></div>
+        <div class="tl-conn" style="background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">🔥 Le wow #3 — Le rapport client envoyé + l'offre rédigée</div>
+        <div class="tl-visual">
+          Sophie ouvre son Gmail. Elle cherche "Innotec". Elle voit l'email envoyé vendredi à 18h42 — le rapport hebdomadaire client. Elle l'ouvre. Mise en forme propre, chiffres du pipeline, 3 candidats présentés cette semaine, prochaines étapes. Elle n'a pas rédigé cet email.<br>
+          <br>
+          Puis elle va sur LinkedIn. Sa nouvelle offre pour la mission CTO est là. Bien rédigée. Déjà 12 vues depuis 6h du matin.
+        </div>
+        <div class="tl-hook">Voix : "Le rapport client de vendredi — envoyé automatiquement. La nouvelle offre CTO — rédigée et diffusée. Il est 8h37."</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-line">
+        <div class="tl-time">1:05–1:18</div>
+        <div class="tl-dot" style="background:#4dd99a"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">La conclusion — sobre, réelle, sans vente</div>
+        <div class="tl-visual">Sophie se carre dans son fauteuil. Plan moyen — on la voit elle, pas l'écran. Elle parle directement caméra.</div>
+        <div class="tl-hook">Voix (direct camera) : "J'ai une équipe de 3 personnes. Maintenant j'ai aussi 5 agents IA qui bossent la nuit pendant que je dors. Mon job lundi matin, c'est de vérifier et de décider — pas de trier des CVs. C'est ça, le truc."<br><br>Puis silence 1 seconde. Fondu au noir.<br>Texte : "Agentis — votre entreprise IA. Prête en 20 minutes."<br>Lien dans la bio / commentaire épinglé.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="warn">
+    <strong>Ce qu'il NE FAUT PAS dans la vidéo :</strong><br>
+    ✕ Pas de musique inspirante "startup vibes"<br>
+    ✕ Pas d'animations et de transitions tape-à-l'œil<br>
+    ✕ Pas de "notre solution révolutionnaire" — jamais ce mot<br>
+    ✕ Pas de pricing dans la vidéo<br>
+    ✕ Pas de "cliquez sur le lien en bio" dans la vidéo — ça casse l'algorithme LinkedIn<br>
+    ✕ Pas de musique de fond — le son ambiant du bureau est parfait<br>
+    ✕ Pas de voix de comédien — voix naturelle, hésitations légères incluses, c'est la preuve que c'est vrai
+  </div>
+</div>
+
+<!-- TOURNAGE -->
+<div class="panel" id="tab-tournage">
+  <p class="sub">Budget total : 0€ si vous avez un iPhone. La qualité "réelle" est un avantage, pas un défaut. Une vidéo avec un iPhone 14 filmant un vrai écran bat une production professionnelle sur LinkedIn parce qu'elle semble authentique.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:#111110;padding:14px">
+      <div style="font-size:11px;font-weight:500;color:#f0ede6;margin-bottom:10px">Matériel (budget 0€)</div>
+      <div style="font-size:11px;color:#888;line-height:1.7">
+        <strong style="color:#4dd99a">Caméra :</strong> iPhone 12+ en mode paysage. Pas de gimbal nécessaire — posez-le.<br><br>
+        <strong style="color:#4dd99a">Screen recording :</strong> QuickTime (Mac) ou OBS (PC) — gratuit. Enregistrez l'écran en parallèle.<br><br>
+        <strong style="color:#4dd99a">Son :</strong> AirPods en micro ou voix à 30cm du téléphone. Pas de pièce silencieuse obligatoire — l'ambiance bureau est bien.<br><br>
+        <strong style="color:#4dd99a">Lumière :</strong> Fenêtre à gauche. Lumière naturelle. Pas de flash, pas de ring light.<br><br>
+        <strong style="color:#4dd99a">Montage :</strong> CapCut (gratuit, mobile) ou iMovie. Pas besoin de Premiere.
+      </div>
+    </div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:#111110;padding:14px">
+      <div style="font-size:11px;font-weight:500;color:#f0ede6;margin-bottom:10px">Préparation de la démo (important)</div>
+      <div style="font-size:11px;color:#888;line-height:1.7">
+        <strong style="color:#f0a030">Scénarisez les données :</strong> Préparez une instance de démo avec de vraies données réalistes — faux noms candidats mais vrais profils. Les CVs, emails et rapports doivent avoir l'air VRAIS, pas génériques.<br><br>
+        <strong style="color:#f0a030">Répétez 3 fois :</strong> Enregistrez 3 prises. La meilleure est rarement la première.<br><br>
+        <strong style="color:#f0a030">Ne coupez pas trop :</strong> 2-3 coupes maximum. Trop de cuts = montage pub = perd la crédibilité.<br><br>
+        <strong style="color:#f0a030">Le curseur doit être lent :</strong> Quand vous montrez l'écran, bougez la souris lentement. Le spectateur doit lire les données réelles.
+      </div>
+    </div>
+  </div>
+
+  <div style="border-radius:12px;border:1px solid rgba(29,158,104,0.3);background:rgba(29,158,104,0.06);padding:14px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:500;color:#4dd99a;margin-bottom:10px">Le détail qui fait toute la différence : les horodatages</div>
+    <div style="font-size:11px;color:#888;line-height:1.7">
+      Dans la démo, assurez-vous que les timestamps sont visibles et cohérents :<br>
+      — Les CVs ont été qualifiés à 02h15, 02h47, 03h12... (pas à la même seconde)<br>
+      — Les emails envoyés sont à 03h47, 03h49, 03h52...<br>
+      — Les réponses arrivent à des heures de matin normales<br><br>
+      <strong style="color:#4dd99a">Pourquoi c'est critique :</strong> Les commentaires sceptiques diront "c'est truqué". Les timestamps crédibles coupent l'objection avant qu'elle arrive. Un vrai système qui tourne la nuit a des timestamps désordonnés — pas une série parfaite.
+    </div>
+  </div>
+
+  <div class="info">
+    <strong>Version courte (30s) et version longue (90s) :</strong><br>
+    Montez deux versions. La version 30s ne garde que les 3 wows (CVs qualifiés, emails envoyés + réponses, rapport client). Postez la 30s sur LinkedIn Stories/Reels et X. Postez la 90s en post natif LinkedIn avec du texte. La 30s génère la curiosité, la 90s la conversion.
+  </div>
+</div>
+
+<!-- GROWTH -->
+<div class="panel" id="tab-growth">
+  <p class="sub">Zéro euro de publicité. 100% growth hacking. Chaque action est gratuite et peut générer des leads qualifiés si bien exécutée.</p>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-num">J1–3</div>
+      <div class="metric-label">Fenêtre virale<br>Toute l'énergie ici</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">500+</div>
+      <div class="metric-label">Vues visées<br>Jour 1 (LinkedIn algo)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">50+</div>
+      <div class="metric-label">Commentaires visés<br>Signal de viralité</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">10</div>
+      <div class="metric-label">Leads qualifiés<br>Objectif J7</div>
+    </div>
+  </div>
+
+  <div class="growth-grid">
+
+    <div class="growth-card hot">
+      <div class="gc-head">🔥 #1 — LinkedIn natif (action principale)</div>
+      <div class="gc-sub">Priorité absolue. 80% de votre énergie ici.</div>
+      <div class="gc-step hot-step">Postez la vidéo 90s en upload natif LinkedIn (jamais un lien YouTube — l'algo pénalise les liens externes)</div>
+      <div class="gc-step hot-step">Texte du post : commencez par la douleur, pas par votre produit (voir onglet Posts)</div>
+      <div class="gc-step hot-step">Postez un mardi ou mercredi entre 7h30 et 9h — pic d'engagement recruteurs</div>
+      <div class="gc-step hot-step">Répondez à CHAQUE commentaire dans les 2 premières heures — l'algorithme booste les posts engagés</div>
+      <div class="gc-step hot-step">Ne mettez PAS de lien dans le post — mettez-le en premier commentaire épinglé</div>
+      <div class="gc-step">Après 48h, si le post performe, mettez la version 30s en Reels LinkedIn</div>
+    </div>
+
+    <div class="growth-card hot">
+      <div class="gc-head">🔥 #2 — L'armée de commentaires J0</div>
+      <div class="gc-sub">Les 2 premières heures sont critiques pour l'algorithme LinkedIn.</div>
+      <div class="gc-step hot-step">Contactez 15-20 personnes AVANT de poster : "Je publie un post demain à 8h — si ça vous parle, un like ou commentaire m'aiderait"</div>
+      <div class="gc-step hot-step">Ces personnes doivent être dans l'écosystème RH/recrutement — leur engagement signale à LinkedIn que le contenu est pertinent pour ce réseau</div>
+      <div class="gc-step hot-step">Demandez des COMMENTAIRES, pas des likes. 1 commentaire = 6× plus de poids qu'un like dans l'algorithme LinkedIn</div>
+      <div class="gc-step">Idéal : 3-4 commentaires en 30 min → LinkedIn booste le post organiquement</div>
+    </div>
+
+    <div class="growth-card">
+      <div class="gc-head">⚡ #3 — Partage dans les groupes/communautés RH</div>
+      <div class="gc-sub">Ciblage précis des communautés de recruteurs.</div>
+      <div class="gc-step">Groupe LinkedIn "RH et Recrutement France" (67k membres) — partagez le post (pas le lien direct)</div>
+      <div class="gc-step">Slack "Recruteurs Indépendants France" — postez le lien avec le texte adapté</div>
+      <div class="gc-step">Forum "Les Pros du Recrutement" sur Facebook — communauté très active</div>
+      <div class="gc-step">Newsletter "Matin RH" ou "Talent Acquisition France" — proposez un article invité autour de la démo</div>
+      <div class="gc-step">Ne spammez pas — adaptez le message à chaque communauté</div>
+    </div>
+
+    <div class="growth-card">
+      <div class="gc-head">⚡ #4 — Les influenceurs RH FR (outreach ciblé)</div>
+      <div class="gc-sub">5 DMs ciblés valent mieux que 50 generiques.</div>
+      <div class="gc-step">Identifiez 5 influenceurs LinkedIn dans le recrutement FR avec 5k-50k followers (plus facile à contacter que les gros)</div>
+      <div class="gc-step">Envoyez un DM avant de poster : "Je prépare une démo d'IA pour les cabinets de recrutement — je pense que ça pourrait intéresser votre audience. Puis-je vous montrer avant publication ?"</div>
+      <div class="gc-step">S'ils aiment : demandez juste un commentaire ou repost — pas de partenariat payant</div>
+      <div class="gc-step">Cibles FR : cherchez "recruteur" + "fondateur" + "France" sur LinkedIn, filtre 5k-50k followers</div>
+    </div>
+
+    <div class="growth-card">
+      <div class="gc-head">⚡ #5 — Thread X/Twitter FR</div>
+      <div class="gc-sub">Audience tech + RH différente de LinkedIn.</div>
+      <div class="gc-step">Thread de 8 tweets : "J'ai passé 3 mois à construire une IA pour les cabinets de recrutement. Voici ce que j'ai appris (thread)"</div>
+      <div class="gc-step">Tweet 1 : la douleur (statistiques sur les faillites de cabinets)</div>
+      <div class="gc-step">Tweets 2-5 : les 4 tâches les plus chronophages avec des chiffres précis</div>
+      <div class="gc-step">Tweet 6-7 : "voici ce que ça donne en vrai" + vidéo 30s</div>
+      <div class="gc-step">Tweet 8 : call to action — "DM si vous voulez tester"</div>
+    </div>
+
+    <div class="growth-card">
+      <div class="gc-head">⚡ #6 — Hacker News "Show HN"</div>
+      <div class="gc-sub">Audience tech mondiale — génère du trafic longue traîne.</div>
+      <div class="gc-step">Titre : "Show HN: I built an AI company for French recruitment agencies (video demo)"</div>
+      <div class="gc-step">Description courte en anglais : le concept, les skills, Mistral pour GDPR, Paperclip comme base</div>
+      <div class="gc-step">Postez entre 9h-12h EST un lundi ou mardi</div>
+      <div class="gc-step">Répondez à chaque commentaire — HN punit les fondateurs qui disparaissent</div>
+      <div class="gc-step">Même si ça ne génère pas de leads directs : ça crédibilise, crée des backlinks, attire des dev intéressés</div>
+    </div>
+
+    <div class="growth-card">
+      <div class="gc-head">⚡ #7 — Répondre aux posts douloureux</div>
+      <div class="gc-sub">La technique la plus sous-estimée du growth hacking B2B.</div>
+      <div class="gc-step">Cherchez sur LinkedIn : "cabinet de recrutement" + "débordé" OU "candidats" + "chronophage" OU "sourcing" + "difficile" (posts des 30 derniers jours)</div>
+      <div class="gc-step">Sur ces posts, laissez un commentaire utile (pas promotionnel) — partagez un conseil, posez une question</div>
+      <div class="gc-step">Dans votre profil LinkedIn, votre démo video est le premier media — les gens qui cliquent sur votre profil la voient</div>
+      <div class="gc-step">Cette technique génère 2-3 leads/semaine en continu, sans jamais "pitcher"</div>
+    </div>
+
+    <div class="growth-card">
+      <div class="gc-head">⚡ #8 — Product Hunt launch (J+14)</div>
+      <div class="gc-sub">Lancez 2 semaines après la vidéo virale — profitez du momentum.</div>
+      <div class="gc-step">Préparez un "hunter" (quelqu'un avec >500 followers sur PH) pour lancer votre page</div>
+      <div class="gc-step">La vidéo démo est votre media principal sur la page PH</div>
+      <div class="gc-step">Mobilisez votre réseau pour voter le jour J (mardi matin = meilleur timing)</div>
+      <div class="gc-step">Product Hunt génère des inscriptions mais rarement des clients B2B — c'est de la crédibilité et du backlink</div>
+    </div>
+
+  </div>
+
+  <div class="win">
+    <strong>La séquence optimale J0 à J7 :</strong><br><br>
+    <strong>J-3 :</strong> Contacter 20 personnes pour préparer l'engagement initial<br>
+    <strong>J0, 8h00 :</strong> Poster la vidéo 90s sur LinkedIn (natif, texte long, lien en commentaire épinglé)<br>
+    <strong>J0, 8h-10h :</strong> Répondre à CHAQUE commentaire dans les 2 premières heures<br>
+    <strong>J0, 12h :</strong> Partager dans 3 communautés RH (Slack, Facebook, groupe LinkedIn)<br>
+    <strong>J0, 18h :</strong> Thread X/Twitter avec la vidéo 30s<br>
+    <strong>J1 :</strong> DMs aux 5 influenceurs RH identifiés<br>
+    <strong>J2 :</strong> Post Hacker News "Show HN"<br>
+    <strong>J3 :</strong> Si la vidéo dépasse 1k vues, postez un post de suivi "Je ne m'attendais pas à ça" avec les retours<br>
+    <strong>J7 :</strong> Comptez les leads qualifiés, relancez les commentaires avec une question de qualification
+  </div>
+</div>
+
+<!-- POSTS -->
+<div class="panel" id="tab-posts">
+  <p class="sub">Les textes exacts à utiliser pour chaque plateforme. Copiez-collez et adaptez avec votre voix. Ce qui compte : commencer par la douleur, pas par le produit.</p>
+
+  <div class="post-card">
+    <div class="post-platform">
+      <span style="background:rgba(55,138,221,0.2);color:#78b8f2;padding:2px 8px;border-radius:6px;font-size:9px">LINKEDIN — POST PRINCIPAL (90s video)</span>
+    </div>
+    <div class="post-body">Lundi matin. 47 emails non lus. 23 CVs à trier.
+Un SMS client à 8h28.
+
+C'est la réalité de la plupart des cabinets de recrutement que je connais.
+
+Pendant 3 ans, j'ai regardé des fondateurs brillants passer leur temps sur des tâches que tout le monde déteste faire.
+Qualifier des CVs. Rédiger des relances. Envoyer des rapports.
+
+Alors j'ai construit quelque chose.
+
+Cette vidéo montre ce qui s'est passé un lundi matin chez Sophie — fondatrice d'un cabinet de recrutement IT.
+Ses agents IA avaient travaillé toute la nuit.
+
+Je vous laisse regarder.
+
+[VIDÉO]
+
+(Si ça parle à quelqu'un dans votre réseau — un partage ou une mention ferait vraiment la différence 🙏)</div>
+    <div class="post-note">✓ Commence par la douleur ✓ Héros = Sophie, pas votre produit ✓ Demande de partage naturelle ✓ Pas de lien dans le post ✓ Pas de hashtags au milieu du texte</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-platform">
+      <span style="background:rgba(255,255,255,0.08);color:#aaa;padding:2px 8px;border-radius:6px;font-size:9px">COMMENTAIRE ÉPINGLÉ (sous le post LinkedIn)</span>
+    </div>
+    <div class="post-body">Si vous gérez un cabinet de recrutement et que vous vous reconnaissez dans cette vidéo — je cherche 5 cabinets pour tester la plateforme en accès anticipé, avec 3 mois offerts.
+
+👉 [lien landing page] ou répondez directement en DM.</div>
+    <div class="post-note">✓ Le lien est ici, pas dans le post principal — l'algorithme LinkedIn ne pénalise pas les commentaires ✓ Urgence créée par le chiffre "5 cabinets"</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-platform">
+      <span style="background:rgba(29,158,104,0.2);color:#4dd99a;padding:2px 8px;border-radius:6px;font-size:9px">X / TWITTER — PREMIER TWEET DU THREAD</span>
+    </div>
+    <div class="post-body">20% des cabinets de recrutement français ont fait faillite ces 3 dernières années.
+
+Pas parce qu'ils manquaient de clients.
+Parce qu'ils n'avaient plus le temps de faire leur métier.
+
+J'ai construit quelque chose pour ça.
+
+Thread sur ce que j'ai appris 🧵</div>
+    <div class="post-note">✓ Statistique choc immédiate ✓ Insight contre-intuitif ("pas manque de clients") ✓ Thread annoncé = incite à continuer</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-platform">
+      <span style="background:rgba(212,130,26,0.2);color:#f0a030;padding:2px 8px;border-radius:6px;font-size:9px">POST DE SUIVI J+3 — si la vidéo performe</span>
+    </div>
+    <div class="post-body">Je n'attendais pas ça.
+
+La vidéo que j'ai postée lundi a été vue par [X] personnes.
+J'ai reçu [Y] messages de fondateurs de cabinets de recrutement.
+
+Voici les 3 messages qui m'ont le plus marqué :
+
+"On a perdu une mission la semaine dernière parce qu'on n'a pas pu présenter des candidats assez vite."
+
+"Je consacre 40% de mon temps à des tâches que je déteste."
+
+"Est-ce que ça marche vraiment ou c'est une démo bidonnée ?"
+
+À la dernière personne : venez tester. C'est réel.
+
+J'ouvre 5 accès supplémentaires cette semaine.
+👇 Commentez "accès" et je vous contacte.</div>
+    <div class="post-note">✓ Crée de la preuve sociale (X personnes) ✓ Utilise les vraies objections ✓ Répond à la suspicion directement ✓ Mécanisme d'engagement simple ("commentez accès")</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-platform">
+      <span style="background:rgba(127,119,221,0.2);color:#a39fe0;padding:2px 8px;border-radius:6px;font-size:9px">DM INFLUENCEUR RH — message de prise de contact</span>
+    </div>
+    <div class="post-body">Bonjour [prénom],
+
+Je suis tombé sur votre contenu sur les difficultés des cabinets de recrutement indépendants — exactement le sujet sur lequel je travaille depuis 6 mois.
+
+J'ai construit une plateforme IA pour ces cabinets, et je publie une démo cette semaine.
+
+Rien à vendre — je me demandais juste si le sujet pouvait intéresser votre audience. Si vous voulez voir la démo avant que je la publie, avec plaisir.
+
+Bonne journée,
+[Prénom]</div>
+    <div class="post-note">✓ Référence à leur contenu spécifique ✓ "Rien à vendre" désarme ✓ Exclusivité (voir avant publication) ✓ Court — 5 lignes maximum pour un premier DM</div>
+  </div>
+
+</div>
+
+<script>
+function show(id) {
+  const ids = ['concept','script','tournage','growth','posts'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

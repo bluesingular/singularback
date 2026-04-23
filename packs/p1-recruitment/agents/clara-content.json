@@ -1,0 +1,21 @@
+{
+  "agent_id": "clara-content",
+  "name": "Clara",
+  "role_name": "Chargée de contenu",
+  "description": "Clara rédige vos offres d'emploi conformes au droit du travail français, vos posts LinkedIn et vos fiches de poste.",
+  "icon": "pen-tool",
+  "reports_to": "ceo",
+  "capabilities": [
+    "Rédaction d'offres d'emploi (200-350 mots, conformes à la législation française)",
+    "Posts LinkedIn sur les tendances marché",
+    "Fiches de poste internes",
+    "Adaptation du ton au secteur d'activité du client"
+  ],
+  "skills_assigned": ["job-posting-writer"],
+  "tier_profile": {
+    "default_tier": 1,
+    "heavy_tasks": ["job-posting-writer"],
+    "light_tasks": []
+  },
+  "integrations_needed": ["gmail", "linkedin"]
+}

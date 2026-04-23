@@ -1,0 +1,865 @@
+{
+  "skill": "weekly-client-report",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "wcr-001",
+      "input": {
+        "client": "Doctolib — Camille Aubert (Head of Talent)",
+        "mission_title": "Lead Data Engineer",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 2,
+        "events": "12 CVs analysés, 3 profils shortlistés, 2 entretiens RH passés, 1 en attente de réponse. Le client est enthousiaste sur Thomas Mercier."
+      },
+      "expected_output": {
+        "client_name": "Doctolib",
+        "mission_title": "Lead Data Engineer",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "12 CVs analysés depuis le lancement — 3 profils retenus pour présentation. Deux entretiens RH réalisés cette semaine : Thomas Mercier et Adrien Lecomte. Un troisième profil (Julie Marchand) est en cours de qualification approfondie."
+          },
+          {
+            "title": "Statut de la mission",
+            "content": "✅ La mission avance conformément au planning. Votre retour positif sur Thomas Mercier est une bonne base. L'entretien technique est en cours de planification pour la semaine prochaine."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Semaine du 21 avril : entretien technique Thomas Mercier à planifier avec votre équipe Engineering. Qualification de Julie Marchand finalisée mercredi. Sourcing d'un quatrième profil en parallèle."
+          }
+        ],
+        "next_steps": [
+          "Planifier entretien technique Thomas Mercier — contacter votre équipe Engineering pour les disponibilités",
+          "Retour attendu sur Adrien Lecomte (entretien RH passé vendredi)",
+          "Présenter Julie Marchand si qualification confirmée mercredi"
+        ],
+        "metrics": {
+          "cvs_reviewed": 12,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 2,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport semaine 2, mission on_track. Illustre la structure claire en 3 sections avec métriques. Le statut positif est factuel et non sur-prometteur. Les prochaines étapes sont actionnables avec des responsabilités claires."
+    },
+    {
+      "id": "wcr-002",
+      "input": {
+        "client": "Capgemini Engineering — Sophie Lambert (HR Business Partner)",
+        "mission_title": "Responsable RH",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "week_number": 4,
+        "events": "2 candidats présentés semaine 3. Un refusé (Marie-Claire Dupont). L'autre (Vanessa Martin) est en attente de décision depuis 10 jours. Capgemini n'a pas donné de retour."
+      },
+      "expected_output": {
+        "client_name": "Capgemini Engineering",
+        "mission_title": "Responsable RH",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "status": "attention_needed",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Suite à vos retours de la semaine dernière sur Marie-Claire Dupont, le sourcing a repris sur des profils HRBP avec expérience de relations sociales en ESN. Deux nouveaux profils sont en cours de qualification."
+          },
+          {
+            "title": "Point d'attention",
+            "content": "⚠️ Vanessa Martin, présentée il y a 10 jours, est toujours en attente de votre retour. Elle a d'autres processus en cours — un retour de votre côté avant vendredi nous permettrait de maintenir son intérêt pour Capgemini."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Semaine du 14 avril : présentation de 2 nouveaux profils. Retour attendu sur Vanessa Martin avant vendredi 11 avril pour maintenir le process actif."
+          }
+        ],
+        "next_steps": [
+          "Retour de Capgemini sur Vanessa Martin attendu avant vendredi 11 avril",
+          "Présentation de 2 nouveaux profils HRBP Relations Sociales semaine du 14 avril",
+          "Affinage du brief si les critères ont évolué — call possible mercredi"
+        ],
+        "metrics": {
+          "cvs_reviewed": 18,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 2,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport avec statut 'attention_needed'. Illustre comment signaler qu'un retour client est nécessaire sans blâmer le client — le délai risque de faire partir le candidat, c'est une information factuelle utile."
+    },
+    {
+      "id": "wcr-003",
+      "input": {
+        "client": "L'Oréal — Antoine Lebrun (Talent Manager)",
+        "mission_title": "Chef de Projet Marketing",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "week_number": 5,
+        "events": "Amira Khalil a accepté l'offre. Prise de poste dans 2 mois. Mission terminée."
+      },
+      "expected_output": {
+        "client_name": "L'Oréal",
+        "mission_title": "Chef de Projet Marketing",
+        "period": "Semaine du 21 au 25 avril 2025",
+        "status": "completed",
+        "sections": [
+          {
+            "title": "Mission accomplie",
+            "content": "Amira Khalil a accepté votre offre et démarre le 2 juin. La mission Chef de Projet Marketing est finalisée dans les délais convenus — 5 semaines de process."
+          },
+          {
+            "title": "Récapitulatif de la mission",
+            "content": "23 CVs analysés sur 5 semaines. 4 profils présentés. 3 entretiens conduits. 1 offre émise et acceptée. Profil retenu : Amira Khalil (ESSEC, 3 ans Unilever FMCG, anglais bilingue)."
+          },
+          {
+            "title": "Clôture",
+            "content": "Nous restons disponibles pendant la période d'intégration d'Amira. Si un besoin complémentaire se présente dans votre équipe, nous sommes à votre disposition."
+          }
+        ],
+        "next_steps": [
+          "Confirmation de la date de prise de poste (2 juin) — onboarding RH L'Oréal en cours",
+          "Période de garantie d'intégration : contact prévu à J+30 (2 juillet)"
+        ],
+        "metrics": {
+          "cvs_reviewed": 23,
+          "profiles_shortlisted": 4,
+          "interviews_scheduled": 3,
+          "offers_sent": 1
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport de clôture de mission. Illustre le bilan complet (métriques totales), la mention de la garantie d'intégration (J+30), et l'ouverture commerciale naturelle ('si un besoin complémentaire se présente')."
+    },
+    {
+      "id": "wcr-004",
+      "input": {
+        "client": "Société Générale — Jean-François Petit (Directeur des Risques)",
+        "mission_title": "Ingénieur Cybersécurité",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 1,
+        "events": "Lancement de la mission. Brief reçu. Sourcing démarré. 5 CVs identifiés, 1 profil exceptionnel (Karim Benali) qualifié et prêt à présenter."
+      },
+      "expected_output": {
+        "client_name": "Société Générale",
+        "mission_title": "Ingénieur Cybersécurité",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Lancement de la mission",
+            "content": "La mission Ingénieur Cybersécurité a été lancée lundi 14 avril. Brief détaillé reçu et analysé. Le sourcing a démarré immédiatement sur LinkedIn, les communautés cybersécurité et notre base interne."
+          },
+          {
+            "title": "Premier résultat",
+            "content": "✅ Dès la première semaine, un profil prioritaire a été identifié et qualifié : Karim Benali (SOC N2 chez Thales, 6 ans, CEH certifié, double SIEM Splunk/QRadar). Disponible immédiatement. Ce profil répond point par point à vos exigences. Je vous le soumets cette semaine."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Envoi de la synthèse Karim Benali mercredi. Sourcing de 2 profils complémentaires en parallèle pour vous donner le choix. Premier entretien possible dès la semaine du 21 avril si vous confirmez l'intérêt."
+          }
+        ],
+        "next_steps": [
+          "Transmission de la synthèse Karim Benali — mercredi 16 avril",
+          "Confirmation de votre intérêt pour planifier un entretien semaine du 21",
+          "Identification de 2 profils complémentaires en cours"
+        ],
+        "metrics": {
+          "cvs_reviewed": 5,
+          "profiles_shortlisted": 1,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport de première semaine avec résultat immédiat. Illustre comment valoriser une avancée rapide sans sous-estimer le travail restant. Le profil exceptionnel trouvé dès S1 est un signal positif fort pour la relation client."
+    },
+    {
+      "id": "wcr-005",
+      "input": {
+        "client": "BlaBlaCar — Pierre Renaud (DRH)",
+        "mission_title": "Responsable Marketing Digital",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "week_number": 3,
+        "events": "2 candidats présentés en semaine 2. Léa Fontaine refusée (management manquant). Sarah Brunel en attente retour BlaBlaCar. La mission peine à avancer — le client tarde à fixer les entretiens."
+      },
+      "expected_output": {
+        "client_name": "BlaBlaCar",
+        "mission_title": "Responsable Marketing Digital",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "status": "attention_needed",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Le sourcing se poursuit activement. Sarah Brunel, présentée la semaine dernière, est toujours en attente de votre retour pour planifier un entretien. Le sourcing a produit un troisième profil intéressant cette semaine, en cours de qualification."
+          },
+          {
+            "title": "Point d'attention — calendrier",
+            "content": "⚠️ Les candidats de ce niveau sont sollicités par plusieurs entreprises simultanément. Un délai de réponse au-delà de 10 jours sur un profil présenté crée un risque de perte. Pour Sarah Brunel, je vous recommande de confirmer la date d'entretien avant mercredi 30 avril."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Mercredi 30 : présentation d'un troisième profil (sourcing actif). Semaine du 5 mai : entretiens à planifier selon vos disponibilités. Je propose un appel de 15 minutes vendredi si vous souhaitez revoir les critères de sélection."
+          }
+        ],
+        "next_steps": [
+          "Confirmation de l'entretien Sarah Brunel avant mercredi 30 avril — urgence moyenne",
+          "Présentation d'un troisième profil mercredi 30 avril",
+          "Appel optionnel vendredi pour revoir les critères si besoin"
+        ],
+        "metrics": {
+          "cvs_reviewed": 19,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport avec point de friction sur la réactivité client. La formulation 'risque de perte' (factuel) est plus efficace et moins condescendante que 'vous devriez répondre plus vite'. L'appel vendredi proposé est une façon de débloquer le process."
+    },
+    {
+      "id": "wcr-006",
+      "input": {
+        "client": "Airbus — Fabienne Lecourt (HR Manager)",
+        "mission_title": "Responsable Supply Chain",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "week_number": 6,
+        "events": "Antoine Moreau (candidat préféré) a accepté une contre-offre de Safran. Mission repart de zéro. 2 profils en réserve identifiés lors du premier cycle."
+      },
+      "expected_output": {
+        "client_name": "Airbus",
+        "mission_title": "Responsable Supply Chain",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "status": "attention_needed",
+        "sections": [
+          {
+            "title": "Point de situation",
+            "content": "Antoine Moreau a finalement décidé de rester chez Safran, après réception d'une contre-offre. Cette situation, indépendante de votre processus, nous amène à relancer la sélection."
+          },
+          {
+            "title": "Reprise active",
+            "content": "Deux profils identifiés en parallèle lors du premier cycle sont toujours disponibles et qualifiés : Marc Delattre (Thales Supply Chain, 8 ans) et Nathalie Roux (PSA, 6 ans, disponible fin mai). Je vous transmets leurs synthèses cette semaine."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Mardi 29 : envoi des synthèses Marc Delattre et Nathalie Roux. Semaine du 5 mai : entretiens si vous confirmez l'intérêt. Sourcing actif de profils complémentaires en parallèle."
+          }
+        ],
+        "next_steps": [
+          "Envoi des synthèses Marc Delattre et Nathalie Roux — mardi 29 avril",
+          "Entretiens à planifier dès confirmation de votre intérêt",
+          "Sourcing de 2 nouveaux profils en parallèle cette semaine"
+        ],
+        "metrics": {
+          "cvs_reviewed": 28,
+          "profiles_shortlisted": 5,
+          "interviews_scheduled": 3,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport après contre-offre acceptée par le candidat préféré. Illustre la gestion de crise calme et proactive — on ne s'appesantit pas sur l'échec, on passe immédiatement au plan B avec des profils concrets disponibles."
+    },
+    {
+      "id": "wcr-007",
+      "input": {
+        "client": "TotalEnergies — Julien Masse (DRH)",
+        "mission_title": "Contrôleur de Gestion Senior",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 3,
+        "events": "Pierre-Emmanuel Tardif a passé l'entretien RH et l'entretien technique. Retour très positif des deux côtés. Offre en préparation."
+      },
+      "expected_output": {
+        "client_name": "TotalEnergies",
+        "mission_title": "Contrôleur de Gestion Senior",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Pierre-Emmanuel Tardif a passé ses deux entretiens cette semaine — RH lundi et technique jeudi. Les retours sont très positifs des deux côtés. Le candidat a confirmé son enthousiasme pour rejoindre TotalEnergies."
+          },
+          {
+            "title": "Statut — offre en préparation",
+            "content": "✅ Le process entre dans sa phase finale. Pierre-Emmanuel n'a pas d'autre process concurrent en cours à ce jour. Sa disponibilité est dans 3 mois (préavis standard pour son niveau). L'offre peut être construite sur la base des éléments partagés en brief initial."
+          },
+          {
+            "title": "Éléments pour l'offre",
+            "content": "Prétentions confirmées : 83 000 € brut/an. Date de prise de poste envisagée : mi-juillet. Nous recommandons d'émettre l'offre avant fin de semaine prochaine pour sécuriser le candidat."
+          }
+        ],
+        "next_steps": [
+          "Émission de l'offre avant vendredi 25 avril — recommandée pour sécuriser le candidat",
+          "Validation du package par votre DRH si nécessaire",
+          "Je coordonne la négociation dès réception de l'offre"
+        ],
+        "metrics": {
+          "cvs_reviewed": 15,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 4,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport pre-offre avec recommandation de timing. Illustre comment inclure les éléments pratiques pour l'offre (prétentions, préavis) directement dans le rapport pour accélérer le process — gain de temps pour tout le monde."
+    },
+    {
+      "id": "wcr-008",
+      "input": {
+        "client": "Veolia — Dominique Bertrand (DRH)",
+        "mission_title": "Juriste Droit des Sociétés",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "week_number": 4,
+        "events": "Sophie Leblanc et Éric Soulas présentés en semaine 3. Sophie : retour enthousiaste de Veolia, entretien final demain. Éric : retour négatif du client (pas assez de M&A)."
+      },
+      "expected_output": {
+        "client_name": "Veolia",
+        "mission_title": "Juriste Droit des Sociétés",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Deux entretiens passés en semaine 3. Votre retour positif sur Sophie Leblanc est confirmé : l'entretien final est planifié demain, vendredi 11 avril, avec la Direction Juridique. Éric Soulas ne sera pas retenu — j'en prends note pour les profils suivants."
+          },
+          {
+            "title": "Statut — phase finale",
+            "content": "✅ La mission est en bonne voie. Sophie Leblanc est le profil prioritaire et elle est engagée dans le process. Son entretien final de demain devrait permettre une décision la semaine prochaine."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Vendredi 11 : entretien final Sophie Leblanc avec la Direction Juridique. Semaine du 14 : retour de votre décision et, si positif, construction de l'offre. En parallèle, un troisième profil M&A est en cours de sourcing pour élargir le choix si besoin."
+          }
+        ],
+        "next_steps": [
+          "Retour de décision attendu lundi 14 ou mardi 15 avril après l'entretien final",
+          "Construction de l'offre à préparer si décision positive sur Sophie",
+          "Profil M&A complémentaire disponible si besoin d'une alternative"
+        ],
+        "metrics": {
+          "cvs_reviewed": 16,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 4,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport pré-entretien final. Illustre la communication sur un refus (Éric Soulas) de façon neutre et constructive ('j'en prends note'), et la mise en valeur de l'avancement (entretien final demain)."
+    },
+    {
+      "id": "wcr-009",
+      "input": {
+        "client": "Pennylane — Nadia Fontaine (People & Culture Lead)",
+        "mission_title": "Commercial B2B SaaS",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "week_number": 2,
+        "events": "5 profils analysés, 2 présentés (Hugo Lefort et Clara Metz). Hugo très intéressant mais reçoit une contre-offre de Qonto. Clara moins bonne."
+      },
+      "expected_output": {
+        "client_name": "Pennylane",
+        "mission_title": "Commercial B2B SaaS",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Deux profils soumis cette semaine. Hugo Lefort (Qonto, 2 ans BizDev SaaS) est le profil fort de la sélection — son expérience sur la même cible PME est un atout direct. Clara Metz (3 ans SaaS IT) est un profil solide en alternative."
+          },
+          {
+            "title": "Point d'attention — Hugo Lefort",
+            "content": "⚠️ Hugo Lefort est également en discussion avec Qonto pour un possible contre-offre. Si Pennylane est intéressé par son profil, un entretien avant vendredi serait optimal pour maintenir la dynamique."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Mercredi : confirmation de votre intérêt sur Hugo Lefort (entretien à planifier rapidement). Jeudi : retour sur Clara Metz. Semaine du 5 mai : sourcing de 2 profils complémentaires si besoin."
+          }
+        ],
+        "next_steps": [
+          "Confirmer l'intérêt pour Hugo Lefort avant mercredi — entretien à planifier rapidement",
+          "Retour sur Clara Metz attendu jeudi",
+          "Sourcing complémentaire semaine du 5 mai si nécessaire"
+        ],
+        "metrics": {
+          "cvs_reviewed": 8,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport S2 avec signal d'urgence sur un profil. La contre-offre de Qonto est une information factuelle qui justifie l'urgence — pas de manipulation, juste la réalité du marché SaaS commercial à Paris."
+    },
+    {
+      "id": "wcr-010",
+      "input": {
+        "client": "Korian EHPAD Paris — Hélène Morin (DRH)",
+        "mission_title": "Infirmière Coordinatrice",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 3,
+        "events": "Stéphanie Moreau sélectionnée après 2 entretiens. Offre envoyée vendredi. Stéphanie doit répondre sous 5 jours."
+      },
+      "expected_output": {
+        "client_name": "Korian EHPAD Paris",
+        "mission_title": "Infirmière Coordinatrice",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Stéphanie Moreau a passé ses deux entretiens cette semaine avec succès. Votre offre lui a été transmise vendredi soir. Elle dispose d'un délai de 5 jours ouvrés pour répondre."
+          },
+          {
+            "title": "Statut — décision attendue",
+            "content": "✅ Le process est en phase finale. Stéphanie a confirmé son enthousiasme après l'entretien avec la directrice. Aucun autre processus concurrent connu à ce stade."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Réponse de Stéphanie Moreau attendue avant vendredi 25 avril. Je reste en contact avec elle et vous informe dès réception de sa décision."
+          }
+        ],
+        "next_steps": [
+          "Réponse de Stéphanie Moreau attendue avant vendredi 25 avril",
+          "Je vous contacte dès sa décision reçue",
+          "Fatima Ouldali (profil en réserve) reste disponible si nécessaire"
+        ],
+        "metrics": {
+          "cvs_reviewed": 12,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 4,
+          "offers_sent": 1
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport post-offre en attente de réponse. La mention du profil en réserve (Fatima Ouldali) est une bonne pratique — le client sait qu'il y a un plan B sans avoir à le demander."
+    },
+    {
+      "id": "wcr-011",
+      "input": {
+        "client": "OVHcloud — Bertrand Faure (CTO)",
+        "mission_title": "Architecte Cloud AWS",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "week_number": 1,
+        "events": "Mission lancée en urgence. Pierre Lemaire identifié dès J+2 (Open to Work, AWS France, certifié pro). Entretien demandé par OVHcloud pour la semaine prochaine."
+      },
+      "expected_output": {
+        "client_name": "OVHcloud",
+        "mission_title": "Architecte Cloud AWS",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Résultat de la première semaine",
+            "content": "Mission lancée en urgence lundi. Dès mercredi, un profil prioritaire a été identifié et qualifié : Pierre Lemaire (Solutions Architect chez AWS France, 9 ans, double certification Pro AWS + GCP, Terraform avancé). Actuellement en veille active."
+          },
+          {
+            "title": "Profil recommandé",
+            "content": "✅ Pierre Lemaire correspond point par point à vos exigences techniques. Son expérience chez AWS France lui confère une connaissance des architectures cloud de référence. L'entretien est planifié lundi 14 avril à 10h selon vos disponibilités confirmées."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Lundi 14 : entretien technique Pierre Lemaire. Lucie Favre (Claranet, 7 ans cloud) est qualifiée en parallèle — entretien possible mardi 15 si vous souhaitez comparer les profils."
+          }
+        ],
+        "next_steps": [
+          "Entretien technique Pierre Lemaire — lundi 14 avril, 10h (confirmé)",
+          "Entretien Lucie Favre — mardi 15 avril si vous confirmez l'intérêt",
+          "Préparation technique : quels sujets souhaitez-vous approfondir lors de l'entretien ?"
+        ],
+        "metrics": {
+          "cvs_reviewed": 6,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 1,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport S1 sur une mission urgente avec résultat très rapide. Illustre comment valoriser la réactivité du cabinet (profil trouvé en 48h) et préparer le client à l'entretien (question sur les sujets techniques à approfondir)."
+    },
+    {
+      "id": "wcr-012",
+      "input": {
+        "client": "Mirakl — Mathieu Chevalier (VP Product)",
+        "mission_title": "Product Manager",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "week_number": 5,
+        "events": "Julie Marchand a confirme sa mobilité. Entretien passé. Retour très positif. Mais le client a mis 3 semaines à répondre à la première présentation — risque de perdre des profils à l'avenir."
+      },
+      "expected_output": {
+        "client_name": "Mirakl",
+        "mission_title": "Product Manager",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Excellente avancée cette semaine",
+            "content": "Julie Marchand a passé son entretien avec votre équipe produit mercredi — les retours sont très positifs des deux côtés. Elle confirme son fort intérêt pour le rôle et la vision marketplace de Mirakl."
+          },
+          {
+            "title": "Statut",
+            "content": "✅ Le process est en bonne voie. Une décision rapide de votre côté permettrait de finaliser avant que Julie ne reçoive d'autres propositions — les PM marketplace expérimentés sont très sollicités sur Paris."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Votre retour de décision est attendu lundi 5 mai au plus tard. Si positif, je prépare les éléments de négociation (ses prétentions : 85k fixe + variable). Si vous souhaitez une deuxième rencontre, je coordonne dès aujourd'hui."
+          }
+        ],
+        "next_steps": [
+          "Décision attendue lundi 5 mai — une réponse rapide est recommandée",
+          "Si positif : émission de l'offre avant jeudi 8 mai",
+          "Option : deuxième entretien possible cette semaine si souhaité"
+        ],
+        "metrics": {
+          "cvs_reviewed": 11,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 3,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport qui gère diplomatiquement les délais de réponse client. La mention 'PM marketplace expérimentés très sollicités sur Paris' contextualise l'urgence sans pointer directement les 3 semaines de délai précédentes."
+    },
+    {
+      "id": "wcr-013",
+      "input": {
+        "client": "Sodexo — Virginie Lamy (DRH France)",
+        "mission_title": "Chargée de Recrutement",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 2,
+        "events": "3 candidats présentés. Chloé Martin retenue après entretien. Offre verbale faite, acceptée. Prise de poste lundi prochain."
+      },
+      "expected_output": {
+        "client_name": "Sodexo",
+        "mission_title": "Chargée de Recrutement",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "completed",
+        "sections": [
+          {
+            "title": "Mission terminée en 2 semaines",
+            "content": "La mission Chargée de Recrutement est finalisée. Chloé Martin a accepté votre offre vendredi et démarre lundi 21 avril. Process total : 14 jours calendaires."
+          },
+          {
+            "title": "Profil retenu",
+            "content": "Chloé Martin — 3 ans en recrutement volume chez Manpower, Taleo maîtrisé, disponible immédiatement. Elle prend ses fonctions lundi avec une bonne compréhension de vos volumes et de vos outils."
+          },
+          {
+            "title": "Suivi d'intégration",
+            "content": "Je reste disponible pendant la période d'intégration. Un point à J+30 (21 mai) vous permettra de partager vos retours sur la prise de poste."
+          }
+        ],
+        "next_steps": [
+          "Prise de poste Chloé Martin — lundi 21 avril",
+          "Point d'intégration J+30 — 21 mai",
+          "Je reste disponible pour tout besoin recrutement complémentaire"
+        ],
+        "metrics": {
+          "cvs_reviewed": 8,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 3,
+          "offers_sent": 1
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport de clôture en 2 semaines. La mise en valeur de la rapidité ('14 jours calendaires') est un argument commercial fort pour le cabinet. Le J+30 garantie est un standard de qualité à systématiser."
+    },
+    {
+      "id": "wcr-014",
+      "input": {
+        "client": "Société Générale CIB — Direction RH CIB",
+        "mission_title": "Analyste Risques de Crédit",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "week_number": 2,
+        "events": "3 profils en qualification. Alexandre Lamy (Fitch Ratings) est exceptionnel mais a d'autres entretiens. Hugo Delmas et Pauline Aubert en cours."
+      },
+      "expected_output": {
+        "client_name": "Société Générale CIB",
+        "mission_title": "Analyste Risques de Crédit",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Trois profils en cours de qualification avancée. Alexandre Lamy (Analyste Financier chez Fitch Ratings, 3 ans) est le profil prioritaire — son expérience en notation crédit est une formation rare et très appréciée des équipes de risque en banque. Deux profils complémentaires (Hugo Delmas, BNP CIB et Pauline Aubert, Natixis) seront finalisés en fin de semaine."
+          },
+          {
+            "title": "Point sur Alexandre Lamy",
+            "content": "⚠️ Alexandre Lamy a confirmé plusieurs entretiens en cours chez d'autres banques. Sa transition agence de notation → banque est très suivie sur le marché. Je vous recommande de le rencontrer dès lundi prochain si son profil vous intéresse."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Lundi 14 : envoi des 3 synthèses complètes. Si accord, entretien Alexandre Lamy à planifier en urgence semaine du 14. Hugo Delmas et Pauline Aubert disponibles semaine du 21."
+          }
+        ],
+        "next_steps": [
+          "Envoi des 3 synthèses — lundi 14 avril matin",
+          "Retour de votre intérêt pour Alexandre Lamy attendu lundi soir",
+          "Entretien Alexandre Lamy à planifier en urgence si confirmé"
+        ],
+        "metrics": {
+          "cvs_reviewed": 14,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport avec profil prioritaire sous pression de compétition. Illustre la gestion du timing en signalant clairement qu'un profil rare est convoité — information factuelle, pas de pression artificielle."
+    },
+    {
+      "id": "wcr-015",
+      "input": {
+        "client": "Kering — Laura Bénard (DRH Sustainability)",
+        "mission_title": "Chargé de Mission RSE",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 3,
+        "events": "2 profils qualifiés. Chloé Renard (NAOS, CSRD confirmée) soumise. Sa mobilité Paris reste à confirmer. Marché toujours tendu."
+      },
+      "expected_output": {
+        "client_name": "Kering",
+        "mission_title": "Chargé de Mission RSE",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Un profil RSE correspondant à vos critères a été identifié cette semaine : Chloé Renard (Chef de Projet RSE chez NAOS/Bioderma, 6 ans, maîtrise CSRD, GRI, SBTi). Son dossier vous a été transmis mercredi."
+          },
+          {
+            "title": "Point en cours",
+            "content": "Chloé Renard est actuellement basée en PACA — sa mobilité vers Paris est en cours de confirmation. Elle m'a indiqué son intérêt pour Kering et Paris, mais nous attendons une confirmation formelle avant de planifier un entretien. Réponse attendue lundi."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Lundi 21 : confirmation de la mobilité Chloé Renard. Si confirmée : entretien planifié semaine du 21. En parallèle, sourcing d'un profil supplémentaire RSE élargi (secteur cosmétique ou finance durable) pour vous donner un choix."
+          }
+        ],
+        "next_steps": [
+          "Confirmation mobilité Chloé Renard — lundi 21 avril",
+          "Sourcing profil complémentaire en cours (secteur élargi)",
+          "Votre retour sur le dossier Chloé serait utile avant lundi — même un premier avis"
+        ],
+        "metrics": {
+          "cvs_reviewed": 9,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport sur marché RSE tendu avec un profil en attente de confirmation. Illustre la transparence sur un prérequis en cours de vérification (mobilité) et la relance implicite du client ('votre retour serait utile')."
+    },
+    {
+      "id": "wcr-016",
+      "input": {
+        "client": "Sanofi — Éric Dumont (HR Business Partner)",
+        "mission_title": "Ingénieur Procédés Pharmaceutiques",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "week_number": 4,
+        "events": "Maxime Girard confirme sa mobilité. Entretien RH passé vendredi avec succès. Entretien technique programmé mardi prochain."
+      },
+      "expected_output": {
+        "client_name": "Sanofi",
+        "mission_title": "Ingénieur Procédés Pharmaceutiques",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Bonne semaine d'avancement",
+            "content": "Maxime Girard a confirmé formellement sa mobilité sur Vitry-sur-Seine. Son entretien RH vendredi s'est très bien passé — les deux parties ont confirmé leur intérêt mutuel."
+          },
+          {
+            "title": "Statut",
+            "content": "✅ Maxime est en bonne position pour la suite. Son parcours chez Pierre Fabre en procédés pharmaceutiques GMP correspond exactement à vos attentes. L'entretien technique mardi prochain permettra de valider les compétences procédés plus spécifiques à votre contexte."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Mardi 6 mai : entretien technique avec votre équipe Engineering. Souhaitez-vous que je prépare Maxime sur des sujets particuliers à approfondir ? Je reste disponible pour une coordination."
+          }
+        ],
+        "next_steps": [
+          "Entretien technique Maxime Girard — mardi 6 mai (confirmé)",
+          "Retour de décision attendu avant vendredi 9 mai",
+          "Sourcing d'un profil de réserve disponible si besoin"
+        ],
+        "metrics": {
+          "cvs_reviewed": 13,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 3,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport post-entretien RH réussi, en attente de l'entretien technique. La proposition de préparer le candidat sur des sujets techniques spécifiques montre un service différenciant — le cabinet reste acteur jusqu'au bout."
+    },
+    {
+      "id": "wcr-017",
+      "input": {
+        "client": "Crédit Agricole SA — Vanessa Touré (Chef de Projet)",
+        "mission_title": "Chef de Projet SI",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "week_number": 6,
+        "events": "Mission bloquée — le client a mis la mission en pause pour raisons budgétaires internes. Le candidat idéal (Vanessa Touré) était prêt à signer."
+      },
+      "expected_output": {
+        "client_name": "Crédit Agricole SA",
+        "mission_title": "Chef de Projet SI",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "status": "blocked",
+        "sections": [
+          {
+            "title": "Situation actuelle",
+            "content": "Vous nous avez informés d'un gel budgétaire interne qui suspend temporairement la mission Chef de Projet SI. Nous prenons acte de cette situation indépendante du processus de recrutement."
+          },
+          {
+            "title": "État du vivier",
+            "content": "À la suspension, le vivier comprend un profil prioritaire qualifié et prêt (Vanessa Touré, Chef de Projet AMOA Société Générale, disponible dans 6 semaines) ainsi qu'un profil de réserve. Ces profils seront ré-approchés dès la reprise de la mission."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Mission mise en veille. Dès que la situation budgétaire est clarifiée de votre côté, nous pouvons reprendre le processus immédiatement. Je vous contacte dans 3 semaines pour faire un point, sauf indication contraire de votre part."
+          }
+        ],
+        "next_steps": [
+          "Mission en veille — en attente de votre signal de reprise",
+          "Vanessa Touré sera ré-approchée dès la reprise",
+          "Point de suivi programmé dans 3 semaines (vendredi 2 mai)"
+        ],
+        "metrics": {
+          "cvs_reviewed": 21,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 5,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport de mission bloquée pour raisons client. Illustre la gestion professionnelle d'une pause imposée — on documente le vivier, on propose un suivi proactif, on ne blâme pas le client. La mise en veille est clairement communiquée."
+    },
+    {
+      "id": "wcr-018",
+      "input": {
+        "client": "Doctolib — Camille Aubert (Head of Talent)",
+        "mission_title": "Data Scientist Santé",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "week_number": 3,
+        "events": "3 profils présentés. Naomi Bernard (Leboncoin, UX Research — mauvais profil présenté par erreur) et 2 vrais Data Scientists. Doctolib signale le mismatch de Naomi."
+      },
+      "expected_output": {
+        "client_name": "Doctolib",
+        "mission_title": "Data Scientist Santé",
+        "period": "Semaine du 14 au 18 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Correction et avancement",
+            "content": "Merci pour votre retour sur le profil Naomi Bernard — une erreur dans l'affectation du dossier a conduit à vous soumettre un profil UX Research au lieu d'un profil Data Science. Toutes nos excuses pour cette confusion. Les deux autres profils soumis cette semaine (Kevin Arnaud et Samia Bou) sont eux parfaitement alignés avec votre besoin."
+          },
+          {
+            "title": "Profils data confirmés",
+            "content": "Kevin Arnaud (Data Scientist chez Criteo, Python/PyTorch, 4 ans) et Samia Bou (Data Scientist Santé chez Voluntis, 3 ans) sont en attente de votre retour pour planifier les entretiens."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Votre retour sur Kevin et Samia attendu en début de semaine prochaine. Entretiens planifiables rapidement selon vos disponibilités."
+          }
+        ],
+        "next_steps": [
+          "Retour sur Kevin Arnaud et Samia Bou — attendu lundi 21 avril",
+          "Entretiens à planifier dès confirmation de votre intérêt",
+          "Mise en place d'un double contrôle interne pour éviter toute nouvelle erreur d'affectation"
+        ],
+        "metrics": {
+          "cvs_reviewed": 17,
+          "profiles_shortlisted": 3,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport incluant une gestion d'erreur du cabinet. Illustre la posture professionnelle face à une erreur : reconnaître, s'excuser brièvement, corriger immédiatement, et ne pas sur-dramatiser. La mention du contrôle interne restaure la confiance."
+    },
+    {
+      "id": "wcr-019",
+      "input": {
+        "client": "Michelin — Vincent Lacombe (DRH Clermont)",
+        "mission_title": "Technicien de Maintenance Industrielle",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "week_number": 1,
+        "events": "Mission lancée. 2 profils identifiés rapidement sur le bassin de Clermont. Patrick Renaud (Bureau Veritas) déjà très intéressant."
+      },
+      "expected_output": {
+        "client_name": "Michelin",
+        "mission_title": "Technicien de Maintenance Industrielle",
+        "period": "Semaine du 7 au 11 avril 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Démarrage de la mission",
+            "content": "Mission Technicien de Maintenance lancée lundi. Le bassin de Clermont-Ferrand présente un vivier de profils industriels solide. Deux candidats ont été identifiés et contactés dès la première semaine."
+          },
+          {
+            "title": "Profil prioritaire",
+            "content": "✅ Patrick Renaud (Technicien Maintenance chez Alstom Clermont, 6 ans, habilitations électriques à jour, expérience en production) correspond aux critères du poste. Il est disponible rapidement et basé sur place. Synthèse transmise en pièce jointe."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Semaine du 14 : retour de votre intérêt sur Patrick Renaud. Entretien planifiable dès lundi 14 si vous confirmez. Un deuxième profil (profil de réserve) est en cours de qualification."
+          }
+        ],
+        "next_steps": [
+          "Retour sur Patrick Renaud — avant mercredi 16 avril",
+          "Entretien planifiable dès semaine du 14 avril",
+          "Profil de réserve disponible en fin de semaine prochaine"
+        ],
+        "metrics": {
+          "cvs_reviewed": 7,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport S1 recrutement terrain industriel. Illustre comment valoriser la rapidité sur un profil technique terrain (vivier local identifié, profil disponible sur place) — argument fort pour un client industriel qui cherche de l'opérationnalité rapide."
+    },
+    {
+      "id": "wcr-020",
+      "input": {
+        "client": "Crédit Mutuel Alliance Fédérale — Direction RH Innovation",
+        "mission_title": "Chef de Projet IA Générative",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "week_number": 2,
+        "events": "Marché très tendu — peu de profils IA générative avec expérience secteur financier. 2 profils en approche. Un répond, l'autre pas. Mission jeune mais complexe."
+      },
+      "expected_output": {
+        "client_name": "Crédit Mutuel Alliance Fédérale",
+        "mission_title": "Chef de Projet IA Générative",
+        "period": "Semaine du 28 avril au 2 mai 2025",
+        "status": "on_track",
+        "sections": [
+          {
+            "title": "Avancement de la semaine",
+            "content": "Deux profils sont en cours d'approche cette semaine. Thomas Hamel (Chef de Projet IA chez BNP Paribas, 5 ans) a répondu positivement et une qualification téléphonique est programmée lundi prochain. Le second profil est toujours en attente de réponse."
+          },
+          {
+            "title": "Contexte marché",
+            "content": "Les profils combinant expertise IA générative et expérience secteur financier réglementé sont rares. La plupart des candidats correspondants sont soit en poste stable, soit déjà approchés par d'autres organisations. Notre approche actuelle combine LinkedIn, les réseaux AI/ML spécialisés et le réseau grandes écoles ingénieurs."
+          },
+          {
+            "title": "Prochaines étapes",
+            "content": "Lundi 5 mai : qualification Thomas Hamel. Résultat partagé avec vous mardi. Élargissement du sourcing aux profils consultants seniors IA (Accenture, Capgemini Data) en parallèle cette semaine."
+          }
+        ],
+        "next_steps": [
+          "Qualification Thomas Hamel — lundi 5 mai, partage résultat mardi 6",
+          "Élargissement sourcing aux consultants IA grands cabinets",
+          "Souhaitez-vous que nous élargissions aux profils sans expérience bancaire directe ? À discuter."
+        ],
+        "metrics": {
+          "cvs_reviewed": 11,
+          "profiles_shortlisted": 2,
+          "interviews_scheduled": 0,
+          "offers_sent": 0
+        }
+      },
+      "rating": 5,
+      "notes": "Rapport S2 sur une mission émergente dans un marché nouveau (IA générative + finance). Illustre la transparence sur la difficulté du marché avec une explication de la stratégie de sourcing élargie, et une question ouverte pour ajuster les critères avec le client."
+    }
+  ]
+}

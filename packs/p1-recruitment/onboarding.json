@@ -1,0 +1,143 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "title": "Dans quel secteur exercez-vous ?",
+      "fields": [
+        {
+          "id": "specialisation",
+          "label": "Spécialisation principale",
+          "type": "select",
+          "options": [
+            "Généraliste",
+            "IT & Digital",
+            "Finance & Comptabilité",
+            "Marketing & Communication",
+            "Fonctions supports (RH, juridique, achat)",
+            "Cadres dirigeants (executive search)",
+            "Santé & Médical",
+            "Industrie & Ingénierie"
+          ],
+          "required": true,
+          "maps_to": "company_dna.specialisation",
+          "affects_skills": ["candidate-sourcing", "qualification-cv", "market-intelligence"]
+        },
+        {
+          "id": "zone_geo",
+          "label": "Zone géographique principale",
+          "type": "select",
+          "options": ["Île-de-France", "Auvergne-Rhône-Alpes", "Provence-Alpes-Côte d'Azur", "Occitanie", "Nouvelle-Aquitaine", "Hauts-de-France", "Grand Est", "Pays de la Loire", "National", "International"],
+          "required": true,
+          "maps_to": "company_dna.geography"
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Parlez-nous de votre cabinet.",
+      "fields": [
+        {
+          "id": "cabinet_name",
+          "label": "Nom du cabinet",
+          "type": "text",
+          "placeholder": "Ex : Talentis RH, Cabinet Moreau, RecruitPro...",
+          "required": true,
+          "maps_to": "company_dna.name"
+        },
+        {
+          "id": "nb_consultants",
+          "label": "Nombre de consultants dans l'équipe",
+          "type": "select",
+          "options": ["1 (solo)", "2-5", "6-15", "16-50"],
+          "required": true,
+          "maps_to": "config.team_size"
+        },
+        {
+          "id": "founded_year",
+          "label": "Année de création du cabinet",
+          "type": "select",
+          "options": ["Moins d'1 an", "1-3 ans", "3-10 ans", "Plus de 10 ans"],
+          "required": false,
+          "maps_to": "company_dna.seniority"
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Vos clients",
+      "fields": [
+        {
+          "id": "client_type",
+          "label": "Type de clients principaux",
+          "type": "multi_select",
+          "options": ["PME (10-250 salariés)", "ETI (250-5000 salariés)", "Grands groupes (>5000 salariés)", "Start-ups & scale-ups", "Secteur public & associatif"],
+          "required": true,
+          "maps_to": "company_dna.target_clients"
+        },
+        {
+          "id": "avg_salary_range",
+          "label": "Fourchette de salaire des profils placés",
+          "type": "select",
+          "options": ["< 35k€", "35-55k€", "55-80k€", "80-120k€", "> 120k€"],
+          "required": true,
+          "maps_to": "config.salary_range",
+          "affects_skills": ["job-posting-writer", "qualification-cv"]
+        },
+        {
+          "id": "billing_model",
+          "label": "Modèle de facturation",
+          "type": "select",
+          "options": ["Succès (% du salaire annuel brut)", "Forfait mission", "Abonnement mensuel", "Mixte"],
+          "required": false,
+          "maps_to": "company_dna.billing_model"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Connectez vos outils.",
+      "description": "Connectez vos outils pour que vos agents y aient accès.",
+      "type": "integration_setup",
+      "integrations_to_show": "from_pack_manifest",
+      "minimum_required": ["gmail"],
+      "helper_text": "Sophie et Marc ont besoin de Gmail pour communiquer avec vos candidats et clients. Vous pouvez ajouter LinkedIn plus tard."
+    },
+    {
+      "step": 5,
+      "title": "Voici votre équipe IA.",
+      "type": "team_preview",
+      "shows": ["org_chart_preview", "agents_summary"],
+      "description": "Voici les 5 membres de votre équipe. Ils commenceront à travailler dès que vous validerez."
+    },
+    {
+      "step": 6,
+      "title": "Quel est votre objectif principal ?",
+      "fields": [
+        {
+          "id": "primary_goal",
+          "label": "Quel est votre défi principal en ce moment ?",
+          "type": "select",
+          "options": [
+            { "value": "volume_placements", "label": "Trouver plus de candidats qualifiés" },
+            { "value": "reduce_time_to_shortlist", "label": "Réduire le temps de traitement des missions" },
+            { "value": "improve_client_satisfaction", "label": "Améliorer le suivi et la communication client" },
+            { "value": "develop_visibility", "label": "Développer ma visibilité et attirer de nouveaux clients" },
+            { "value": "reduce_admin_load", "label": "Réduire la charge administrative de mon équipe" }
+          ],
+          "required": true,
+          "maps_to": "initial_goal.type"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Votre équipe est prête.",
+      "type": "confirmation",
+      "shows": ["completion_animation", "first_tasks_preview"],
+      "headline": "Sophie est en train de lire votre boîte mail.",
+      "subline": "Elle aura quelque chose pour vous dans quelques minutes.",
+      "cta_primary": "Voir mon tableau de bord",
+      "cta_secondary": "Parler à mon équipe"
+    }
+  ]
+}

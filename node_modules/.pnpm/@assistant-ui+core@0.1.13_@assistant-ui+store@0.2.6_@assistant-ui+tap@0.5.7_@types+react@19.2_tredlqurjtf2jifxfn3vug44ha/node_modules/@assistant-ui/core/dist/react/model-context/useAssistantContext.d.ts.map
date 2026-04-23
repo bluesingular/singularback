@@ -1,0 +1,1 @@
+{"version":3,"file":"useAssistantContext.d.ts","sourceRoot":"","sources":["../../../src/react/model-context/useAssistantContext.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,sBAAsB,EAAE,uBAAc;AAEpD,YAAY,EAAE,sBAAsB,EAAE,CAAC;AAEvC,eAAO,MAAM,mBAAmB,GAAI,QAAQ,sBAAsB,SAejE,CAAC"}

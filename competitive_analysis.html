@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #fafaf8; color: #1a1a18; padding: 1.5rem; font-size: 13px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e3db; flex-wrap: wrap; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; }
+.tab.active { color: #1a1a18; font-weight: 500; background: #f1efe8; border-color: #e5e3db; }
+.panel { display: none; }
+.panel.active { display: block; }
+.sub { font-size: 11px; color: #888; margin-bottom: 14px; line-height: 1.6; }
+
+.win-box  { background: #e1f5ee; border: 1px solid #9fe1cb; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #085041; line-height: 1.7; margin-bottom: 14px; }
+.info-box { background: #e6f1fb; border: 1px solid #b5d4f4; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #0c447c; line-height: 1.7; margin-bottom: 14px; }
+.warn-box { background: #faeeda; border: 1px solid #fac775; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #633806; line-height: 1.7; margin-bottom: 14px; }
+
+/* MAP */
+.map-wrap { position: relative; background: white; border: 1px solid #e5e3db; border-radius: 16px; padding: 40px; margin-bottom: 14px; }
+.map-grid {
+  position: relative;
+  width: 100%;
+  padding-bottom: 70%;
+  background: #fafaf8;
+  border: 1px solid #e5e3db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.map-inner { position: absolute; inset: 0; }
+.axis-x, .axis-y {
+  position: absolute;
+  background: #e5e3db;
+}
+.axis-x { left: 0; right: 0; top: 50%; height: 1px; }
+.axis-y { top: 0; bottom: 0; left: 50%; width: 1px; }
+.axis-label {
+  position: absolute;
+  font-size: 10px;
+  color: #888;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.quadrant-label {
+  position: absolute;
+  font-size: 9px;
+  color: #ccc;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.dot {
+  position: absolute;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.1;
+}
+.dot:hover { transform: scale(1.15); z-index: 10; }
+.dot-label {
+  position: absolute;
+  font-size: 9px;
+  color: #666;
+  white-space: nowrap;
+  top: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* COMPETITOR CARDS */
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.comp-card { border-radius: 12px; border: 1px solid #e5e3db; background: white; overflow: hidden; cursor: pointer; }
+.comp-card.you { border-color: #1d9e75; }
+.comp-header { padding: 12px 14px; display: flex; align-items: flex-start; justify-content: space-between; }
+.comp-info { flex: 1; }
+.comp-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.comp-tagline { font-size: 11px; color: #888; }
+.comp-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.badge { font-size: 9px; padding: 2px 7px; border-radius: 8px; font-weight: 500; }
+.comp-price { font-size: 11px; font-weight: 500; text-align: right; flex-shrink: 0; margin-left: 10px; }
+.comp-body { display: none; padding: 0 14px 12px; border-top: 1px solid #f0ede6; }
+.comp-body.open { display: block; }
+.comp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.comp-col-head { font-size: 10px; color: #888; margin-bottom: 4px; font-weight: 500; }
+.comp-item { font-size: 11px; color: #666; padding: 2px 0; line-height: 1.4; display: flex; gap: 5px; }
+.comp-item.pro::before { content: "✓"; color: #1d9e75; flex-shrink: 0; font-size: 10px; }
+.comp-item.con::before { content: "✕"; color: #e24b4a; flex-shrink: 0; font-size: 10px; }
+.comp-item.neu::before { content: "·"; color: #888; flex-shrink: 0; }
+.pitch-box { background: #f4fdf9; border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: 11px; color: #085041; line-height: 1.5; }
+
+/* MATRIX */
+.matrix-wrap { overflow-x: auto; margin-bottom: 14px; }
+.matrix { width: 100%; border-collapse: collapse; font-size: 11px; }
+.matrix th { padding: 8px 10px; background: #f1efe8; font-weight: 500; font-size: 10px; color: #666; text-align: left; border-bottom: 1px solid #e5e3db; white-space: nowrap; }
+.matrix td { padding: 7px 10px; border-bottom: 1px solid #f0ede6; color: #666; text-align: center; }
+.matrix td:first-child { text-align: left; font-weight: 500; color: #1a1a18; }
+.matrix tr.you td { background: #f4fdf9; }
+.matrix tr.you td:first-child { color: #085041; }
+.c-yes { color: #1d9e75; font-weight: 500; }
+.c-no  { color: #e24b4a; }
+.c-part { color: #854f0b; }
+
+/* POSITION */
+.pos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.pos-card { border-radius: 12px; border: 1px solid #e5e3db; padding: 14px; background: white; }
+.pos-head { font-size: 12px; font-weight: 500; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #f0ede6; }
+.pos-item { font-size: 11px; color: #666; padding: 3px 0; line-height: 1.5; }
+.pos-item::before { content: "→"; color: #1d9e75; margin-right: 5px; }
+</style></head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('map')">Carte concurrentielle</div>
+  <div class="tab" onclick="show('cards')">Analyse par concurrent</div>
+  <div class="tab" onclick="show('matrix')">Matrice comparative</div>
+  <div class="tab" onclick="show('position')">Positionnement vs chacun</div>
+</div>
+
+<!-- MAP -->
+<div class="panel active" id="tab-map">
+  <p class="sub">Positionnement sur 2 axes : niveau technique requis (x) et complétude organisationnelle — combien de fonctions d'une entreprise la solution couvre (y). Cliquez sur un acteur.</p>
+
+  <div class="map-wrap">
+    <div class="map-grid">
+      <div class="map-inner">
+        <div class="axis-x"></div>
+        <div class="axis-y"></div>
+        <!-- Axis labels -->
+        <div class="axis-label" style="bottom:6px;left:4px">⬅ Non-technique</div>
+        <div class="axis-label" style="bottom:6px;right:4px">Technique ➡</div>
+        <div class="axis-label" style="top:6px;left:50%;transform:translateX(-50%)">Entreprise complète ⬆</div>
+        <div class="axis-label" style="bottom:28px;left:50%;transform:translateX(-50%)">⬇ Fonction unique</div>
+        <!-- Quadrant labels -->
+        <div class="quadrant-label" style="top:12px;left:8px">Votre cible</div>
+        <div class="quadrant-label" style="top:12px;right:8px">Enterprise</div>
+        <div class="quadrant-label" style="bottom:40px;left:8px">No-code simple</div>
+        <div class="quadrant-label" style="bottom:40px;right:8px">Dev frameworks</div>
+
+        <!-- YOU -->
+        <div class="dot" style="width:40px;height:40px;left:18%;top:12%;background:#1d9e75;color:white;transform:translate(-50%,-50%)" onclick="showComp('you')">
+          YOU<div class="dot-label" style="color:#085041;font-weight:600">Agentis</div>
+        </div>
+
+        <!-- Relevance AI -->
+        <div class="dot" style="width:30px;height:30px;left:62%;top:28%;background:#e6f1fb;border:1.5px solid #378add;color:#185fa5;transform:translate(-50%,-50%)" onclick="showComp('relevance')">
+          R<div class="dot-label">Relevance AI</div>
+        </div>
+
+        <!-- Sintra -->
+        <div class="dot" style="width:24px;height:24px;left:28%;top:30%;background:#faeeda;border:1.5px solid #ef9f27;color:#633806;transform:translate(-50%,-50%)" onclick="showComp('sintra')">
+          S<div class="dot-label">Sintra</div>
+        </div>
+
+        <!-- Lindy -->
+        <div class="dot" style="width:24px;height:24px;left:24%;top:55%;background:#eeedfe;border:1.5px solid #7f77dd;color:#3c3489;transform:translate(-50%,-50%)" onclick="showComp('lindy')">
+          L<div class="dot-label">Lindy</div>
+        </div>
+
+        <!-- Zapier -->
+        <div class="dot" style="width:22px;height:22px;left:35%;top:72%;background:#f1efe8;border:1px solid #888;color:#5f5e5a;transform:translate(-50%,-50%)" onclick="showComp('zapier')">
+          Z<div class="dot-label">Zapier</div>
+        </div>
+
+        <!-- n8n -->
+        <div class="dot" style="width:22px;height:22px;left:72%;top:68%;background:#f1efe8;border:1px solid #888;color:#5f5e5a;transform:translate(-50%,-50%)" onclick="showComp('n8n')">
+          n<div class="dot-label">n8n</div>
+        </div>
+
+        <!-- Artisan -->
+        <div class="dot" style="width:22px;height:22px;left:32%;top:80%;background:#fcebeb;border:1px solid #e24b4a;color:#791f1f;transform:translate(-50%,-50%)" onclick="showComp('artisan')">
+          A<div class="dot-label">Artisan</div>
+        </div>
+
+        <!-- CrewAI -->
+        <div class="dot" style="width:22px;height:22px;left:82%;top:40%;background:#f1efe8;border:1px solid #888;color:#5f5e5a;transform:translate(-50%,-50%)" onclick="showComp('crewai')">
+          C<div class="dot-label">CrewAI</div>
+        </div>
+
+        <!-- Paperclip -->
+        <div class="dot" style="width:24px;height:24px;left:70%;top:22%;background:#eeedfe;border:1.5px solid #7f77dd;color:#3c3489;transform:translate(-50%,-50%)" onclick="showComp('paperclip')">
+          P<div class="dot-label">Paperclip</div>
+        </div>
+
+        <!-- Salesforce -->
+        <div class="dot" style="width:28px;height:28px;left:78%;top:14%;background:#e6f1fb;border:1.5px solid #185fa5;color:#0c447c;transform:translate(-50%,-50%)" onclick="showComp('salesforce')">
+          SF<div class="dot-label">Salesforce</div>
+        </div>
+
+        <!-- Microsoft -->
+        <div class="dot" style="width:28px;height:28px;left:85%;top:20%;background:#e6f1fb;border:1.5px solid #185fa5;color:#0c447c;transform:translate(-50%,-50%)" onclick="showComp('microsoft')">
+          MS<div class="dot-label">MS Copilot</div>
+        </div>
+      </div>
+    </div>
+    <div id="map-info" style="margin-top:12px;min-height:40px;font-size:12px;color:#666;background:#f7f5ee;border-radius:8px;padding:10px 12px;display:none"></div>
+  </div>
+</div>
+
+<!-- CARDS -->
+<div class="panel" id="tab-cards">
+  <p class="sub">Cliquez sur chaque concurrent pour voir l'analyse détaillée et le pitch de différenciation à utiliser en vente.</p>
+  <div class="comp-grid" id="comp-grid"></div>
+</div>
+
+<!-- MATRIX -->
+<div class="panel" id="tab-matrix">
+  <p class="sub">Comparaison fonctionnelle sur les critères qui comptent pour un dirigeant de PME française. ✓ = oui, partial = partiel, ✕ = non.</p>
+  <div class="matrix-wrap">
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>Critère</th>
+          <th style="color:#1d9e75">Agentis</th>
+          <th>Relevance AI</th>
+          <th>Sintra</th>
+          <th>Lindy</th>
+          <th>Zapier</th>
+          <th>Artisan</th>
+          <th>Paperclip</th>
+          <th>Salesforce</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="you">
+          <td>Zéro code requis</td>
+          <td class="c-yes">✓</td><td class="c-part">Partial</td><td class="c-yes">✓</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td>
+        </tr>
+        <tr class="you">
+          <td>Toute l'entreprise (multi-fonctions)</td>
+          <td class="c-yes">✓</td><td class="c-part">Partial</td><td class="c-part">Partial</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td>
+        </tr>
+        <tr class="you">
+          <td>Gouvernance + audit trail</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td>
+        </tr>
+        <tr class="you">
+          <td>Conforme AI Act by design</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-part">Partial</td>
+        </tr>
+        <tr class="you">
+          <td>Données hébergées en Europe</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">Self-host</td><td class="c-part">Option</td>
+        </tr>
+        <tr class="you">
+          <td>Mémoire organisationnelle (digital twin)</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-part">Basic</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-part">Manual</td><td class="c-part">Partial</td>
+        </tr>
+        <tr class="you">
+          <td>Verticale métier (deep skills)</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-part">Partial</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-part">SDR only</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td>
+        </tr>
+        <tr class="you">
+          <td>Org chart + budget par agent</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-yes">✓</td><td class="c-part">Partial</td>
+        </tr>
+        <tr class="you">
+          <td>Tarif PME accessible</td>
+          <td class="c-yes">€149-799</td><td class="c-part">$19-349</td><td class="c-yes">$48-97</td>
+          <td class="c-yes">$50</td><td class="c-yes">$29+</td><td class="c-no">$2k-5k</td>
+          <td class="c-yes">Gratuit</td><td class="c-no">$$$</td>
+        </tr>
+        <tr class="you">
+          <td>Géré / hébergé (pas de self-host)</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+          <td class="c-no">✕</td><td class="c-yes">✓</td>
+        </tr>
+        <tr class="you">
+          <td>Langue française native</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td>
+        </tr>
+        <tr class="you">
+          <td>Auto-amélioration des agents</td>
+          <td class="c-yes">✓</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">✕</td><td class="c-no">✕</td><td class="c-no">✕</td>
+          <td class="c-no">En dev</td><td class="c-no">✕</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="win-box">Agentis est le seul acteur qui combine simultanément : zéro code + entreprise complète + conformité AI Act + hébergement EU + mémoire organisationnelle + pricing PME. C'est cette combinaison — pas une feature isolée — qui est défendable.</div>
+</div>
+
+<!-- POSITION -->
+<div class="panel" id="tab-position">
+  <p class="sub">Comment vous positionner face à chaque concurrent quand un prospect en parle. Arguments précis, pas de FUD.</p>
+  <div class="pos-grid" id="pos-grid"></div>
+</div>
+
+<script>
+const competitors = {
+  you: {
+    name: "Agentis (vous)", tagline: "Entreprise IA complète pour PME françaises",
+    price: "€149–799/mo", category: "VOTRE PRODUIT",
+    badgeColor: "#e1f5ee", badgeText: "#085041",
+    pros: ["Zéro code — onboarding en 20 min","Toute l'entreprise, pas une fonction","Conforme AI Act by design","Hébergement EU (Mistral + OVH)","Mémoire organisationnelle qui compound","Tarif prédictible, pas de surprise"],
+    cons: ["Nouveau sur le marché","Pas encore de référence clients","Vertical 1 uniquement au démarrage"],
+    pitch: "Vous avez la seule combinaison sur le marché qui n'existe nulle part ailleurs : zéro code + toute l'entreprise + AI Act + français."
+  },
+  relevance: {
+    name: "Relevance AI", tagline: "Plateforme de construction d'agents IA pour équipes sales/GTM",
+    price: "$19–349/mo + crédits", category: "CONCURRENT DIRECT",
+    badgeColor: "#e6f1fb", badgeText: "#185fa5",
+    pros: ["Marketplace de 400+ templates d'agents","Très flexible — peut tout faire","Bien financé ($24M Bessemer)","Compatible avec tous les LLMs"],
+    cons: ["Low-code, pas no-code — courbe d'apprentissage réelle","Focalisé sales/GTM, pas toute l'entreprise","Facturation crédit imprévisible (pain point G2 récurrent)","Américain, aucun angle AI Act / RGPD","Aucun concept de gouvernance ou org chart"],
+    pitch: "Quand le prospect dit 'on regarde Relevance AI' : dites 'super outil de construction d'agents — mais vous allez passer des semaines à le configurer. Nous, vous êtes opérationnel en 20 minutes avec 6 agents qui connaissent votre secteur dès le premier jour.'"
+  },
+  sintra: {
+    name: "Sintra AI", tagline: "Assistants IA basés sur des rôles pour solopreneurs",
+    price: "$15–97/mo", category: "CONCURRENT PARTIEL",
+    badgeColor: "#faeeda", badgeText: "#633806",
+    pros: ["Très abordable ($15-97/mo)","Facile à démarrer","Rôles prédéfinis (Buddy, Aria...)","Bon pour usage personnel/solopreneur"],
+    cons: ["Conçu pour solopreneurs, pas PME","Pas d'org chart ni de gouvernance","Aucune coordination inter-agents","Pas de mémoire organisationnelle","Pricing le plus bas = qualité basique"],
+    pitch: "Sintra est un assistant personnel enrichi. Vous vendez une entreprise IA. Ce n'est pas le même produit — comparer les deux, c'est comme comparer Notion et un ERP."
+  },
+  lindy: {
+    name: "Lindy AI", tagline: "Assistant IA all-in-one pour tâches opérationnelles",
+    price: "$49–199/mo", category: "CONCURRENT PARTIEL",
+    badgeColor: "#eeedfe", badgeText: "#3c3489",
+    pros: ["Setup très rapide","Large éventail de workflows","Prix accessible","Bon pour un opérateur individuel"],
+    cons: ["Agent personnel — pas une équipe","Pas de gouvernance d'entreprise","Pas de gestion budgétaire par agent","Pas d'org chart ni de délégation","Aucune mémoire organisationnelle partagée"],
+    pitch: "Lindy est excellent pour automatiser la journée d'une personne. Vous vendez une entreprise qui tourne pendant que le dirigeant dort. Ce ne sont pas les mêmes cas d'usage."
+  },
+  zapier: {
+    name: "Zapier / Make", tagline: "Automatisation d'app-to-app avec IA embarquée",
+    price: "$29–599/mo", category: "INDIRECT",
+    badgeColor: "#f1efe8", badgeText: "#5f5e5a",
+    pros: ["1000+ intégrations","Très connu, rassure","Pricing accessible","Cas d'usage simples très rapides"],
+    cons: ["Workflows fixes — pas d'agents autonomes","Zéro mémoire organisationnelle","Aucune coordination inter-agents","Aucune gouvernance d'entreprise","Passe à l'échelle comme des spaghettis"],
+    pitch: "Zapier automatise des tâches répétitives prédéfinies. Vos agents prennent des décisions, s'adaptent, apprennent votre entreprise, délèguent. Ce n'est pas de l'automatisation — c'est une équipe."
+  },
+  artisan: {
+    name: "Artisan (Ava)", tagline: "IA SDR pour l'outbound commercial",
+    price: "$2 000–5 000/mo", category: "VERTICAL POINT",
+    badgeColor: "#fcebeb", badgeText: "#791f1f",
+    pros: ["Très bon sur le cas d'usage outbound","Base de données B2B de 300M contacts","Interface propre","Séquences email automatisées"],
+    cons: ["Une seule fonction : l'outbound SDR","Contrat annuel obligatoire","$2-5k/mois = très élevé","Aucune couverture des autres fonctions","'Stop Hiring Humans' = backlash image"],
+    pitch: "Artisan est une ligne dans votre org chart. Vous vendez le whole org chart. Un client pourrait utiliser les deux — Artisan comme agent commercial, la plateforme pour gérer l'ensemble de l'entreprise."
+  },
+  paperclip: {
+    name: "Paperclip", tagline: "Orchestration open-source pour entreprises zéro-humain",
+    price: "Gratuit (self-hosted)", category: "BASE TECHNIQUE",
+    badgeColor: "#eeedfe", badgeText: "#3c3489",
+    pros: ["Gouvernance et org chart excellents","Open source MIT","Adapter-agnostic","38k stars GitHub, communauté active"],
+    cons: ["Self-hosted uniquement — nécessite Node.js + Postgres","Aucune UX non-technique","Pas de skills verticaux","Pas de mémoire organisationnelle","Aucun angle AI Act / RGPD","Pas de support ni de SLA"],
+    pitch: "Paperclip est le moteur de votre voiture. Vous vendez la voiture complète avec GPS, sièges en cuir et mécanicien inclus. Vos clients ne veulent pas installer Node.js — ils veulent que ça marche."
+  },
+  crewai: {
+    name: "CrewAI / LangGraph", tagline: "Framework Python pour agents multi-rôles",
+    price: "$0 (OSS) / $150+ (enterprise)", category: "DEV FRAMEWORK",
+    badgeColor: "#f1efe8", badgeText: "#5f5e5a",
+    pros: ["Très flexible pour développeurs","Large communauté","Open source","Bonne documentation"],
+    cons: ["Python uniquement — requiert un ingénieur","Aucune UX business","Aucune gouvernance packagée","Aucun concept de PME ou secteur","Votre prospect ne sait pas ce que c'est"],
+    pitch: "Vos clients ne sont pas des développeurs. CrewAI n'est pas dans leur paysage concurrentiel. Si vous le rencontrez, c'est que le prospect a une équipe tech — ce n'est pas votre ICP."
+  },
+  salesforce: {
+    name: "Salesforce Agentforce", tagline: "Agents IA pour entreprises dans l'écosystème Salesforce",
+    price: "$2–6 par conversation", category: "ENTERPRISE",
+    badgeColor: "#e6f1fb", badgeText: "#185fa5",
+    pros: ["Intégration native Salesforce/Slack","Support entreprise de qualité","Brand très connue","Gouvernance solide"],
+    cons: ["Nécessite un écosystème Salesforce existant","Prix par conversation = facturation imprévisible","Département IT requis","Setup en mois, pas en minutes","Aucune adaptation au marché français","Trop complexe pour PME 5-50 personnes"],
+    pitch: "Salesforce est pour les entreprises de 200+ personnes avec un DSI. Vous êtes pour les PME 5-50 personnes dont le dirigeant n'a pas de service informatique. Ces deux segments ne se superposent pas."
+  },
+  microsoft: {
+    name: "Microsoft Copilot Studio", tagline: "Création d'agents IA dans l'écosystème Microsoft 365",
+    price: "$200+/mois + usage", category: "ENTERPRISE",
+    badgeColor: "#e6f1fb", badgeText: "#185fa5",
+    pros: ["Intégration native Teams/Office 365","Support entreprise","Connue et rassurante","Bonne gouvernance","RGPD gérable"],
+    cons: ["Lock-in Microsoft total","Requiert M365 existant + IT","Très complexe à configurer","Aucune verticalisation métier","Prix pour PME disproportionné","Aucun concept d'org chart IA autonome"],
+    pitch: "Si le prospect utilise M365, Microsoft Copilot Studio est votre vraie menace — mais seulement pour les entreprises avec un IT existant. Votre réponse : nous sommes neutres, nous fonctionnons avec n'importe quel outil."
+  }
+};
+
+const mapInfo = {
+  you: "Agentis — Votre produit. Zéro code + entreprise complète + AI Act + France. L'espace que personne n'occupe.",
+  relevance: "Relevance AI — Powerful mais low-code. Focalisé GTM/sales. Américain. Facturation crédit imprévisible. 38k clients mais beaucoup d'abandon.",
+  sintra: "Sintra — Bon pour solopreneurs. Rôles simples. Pas d'org chart. Pas de gouvernance. Pas un concurrent direct.",
+  lindy: "Lindy — Assistant personnel all-in-one. Bon pour un individu. Pas pour une équipe ou une PME.",
+  zapier: "Zapier / Make — Automatisation de workflows fixes. Populaire mais fondamentalement différent des agents autonomes.",
+  n8n: "n8n — Open source, developer-first. 150k stars. Le couteau suisse des workflows techniques. Pas votre concurrent.",
+  artisan: "Artisan — Une fonction, très bien faite : l'outbound SDR. $2-5k/mois, contrat annuel. Peut être complémentaire.",
+  crewai: "CrewAI / LangGraph — Frameworks Python pour développeurs. Puissants mais hors scope pour vos clients PME.",
+  paperclip: "Paperclip — Votre base open source. Excellent moteur. Zéro UX non-technique. Ce que vous construisez dessus.",
+  salesforce: "Salesforce Agentforce — Enterprise pur. Requiert un éco-système Salesforce. Pricing par conversation. Pas PME.",
+  microsoft: "Microsoft Copilot Studio — Dangereux si prospect est M365-first. Sinon, trop complexe et cher pour PME."
+};
+
+const positions = [
+  { vs: "vs Relevance AI", how: "Plus rapide à déployer", items: ["Eux : builder — vous configurez vous-même", "Vous : plateforme — pré-configuré pour votre secteur", "Eux : courbe d'apprentissage 2-4 semaines", "Vous : premier agent actif en 20 min"] },
+  { vs: "vs Lindy / Sintra", how: "Toute l'entreprise, pas un assistant", items: ["Eux : un agent, une personne aidée", "Vous : 6+ agents, toute une entreprise", "Eux : aucune gouvernance, aucun org chart", "Vous : vous êtes le PDG, eux font le travail"] },
+  { vs: "vs Zapier / Make", how: "Agents autonomes vs workflows fixes", items: ["Eux : si X, alors Y — toujours pareil", "Vous : agents qui raisonnent et s'adaptent", "Eux : vous devez tout définir à l'avance", "Vous : les agents décident comment accomplir l'objectif"] },
+  { vs: "vs Artisan / 11x", how: "Toute l'entreprise vs un SDR", items: ["Eux : excellent SDR — une ligne dans l'org chart", "Vous : tout l'org chart", "Eux : $2-5k/mois pour une fonction", "Vous : €399/mois pour 6 fonctions complètes"] },
+  { vs: "vs Paperclip (open source)", how: "Produit fini vs moteur technique", items: ["Eux : vous installez Node.js + Postgres", "Vous : vous vous connectez et c'est parti", "Eux : zéro skills verticaux, zéro UX", "Vous : pré-configuré pour votre secteur, support inclus"] },
+  { vs: "vs Salesforce / Microsoft", how: "PME vs enterprise", items: ["Eux : vous avez besoin d'un DSI + 6 mois", "Vous : démarrage en 20 minutes", "Eux : lock-in écosystème total", "Vous : compatible avec tous vos outils existants"] }
+];
+
+function renderCards() {
+  const g = document.getElementById('comp-grid');
+  g.innerHTML = Object.entries(competitors).map(([key, c]) => `
+    <div class="comp-card ${key==='you'?'you':''}" onclick="toggleComp(this)">
+      <div class="comp-header">
+        <div class="comp-info">
+          <div class="comp-name">${c.name}</div>
+          <div class="comp-tagline">${c.tagline}</div>
+          <div class="comp-badges">
+            <span class="badge" style="background:${c.badgeColor};color:${c.badgeText}">${c.category}</span>
+          </div>
+        </div>
+        <div class="comp-price">${c.price}</div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-cols">
+          <div>
+            <div class="comp-col-head">Points forts</div>
+            ${c.pros.map(p=>`<div class="comp-item pro">${p}</div>`).join('')}
+          </div>
+          <div>
+            <div class="comp-col-head">Faiblesses / limites</div>
+            ${c.cons.map(p=>`<div class="comp-item con">${p}</div>`).join('')}
+          </div>
+        </div>
+        <div class="pitch-box"><strong>Pitch de différenciation :</strong> ${c.pitch}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPositions() {
+  const g = document.getElementById('pos-grid');
+  g.innerHTML = positions.map(p => `
+    <div class="pos-card">
+      <div class="pos-head">${p.vs}</div>
+      <div style="font-size:11px;font-weight:500;color:#1d9e75;margin-bottom:6px">${p.how}</div>
+      ${p.items.map(i=>`<div class="pos-item">${i}</div>`).join('')}
+    </div>
+  `).join('');
+}
+
+function toggleComp(card) {
+  card.querySelector('.comp-body').classList.toggle('open');
+}
+
+function showComp(key) {
+  const c = competitors[key];
+  if (!c) return;
+  const box = document.getElementById('map-info');
+  box.style.display = 'block';
+  box.innerHTML = `<strong>${c.name}</strong> — ${mapInfo[key] || c.tagline}<br><span style="color:#1d9e75;margin-top:4px;display:block">Pitch : ${c.pitch}</span>`;
+}
+
+function show(id) {
+  const ids = ['map','cards','matrix','position'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+renderCards();
+renderPositions();
+</script>
+</body>
+</html>

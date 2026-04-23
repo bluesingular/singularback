@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Singular — Mockup Interface</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #FAFAF8;
+  --border: #E8E3D8;
+  --border2: #F0ECE4;
+  --ink: #1A1814;
+  --ink2: #4A4640;
+  --muted: #9A9590;
+  --green: #1D7A4F;
+  --green-mid: #2A9E66;
+  --green-light: #E8F5EE;
+  --green-border: rgba(29,122,79,.2);
+  --amber: #B8730A;
+  --amber-light: #FDF3E3;
+  --amber-border: rgba(184,115,10,.2);
+  --red: #C0392B;
+  --red-light: #FDF0EE;
+  --red-border: rgba(192,57,43,.2);
+  --blue: #1A5C9E;
+  --blue-light: #EBF3FB;
+  --sidebar-w: 220px;
+  --header-h: 58px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+}
+
+/* ══ SIDEBAR ══ */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--ink);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.sidebar-logo-mark {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  color: #fff;
+  letter-spacing: -.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-logo-mark span {
+  font-style: italic;
+  color: #5FD49A;
+}
+
+.sidebar-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,.3);
+  margin-top: 3px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.sidebar-company {
+  padding: 12px 16px;
+  margin: 8px 12px;
+  background: rgba(255,255,255,.06);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sc-name { font-size: 12px; color: #fff; font-weight: 500; }
+.sc-pack { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto;
+}
+
+.nav-section {
+  padding: 16px 16px 4px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.25);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,.55);
+  cursor: pointer;
+  border-radius: 0;
+  transition: all .15s;
+  position: relative;
+  margin: 1px 0;
+}
+
+.nav-item:hover { color: rgba(255,255,255,.9); background: rgba(255,255,255,.05); }
+
+.nav-item.active {
+  color: #fff;
+  background: rgba(95,212,154,.12);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: #5FD49A;
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-icon { font-size: 14px; opacity: .85; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: #C0392B;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.nav-badge.amber { background: var(--amber); }
+
+.sidebar-bottom {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.sidebar-usage {
+  background: rgba(255,255,255,.05);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.su-label { font-size: 10px; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+.su-bar { height: 3px; background: rgba(255,255,255,.12); border-radius: 2px; margin-bottom: 5px; }
+.su-fill { height: 100%; background: #5FD49A; border-radius: 2px; transition: width .5s; }
+.su-nums { font-size: 10px; color: rgba(255,255,255,.5); display: flex; justify-content: space-between; }
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 2px;
+  cursor: pointer;
+}
+
+.su-avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--green-mid);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.su-info { flex: 1; min-width: 0; }
+.su-name { font-size: 11px; color: rgba(255,255,255,.8); font-weight: 500; }
+.su-role { font-size: 9px; color: rgba(255,255,255,.35); }
+
+/* ══ MAIN CONTENT ══ */
+.main {
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══ ESCALADE BANNER ══ */
+.escalade-banner {
+  background: var(--amber-light);
+  border-bottom: 1px solid var(--amber-border);
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--amber);
+}
+
+.eb-icon { font-size: 14px; }
+.eb-text { flex: 1; }
+.eb-text strong { color: var(--ink); }
+.eb-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber);
+  background: white;
+  border: 1px solid var(--amber-border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.eb-btn:hover { background: var(--amber); color: white; }
+
+/* ══ HEADER ══ */
+.header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.breadcrumb { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.breadcrumb-sep { color: var(--border); }
+.breadcrumb-cur { color: var(--ink); font-weight: 500; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.header-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--ink2);
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.header-btn:hover { border-color: var(--green); color: var(--green); }
+
+.header-btn.primary {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+
+.header-btn.primary:hover { background: var(--green-mid); }
+
+.console-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  background: white;
+}
+
+.cs-key {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--ink2);
+}
+
+.console-shortcut:hover { border-color: var(--green); }
+
+/* ══ CONTENT AREA ══ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ══ SCREENS ══ */
+.screen { display: none; animation: fadeIn .2s ease; }
+.screen.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ══ DASHBOARD ══ */
+.dash-greeting {
+  margin-bottom: 24px;
+}
+
+.dash-day {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 4px;
+}
+
+.dash-hello {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.dash-summary {
+  font-size: 13px;
+  color: var(--ink2);
+}
+
+.dash-summary strong { color: var(--ink); }
+
+/* ══ 3-COL GRID ══ */
+.three-col { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 20px; }
+.three-col-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+
+/* ══ CARDS ══ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 14px 18px 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.card-body { padding: 14px 18px; }
+
+/* ══ ACTIVITY FEED ══ */
+.activity-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border2);
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.activity-content { flex: 1; }
+.activity-title { font-size: 12px; color: var(--ink); line-height: 1.4; margin-bottom: 3px; }
+.activity-title strong { font-weight: 600; }
+.activity-meta { font-size: 10px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.activity-tag { padding: 1px 7px; border-radius: 8px; font-size: 9px; font-weight: 600; }
+
+.tag-pending { background: var(--amber-light); color: var(--amber); }
+.tag-done { background: var(--green-light); color: var(--green); }
+.tag-running { background: var(--blue-light); color: var(--blue); }
+
+/* ══ AGENT CHIPS ══ */
+.team-list { display: flex; flex-direction: column; gap: 2px; }
+
+.agent-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.agent-chip:hover { background: var(--bg); }
+
+.agent-chip-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.dot-green { background: var(--green-mid); }
+.dot-amber { background: var(--amber); }
+.dot-gray { background: var(--muted); }
+
+.agent-chip-info { flex: 1; min-width: 0; }
+.agent-chip-name { font-size: 12px; font-weight: 500; color: var(--ink); }
+.agent-chip-role { font-size: 10px; color: var(--muted); }
+.agent-chip-status { font-size: 10px; color: var(--muted); text-align: right; white-space: nowrap; }
+.agent-chip-status.amber { color: var(--amber); font-weight: 500; }
+
+/* ══ METRIC CARDS ══ */
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.mc-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 8px; }
+.mc-val { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--ink); line-height: 1; margin-bottom: 3px; }
+.mc-val.green { color: var(--green); }
+.mc-sub { font-size: 10px; color: var(--muted); }
+.mc-trend { font-size: 10px; margin-top: 4px; }
+.mc-trend.up { color: var(--green); }
+.mc-trend.down { color: var(--red); }
+
+/* ══ GOAL CARD ══ */
+.goal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.goal-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 8px; }
+.goal-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+.progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin-bottom: 6px; }
+.progress-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width 1s ease; }
+.goal-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+
+/* ══ AGENTS GRID ══ */
+.agents-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+
+.agent-card:hover { border-color: var(--green-border); box-shadow: 0 4px 20px rgba(0,0,0,.06); transform: translateY(-1px); }
+
+.agent-card.pending { border-color: var(--amber-border); }
+
+.agent-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.agent-avatar-lg { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+.status-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-active { background: var(--green-light); color: var(--green); }
+.badge-pending { background: var(--amber-light); color: var(--amber); }
+.badge-paused { background: var(--border); color: var(--muted); }
+
+.agent-card-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.agent-card-role { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.agent-card-task { font-size: 11px; color: var(--ink2); line-height: 1.4; margin-bottom: 14px; padding: 8px 10px; background: var(--bg); border-radius: 8px; }
+.agent-card-task-label { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 3px; }
+
+.agent-card-footer { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--border2); padding-top: 12px; }
+
+.acf-item { text-align: center; }
+.acf-val { font-size: 13px; font-weight: 600; color: var(--ink); }
+.acf-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 1px; }
+
+.stars { color: #E8AE1A; font-size: 11px; letter-spacing: 1px; }
+
+/* ══ TASK PAGE ══ */
+.tasks-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  margin-top: 20px;
+}
+
+.tasks-section-label:first-child { margin-top: 0; }
+
+.tasks-count {
+  background: var(--green);
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.tasks-count.amber { background: var(--amber); }
+.tasks-count.gray { background: var(--muted); }
+
+.task-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.task-row:hover { border-color: var(--green-border); }
+.task-row.urgent { border-color: var(--amber-border); background: var(--amber-light); }
+
+.task-agent-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.task-content { flex: 1; }
+.task-title { font-size: 12px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.task-desc { font-size: 11px; color: var(--muted); }
+.task-right { display: flex; align-items: center; gap: 10px; }
+.task-age { font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+.task-action-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-approve { background: var(--green); color: white; }
+.btn-approve:hover { background: var(--green-mid); }
+.btn-view { background: var(--bg); color: var(--ink2); border: 1px solid var(--border); }
+.btn-view:hover { border-color: var(--green); color: var(--green); }
+
+/* ══ THREAD ══ */
+.thread-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px;
+  height: calc(100vh - var(--header-h) - 100px);
+}
+
+.thread-main { display: flex; flex-direction: column; }
+
+.thread-messages {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.message {
+  display: flex;
+  gap: 10px;
+}
+
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.msg-body { flex: 1; }
+.msg-sender { font-size: 11px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.msg-time { font-size: 10px; color: var(--muted); margin-left: 6px; font-weight: 400; }
+
+.msg-bubble {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0 10px 10px 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink2);
+}
+
+.msg-bubble.agent {
+  background: var(--green-light);
+  border-color: var(--green-border);
+}
+
+.content-preview {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.content-preview-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-lg {
+  padding: 9px 18px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-lg.green { background: var(--green); color: white; }
+.btn-lg.green:hover { background: var(--green-mid); }
+.btn-lg.outline { background: white; color: var(--ink2); border: 1px solid var(--border); }
+.btn-lg.outline:hover { border-color: var(--green); color: var(--green); }
+.btn-lg.danger { background: var(--red-light); color: var(--red); border: 1px solid var(--red-border); }
+
+.thread-input {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.thread-input-field {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: white;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.thread-input-field:focus { border-color: var(--green); }
+.thread-input-field::placeholder { color: var(--muted); }
+
+.thread-send {
+  width: 36px;
+  height: 36px;
+  background: var(--green);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.thread-sidebar { }
+
+.thread-info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.tic-label { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 6px; }
+.tic-val { font-size: 12px; color: var(--ink); font-weight: 500; }
+.tic-val.muted { color: var(--ink2); font-weight: 400; }
+
+/* ══ CONSOLE ══ */
+.console-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-h) - 48px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.console-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.console-header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+}
+
+.console-header-sub { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+.console-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.console-suggestions {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border2);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.suggestion-chip {
+  font-size: 11px;
+  color: var(--ink2);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.suggestion-chip:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
+
+.console-input-bar {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.console-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .15s;
+}
+
+.console-input:focus { border-color: var(--green); background: white; }
+.console-input::placeholder { color: var(--muted); }
+
+.console-send-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--green);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+
+.console-send-btn:hover { background: var(--green-mid); }
+
+.approval-card {
+  background: var(--amber-light);
+  border: 1px solid var(--amber-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 8px;
+}
+
+.approval-card-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--amber);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.approval-card-title { font-size: 12px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+.approval-card-preview { font-size: 11px; color: var(--ink2); margin-bottom: 10px; line-height: 1.5; }
+
+.approval-btns { display: flex; gap: 6px; }
+.approval-btn { font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 7px; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+.approval-btn.approve { background: var(--green); color: white; }
+.approval-btn.modify { background: white; color: var(--ink2); border: 1px solid var(--border); }
+.approval-btn.reject { background: white; color: var(--red); border: 1px solid var(--red-border); }
+
+/* ══ AGENT DETAIL ══ */
+.agent-detail-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.adh-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.adh-info { flex: 1; }
+.adh-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 500; margin-bottom: 2px; }
+.adh-role { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.adh-schedule { font-size: 11px; color: var(--ink2); }
+
+.adh-actions { display: flex; gap: 8px; align-items: flex-start; }
+
+.two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+
+.skills-list { display: flex; flex-direction: column; gap: 4px; }
+.skill-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 12px; color: var(--ink2); background: var(--bg); }
+.skill-check { color: var(--green); font-size: 14px; }
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border2);
+}
+
+.history-item:last-child { border-bottom: none; }
+.hi-date { font-size: 10px; color: var(--muted); width: 28px; flex-shrink: 0; }
+.hi-title { flex: 1; font-size: 12px; color: var(--ink2); }
+.hi-stars { color: #E8AE1A; font-size: 11px; }
+
+/* ══ REPORTS ══ */
+.reports-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+
+.roi-highlight {
+  background: linear-gradient(135deg, var(--green) 0%, #2BAD6E 100%);
+  border-radius: 14px;
+  padding: 18px 20px;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.rh-label { font-size: 10px; opacity: .7; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.rh-val { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 4px; }
+.rh-sub { font-size: 12px; opacity: .75; }
+
+.agents-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.agents-table th { text-align: left; padding: 10px 14px; background: var(--bg); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+.agents-table td { padding: 10px 14px; border-bottom: 1px solid var(--border2); font-size: 12px; color: var(--ink2); }
+.agents-table tr:last-child td { border-bottom: none; }
+.agents-table tr:hover td { background: var(--bg); }
+.agents-table td:first-child { color: var(--ink); font-weight: 500; }
+.agents-table td.green { color: var(--green); font-weight: 600; }
+
+/* ══ SCREEN SELECTOR TABS (MOCKUP ONLY) ══ */
+.screen-tabs {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  border-radius: 30px;
+  padding: 6px 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 1000;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+}
+
+.screen-tab {
+  padding: 6px 14px;
+  border-radius: 22px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.screen-tab:hover { color: rgba(255,255,255,.85); }
+.screen-tab.active { background: rgba(255,255,255,.12); color: white; }
+
+/* ══ HELPERS ══ */
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+.row { display: flex; align-items: center; gap: 10px; }
+.spacer { flex: 1; }
+.text-muted { color: var(--muted); }
+.text-green { color: var(--green); }
+.text-amber { color: var(--amber); }
+.fw500 { font-weight: 500; }
+.mt4 { margin-top: 4px; }
+.mt8 { margin-top: 8px; }
+.mb8 { margin-bottom: 8px; }
+.mb12 { margin-bottom: 12px; }
+
+.budget-bar-wrap { margin: 10px 0; }
+.budget-bar { height: 6px; background: var(--border); border-radius: 3px; }
+.budget-fill { height: 100%; border-radius: 3px; transition: width 1s; }
+.budget-fill.green { background: var(--green); }
+.budget-fill.amber { background: var(--amber); }
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .15s;
+  margin-bottom: 16px;
+}
+
+.back-btn:hover { color: var(--green); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">S<span>ingular</span></div>
+    <div class="sidebar-sub">Votre entreprise IA</div>
+  </div>
+
+  <div class="sidebar-company">
+    <div class="sc-name">Cabinet RecruitPro</div>
+    <div class="sc-pack">Pack Recrutement · Growth</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="goTo('dashboard')">
+      <span class="nav-icon">⊞</span> Accueil
+    </div>
+    <div class="nav-item" onclick="goTo('team')">
+      <span class="nav-icon">👥</span> Mon équipe IA
+    </div>
+    <div class="nav-item" onclick="goTo('tasks')">
+      <span class="nav-icon">✓</span> Travail
+      <span class="nav-badge amber">3</span>
+    </div>
+    <div class="nav-item" onclick="goTo('console')">
+      <span class="nav-icon">◎</span> Console PDG
+    </div>
+
+    <div class="nav-section">Analyse</div>
+    <div class="nav-item" onclick="goTo('reports')">
+      <span class="nav-icon">↗</span> Rapports & ROI
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⊘</span> Coûts
+    </div>
+
+    <div class="nav-section">Configuration</div>
+    <div class="nav-item">
+      <span class="nav-icon">⊕</span> Intégrations
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">◈</span> Mon entreprise
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⚙</span> Paramètres
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-usage">
+      <div class="su-label">Tâches ce mois</div>
+      <div class="su-bar"><div class="su-fill" style="width:42%"></div></div>
+      <div class="su-nums"><span>847 utilisées</span><span>2 000</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="su-avatar">LB</div>
+      <div class="su-info">
+        <div class="su-name">Luc Boilly</div>
+        <div class="su-role">Propriétaire</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ESCALADE BANNER -->
+  <div class="escalade-banner" id="escalade">
+    <span class="eb-icon">⚠</span>
+    <span class="eb-text"><strong>3 actions attendent votre validation</strong> — Sophie a rédigé une offre d'emploi et Clara a préparé les posts de la semaine.</span>
+    <button class="eb-btn" onclick="goTo('tasks')">Voir →</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="breadcrumb" id="breadcrumb">
+      <span>Accueil</span>
+    </div>
+    <div class="header-right">
+      <div class="console-shortcut" onclick="goTo('console')">
+        <span>Console PDG</span>
+        <span class="cs-key">⌘K</span>
+      </div>
+      <button class="header-btn primary" onclick="goTo('team')">+ Recruter un agent</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ══ SCREEN: DASHBOARD ══ -->
+    <div class="screen active" id="screen-dashboard">
+
+      <div class="dash-greeting">
+        <div class="dash-day">Lundi 11 avril 2026</div>
+        <div class="dash-hello">Bonjour Luc 👋</div>
+        <div class="dash-summary">Votre équipe a complété <strong>47 tâches ce week-end</strong> pendant que vous étiez en repos. 3 actions attendent votre validation ce matin.</div>
+      </div>
+
+      <div class="three-col-3">
+        <div class="metric-card">
+          <div class="mc-label">Tâches ce mois</div>
+          <div class="mc-val green">847</div>
+          <div class="mc-sub">sur 2 000 incluses · 42%</div>
+          <div class="mc-trend up">↑ +23% vs mars</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">Heures libérées</div>
+          <div class="mc-val">11h</div>
+          <div class="mc-sub">par semaine en moyenne</div>
+          <div class="mc-trend up">↑ Depuis 3 semaines</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">Score qualité moyen</div>
+          <div class="mc-val">4.3<span style="font-size:16px;color:var(--muted)">/5</span></div>
+          <div class="mc-sub">Basé sur vos évaluations</div>
+          <div class="mc-trend up">↑ +0.2 vs mois dernier</div>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="card">
+          <div class="card-head">Activité récente</div>
+          <div class="card-body">
+            <div class="activity-item">
+              <div class="activity-avatar" style="background:#E8F5EE">👩</div>
+              <div class="activity-content">
+                <div class="activity-title"><strong>Sophie</strong> a qualifié 12 CVs pour la mission React Senior · Lyon</div>
+                <div class="activity-meta">
+                  <span>Il y a 14 min</span>
+                  <span class="activity-tag tag-done">Terminé</span>
+                </div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-avatar" style="background:#FDF3E3">✍️</div>
+              <div class="activity-content">
+                <div class="activity-title"><strong>Clara</strong> a rédigé 3 posts LinkedIn pour cette semaine</div>
+                <div class="activity-meta">
+                  <span>Il y a 2h</span>
+                  <span class="activity-tag tag-pending">Attend votre validation</span>
+                </div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-avatar" style="background:#EBF3FB">👨</div>
+              <div class="activity-content">
+                <div class="activity-title"><strong>Marc</strong> a envoyé le rapport hebdomadaire à Innotec</div>
+                <div class="activity-meta">
+                  <span>Hier 18h47</span>
+                  <span class="activity-tag tag-done">Envoyé</span>
+                </div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-avatar" style="background:#E8F5EE">👩</div>
+              <div class="activity-content">
+                <div class="activity-title"><strong>Sophie</strong> a rédigé une offre d'emploi — Développeur Python Paris</div>
+                <div class="activity-meta">
+                  <span>Hier 16h23</span>
+                  <span class="activity-tag tag-pending">Attend votre validation</span>
+                </div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-avatar" style="background:#F7F0FF">📋</div>
+              <div class="activity-content">
+                <div class="activity-title"><strong>Julien</strong> a préparé la synthèse de veille marché RH digital</div>
+                <div class="activity-meta">
+                  <span>Hier 9h12</span>
+                  <span class="activity-tag tag-done">Terminé</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-head">Votre équipe</div>
+            <div class="card-body" style="padding-top:8px">
+              <div class="team-list">
+                <div class="agent-chip" onclick="goTo('agent-detail')">
+                  <div class="agent-chip-avatar" style="background:#E8F5EE">
+                    👩
+                    <div class="status-dot dot-green"></div>
+                  </div>
+                  <div class="agent-chip-info">
+                    <div class="agent-chip-name">Sophie</div>
+                    <div class="agent-chip-role">Chargée de sourcing</div>
+                  </div>
+                  <div class="agent-chip-status">Travaille</div>
+                </div>
+                <div class="agent-chip" onclick="goTo('team')">
+                  <div class="agent-chip-avatar" style="background:#EBF3FB">
+                    👨
+                    <div class="status-dot dot-green"></div>
+                  </div>
+                  <div class="agent-chip-info">
+                    <div class="agent-chip-name">Marc</div>
+                    <div class="agent-chip-role">Relation client</div>
+                  </div>
+                  <div class="agent-chip-status">Travaille</div>
+                </div>
+                <div class="agent-chip" onclick="goTo('thread')">
+                  <div class="agent-chip-avatar" style="background:#FDF3E3">
+                    ✍️
+                    <div class="status-dot dot-amber"></div>
+                  </div>
+                  <div class="agent-chip-info">
+                    <div class="agent-chip-name">Clara</div>
+                    <div class="agent-chip-role">Contenu & réseaux</div>
+                  </div>
+                  <div class="agent-chip-status amber">Validation !</div>
+                </div>
+                <div class="agent-chip" onclick="goTo('team')">
+                  <div class="agent-chip-avatar" style="background:#F7F0FF">
+                    📋
+                    <div class="status-dot dot-gray"></div>
+                  </div>
+                  <div class="agent-chip-info">
+                    <div class="agent-chip-name">Julien</div>
+                    <div class="agent-chip-role">Admin & planning</div>
+                  </div>
+                  <div class="agent-chip-status">En pause</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="goal-card">
+            <div class="goal-label">🎯 Objectif principal</div>
+            <div class="goal-title">Réduire le délai de présentation des candidats à moins de 5 jours</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+            <div class="goal-meta">
+              <span>78% atteint</span>
+              <span>23 jours restants</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: TEAM ══ -->
+    <div class="screen" id="screen-team">
+      <div class="row mb12">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400">Mon équipe IA</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">4 agents actifs · 847 tâches ce mois</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="header-btn primary">+ Recruter un agent</button>
+      </div>
+
+      <div class="agents-grid">
+        <div class="agent-card" onclick="goTo('agent-detail')">
+          <div class="agent-card-top">
+            <div class="agent-avatar-lg" style="background:#E8F5EE">👩</div>
+            <div class="status-badge badge-active">● Travaille</div>
+          </div>
+          <div class="agent-card-name">Sophie</div>
+          <div class="agent-card-role">Chargée de sourcing</div>
+          <div class="agent-card-task">
+            <div class="agent-card-task-label">En ce moment</div>
+            Qualification CVs — Mission React Senior · Lyon
+          </div>
+          <div class="agent-card-footer">
+            <div class="acf-item"><div class="acf-val">234</div><div class="acf-label">Tâches</div></div>
+            <div class="acf-item"><div class="acf-val stars">★★★★½</div><div class="acf-label">Score</div></div>
+            <div class="acf-item"><div class="acf-val">€28</div><div class="acf-label">Ce mois</div></div>
+          </div>
+        </div>
+
+        <div class="agent-card" onclick="goTo('team')">
+          <div class="agent-card-top">
+            <div class="agent-avatar-lg" style="background:#EBF3FB">👨</div>
+            <div class="status-badge badge-active">● Travaille</div>
+          </div>
+          <div class="agent-card-name">Marc</div>
+          <div class="agent-card-role">Relation client</div>
+          <div class="agent-card-task">
+            <div class="agent-card-task-label">En ce moment</div>
+            Rapport hebdomadaire — Client Buildtech
+          </div>
+          <div class="agent-card-footer">
+            <div class="acf-item"><div class="acf-val">189</div><div class="acf-label">Tâches</div></div>
+            <div class="acf-item"><div class="acf-val stars">★★★★★</div><div class="acf-label">Score</div></div>
+            <div class="acf-item"><div class="acf-val">€21</div><div class="acf-label">Ce mois</div></div>
+          </div>
+        </div>
+
+        <div class="agent-card pending" onclick="goTo('thread')">
+          <div class="agent-card-top">
+            <div class="agent-avatar-lg" style="background:#FDF3E3">✍️</div>
+            <div class="status-badge badge-pending">⚠ Validation</div>
+          </div>
+          <div class="agent-card-name">Clara</div>
+          <div class="agent-card-role">Contenu & réseaux</div>
+          <div class="agent-card-task" style="background:var(--amber-light)">
+            <div class="agent-card-task-label">Attend votre validation</div>
+            3 posts LinkedIn rédigés pour cette semaine
+          </div>
+          <div class="agent-card-footer">
+            <div class="acf-item"><div class="acf-val">243</div><div class="acf-label">Tâches</div></div>
+            <div class="acf-item"><div class="acf-val stars">★★★★☆</div><div class="acf-label">Score</div></div>
+            <div class="acf-item"><div class="acf-val">€19</div><div class="acf-label">Ce mois</div></div>
+          </div>
+        </div>
+
+        <div class="agent-card" onclick="goTo('team')" style="opacity:.7">
+          <div class="agent-card-top">
+            <div class="agent-avatar-lg" style="background:#F7F0FF">📋</div>
+            <div class="status-badge badge-paused">⏸ En pause</div>
+          </div>
+          <div class="agent-card-name">Julien</div>
+          <div class="agent-card-role">Admin & planning</div>
+          <div class="agent-card-task">
+            <div class="agent-card-task-label">Statut</div>
+            Suspendu manuellement — Relancer depuis la Console
+          </div>
+          <div class="agent-card-footer">
+            <div class="acf-item"><div class="acf-val">181</div><div class="acf-label">Tâches</div></div>
+            <div class="acf-item"><div class="acf-val stars">★★★★★</div><div class="acf-label">Score</div></div>
+            <div class="acf-item"><div class="acf-val">€0</div><div class="acf-label">Ce mois</div></div>
+          </div>
+        </div>
+
+        <!-- New agent card -->
+        <div class="agent-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;cursor:pointer;opacity:.6" onclick="goTo('team')">
+          <div style="font-size:28px;margin-bottom:8px">+</div>
+          <div style="font-size:12px;font-weight:500;color:var(--muted)">Recruter un agent</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Choisir un rôle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: AGENT DETAIL ══ -->
+    <div class="screen" id="screen-agent-detail">
+      <div class="back-btn" onclick="goTo('team')">← Mon équipe IA</div>
+
+      <div class="agent-detail-header">
+        <div class="adh-avatar" style="background:#E8F5EE">👩</div>
+        <div class="adh-info">
+          <div class="adh-name">Sophie</div>
+          <div class="adh-role">Chargée de sourcing · Actif lun–ven 8h–19h</div>
+          <div class="adh-schedule" style="display:flex;gap:6px;align-items:center;margin-top:4px">
+            <span class="status-badge badge-active" style="font-size:10px">● Travaille</span>
+            <span style="font-size:11px;color:var(--muted)">Prochain check-in dans 2h · En cours : qualification CVs mission React</span>
+          </div>
+        </div>
+        <div class="adh-actions">
+          <button class="header-btn">⏸ Pause</button>
+          <button class="header-btn primary" onclick="goTo('console')">◎ Parler à Sophie</button>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-head">Ce que Sophie sait faire</div>
+            <div class="card-body">
+              <div class="skills-list">
+                <div class="skill-item"><span class="skill-check">✓</span> Qualifier des CVs et profils candidats</div>
+                <div class="skill-item"><span class="skill-check">✓</span> Rédiger des offres d'emploi conformes loi française</div>
+                <div class="skill-item"><span class="skill-check">✓</span> Sourcer des candidats sur LinkedIn</div>
+                <div class="skill-item"><span class="skill-check">✓</span> Relancer des candidats silencieux</div>
+                <div class="skill-item"><span class="skill-check">✓</span> Préparer des rapports de sourcing clients</div>
+                <div class="skill-item"><span class="skill-check">✓</span> Faire de la veille sur les salaires du marché</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">Travail récent</div>
+            <div class="card-body">
+              <div class="history-item">
+                <div class="hi-date">Auj.</div>
+                <div class="hi-title">Qualification 23 CVs mission React Senior</div>
+                <div class="hi-stars">★★★★★</div>
+              </div>
+              <div class="history-item">
+                <div class="hi-date">Mar</div>
+                <div class="hi-title">Offre d'emploi — Développeur Python Paris</div>
+                <div class="hi-stars">★★★★☆</div>
+              </div>
+              <div class="history-item">
+                <div class="hi-date">Lun</div>
+                <div class="hi-title">Relance 8 candidats silencieux mission DevOps</div>
+                <div class="hi-stars">★★★★★</div>
+              </div>
+              <div class="history-item">
+                <div class="hi-date">Ven</div>
+                <div class="hi-title">Rapport hebdo sourcing — Client Startupco</div>
+                <div class="hi-stars">★★★★½</div>
+              </div>
+              <div class="history-item">
+                <div class="hi-date">Jeu</div>
+                <div class="hi-title">Sourcing LinkedIn — 15 profils CTO identifiés</div>
+                <div class="hi-stars" style="color:var(--muted);font-size:10px">Non noté</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-head">Budget ce mois</div>
+            <div class="card-body">
+              <div style="font-size:24px;font-family:'Playfair Display',serif;color:var(--ink)">€28</div>
+              <div style="font-size:11px;color:var(--muted);margin:2px 0 8px">sur €80 d'enveloppe mensuelle</div>
+              <div class="budget-bar-wrap">
+                <div class="budget-bar"><div class="budget-fill green" style="width:35%"></div></div>
+              </div>
+              <div style="font-size:10px;color:var(--muted)">35% utilisé · Budget OK</div>
+              <div class="divider"></div>
+              <button class="header-btn" style="width:100%;justify-content:center;font-size:11px">Modifier l'enveloppe</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">Outils accessibles</div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:var(--green)">✓</span> Gmail</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:var(--green)">✓</span> LinkedIn</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:var(--green)">✓</span> Notion</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span>✗</span> HubSpot — non connecté</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">Performance ce mois</div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;font-size:12px">
+                  <span style="color:var(--muted)">Tâches complétées</span>
+                  <span style="font-weight:600">234</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12px">
+                  <span style="color:var(--muted)">Score moyen</span>
+                  <span style="color:#E8AE1A">★★★★½</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12px">
+                  <span style="color:var(--muted)">Tâches non notées</span>
+                  <span>12</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: TASKS ══ -->
+    <div class="screen" id="screen-tasks">
+      <div class="row mb12">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400">Travail en cours</div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:6px">
+          <button class="header-btn">Toutes</button>
+          <button class="header-btn" style="border-color:var(--amber);color:var(--amber)">En attente de moi (3)</button>
+          <button class="header-btn">En cours</button>
+          <button class="header-btn">Terminées</button>
+        </div>
+      </div>
+
+      <div class="tasks-section-label">
+        En attente de votre validation <span class="tasks-count amber">3</span>
+      </div>
+
+      <div class="task-row urgent" onclick="goTo('thread')">
+        <div class="task-agent-dot" style="background:#FDF3E3">✍️</div>
+        <div class="task-content">
+          <div class="task-title">Posts LinkedIn — Semaine du 11 avril</div>
+          <div class="task-desc">Clara a rédigé 3 posts · 1 sur les tendances marché, 1 conseil recrutement, 1 success story</div>
+        </div>
+        <div class="task-right">
+          <div class="task-age">Il y a 2h</div>
+          <button class="task-action-btn btn-view" onclick="event.stopPropagation();goTo('thread')">Voir</button>
+          <button class="task-action-btn btn-approve" onclick="event.stopPropagation()">✓ Approuver</button>
+        </div>
+      </div>
+
+      <div class="task-row urgent">
+        <div class="task-agent-dot" style="background:#E8F5EE">👩</div>
+        <div class="task-content">
+          <div class="task-title">Offre d'emploi — Développeur Python Senior · Paris</div>
+          <div class="task-desc">Sophie a rédigé l'offre complète · Vérifier avant diffusion sur Indeed et LinkedIn</div>
+        </div>
+        <div class="task-right">
+          <div class="task-age">Il y a 4h</div>
+          <button class="task-action-btn btn-view">Voir</button>
+          <button class="task-action-btn btn-approve" onclick="event.stopPropagation()">✓ Approuver</button>
+        </div>
+      </div>
+
+      <div class="task-row urgent">
+        <div class="task-agent-dot" style="background:#E8F5EE">👩</div>
+        <div class="task-content">
+          <div class="task-title">Email de relance — Candidat Martin Dupont · Mission DevOps</div>
+          <div class="task-desc">Sophie veut envoyer un email de relance à Martin Dupont, silencieux depuis 8 jours</div>
+        </div>
+        <div class="task-right">
+          <div class="task-age">Il y a 5h</div>
+          <button class="task-action-btn btn-view">Voir</button>
+          <button class="task-action-btn btn-approve" onclick="event.stopPropagation()">✓ Approuver</button>
+        </div>
+      </div>
+
+      <div class="tasks-section-label" style="margin-top:20px">
+        En cours <span class="tasks-count">5</span>
+      </div>
+
+      <div class="task-row">
+        <div class="task-agent-dot" style="background:#E8F5EE">👩</div>
+        <div class="task-content">
+          <div class="task-title">Qualification CVs — Mission React Senior · Lyon</div>
+          <div class="task-desc">Étape 3/5 · 12 CVs qualifiés sur 23 reçus</div>
+        </div>
+        <div class="task-right">
+          <div class="task-age">En cours</div>
+          <span class="activity-tag tag-running">En cours</span>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="task-agent-dot" style="background:#EBF3FB">👨</div>
+        <div class="task-content">
+          <div class="task-title">Rapport hebdomadaire — Client Buildtech</div>
+          <div class="task-desc">Marc rédige le rapport · Livraison prévue dans 30 min</div>
+        </div>
+        <div class="task-right">
+          <div class="task-age">Démarré il y a 1h</div>
+          <span class="activity-tag tag-running">En cours</span>
+        </div>
+      </div>
+
+      <div class="tasks-section-label" style="margin-top:20px">
+        Terminées aujourd'hui <span class="tasks-count gray">12</span>
+      </div>
+
+      <div class="task-row" style="opacity:.8">
+        <div class="task-agent-dot" style="background:#F7F0FF">📋</div>
+        <div class="task-content">
+          <div class="task-title">Veille marché RH digital — Synthèse hebdo</div>
+          <div class="task-desc">Julien · Terminé à 9h23</div>
+        </div>
+        <div class="task-right">
+          <div class="hi-stars" style="color:#E8AE1A;font-size:12px">★★★★★</div>
+        </div>
+      </div>
+
+      <div class="task-row" style="opacity:.8">
+        <div class="task-agent-dot" style="background:#EBF3FB">👨</div>
+        <div class="task-content">
+          <div class="task-title">Email suivi candidature — Client Innotec</div>
+          <div class="task-desc">Marc · Terminé à 8h47 · Envoyé</div>
+        </div>
+        <div class="task-right">
+          <div class="hi-stars" style="color:#E8AE1A;font-size:12px">★★★★☆</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: THREAD ══ -->
+    <div class="screen" id="screen-thread">
+      <div class="back-btn" onclick="goTo('tasks')">← Travail en cours</div>
+
+      <div class="row mb12">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--ink)">Posts LinkedIn — Semaine du 11 avril</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Clara · Contenu & réseaux · Il y a 2h · <span style="color:var(--amber);font-weight:500">⚠ Attend votre validation</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:6px">
+          <button class="task-action-btn btn-approve" style="padding:8px 18px;font-size:12px" onclick="alert('Posts approuvés ! Clara va planifier la publication.')">✓ Tout approuver</button>
+        </div>
+      </div>
+
+      <div class="thread-container">
+        <div class="thread-main">
+          <div class="thread-messages">
+
+            <div class="message">
+              <div class="msg-avatar" style="background:#FDF3E3">✍️</div>
+              <div class="msg-body">
+                <div class="msg-sender">Clara <span class="msg-time">Il y a 2h</span></div>
+                <div class="msg-bubble agent">
+                  J'ai rédigé 3 posts LinkedIn pour cette semaine selon votre calendrier éditorial. J'ai essayé de varier les formats : un post analytique, un conseil pratique, et un post plus humain avec une success story. Dites-moi si le ton vous convient !
+                </div>
+                <div class="content-preview">
+                  <div class="content-preview-label">📝 Post 1 — Tendances marché</div>
+                  Le marché du recrutement IT connaît une transformation majeure en 2026. 73% des candidats dev senior refusent désormais les offres sans remote partiel. Ce chiffre, en hausse de 18 points depuis 2024, redessine les règles du jeu pour les cabinets...
+                  <div style="color:var(--green);font-size:11px;margin-top:6px;cursor:pointer">Lire le post complet ▼</div>
+                </div>
+                <div class="content-preview">
+                  <div class="content-preview-label">📝 Post 2 — Conseil recrutement</div>
+                  3 questions à poser en entretien pour évaluer vraiment un candidat dev (sans lui demander FizzBuzz). La plupart des recruteurs évaluent les compétences techniques. Peu évaluent la capacité à communiquer dans une équipe non-tech...
+                  <div style="color:var(--green);font-size:11px;margin-top:6px;cursor:pointer">Lire le post complet ▼</div>
+                </div>
+                <div class="approval-actions">
+                  <button class="btn-lg green" onclick="alert('Approuvé ! Clara va planifier les publications.')">✓ Approuver les 3 posts</button>
+                  <button class="btn-lg outline">✎ Demander des modifications</button>
+                  <button class="btn-lg danger">✗ Rejeter</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="message" style="justify-content:flex-end">
+              <div class="msg-body" style="max-width:70%">
+                <div class="msg-sender" style="text-align:right">Vous <span class="msg-time">Il y a 1h</span></div>
+                <div class="msg-bubble" style="border-radius:10px 0 10px 10px;background:var(--ink);color:white;border-color:var(--ink)">
+                  Le post 2 est très bien. Pour le post 1, peut-on mentionner notre spécialisation en recrutement IT Paris/Lyon plutôt que de rester trop générique ?
+                </div>
+              </div>
+            </div>
+
+            <div class="message">
+              <div class="msg-avatar" style="background:#FDF3E3">✍️</div>
+              <div class="msg-body">
+                <div class="msg-sender">Clara <span class="msg-time">Il y a 45 min</span></div>
+                <div class="msg-bubble agent">
+                  Bien sûr ! J'ai révisé le post 1 pour mettre en avant notre positionnement IT Paris/Lyon. J'ai aussi ajouté une mention de nos chiffres de placement 2025 pour renforcer la crédibilité. Voici la version mise à jour :
+                </div>
+                <div class="content-preview">
+                  <div class="content-preview-label">📝 Post 1 — Version révisée</div>
+                  Dans nos missions de recrutement IT sur Paris et Lyon, nous observons une bascule nette : 73% des candidats dev senior refusent désormais les offres sans remote partiel. Ce chiffre, confirmé par nos 47 placements de 2025, redessine les règles...
+                  <div style="color:var(--green);font-size:11px;margin-top:6px;cursor:pointer">Lire la version complète ▼</div>
+                </div>
+                <div class="approval-actions">
+                  <button class="btn-lg green" onclick="alert('Posts approuvés ! Publication planifiée.')">✓ Approuver les 3 posts</button>
+                  <button class="btn-lg outline">✎ Encore une modification</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="thread-input">
+            <input class="thread-input-field" placeholder="Répondre à Clara ou donner une instruction..." />
+            <button class="thread-send">→</button>
+          </div>
+        </div>
+
+        <div class="thread-sidebar">
+          <div class="thread-info-card">
+            <div class="tic-label">Agent</div>
+            <div class="tic-val">Clara · Contenu & réseaux</div>
+          </div>
+          <div class="thread-info-card">
+            <div class="tic-label">Tâche</div>
+            <div class="tic-val">Posts LinkedIn hebdomadaires</div>
+            <div class="tic-val muted" style="margin-top:4px;font-size:11px">Récurrent · Chaque lundi matin</div>
+          </div>
+          <div class="thread-info-card">
+            <div class="tic-label">Statut</div>
+            <div class="tic-val" style="color:var(--amber)">⚠ En attente de validation</div>
+          </div>
+          <div class="thread-info-card">
+            <div class="tic-label">Si approuvé</div>
+            <div class="tic-val muted" style="font-size:11px">Les 3 posts seront planifiés sur LinkedIn pour cette semaine (mar, jeu, sam)</div>
+          </div>
+          <div class="thread-info-card">
+            <div class="tic-label">Score précédent (mars)</div>
+            <div class="tic-val" style="color:#E8AE1A">★★★★☆ · 4.0/5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: CONSOLE ══ -->
+    <div class="screen" id="screen-console">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:16px">Console PDG <span style="font-size:14px;font-weight:400;color:var(--muted);font-family:'DM Sans',sans-serif">— Pilotez votre entreprise en langage naturel</span></div>
+
+      <div class="console-wrap">
+        <div class="console-header">
+          <span style="font-size:16px">◎</span>
+          <div class="console-header-title">Votre équipe IA</div>
+          <div class="console-header-sub">4 agents actifs · 3 en attente de validation</div>
+        </div>
+
+        <div class="console-messages">
+
+          <div class="message">
+            <div class="msg-avatar" style="background:#E8F5EE;font-size:16px">⬡</div>
+            <div class="msg-body">
+              <div class="msg-sender">Votre équipe IA <span class="msg-time">8h32</span></div>
+              <div class="msg-bubble agent">
+                Bonjour Luc ! Ce week-end, votre équipe a complété <strong>47 tâches</strong>. Sophie a qualifié 12 CVs pour la mission React, Marc a envoyé 2 rapports clients, et Clara a préparé les posts LinkedIn de la semaine — ils attendent votre validation.<br><br>
+                <strong>3 actions nécessitent votre attention</strong> ce matin. Souhaitez-vous que je vous les présente ?
+              </div>
+            </div>
+          </div>
+
+          <div class="message" style="justify-content:flex-end">
+            <div class="msg-body" style="max-width:65%">
+              <div class="msg-sender" style="text-align:right">Vous <span class="msg-time">8h34</span></div>
+              <div class="msg-bubble" style="border-radius:10px 0 10px 10px;background:var(--ink);color:white;border-color:var(--ink)">
+                Oui, montre-moi les actions en attente. Et dis-moi combien j'ai dépensé ce mois.
+              </div>
+            </div>
+          </div>
+
+          <div class="message">
+            <div class="msg-avatar" style="background:#E8F5EE;font-size:16px">⬡</div>
+            <div class="msg-body">
+              <div class="msg-sender">Votre équipe IA <span class="msg-time">8h34</span></div>
+              <div class="msg-bubble agent">
+                <strong>Budget ce mois :</strong> €68 consommés sur €399. Vous êtes à 17% de votre enveloppe mensuelle — aucun problème en vue.<br><br>
+                Voici les 3 actions qui attendent votre validation :
+              </div>
+
+              <div class="approval-card">
+                <div class="approval-card-label">⚠ Action 1 — Clara · Contenu</div>
+                <div class="approval-card-title">3 posts LinkedIn rédigés pour cette semaine</div>
+                <div class="approval-card-preview">Posts sur les tendances IT, un conseil recrutement, et une success story. Clara a intégré vos retours de la semaine dernière sur le ton.</div>
+                <div class="approval-btns">
+                  <button class="approval-btn approve" onclick="alert('Approuvé ! Posts planifiés.')">✓ Approuver</button>
+                  <button class="approval-btn modify">Voir le détail</button>
+                  <button class="approval-btn reject">Rejeter</button>
+                </div>
+              </div>
+
+              <div class="approval-card" style="margin-top:8px">
+                <div class="approval-card-label">⚠ Action 2 — Sophie · Sourcing</div>
+                <div class="approval-card-title">Email de relance — Martin Dupont (candidat DevOps)</div>
+                <div class="approval-card-preview">"Bonjour Martin, suite à notre échange du 3 avril, je souhaitais prendre de vos nouvelles concernant votre disponibilité pour..."</div>
+                <div class="approval-btns">
+                  <button class="approval-btn approve" onclick="alert('Email approuvé et envoyé à Martin Dupont.')">✓ Approuver l'envoi</button>
+                  <button class="approval-btn modify">Modifier</button>
+                  <button class="approval-btn reject">Refuser</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="message" style="justify-content:flex-end">
+            <div class="msg-body" style="max-width:65%">
+              <div class="msg-sender" style="text-align:right">Vous <span class="msg-time">8h37</span></div>
+              <div class="msg-bubble" style="border-radius:10px 0 10px 10px;background:var(--ink);color:white;border-color:var(--ink)">
+                Demande à Sophie de sourcer des profils Product Manager avec 5 ans d'expérience SaaS pour un nouveau client à Lyon.
+              </div>
+            </div>
+          </div>
+
+          <div class="message">
+            <div class="msg-avatar" style="background:#E8F5EE;font-size:16px">⬡</div>
+            <div class="msg-body">
+              <div class="msg-sender">Votre équipe IA <span class="msg-time">8h37</span></div>
+              <div class="msg-bubble agent">
+                Mission confiée à Sophie ! Elle va lancer une recherche LinkedIn pour des Product Managers SaaS 5+ ans basés à Lyon ou mobiles sur Lyon. Vous recevrez un premier rapport de sourcing d'ici ce soir.
+                <div style="margin-top:8px;font-size:11px;color:var(--muted)">Besoin de préciser des critères de salaire ou le nom du client ?</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="console-suggestions">
+          <span style="font-size:10px;color:var(--muted);margin-right:4px">Suggestions :</span>
+          <div class="suggestion-chip">Qu'a fait mon équipe cette semaine ?</div>
+          <div class="suggestion-chip">Quelle est la mission prioritaire ?</div>
+          <div class="suggestion-chip">Recrute un agent analyste marché</div>
+          <div class="suggestion-chip">Montre-moi le rapport de Sophie</div>
+        </div>
+
+        <div class="console-input-bar">
+          <input class="console-input" placeholder="Donnez une instruction ou posez une question à votre équipe IA..." />
+          <button class="console-send-btn">→</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: REPORTS ══ -->
+    <div class="screen" id="screen-reports">
+      <div class="row mb12">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400">Rapports & ROI</div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="header-btn">◄ Mars</button>
+          <span style="font-size:12px;font-weight:500">Avril 2026</span>
+          <button class="header-btn">Mai ►</button>
+        </div>
+      </div>
+
+      <div class="roi-highlight">
+        <div class="rh-label">ROI estimé ce mois</div>
+        <div class="rh-val">€431</div>
+        <div class="rh-sub">de valeur créée · vs €86 de coût d'abonnement · ratio 5× <br><span style="opacity:.7;font-size:11px">Calculé sur la base de €35/h chargé × durée moyenne par type de tâche</span></div>
+      </div>
+
+      <div class="reports-kpi-grid">
+        <div class="metric-card">
+          <div class="mc-label">Tâches complétées</div>
+          <div class="mc-val green">847</div>
+          <div class="mc-trend up">↑ +23% vs mars (688)</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">Heures libérées / sem</div>
+          <div class="mc-val">11h</div>
+          <div class="mc-trend up">↑ vs 7h en janvier</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">Score qualité moyen</div>
+          <div class="mc-val">4.3<span style="font-size:16px;color:var(--muted)">/5</span></div>
+          <div class="mc-trend up">↑ +0.2 vs mars</div>
+        </div>
+      </div>
+
+      <table class="agents-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Rôle</th>
+            <th>Tâches</th>
+            <th>Score moyen</th>
+            <th>Coût</th>
+            <th>Valeur estimée</th>
+            <th>Ratio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>👩 Sophie</td>
+            <td style="color:var(--muted)">Sourcing</td>
+            <td>234</td>
+            <td><span style="color:#E8AE1A">★★★★½</span></td>
+            <td>€28</td>
+            <td class="green">€147</td>
+            <td class="green">5.3×</td>
+          </tr>
+          <tr>
+            <td>👨 Marc</td>
+            <td style="color:var(--muted)">Relation client</td>
+            <td>189</td>
+            <td><span style="color:#E8AE1A">★★★★★</span></td>
+            <td>€21</td>
+            <td class="green">€128</td>
+            <td class="green">6.1×</td>
+          </tr>
+          <tr>
+            <td>✍️ Clara</td>
+            <td style="color:var(--muted)">Contenu</td>
+            <td>243</td>
+            <td><span style="color:#E8AE1A">★★★★☆</span></td>
+            <td>€19</td>
+            <td class="green">€89</td>
+            <td class="green">4.7×</td>
+          </tr>
+          <tr>
+            <td>📋 Julien</td>
+            <td style="color:var(--muted)">Admin</td>
+            <td>181</td>
+            <td><span style="color:#E8AE1A">★★★★★</span></td>
+            <td>€18</td>
+            <td class="green">€67</td>
+            <td class="green">3.7×</td>
+          </tr>
+          <tr style="font-weight:600;background:var(--bg)">
+            <td colspan="2">Total équipe IA</td>
+            <td>847</td>
+            <td><span style="color:#E8AE1A">★★★★½</span></td>
+            <td>€86</td>
+            <td class="green">€431</td>
+            <td class="green">5.0×</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card" style="margin-top:14px">
+        <div class="card-head">Simulateur — Si vous embauchiez un humain équivalent</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div style="text-align:center;padding:12px;background:var(--bg);border-radius:10px">
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Chargé de sourcing</div>
+              <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--red)">€3 200</div>
+              <div style="font-size:10px;color:var(--muted)">net · + €1 376 charges</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--bg);border-radius:10px">
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Votre équipe IA</div>
+              <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--green)">€86</div>
+              <div style="font-size:10px;color:var(--muted)">tout inclus ce mois</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--green-light);border-radius:10px;border:1px solid var(--green-border)">
+              <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Économie mensuelle</div>
+              <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--green)">€4 490</div>
+              <div style="font-size:10px;color:var(--green)">pour 4 postes équivalents</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCREEN TABS (navigation mockup) -->
+<div class="screen-tabs">
+  <div class="screen-tab active" id="tab-dashboard" onclick="goTo('dashboard')">Accueil</div>
+  <div class="screen-tab" id="tab-team" onclick="goTo('team')">Équipe IA</div>
+  <div class="screen-tab" id="tab-agent-detail" onclick="goTo('agent-detail')">Profil agent</div>
+  <div class="screen-tab" id="tab-tasks" onclick="goTo('tasks')">Tâches</div>
+  <div class="screen-tab" id="tab-thread" onclick="goTo('thread')">Validation</div>
+  <div class="screen-tab" id="tab-console" onclick="goTo('console')">Console PDG</div>
+  <div class="screen-tab" id="tab-reports" onclick="goTo('reports')">Rapports ROI</div>
+</div>
+
+<script>
+const screens = ['dashboard','team','agent-detail','tasks','thread','console','reports'];
+const breadcrumbs = {
+  'dashboard': 'Accueil',
+  'team': 'Mon équipe IA',
+  'agent-detail': 'Mon équipe IA → Sophie',
+  'tasks': 'Travail en cours',
+  'thread': 'Travail en cours → Posts LinkedIn',
+  'console': 'Console PDG',
+  'reports': 'Rapports & ROI'
+};
+
+const navMap = {
+  'dashboard': 0,
+  'team': 1,
+  'agent-detail': 1,
+  'tasks': 2,
+  'thread': 2,
+  'console': 3,
+  'reports': 4
+};
+
+function goTo(id) {
+  screens.forEach(s => {
+    document.getElementById('screen-' + s).classList.remove('active');
+    document.getElementById('tab-' + s)?.classList.remove('active');
+  });
+
+  const el = document.getElementById('screen-' + id);
+  if (el) {
+    el.classList.add('active');
+    document.getElementById('tab-' + id)?.classList.add('active');
+  }
+
+  document.getElementById('breadcrumb').textContent = breadcrumbs[id] || id;
+
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => n.classList.remove('active'));
+  const navIdx = navMap[id];
+  if (navIdx !== undefined && navItems[navIdx]) {
+    navItems[navIdx].classList.add('active');
+  }
+
+  document.querySelector('.content').scrollTop = 0;
+}
+
+// Animate progress bar on load
+setTimeout(() => {
+  document.querySelectorAll('.progress-fill, .budget-fill, .su-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0';
+    setTimeout(() => { el.style.width = w; }, 100);
+  });
+}, 200);
+</script>
+</body>
+</html>

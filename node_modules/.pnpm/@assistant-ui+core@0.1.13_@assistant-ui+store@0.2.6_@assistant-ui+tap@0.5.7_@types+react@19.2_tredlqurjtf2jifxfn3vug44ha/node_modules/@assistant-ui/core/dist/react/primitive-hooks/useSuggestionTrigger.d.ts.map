@@ -1,0 +1,1 @@
+{"version":3,"file":"useSuggestionTrigger.d.ts","sourceRoot":"","sources":["../../../src/react/primitive-hooks/useSuggestionTrigger.ts"],"names":[],"mappings":"AAGA,MAAM,MAAM,2BAA2B,GAAG;IACxC,MAAM,EAAE,MAAM,CAAC;IACf,IAAI,CAAC,EAAE,OAAO,GAAG,SAAS,CAAC;IAC3B,aAAa,CAAC,EAAE,OAAO,GAAG,SAAS,CAAC;CACrC,CAAC;AAEF,eAAO,MAAM,oBAAoB,GAAI,kCAIlC,2BAA2B;;;CA6B7B,CAAC"}

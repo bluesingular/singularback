@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #fafaf8; color: #1a1a18; padding: 1.5rem; font-size: 13px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e3db; flex-wrap: wrap; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; }
+.tab.active { color: #1a1a18; font-weight: 500; background: #f1efe8; border-color: #e5e3db; }
+.panel { display: none; }
+.panel.active { display: block; }
+.sub { font-size: 11px; color: #888; margin-bottom: 14px; line-height: 1.6; }
+.win-box  { background: #e1f5ee; border: 1px solid #9fe1cb; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #085041; line-height: 1.7; margin-bottom: 14px; }
+.warn-box { background: #faeeda; border: 1px solid #fac775; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #633806; line-height: 1.7; margin-bottom: 14px; }
+.info-box { background: #e6f1fb; border: 1px solid #b5d4f4; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #0c447c; line-height: 1.7; margin-bottom: 14px; }
+
+.verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.verdict-card { border-radius: 14px; padding: 20px; }
+.verdict-card.winner { background: #e1f5ee; border: 2px solid #1d9e75; }
+.verdict-card.second { background: #f1efe8; border: 1px solid #e5e3db; }
+.verdict-badge { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.verdict-name { font-size: 20px; font-weight: 500; margin-bottom: 6px; }
+.verdict-sub { font-size: 11px; color: #666; line-height: 1.5; margin-bottom: 14px; }
+.verdict-score { font-size: 36px; font-weight: 500; margin-bottom: 4px; }
+.verdict-reason { font-size: 11px; padding: 3px 0; display: flex; gap: 6px; line-height: 1.4; }
+.verdict-reason::before { content: "✓"; color: #1d9e75; flex-shrink: 0; font-weight: 600; }
+
+.t { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
+.t th { text-align: left; padding: 7px 10px; background: #f1efe8; font-weight: 500; font-size: 10px; color: #666; }
+.t td { padding: 7px 10px; border-bottom: 1px solid #f0ede6; color: #666; vertical-align: middle; }
+.t tr.winner td { background: #f4fdf9; color: #085041; }
+.t tr.total td { background: #f1efe8; font-weight: 600; color: #1a1a18; }
+.sb-wrap { display: flex; align-items: center; gap: 6px; }
+.sb { width: 55px; height: 6px; background: #f0ede6; border-radius: 3px; flex-shrink: 0; }
+.sf { height: 6px; border-radius: 3px; }
+
+.deep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.deep-card { border-radius: 12px; border: 1px solid #e5e3db; padding: 14px; background: white; }
+.deep-card.hi { border-color: #1d9e75; background: #f4fdf9; }
+.deep-head { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.deep-sub { font-size: 10px; color: #888; margin-bottom: 10px; }
+.ds { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0ede6; font-size: 11px; }
+.ds:last-child { border-bottom: none; }
+.dl { color: #888; }
+.dv { font-weight: 500; }
+.dv.g { color: #1d9e75; }
+.dv.r { color: #e24b4a; }
+.dv.a { color: #854f0b; }
+
+.pack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.pack-week { border-radius: 10px; border: 1px solid #e5e3db; padding: 12px 14px; background: white; }
+.pw-head { font-size: 11px; font-weight: 500; margin-bottom: 3px; }
+.pw-sub { font-size: 10px; color: #888; margin-bottom: 8px; }
+.pi { font-size: 11px; color: #666; padding: 2px 0; line-height: 1.4; display: flex; gap: 5px; }
+.pi::before { content: "·"; color: #aaa; flex-shrink: 0; }
+
+.road-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 14px; }
+.road-item { display: flex; gap: 14px; }
+.rl { display: flex; flex-direction: column; align-items: center; min-width: 36px; }
+.rd { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.rc { width: 2px; flex: 1; margin: 3px 0; min-height: 20px; background: #e5e3db; }
+.rcont { padding-bottom: 24px; flex: 1; }
+.rphase { font-size: 10px; color: #888; margin-bottom: 4px; }
+.rtitle { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.rdesc { font-size: 11px; color: #666; line-height: 1.5; }
+.rpills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.rpill { font-size: 10px; padding: 2px 8px; border-radius: 8px; border: 1px solid #e5e3db; background: white; color: #666; }
+</style></head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('verdict')">Verdict</div>
+  <div class="tab" onclick="show('scoring')">Scoring détaillé</div>
+  <div class="tab" onclick="show('recrutement')">Pourquoi recrutement</div>
+  <div class="tab" onclick="show('build')">Build du pack</div>
+  <div class="tab" onclick="show('go')">Plan 90 jours</div>
+</div>
+
+<div class="panel active" id="tab-verdict">
+  <p class="sub">5 critères pondérés pour un démarrage rapide. Ce n'est pas le plus grand marché qui gagne — c'est celui où vous closez les 10 premiers clients en 30 jours.</p>
+  <div class="verdict">
+    <div class="verdict-card winner">
+      <div class="verdict-badge" style="color:#1d9e75"><span style="width:8px;height:8px;border-radius:50%;background:#1d9e75;display:inline-block"></span>Recommandation #1 — Premier domaine</div>
+      <div class="verdict-name">Cabinets de recrutement</div>
+      <div class="verdict-sub">~2 000 cabinets en France, 80% moins de 5 salariés. 20% de faillites récentes. Pain existentiel, ROI immédiat, workflows ultra-répétitifs.</div>
+      <div class="verdict-score" style="color:#1d9e75">8.4<span style="font-size:18px">/10</span></div>
+      <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Score démarrage rapide</div>
+      <div class="verdict-reason">20% faillites récentes → urgence réelle, ils cherchent une solution</div>
+      <div class="verdict-reason">1 placement = €5-12k → abonnement annuel rentabilisé en 1 jour</div>
+      <div class="verdict-reason">Non-techniques : ne vont pas DIY avec ChatGPT</div>
+      <div class="verdict-reason">Workflows ultra-clairs : sourcing, CVs, offres, suivi = répétitif</div>
+      <div class="verdict-reason">Fondateur = décideur, pas de DSI, pas de comité</div>
+      <div class="verdict-reason">Canal direct : LinkedIn recruteurs, SYNTEC, Prism'emploi</div>
+    </div>
+    <div class="verdict-card second">
+      <div class="verdict-badge" style="color:#888"><span style="width:8px;height:8px;border-radius:50%;background:#888;display:inline-block"></span>Recommandation #2 — J+90</div>
+      <div class="verdict-name">Agences marketing / comm</div>
+      <div class="verdict-sub">~18 400 agences indépendantes. Pack déjà 80% prêt (12 SKILL.md CMO existants). 1 semaine de build au lieu de 3.</div>
+      <div class="verdict-score" style="color:#888">7.6<span style="font-size:18px;color:#aaa">/10</span></div>
+      <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Score démarrage rapide</div>
+      <div class="verdict-reason" style="color:#666">Pack 80% construit → 1 semaine de build seulement</div>
+      <div class="verdict-reason" style="color:#666">Marché 9× plus grand (18 400 vs 2 000)</div>
+      <div class="verdict-reason" style="color:#666">€399 = moins de 2h facturables → ROI évident</div>
+      <div class="verdict-reason" style="color:#666">3× plus de contenu sans embauche = argument direct</div>
+      <div style="font-size:11px;color:#e24b4a;padding:3px 0;display:flex;gap:5px"><span>⚠</span>Déjà utilisateurs de ChatGPT — ICP plus difficile à convaincre</div>
+      <div style="font-size:11px;color:#e24b4a;padding:3px 0;display:flex;gap:5px"><span>⚠</span>Pression budgets clients en 2026 — décisions plus lentes</div>
+    </div>
+  </div>
+  <div class="warn-box"><strong>Pourquoi PAS l'immobilier en premier :</strong> 1 232 fermetures en 2024, trésorerie très comprimée. Le rebond s'amorce en 2026 mais les décisions d'achat tech restent prudentes. À attaquer en vertical 3, avec des références des deux premiers.</div>
+  <div class="info-box"><strong>La logique du choix :</strong> Pour démarrer vite, le critère #1 n'est pas la taille du marché — c'est la vitesse à laquelle vous closez les 10 premiers. Un cabinet de recrutement ferme en 1 semaine si vous lui montrez que ses agents IA qualifient 50 CVs pendant qu'il déjeune avec un client. Ce n'est pas une décision IT — c'est une décision de survie. Ça se close au téléphone.</div>
+</div>
+
+<div class="panel" id="tab-scoring">
+  <p class="sub">5 critères pondérés. Chaque critère noté /10. Poids : douleur 25%, ROI 25%, facilité pack 20%, canal 15%, budget/décision 15%.</p>
+  <table class="t">
+    <thead>
+      <tr><th>Critère</th><th>Poids</th><th style="color:#1d9e75">Recrutement</th><th>Marketing</th><th>Immobilier</th><th>Experts-comptables</th></tr>
+    </thead>
+    <tbody>
+      <tr class="winner">
+        <td><strong>Douleur immédiate</strong><br><span style="font-size:10px;color:#888;font-weight:400">Le prospect achète maintenant ?</span></td>
+        <td>25%</td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:90%;background:#1d9e75"></div></div>9/10</div><div style="font-size:9px;color:#1d9e75">20% faillites, sourcing impossible</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:70%;background:#ef9f27"></div></div>7/10</div><div style="font-size:9px;color:#888">Pression clients, concurrence IA</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:65%;background:#ef9f27"></div></div>6.5/10</div><div style="font-size:9px;color:#888">Crise mais trésorerie tendue</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:50%;background:#888"></div></div>5/10</div><div style="font-size:9px;color:#888">Douleur réelle, pas urgente</div></td>
+      </tr>
+      <tr class="winner">
+        <td><strong>ROI mesurable < 7 jours</strong><br><span style="font-size:10px;color:#888;font-weight:400">Valeur visible immédiatement ?</span></td>
+        <td>25%</td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:95%;background:#1d9e75"></div></div>9.5/10</div><div style="font-size:9px;color:#1d9e75">1 placement = 12-30 mois d'abonnement</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:80%;background:#ef9f27"></div></div>8/10</div><div style="font-size:9px;color:#888">3× contenu = CA facturé direct</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:55%;background:#888"></div></div>5.5/10</div><div style="font-size:9px;color:#888">Lent : délai mandats → commissions</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:55%;background:#888"></div></div>5.5/10</div><div style="font-size:9px;color:#888">Économies lentes à matérialiser</div></td>
+      </tr>
+      <tr class="winner">
+        <td><strong>Facilité build pack</strong><br><span style="font-size:10px;color:#888;font-weight:400">Délai avant pack testable ?</span></td>
+        <td>20%</td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:85%;background:#1d9e75"></div></div>8.5/10</div><div style="font-size:9px;color:#1d9e75">Workflows clairs, 3 semaines</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:95%;background:#1d9e75"></div></div>9.5/10</div><div style="font-size:9px;color:#1d9e75">12 skills déjà écrits → 1 semaine</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:65%;background:#ef9f27"></div></div>6.5/10</div><div style="font-size:9px;color:#888">Workflows variés, réglementaire</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:50%;background:#888"></div></div>5/10</div><div style="font-size:9px;color:#888">Très réglementé, validation lente</div></td>
+      </tr>
+      <tr class="winner">
+        <td><strong>Accès réseau / canal</strong><br><span style="font-size:10px;color:#888;font-weight:400">10 clients en 30j possible ?</span></td>
+        <td>15%</td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:85%;background:#1d9e75"></div></div>8.5/10</div><div style="font-size:9px;color:#1d9e75">LinkedIn recruteurs = canal direct</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:75%;background:#ef9f27"></div></div>7.5/10</div><div style="font-size:9px;color:#888">SYNTEC, LinkedIn communautés</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:70%;background:#ef9f27"></div></div>7/10</div><div style="font-size:9px;color:#888">FNAIM puissant mais lent</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:60%;background:#888"></div></div>6/10</div><div style="font-size:9px;color:#888">OEC puissant, cycle long</div></td>
+      </tr>
+      <tr class="winner">
+        <td><strong>Budget dispo + décision rapide</strong><br><span style="font-size:10px;color:#888;font-weight:400">Signent vite, sans comité ?</span></td>
+        <td>15%</td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:85%;background:#1d9e75"></div></div>8.5/10</div><div style="font-size:9px;color:#1d9e75">Fondateur décideur, €399 = 1h de comm</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:80%;background:#ef9f27"></div></div>8/10</div><div style="font-size:9px;color:#888">Tech-savvy, décident vite</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:45%;background:#e24b4a"></div></div>4.5/10</div><div style="font-size:9px;color:#e24b4a">Trésorerie comprimée 2024-2025</div></td>
+        <td><div class="sb-wrap"><div class="sb"><div class="sf" style="width:40%;background:#e24b4a"></div></div>4/10</div><div style="font-size:9px;color:#e24b4a">Conservateurs, cycles longs</div></td>
+      </tr>
+      <tr class="total">
+        <td colspan="2"><strong>Score pondéré final</strong></td>
+        <td style="color:#1d9e75;font-size:15px">8.4 / 10</td>
+        <td>7.6 / 10</td>
+        <td>5.9 / 10</td>
+        <td>5.2 / 10</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="panel" id="tab-recrutement">
+  <p class="sub">Pourquoi les cabinets de recrutement sont le terrain parfait en 2026.</p>
+  <div class="deep-grid">
+    <div class="deep-card hi">
+      <div class="deep-head">Le marché en chiffres</div>
+      <div class="deep-sub">France, 2026 — sources: Apec, Xerfi, outil4staffing</div>
+      <div class="ds"><span class="dl">Cabinets actifs</span><span class="dv g">~2 000</span></div>
+      <div class="ds"><span class="dl">Moins de 5 salariés</span><span class="dv g">80%</span></div>
+      <div class="ds"><span class="dl">Faillites ces 3 ans</span><span class="dv r">20%</span></div>
+      <div class="ds"><span class="dl">Marché total France</span><span class="dv">€1,7 Md</span></div>
+      <div class="ds"><span class="dl">Commission / placement</span><span class="dv g">10-25% salaire brut</span></div>
+      <div class="ds"><span class="dl">Délai moyen recrutement cadre</span><span class="dv r">12 semaines</span></div>
+      <div class="ds"><span class="dl">1 recrutement sur 2 "difficile"</span><span class="dv r">57,4%</span></div>
+      <div class="ds"><span class="dl">Marché IA recrutement en France</span><span class="dv g">Quasi vierge</span></div>
+    </div>
+    <div class="deep-card">
+      <div class="deep-head">Pourquoi c'est non-technique</div>
+      <div class="deep-sub">ICP idéal pour une plateforme zéro-code</div>
+      <div class="ds"><span class="dl">Fondateurs = consultants RH, pas ingénieurs</span><span class="dv g">✓</span></div>
+      <div class="ds"><span class="dl">Pas d'équipe IT interne</span><span class="dv g">✓</span></div>
+      <div class="ds"><span class="dl">Ne vont pas DIY avec ChatGPT</span><span class="dv g">✓</span></div>
+      <div class="ds"><span class="dl">Déjà abonnés à LinkedIn Recruiter (€100/mois)</span><span class="dv g">✓</span></div>
+      <div class="ds"><span class="dl">Décision = 1 personne</span><span class="dv g">✓</span></div>
+      <div class="ds"><span class="dl">Pas de cycle d'approbation IT</span><span class="dv g">✓</span></div>
+      <div class="ds"><span class="dl">Contexte "survie" → achète vite</span><span class="dv g">✓</span></div>
+    </div>
+    <div class="deep-card">
+      <div class="deep-head">Les 5 tâches qui changent leur vie</div>
+      <div class="deep-sub">Valeur visible dès le jour 1</div>
+      <div class="ds"><span class="dl">Qualifier 30 CVs</span><span class="dv g">2h → 10 min</span></div>
+      <div class="ds"><span class="dl">Rédiger une offre d'emploi</span><span class="dv g">2h → 2 min</span></div>
+      <div class="ds"><span class="dl">10 emails suivi candidats</span><span class="dv g">1h → 5 min</span></div>
+      <div class="ds"><span class="dl">Rapport hebdo client automatique</span><span class="dv g">3h → 0 min</span></div>
+      <div class="ds"><span class="dl">Veille salaires du secteur</span><span class="dv g">½j → 30 min</span></div>
+    </div>
+    <div class="deep-card">
+      <div class="deep-head">L'argument de vente en une phrase</div>
+      <div class="deep-sub">À dire mot pour mot en démo</div>
+      <div style="font-size:12px;line-height:1.6;color:#1a1a18;font-style:italic;padding:8px 0">"Un placement de cadre rapporte en moyenne €9 000 à votre cabinet. Si nos agents vous permettent de faire 1 placement supplémentaire par mois en réduisant le délai de présentation, vous remboursez votre abonnement annuel complet en 7 heures de travail de vos agents."</div>
+      <div style="font-size:10px;color:#888;margin-top:8px">€399 × 12 = €4 788 / an. €9 000 commission = 1,88 placement supplémentaire nécessaire sur l'année.</div>
+    </div>
+  </div>
+  <div class="warn-box"><strong>Le seul vrai risque :</strong> RGPD candidats. Les CVs sont des données personnelles. Vos agents qui traitent des CVs doivent tourner sur Mistral EU exclusivement — jamais DeepSeek. C'est à la fois une obligation légale et votre argument de vente : "conformes RGPD by design, données candidats hébergées en France."</div>
+</div>
+
+<div class="panel" id="tab-build">
+  <p class="sub">3 semaines pour un pack cabinets de recrutement testé et prêt à vendre.</p>
+  <div class="pack-grid">
+    <div class="pack-week">
+      <div class="pw-head">Semaine 1 — Terrain</div>
+      <div class="pw-sub">Vous n'écrivez pas de code</div>
+      <div class="pi">Interviewer 3 fondateurs de cabinets (réseau perso, 1h chacun)</div>
+      <div class="pi">Questions : quelles tâches prennent le plus de temps ?</div>
+      <div class="pi">Questions : quels emails rédigez-vous 10× par semaine ?</div>
+      <div class="pi">Questions : quels rapports envoyez-vous aux clients ?</div>
+      <div class="pi">Questions : quelles erreurs à ne jamais faire ?</div>
+      <div class="pi">Cartographier les 5 workflows les plus répétitifs</div>
+      <div class="pi">Rédiger pack.json + onboarding.json</div>
+      <div class="pi">Identifier 2-3 candidats design partners</div>
+    </div>
+    <div class="pack-week">
+      <div class="pw-head">Semaine 2 — Skills</div>
+      <div class="pw-sub">8 skills à rédiger et tester</div>
+      <div class="pi">redaction-offre-emploi (T1 — Mistral Small)</div>
+      <div class="pi">qualification-cv (T2 — Mistral Medium, GDPR)</div>
+      <div class="pi">sourcing-candidats (T2 — Mistral Medium)</div>
+      <div class="pi">suivi-candidat (T1 — Mistral Small)</div>
+      <div class="pi">relance-candidat (T1 — Mistral Small)</div>
+      <div class="pi">email-client-suivi (T1 — Mistral Small)</div>
+      <div class="pi">rapport-hebdo-client (T2 — Mistral Medium)</div>
+      <div class="pi">veille-marche-emploi (T2 — Mistral Medium)</div>
+      <div class="pi">Tester chaque skill sur 5 inputs réels</div>
+    </div>
+    <div class="pack-week">
+      <div class="pw-head">Semaine 3 — Test 20 min</div>
+      <div class="pw-sub">Valider avant de vendre</div>
+      <div class="pi">Installer le pack sur instance test</div>
+      <div class="pi">Simuler l'onboarding complet (vous jouez le client)</div>
+      <div class="pi">Vérifier : 5 agents actifs en &lt; 20 min</div>
+      <div class="pi">Tester : qualifier 10 CVs → output satisfaisant ?</div>
+      <div class="pi">Tester : rédiger offre d'emploi → publiable ?</div>
+      <div class="pi">Tester : rapport hebdo → envoyable au client ?</div>
+      <div class="pi">Si &lt; 80% satisfaction : itérer les skills</div>
+      <div class="pi">Si ≥ 80% : pack ready → commencer la vente</div>
+    </div>
+  </div>
+  <div class="info-box"><strong>Les 5 agents du pack recrutement :</strong> Chargé(e) de sourcing · Chargé(e) de relation client · Chargé(e) de contenu (LinkedIn, newsletter) · Analyste marché (salaires, tendances) · Assistant administratif (emails entrants, agenda)</div>
+</div>
+
+<div class="panel" id="tab-go">
+  <p class="sub">Plan 90 jours pour 10 clients payants. Pas de marketing, pas de budget, juste de l'exécution.</p>
+  <div class="road-list">
+    <div class="road-item">
+      <div class="rl"><div class="rd" style="background:#378add"></div><div class="rc"></div></div>
+      <div class="rcont">
+        <div class="rphase">J1–21 · Semaines 1-3</div>
+        <div class="rtitle">Build du pack + 3 interviews terrain</div>
+        <div class="rdesc">Interviewez 3 fondateurs de cabinets via réseau perso. Rédigez et testez les 8 skills. Validez le test des 20 minutes. Identifiez 2-3 candidats design partners parmi vos interviewés.</div>
+        <div class="rpills"><span class="rpill">3 interviews</span><span class="rpill">8 SKILL.md</span><span class="rpill">Test 20 min validé</span></div>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="rl"><div class="rd" style="background:#1d9e75"></div><div class="rc"></div></div>
+      <div class="rcont">
+        <div class="rphase">J22–35 · Semaines 4-5</div>
+        <div class="rtitle">3 design partners activés — 40% off</div>
+        <div class="rdesc">Onboardez les 3 meilleurs candidats identifiés. 40% de remise sur 6 mois contre feedback hebdo. Vous onboardez chaque client personnellement. Objectif : Gmail connecté + premier heartbeat tourné pour chacun.</div>
+        <div class="rpills"><span class="rpill">3 clients actifs</span><span class="rpill">€720/mois MRR</span><span class="rpill">Feedback hebdo</span></div>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="rl"><div class="rd" style="background:#ef9f27"></div><div class="rc"></div></div>
+      <div class="rcont">
+        <div class="rphase">J36–60 · Semaines 6-9</div>
+        <div class="rtitle">Première étude de cas chiffrée</div>
+        <div class="rdesc">Améliorez les skills sur retours réels. Collectez les premières métriques clients ("avant / après"). Un placement supplémentaire grâce à l'agent sourcing = votre première étude de cas. Prospectez 50 fondateurs/semaine sur LinkedIn avec cette étude de cas.</div>
+        <div class="rpills"><span class="rpill">1 étude de cas chiffrée</span><span class="rpill">50 prospects/semaine</span><span class="rpill">Skills v2</span></div>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="rl"><div class="rd" style="background:#7f77dd"></div><div class="rc"></div></div>
+      <div class="rcont">
+        <div class="rphase">J61–90 · Semaines 10-13</div>
+        <div class="rtitle">10 clients payants — €3 990 MRR</div>
+        <div class="rdesc">Design partners passent plein tarif. 7 nouveaux clients via LinkedIn + références. Publiez l'étude de cas LinkedIn. Premier contact avec SYNTEC ou Prism'emploi pour partenariat. Démarrez le build du pack marketing (1 semaine grâce aux 12 skills existants).</div>
+        <div class="rpills"><span class="rpill">10 clients</span><span class="rpill">€3 990/mois MRR</span><span class="rpill">Étude de cas publiée</span><span class="rpill">Pack marketing démarré</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="background:white;border:1px solid #e5e3db;border-radius:12px;padding:14px 16px;font-size:12px;line-height:1.6">
+    <strong>Le signal de validation :</strong> Si vous ne trouvez pas 3 cabinets prêts à payer (même 40% de remise) via réseau perso en 21 jours, le pitch est mauvais ou votre réseau est hors-cible. Stoppez, interviewez 5 autres fondateurs, comprenez pourquoi. Ne passez jamais à la phase 2 sans avoir résolu ce signal.
+  </div>
+</div>
+
+<script>
+function show(id) {
+  const ids = ['verdict','scoring','recrutement','build','go'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

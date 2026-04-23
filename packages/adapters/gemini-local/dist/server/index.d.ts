@@ -1,0 +1,7 @@
+export { execute } from "./execute.js";
+export { listGeminiSkills, syncGeminiSkills } from "./skills.js";
+export { testEnvironment } from "./test.js";
+export { parseGeminiJsonl, isGeminiUnknownSessionError, describeGeminiFailure, detectGeminiAuthRequired, isGeminiTurnLimitResult, } from "./parse.js";
+import type { AdapterSessionCodec } from "@paperclipai/adapter-utils";
+export declare const sessionCodec: AdapterSessionCodec;
+//# sourceMappingURL=index.d.ts.map

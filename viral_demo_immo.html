@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #0a0d0f; color: #f0ede6; padding: 1.5rem; font-size: 13px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; }
+.tab { padding: 7px 14px; font-size: 12px; cursor: pointer; color: #555; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; transition: all .15s; }
+.tab:hover { color: #aaa; }
+.tab.active { color: #f0ede6; font-weight: 500; background: #141618; border-color: rgba(255,255,255,0.08); }
+.panel { display: none; }
+.panel.active { display: block; }
+.sub { font-size: 11px; color: #555; margin-bottom: 14px; line-height: 1.6; }
+
+.win  { background: rgba(29,158,104,0.1); border: 1px solid rgba(29,158,104,0.25); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #4dd99a; line-height: 1.7; margin-bottom: 14px; }
+.warn { background: rgba(212,130,26,0.1); border: 1px solid rgba(212,130,26,0.25); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #f0a030; line-height: 1.7; margin-bottom: 14px; }
+.info { background: rgba(55,138,221,0.1); border: 1px solid rgba(55,138,221,0.25); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #78b8f2; line-height: 1.7; margin-bottom: 14px; }
+.fire { background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.25); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #f07878; line-height: 1.7; margin-bottom: 14px; }
+.purple { background: rgba(127,119,221,0.1); border: 1px solid rgba(127,119,221,0.25); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #a39fe0; line-height: 1.7; margin-bottom: 14px; }
+
+/* FORMULA */
+.formula { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; padding: 16px; background: #141618; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+.fp { font-size: 13px; font-weight: 500; color: #f0ede6; padding: 8px 14px; border-radius: 8px; }
+.fo { font-size: 18px; color: #444; }
+
+/* VERSUS */
+.versus { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.vs-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: #141618; padding: 14px; }
+.vs-head { font-size: 11px; font-weight: 500; margin-bottom: 8px; }
+.vs-item { font-size: 11px; color: #777; line-height: 1.6; padding: 2px 0; }
+
+/* TIMELINE */
+.tl { display: flex; flex-direction: column; gap: 0; margin-bottom: 14px; }
+.tl-item { display: flex; gap: 14px; }
+.tl-left { display: flex; flex-direction: column; align-items: center; min-width: 72px; }
+.tl-tc { font-size: 10px; color: #4dd99a; font-family: monospace; margin-bottom: 5px; white-space: nowrap; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tl-conn { width: 1px; flex: 1; margin: 3px 0; min-height: 14px; background: rgba(255,255,255,0.07); }
+.tl-body { padding-bottom: 20px; flex: 1; }
+.tl-title { font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #f0ede6; }
+.tl-scene { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #777; font-style: italic; line-height: 1.6; margin-bottom: 6px; }
+.tl-voice { border-left: 2px solid #4dd99a; padding: 6px 10px; font-size: 12px; color: #ccc; line-height: 1.5; font-style: italic; margin-bottom: 6px; }
+.tl-hook { font-size: 10px; color: #4dd99a; background: rgba(29,158,104,0.06); border-radius: 6px; padding: 6px 10px; line-height: 1.5; }
+
+/* GROWTH GRID */
+.growth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.gc { border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: #141618; padding: 14px; }
+.gc.hot { border-color: rgba(29,158,104,0.35); }
+.gc-head { font-size: 12px; font-weight: 500; margin-bottom: 4px; color: #f0ede6; }
+.gc-sub { font-size: 10px; color: #555; margin-bottom: 10px; }
+.gi { font-size: 11px; color: #777; padding: 3px 0; line-height: 1.5; display: flex; gap: 6px; }
+.gi::before { content: "→"; color: #4dd99a; flex-shrink: 0; }
+.gi.h { color: #ccc; }
+.gi.h::before { color: #f0a030; content: "★"; }
+
+/* CALENDAR */
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 14px; }
+.cal-head { font-size: 9px; color: #555; text-align: center; padding: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.cal-day { background: #141618; border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 8px 6px; min-height: 64px; }
+.cal-day.active { border-color: rgba(29,158,104,0.4); background: rgba(29,158,104,0.06); }
+.cal-day.hot { border-color: rgba(212,130,26,0.5); background: rgba(212,130,26,0.06); }
+.cal-num { font-size: 10px; color: #555; margin-bottom: 4px; }
+.cal-action { font-size: 9px; color: #ccc; line-height: 1.4; }
+.cal-tag { font-size: 8px; color: #4dd99a; margin-top: 2px; }
+
+/* POSTS */
+.post-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: #141618; padding: 16px; margin-bottom: 10px; }
+.post-plat { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.post-body { font-size: 12px; color: #ccc; line-height: 1.8; white-space: pre-line; }
+.post-note { font-size: 10px; color: #4dd99a; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.mc { border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: #141618; padding: 12px; text-align: center; }
+.mn { font-size: 20px; font-weight: 500; color: #4dd99a; margin-bottom: 2px; }
+.ml { font-size: 10px; color: #555; line-height: 1.3; }
+
+/* DIFF TABLE */
+.diff { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
+.diff th { text-align: left; padding: 7px 10px; background: rgba(255,255,255,0.04); font-weight: 500; font-size: 10px; color: #555; }
+.diff td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #777; }
+.diff td:first-child { color: #ccc; font-weight: 500; }
+.diff td.g { color: #4dd99a; }
+.diff td.a { color: #f0a030; }
+</style></head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('concept')">Le concept</div>
+  <div class="tab" onclick="show('script')">Script seconde par seconde</div>
+  <div class="tab" onclick="show('vs')">Différences vs Recrutement</div>
+  <div class="tab" onclick="show('growth')">Growth hacking plan</div>
+  <div class="tab" onclick="show('cal')">Calendrier 30 jours</div>
+  <div class="tab" onclick="show('posts')">Posts & textes viraux</div>
+</div>
+
+<!-- CONCEPT -->
+<div class="panel active" id="tab-concept">
+  <p class="sub">La même formule que pour le recrutement — mais adaptée à un secteur plus grand, une douleur différente, et un angle unique : la gestion locative. C'est là que se trouve l'argent et le pain le plus aigu.</p>
+
+  <div class="formula">
+    <div class="fp" style="background:rgba(226,75,74,0.15)">😤 Gestionnaire noyé sous les emails locataires</div>
+    <div class="fo">+</div>
+    <div class="fp" style="background:rgba(55,138,221,0.15)">😮 Tout géré pendant la nuit, propriétaires satisfaits</div>
+    <div class="fo">+</div>
+    <div class="fp" style="background:rgba(29,158,104,0.15)">😌 Agence qui grandit sans embaucher</div>
+    <div class="fo">=</div>
+    <div class="fp" style="background:rgba(29,158,104,0.25);color:#4dd99a">🔥 Viral parmi les 30 000 agences indépendantes</div>
+  </div>
+
+  <div class="win">
+    <strong>Le titre du concept :</strong> "200 emails. 3 personnes. Et personne n'a travaillé la nuit."<br><br>
+    Thomas gère 180 lots avec 2 collaboratrices. En 2024, les emails ont explosé : demandes de quittances, signalements de fuites, renégociations de loyer, DPE à programmer... La nuit dernière, ses agents IA ont tout traité. Ce matin, sa boîte mail est propre. Ses propriétaires ont reçu leurs rapports. Deux loyers impayés ont été relancés. Et une nouvelle annonce de location est en ligne.
+  </div>
+
+  <div class="versus">
+    <div class="vs-card" style="border-color:rgba(226,75,74,0.25)">
+      <div class="vs-head" style="color:#f07878">Acte 1 — Le vendredi soir qu'on reconnaît (0:00–0:20)</div>
+      <div class="vs-item">Thomas quitte le bureau à 19h. Sur son téléphone : 34 emails non traités, dont une urgence fuite d'eau reçue à 18h47.</div>
+      <div class="vs-item">Notification : Mme Lefebvre veut sa quittance de septembre. M. Diop demande où en est son dépôt de garantie.</div>
+      <div class="vs-item">Tableau blanc derrière lui : 7 post-its en rouge. Il soupire. Il éteint la lumière.</div>
+      <div class="vs-item" style="color:#f07878;margin-top:8px;font-style:italic">"Chaque propriétaire ou gestionnaire en France se voit dans ce plan. C'est lui en 2023."</div>
+    </div>
+    <div class="vs-card" style="border-color:rgba(29,158,104,0.25)">
+      <div class="vs-head" style="color:#4dd99a">Acte 2 — Le lundi matin impossible (0:20–1:15)</div>
+      <div class="vs-item">Thomas arrive lundi à 8h45. Il ouvre son ordinateur. Il fronce les sourcils.</div>
+      <div class="vs-item">Boîte mail : 3 emails non lus. Pas 34. Trois.</div>
+      <div class="vs-item">Il ouvre la plateforme. Son agent de gestion locative a tourné tout le week-end.</div>
+      <div class="vs-item">Quittances de septembre : envoyées automatiquement le 1er. 180 propriétaires informés. 2 relances loyers impayés parties samedi à 9h.</div>
+      <div class="vs-item">La fuite d'eau : un plombier a été contacté vendredi soir via l'intégration. RDV confirmé pour lundi 10h.</div>
+      <div class="vs-item" style="color:#4dd99a;margin-top:8px;font-style:italic">"Le wow n'est pas l'IA — c'est que Thomas a passé un week-end tranquille pour la première fois depuis 4 ans."</div>
+    </div>
+  </div>
+
+  <div class="fire">
+    <strong>Pourquoi ce concept est encore plus fort que le recrutement :</strong><br><br>
+    <strong>L'immobilier touche tout le monde.</strong> Votre audience LinkedIn n'est pas que des agents immobiliers — ce sont aussi des propriétaires, des locataires, des notaires, des syndics. Ils comprennent tous la douleur. Le post sera partagé bien au-delà du secteur.<br><br>
+    <strong>La gestion locative ne s'arrête jamais.</strong> Un cabinet de recrutement travaille en semaine. Une agence de gestion locative reçoit des urgences le dimanche à 23h. L'angle "le week-end tranquille" résonne émotionnellement d'une façon que peu de sujets B2B atteignent.<br><br>
+    <strong>Les chiffres sont plus parlants.</strong> "180 quittances envoyées" est plus concret que "23 CVs qualifiés". Tout le monde comprend ce que c'est d'envoyer 180 emails.
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<div class="panel" id="tab-script">
+  <p class="sub">90 secondes. 3 moments impossibles. Zéro montage artificiel. Thomas filme lui-même — et c'est exactement ce qui le rend crédible.</p>
+
+  <div class="tl">
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">0:00–0:05</div>
+        <div class="tl-dot" style="background:#e24b4a"></div>
+        <div class="tl-conn"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">L'ouverture : vendredi soir, le téléphone</div>
+        <div class="tl-scene">Plan sur le téléphone de Thomas, tenu à la main. Il scroll ses notifications. On voit : "34 emails", "Mme Lefebvre : quittance svp", "URGENT fuite appt 12B rue des Lilas". Son pouce s'arrête. Il ne répond pas. Il pose le téléphone sur le bureau. Fondu.</div>
+        <div class="tl-voice">[Silence. Pas de voix. Le bruit ambiant du bureau suffit.]</div>
+        <div class="tl-hook">Le spectateur reconnaît ce geste. Poser son téléphone parce qu'on ne peut plus. C'est universel. L'intro dure 5 secondes et 3 000 propriétaires ont déjà arrêté de scroller.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">0:05–0:15</div>
+        <div class="tl-dot" style="background:#e24b4a"></div>
+        <div class="tl-conn"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">La réalité — 3 plans rapides</div>
+        <div class="tl-scene">
+          Plan 1 (3s) : Excel "Loyers septembre" — colonne rouge "En attente" avec 7 lignes surlignées.<br>
+          Plan 2 (3s) : Gmail — sujet "RE: Fuite eau appartement 12B" — fil de 6 emails depuis jeudi.<br>
+          Plan 3 (4s) : Agenda Google — lundi matin : 9h client, 10h visite, 14h état des lieux. Post-it collé : "quittances !!!"
+        </div>
+        <div class="tl-voice">"C'était ma réalité tous les vendredis. Jusqu'à il y a 3 semaines."</div>
+        <div class="tl-hook">Les 3 plans montrent 3 pains différents. L'Excel = charge administrative. Le fil d'emails = urgences sans fin. L'agenda = plus de temps. Chaque plan touche un profil différent dans l'audience.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">0:15–0:22</div>
+        <div class="tl-dot" style="background:#ef9f27"></div>
+        <div class="tl-conn"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">Le pivot</div>
+        <div class="tl-scene">Thomas est maintenant à son bureau, lundi matin. Il est calme — pas stressé. Il ouvre un onglet. On voit brièvement le logo de la plateforme. Il sourit légèrement.</div>
+        <div class="tl-voice">"Ce lundi matin, j'avais laissé mes agents tourner tout le week-end. Voilà ce que j'ai trouvé en arrivant."</div>
+        <div class="tl-hook">Le "j'avais laissé tourner tout le week-end" est le déclencheur de curiosité. Le spectateur veut savoir ce que ça veut dire.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">0:22–0:40</div>
+        <div class="tl-dot" style="background:#1d9e75"></div>
+        <div class="tl-conn"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">🔥 Wow #1 — Les 180 quittances envoyées (avec preuve)</div>
+        <div class="tl-scene">
+          Écran plateforme — section "Tâches effectuées ce week-end".<br>
+          Thomas clique sur "Quittances septembre". On voit : 180 quittances générées et envoyées. Timestamps : 01/09 à 08h00 (l'agent a tourné automatiquement le 1er du mois à l'heure programmée).<br>
+          <br>
+          Il clique sur une quittance au hasard — celle de Mme Lefebvre. On voit l'email envoyé vendredi 1er à 8h01 : personnalisé, avec son nom, le montant, le mois. Elle a déjà répondu : "Merci, bonne journée !"<br>
+          <br>
+          Thomas scroll. 3 locataires ont eu des problèmes de paiement. L'agent a envoyé des relances personnalisées samedi à 9h — avec le bon ton, pas un mail automatique générique.
+        </div>
+        <div class="tl-voice">"180 quittances. Envoyées le 1er à 8h du matin. Automatiquement. Mme Lefebvre avait déjà répondu."</div>
+        <div class="tl-hook">Le détail "Mme Lefebvre avait déjà répondu" humanise. Ce n'est pas un rapport anonyme — c'est une vraie locataire, une vraie relation. L'IA n'a pas remplacé la relation — elle l'a rendue possible.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">0:40–0:58</div>
+        <div class="tl-dot" style="background:#1d9e75"></div>
+        <div class="tl-conn"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">🔥 Wow #2 — La fuite d'eau gérée un vendredi soir</div>
+        <div class="tl-scene">
+          Thomas ouvre le dossier "Urgences traitées".<br>
+          Il trouve : "Fuite eau — 12B rue des Lilas — reçu vendredi 18h47".<br>
+          <br>
+          Il clique. Timeline de l'agent :<br>
+          18h49 — Email de confirmation au locataire : "Votre signalement est bien reçu. Un plombier vous contactera dans les 24h."<br>
+          19h03 — Contact plombier partenaire (via intégration) : RDV proposé pour lundi 10h.<br>
+          19h15 — Email au propriétaire : "Signalement fuite reçu, plombier confirmé lundi 10h, devis estimé €150-300."<br>
+          Samedi 8h12 — Confirmation RDV envoyée au locataire.<br>
+          <br>
+          Thomas regarde l'heure sur son écran. Il est 8h52 lundi. Il a un RDV confirmé à 10h qu'il n't a pas eu besoin d'organiser.
+        </div>
+        <div class="tl-voice">"La fuite d'eau de vendredi soir. Locataire prévenu à 18h49. Plombier contacté à 19h03. Propriétaire informé à 19h15. Je n'ai rien fait."</div>
+        <div class="tl-hook">Ce moment est le plus puissant. Une urgence immobilière gérée un vendredi soir pendant que Thomas était chez lui. Ce n'est plus une fonctionnalité — c'est une promesse de qualité de vie. Les 30 000 agents immobiliers français qui gèrent de la locative viennent de comprendre ce que ça peut changer.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">0:58–1:10</div>
+        <div class="tl-dot" style="background:#1d9e75"></div>
+        <div class="tl-conn"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">🔥 Wow #3 — Les rapports propriétaires + l'annonce de location</div>
+        <div class="tl-scene">
+          Thomas ouvre Gmail. Il tape "Rapport mensuel". 180 emails envoyés aux propriétaires — chacun avec le résumé du mois : loyers encaissés, travaux en cours, prochaines échéances.<br>
+          <br>
+          Puis il va sur SeLoger. Son appartement libéré de la semaine dernière est en ligne depuis samedi matin. Annonce bien rédigée, 3 photos mises en valeur, déjà 8 demandes de visite.
+        </div>
+        <div class="tl-voice">"Rapports propriétaires — envoyés. Nouvelle annonce de location — en ligne depuis samedi avec 8 demandes de visite. Il est 8h52."</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-tc">1:10–1:25</div>
+        <div class="tl-dot" style="background:#4dd99a"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">La conclusion — directe, sobre</div>
+        <div class="tl-scene">Thomas se tourne vers la caméra. Bureau visible derrière lui — propre, pas de post-its en rouge. Il parle simplement.</div>
+        <div class="tl-voice">"J'ai 180 lots, 2 collaboratrices, et maintenant 4 agents IA qui travaillent la nuit et le week-end. Le dimanche, je ne regarde plus mon téléphone. C'est tout."<br><br>Silence 2 secondes. Fondu au noir.<br>Texte blanc sur noir : "Agentis — Votre agence immobilière ne s'arrête plus jamais."<br>Sous-texte : "Pack agence immobilière — 20 minutes pour démarrer."</div>
+        <div class="tl-hook">La phrase "Le dimanche, je ne regarde plus mon téléphone" est l'accroche finale. Elle ne parle pas de fonctionnalités — elle parle de liberté. C'est là que les commentaires arrivent.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="warn">
+    <strong>Les 5 détails qui rendent cette démo inattaquable :</strong><br>
+    1. Les timestamps du vendredi soir (18h47 reçu, 18h49 réponse) — prouve que l'agent réagit en temps réel<br>
+    2. Le nom réel "Mme Lefebvre" — montre que ce ne sont pas des données génériques<br>
+    3. Le plombier contacté à 19h03 — l'intégration avec un vrai carnet de prestataires<br>
+    4. Les 8 demandes de visite sur SeLoger — résultat mesurable, pas une promesse<br>
+    5. Les rapports propriétaires avec le bon montant — pas un template vide
+  </div>
+</div>
+
+<!-- DIFFERENCES -->
+<div class="panel" id="tab-vs">
+  <p class="sub">La démo immobilier n'est pas une copie de la démo recrutement. Voici exactement ce qui change — et pourquoi chaque différence est intentionnelle.</p>
+
+  <table class="diff">
+    <thead>
+      <tr><th>Dimension</th><th>Démo Recrutement (Sophie)</th><th>Démo Immobilier (Thomas)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Moment d'ouverture</td>
+        <td>Lundi matin, boîte mail</td>
+        <td class="g">Vendredi soir, le téléphone posé — week-end inclus</td>
+      </tr>
+      <tr>
+        <td>Émotion principale</td>
+        <td>Surcharge professionnelle</td>
+        <td class="g">Privation de vie privée (week-ends, urgences nocturnes)</td>
+      </tr>
+      <tr>
+        <td>Audience au-delà du secteur</td>
+        <td>RH, recruteurs, fondateurs</td>
+        <td class="g">Propriétaires, locataires, notaires, syndics — audience 5× plus large</td>
+      </tr>
+      <tr>
+        <td>Wow #1</td>
+        <td>CVs qualifiés</td>
+        <td class="g">180 quittances envoyées le 1er à 8h</td>
+      </tr>
+      <tr>
+        <td>Wow #2 (le plus fort)</td>
+        <td>Emails envoyés + réponses reçues</td>
+        <td class="g">Urgence fuite d'eau gérée un vendredi soir</td>
+      </tr>
+      <tr>
+        <td>Wow #3</td>
+        <td>Rapport client + offre diffusée</td>
+        <td class="g">Rapports propriétaires + annonce en ligne avec demandes</td>
+      </tr>
+      <tr>
+        <td>Phrase finale</td>
+        <td>"Mon job c'est vérifier et décider"</td>
+        <td class="g">"Le dimanche, je ne regarde plus mon téléphone"</td>
+      </tr>
+      <tr>
+        <td>Canal de distribution principal</td>
+        <td>LinkedIn (réseau RH)</td>
+        <td class="a">LinkedIn + groupes Facebook agents immo + FNAIM</td>
+      </tr>
+      <tr>
+        <td>Influenceurs à cibler</td>
+        <td>Recruteurs, DRH, fondateurs cabinets RH</td>
+        <td class="a">Agents immo, formateurs immo, FNAIM ambassadeurs, blogs proptech</td>
+      </tr>
+      <tr>
+        <td>Angle RGPD à mentionner</td>
+        <td>Données candidats</td>
+        <td class="g">Données locataires + Loi Alur = argument réglementaire fort</td>
+      </tr>
+      <tr>
+        <td>Durée idéale</td>
+        <td>90 secondes</td>
+        <td class="g">2 minutes — la fuite d'eau mérite 20 secondes de plus</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="purple">
+    <strong>La différence la plus importante :</strong> La démo recrutement parle à des professionnels B2B. La démo immobilier parle à des humains qui ne voient plus leurs enfants le week-end parce qu'ils gèrent des urgences locataires. C'est une douleur plus viscérale, plus universelle. Le potentiel de partage organique est 2 à 3 fois supérieur — même hors secteur immobilier.
+  </div>
+</div>
+
+<!-- GROWTH -->
+<div class="panel" id="tab-growth">
+  <p class="sub">Les canaux immobilier sont différents du recrutement. La FNAIM est votre arme secrète — 10 000 membres adhérents, une newsletter lue, des congrès régionaux. Et les groupes Facebook agents immo sont parmi les communautés professionnelles les plus actives de France.</p>
+
+  <div class="metrics">
+    <div class="mc"><div class="mn">J1–3</div><div class="ml">Fenêtre virale — toute l'énergie ici</div></div>
+    <div class="mc"><div class="mn">30k</div><div class="ml">Agents immo indépendants France — audience cible</div></div>
+    <div class="mc"><div class="mn">10k</div><div class="ml">Membres FNAIM — canal direct qualifié</div></div>
+    <div class="mc"><div class="mn">15</div><div class="ml">Leads qualifiés — objectif J14</div></div>
+  </div>
+
+  <div class="growth-grid">
+
+    <div class="gc hot">
+      <div class="gc-head">🔥 #1 — LinkedIn natif (même mécanique)</div>
+      <div class="gc-sub">Identique au recrutement — mais audience différente.</div>
+      <div class="gi h">Upload natif vidéo 2min, pas de lien YouTube</div>
+      <div class="gi h">Texte commence par la douleur du vendredi soir (pas le produit)</div>
+      <div class="gi h">Postez un jeudi 8h — les agents immo sont actifs en début de semaine ET en fin de semaine (les vendredis sont intenses pour eux)</div>
+      <div class="gi h">Préparez 15 personnes à commenter dans les 2 premières heures</div>
+      <div class="gi">Hashtags en fin de post : #immobilier #gestionlocative #agenceimmobilière (pas dans le corps du texte)</div>
+    </div>
+
+    <div class="gc hot">
+      <div class="gc-head">🔥 #2 — Groupes Facebook agents immobiliers</div>
+      <div class="gc-sub">La spécificité immobilier. Ces groupes ont 20k-80k membres et sont très actifs.</div>
+      <div class="gi h">"Agents Immobiliers Indépendants France" — groupe Facebook 45k membres</div>
+      <div class="gi h">"Gestionnaires Locatifs & Syndics" — groupe Facebook 28k membres</div>
+      <div class="gi h">"Les pros de l'immobilier" — groupe Facebook 62k membres</div>
+      <div class="gi h">Postez le lien de la vidéo LinkedIn + texte adapté (pas de copier-coller du post LI)</div>
+      <div class="gi">Ne spammez pas tous les groupes le même jour — étalez sur J1, J3, J7</div>
+      <div class="gi">Ces groupes convertissent MIEUX que LinkedIn pour l'immobilier — audience de praticiens</div>
+    </div>
+
+    <div class="gc hot">
+      <div class="gc-head">🔥 #3 — FNAIM — votre arme secrète</div>
+      <div class="gc-sub">10 000 adhérents, newsletter lue, congrès régionaux. Activez dès J0.</div>
+      <div class="gi h">Contactez le délégué régional FNAIM de votre département AVANT de poster la vidéo</div>
+      <div class="gi h">Message : "Je prépare une démo d'IA pour les agences de gestion locative — je voudrais votre avis avant publication"</div>
+      <div class="gi h">Si coup de cœur : demandez un partage dans leur newsletter mensuelle ou leur groupe LinkedIn</div>
+      <div class="gi">La FNAIM a lancé son propre callbot en 2026 — ils sont réceptifs au sujet IA</div>
+      <div class="gi">Objectif moyen terme : être mentionné dans leur guide "IA pour les agences" — crédibilité majeure</div>
+    </div>
+
+    <div class="gc">
+      <div class="gc-head">⚡ #4 — Blogs & newsletters proptech FR</div>
+      <div class="gc-sub">Audience qualifiée, décideurs, longue traîne SEO.</div>
+      <div class="gi">Immobil-IA.fr — blog IA + immobilier très suivi, contactez la rédaction</div>
+      <div class="gi">Fusac.fr — média transaction immobilière — article "IA pour les indépendants"</div>
+      <div class="gi">Journal de l'Agence (journaldelagence.com) — média de référence des pros immo</div>
+      <div class="gi">Proposez un article invité "J'ai automatisé la gestion locative de 180 lots — voici ce que j'ai appris" — contenu, pas pub</div>
+      <div class="gi">Ces articles génèrent du trafic qualifié pendant 12 mois</div>
+    </div>
+
+    <div class="gc">
+      <div class="gc-head">⚡ #5 — Influenceurs formateurs immo</div>
+      <div class="gc-sub">Niche puissante : les formateurs immo ont des audiences très engagées.</div>
+      <div class="gi">Cherchez "formation agent immobilier" sur LinkedIn — ces profils ont 5k-30k abonnés très qualifiés</div>
+      <div class="gi">Angle : "j'ai un outil qui change la formation terrain — vos élèves en ont besoin"</div>
+      <div class="gi">Contactez aussi les créateurs de contenu YouTube immo FR (coaching transaction, gestion locative)</div>
+      <div class="gi">Un partage d'un formateur immo avec 10k abonnés = 200-300 vues qualifiées minimum</div>
+    </div>
+
+    <div class="gc">
+      <div class="gc-head">⚡ #6 — Répondre aux posts douleur immo</div>
+      <div class="gc-sub">La même technique que pour le recrutement — mais avec des mots-clés différents.</div>
+      <div class="gi">Cherchez sur LinkedIn (30 derniers jours) : "gestion locative" + "débordé" / "quittances" + "chronophage" / "locataires" + "emails"</div>
+      <div class="gi">Cherchez aussi : "agence immobilière" + "fermeture" / "marges" + "immobilier" + "concurrence"</div>
+      <div class="gi">Commentaire type : partagez un chiffre utile ou posez une question ouverte — jamais de pitch direct</div>
+      <div class="gi">Les gens qui cliquent sur votre profil voient votre démo en feature media</div>
+    </div>
+
+    <div class="gc">
+      <div class="gc-head">⚡ #7 — Salons et événements RENT</div>
+      <div class="gc-sub">RENT (salon proptech) est en novembre — préparez dès maintenant.</div>
+      <div class="gi">RENT 2026 (novembre) — le salon de référence de la proptech française, 10k visiteurs</div>
+      <div class="gi">Soumettez une candidature pour parler dans la conférence "IA & Gestion locative"</div>
+      <div class="gi">Même sans parler : être présent avec une démo live génère des leads qualifiés</div>
+      <div class="gi">FNAIM Regional Summit — événements trimestriels, plus accessibles que RENT pour une intervention</div>
+      <div class="gi">Chaque événement génère du contenu LinkedIn organique ("ce que j'ai présenté à RENT")</div>
+    </div>
+
+    <div class="gc">
+      <div class="gc-head">⚡ #8 — Le "cas d'usage du dimanche"</div>
+      <div class="gc-sub">Votre atout différenciant vs la démo recrutement.</div>
+      <div class="gi">Postez un dimanche soir : "Il est 21h. Voici ce que mes agents font en ce moment pendant que je regarde une série"</div>
+      <div class="gi">Screenshot en temps réel de la plateforme — tâches actives, heartbeats en cours</div>
+      <div class="gi">Ce contenu "proof of work" le dimanche résonne émotionnellement : personne ne veut gérer des urgences le dimanche</div>
+      <div class="gi">Format Stories LinkedIn — 15 secondes, taux d'engagement très élevé le dimanche soir</div>
+    </div>
+
+  </div>
+
+  <div class="info">
+    <strong>La différence de stratégie vs recrutement :</strong> Pour le recrutement, LinkedIn est votre canal #1. Pour l'immobilier, LinkedIn + groupes Facebook ont un poids équivalent. Les agents immobiliers sont massivement sur Facebook — des groupes de 30k-60k membres très actifs. Ne négligez pas ce canal que vous n'utiliseriez pas pour d'autres secteurs.
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="panel" id="tab-cal">
+  <p class="sub">30 jours d'actions concrètes. Semaine 1 = déclenchement viral. Semaines 2-3 = amplification. Semaine 4 = conversion leads.</p>
+
+  <div style="font-size:11px;color:#555;margin-bottom:8px;display:flex;gap:16px">
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(29,158,104,0.3);margin-right:4px"></span>Action principale</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(212,130,26,0.3);margin-right:4px"></span>Action critique</span>
+  </div>
+
+  <div class="cal">
+    <div class="cal-head">Lun</div><div class="cal-head">Mar</div><div class="cal-head">Mer</div>
+    <div class="cal-head">Jeu</div><div class="cal-head">Ven</div><div class="cal-head">Sam</div><div class="cal-head">Dim</div>
+
+    <!-- Semaine -1 : préparation -->
+    <div class="cal-day"><div class="cal-num">J-7</div><div class="cal-action">Finalisez la démo. Données réalistes préparées.</div></div>
+    <div class="cal-day"><div class="cal-num">J-6</div><div class="cal-action">Tournage take 1 & 2</div></div>
+    <div class="cal-day"><div class="cal-num">J-5</div><div class="cal-action">Tournage take 3. Montage.</div></div>
+    <div class="cal-day"><div class="cal-num">J-4</div><div class="cal-action">Montage final. 2 versions : 2min + 45s.</div></div>
+    <div class="cal-day"><div class="cal-num">J-3</div><div class="cal-action">Contactez délégué FNAIM région</div></div>
+    <div class="cal-day"><div class="cal-num">J-2</div><div class="cal-action">Message à 15 contacts pour engagement J0</div></div>
+    <div class="cal-day"><div class="cal-num">J-1</div><div class="cal-action">Rédigez le post LinkedIn. Vérifiez les DMs.</div></div>
+
+    <!-- Semaine 1 : lancement -->
+    <div class="cal-day hot"><div class="cal-num">J0 Jeu 8h</div><div class="cal-action">🚀 POST LinkedIn vidéo 2min</div><div class="cal-tag">★ CRITIQUE</div></div>
+    <div class="cal-day hot"><div class="cal-num">J0 matin</div><div class="cal-action">Répondez à CHAQUE commentaire (2h window)</div><div class="cal-tag">★ CRITIQUE</div></div>
+    <div class="cal-day hot"><div class="cal-num">J0 12h</div><div class="cal-action">Partage groupe FB "Agents Immo Indép."</div><div class="cal-tag">★</div></div>
+    <div class="cal-day active"><div class="cal-num">J1 Ven</div><div class="cal-action">DMs 5 influenceurs formateurs immo. Thread X.</div></div>
+    <div class="cal-day active"><div class="cal-num">J2 Sam</div><div class="cal-action">Partage groupe FB "Gestionnaires Locatifs"</div></div>
+    <div class="cal-day active"><div class="cal-num">J3 Dim</div><div class="cal-action">Post "ce que mes agents font ce soir" — Stories LinkedIn</div><div class="cal-tag">Le dimanche soir = peak émotion</div></div>
+    <div class="cal-day active"><div class="cal-num">J4 Lun</div><div class="cal-action">Post de suivi si +500 vues : "Je n'attendais pas ça"</div></div>
+
+    <!-- Semaine 2 : amplification -->
+    <div class="cal-day"><div class="cal-num">J7</div><div class="cal-action">Contact rédaction Immobil-IA.fr (article invité)</div></div>
+    <div class="cal-day active"><div class="cal-num">J8</div><div class="cal-action">Partage groupe FB "Les pros de l'immobilier"</div></div>
+    <div class="cal-day"><div class="cal-num">J9</div><div class="cal-action">Répondez aux posts "douleur immo" LinkedIn (5 posts)</div></div>
+    <div class="cal-day"><div class="cal-num">J10</div><div class="cal-action">Post HN "Show HN" version anglaise</div></div>
+    <div class="cal-day active"><div class="cal-num">J11</div><div class="cal-action">Vidéo 45s sur X/Twitter + thread 6 tweets</div></div>
+    <div class="cal-day"><div class="cal-num">J12</div><div class="cal-action">—</div></div>
+    <div class="cal-day active"><div class="cal-num">J13</div><div class="cal-action">Post dimanche : "Week-end update — voici ce qui tourne"</div></div>
+
+    <!-- Semaine 3 : conversion -->
+    <div class="cal-day hot"><div class="cal-num">J14</div><div class="cal-action">Comptez les leads. Lancez les appels de qualification.</div><div class="cal-tag">★ Objectif : 15 leads</div></div>
+    <div class="cal-day active"><div class="cal-num">J15</div><div class="cal-action">Product Hunt launch (si momentum présent)</div></div>
+    <div class="cal-day"><div class="cal-num">J16</div><div class="cal-action">Article invité Journal de l'Agence soumis</div></div>
+    <div class="cal-day active"><div class="cal-num">J17</div><div class="cal-action">Post "3 retours d'agents immo qui ont testé"</div></div>
+    <div class="cal-day"><div class="cal-num">J18</div><div class="cal-action">Répondez aux posts douleur immo (5 posts)</div></div>
+    <div class="cal-day"><div class="cal-num">J19</div><div class="cal-action">—</div></div>
+    <div class="cal-day active"><div class="cal-num">J20</div><div class="cal-action">Témoignage vidéo 30s d'un premier client (si dispo)</div></div>
+
+    <!-- Semaine 4 -->
+    <div class="cal-day active"><div class="cal-num">J21</div><div class="cal-action">Newsletter à tous les inscrits landing page</div></div>
+    <div class="cal-day"><div class="cal-num">J22</div><div class="cal-action">Cold email 50 agences identifiées (site FNAIM)</div></div>
+    <div class="cal-day active"><div class="cal-num">J23</div><div class="cal-action">Post "résultats 3 semaines après la vidéo"</div></div>
+    <div class="cal-day"><div class="cal-num">J24</div><div class="cal-action">Qualification téléphonique des leads chauds</div></div>
+    <div class="cal-day hot"><div class="cal-num">J25</div><div class="cal-action">Objectif : 3 clients signés</div><div class="cal-tag">★ KPI</div></div>
+    <div class="cal-day"><div class="cal-num">J26</div><div class="cal-action">—</div></div>
+    <div class="cal-day active"><div class="cal-num">J27</div><div class="cal-action">Post dimanche : "Voici ce que m'ont appris ces 30 jours"</div></div>
+  </div>
+</div>
+
+<!-- POSTS -->
+<div class="panel" id="tab-posts">
+  <p class="sub">Textes prêts à l'emploi. Adaptez avec votre voix — le ton naturel bat le texte corporate à chaque fois.</p>
+
+  <div class="post-card">
+    <div class="post-plat"><span style="background:rgba(55,138,221,0.2);color:#78b8f2;padding:2px 8px;border-radius:6px;font-size:9px">LINKEDIN — POST PRINCIPAL (jeudi 8h)</span></div>
+    <div class="post-body">Vendredi soir. 18h47.
+Signalement de fuite d'eau.
+Thomas pose son téléphone. Il rentre chez lui.
+
+C'est la réalité de la plupart des agences de gestion locative que je connais.
+Urgences le week-end. Emails le dimanche. 200 locataires qui attendent.
+
+Alors j'ai construit quelque chose pour ça.
+
+Cette vidéo montre ce qui s'est passé chez Thomas — 180 lots, 2 collaboratrices — quand ses agents IA ont tourné du vendredi soir au lundi matin.
+
+La fuite d'eau de vendredi.
+Les 180 quittances du 1er.
+Les rapports propriétaires.
+Et la nouvelle annonce de location avec 8 demandes de visite.
+
+Tout ça pendant qu'il regardait une série.
+
+[VIDÉO]
+
+(Si vous gérez de la locative et que vous vous reconnaissez — un partage aide vraiment 🙏)</div>
+    <div class="post-note">✓ Ouvre sur l'urgence du vendredi soir — la douleur la plus viscérale ✓ "Regardait une série" — humanise et rend le bénéfice concret ✓ Liste les 4 wows sans les sur-expliquer ✓ Pas de lien — commentaire épinglé</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-plat"><span style="background:rgba(255,255,255,0.06);color:#777;padding:2px 8px;border-radius:6px;font-size:9px">COMMENTAIRE ÉPINGLÉ</span></div>
+    <div class="post-body">Si vous gérez de la gestion locative (même quelques dizaines de lots) et que vous en avez assez des urgences le week-end — je cherche 5 agences pour tester en accès anticipé, avec 3 mois offerts.
+
+👉 [lien landing page] ou DM directement.</div>
+    <div class="post-note">✓ "Même quelques dizaines de lots" — inclusif, pas seulement pour les grandes agences</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-plat"><span style="background:rgba(29,158,104,0.2);color:#4dd99a;padding:2px 8px;border-radius:6px;font-size:9px">POST DIMANCHE SOIR (J3, 21h)</span></div>
+    <div class="post-body">Il est 21h un dimanche.
+
+Voici ce que mes agents immobiliers font en ce moment :
+
+→ Traitement de 3 demandes de visite reçues cet après-midi
+→ Relance d'un locataire en retard de paiement (2ème relance automatique)
+→ Réponse à une demande de quittance reçue à 19h43
+→ Mise à jour du rapport mensuel d'un propriétaire parti en vacances
+
+Moi je suis dans mon canapé.
+
+C'est ça, une agence immobilière qui ne s'arrête plus jamais.
+
+[Screenshot temps réel de la plateforme — heartbeats actifs visibles]</div>
+    <div class="post-note">✓ Screenshot en temps réel = preuve irréfutable ✓ Le dimanche soir = moment émotionnel fort pour les agents immo ✓ "Moi je suis dans mon canapé" — simple, humain, mémorable</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-plat"><span style="background:rgba(212,130,26,0.2);color:#f0a030;padding:2px 8px;border-radius:6px;font-size:9px">GROUPE FACEBOOK — version adaptée</span></div>
+    <div class="post-body">Bonjour à tous,
+
+Je gère des agents IA pour les agences de gestion locative et j'ai fait une démo vidéo la semaine dernière.
+
+Ce qui a le plus résonné : la fuite d'eau gérée un vendredi soir à 18h47 sans que le gestionnaire ait à intervenir.
+
+Si ça vous intéresse, j'ai mis la vidéo ici : [lien LinkedIn]
+
+Des questions sur comment ça marche ? Je suis là 👇</div>
+    <div class="post-note">✓ Ton différent du post LinkedIn — plus conversationnel, communauté entre pairs ✓ La fuite d'eau comme accroche — c'est le moment le plus reconnaissable pour les gestionnaires ✓ Invitation à poser des questions plutôt qu'à acheter</div>
+  </div>
+
+  <div class="post-card">
+    <div class="post-plat"><span style="background:rgba(127,119,221,0.2);color:#a39fe0;padding:2px 8px;border-radius:6px;font-size:9px">DM DÉLÉGUÉ FNAIM</span></div>
+    <div class="post-body">Bonjour [prénom],
+
+La FNAIM vient de lancer son callbot IA — le sujet de l'IA pour les agences immobilières est clairement dans vos priorités 2026.
+
+Je développe une plateforme qui va un cran plus loin : non pas un outil sur une fonction, mais une équipe IA pour toute l'agence — gestion locative, transactions, contenu, admin.
+
+J'ai fait une démo vidéo cette semaine sur un cas de gestion locative (180 lots, fuite d'eau un vendredi soir gérée automatiquement). Si vous pensez que ça peut intéresser les adhérents de votre région, je serais ravi de vous la montrer avant tout.
+
+Bonne journée,
+[Prénom]</div>
+    <div class="post-note">✓ Référence au callbot FNAIM — montre que vous suivez leur actualité ✓ Positionnement vs leur outil : "un cran plus loin" pas "en concurrence" ✓ Demande d'une présentation privée — exclusivité perçue</div>
+  </div>
+
+</div>
+
+<script>
+function show(id) {
+  const ids = ['concept','script','vs','growth','cal','posts'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

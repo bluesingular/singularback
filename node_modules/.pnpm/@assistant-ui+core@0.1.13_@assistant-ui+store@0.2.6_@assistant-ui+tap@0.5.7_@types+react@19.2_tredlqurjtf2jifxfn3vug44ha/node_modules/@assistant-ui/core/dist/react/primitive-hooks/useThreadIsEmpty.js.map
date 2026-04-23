@@ -1,0 +1,1 @@
+{"version":3,"file":"useThreadIsEmpty.js","sourceRoot":"","sources":["../../../src/react/primitive-hooks/useThreadIsEmpty.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,qBAAqB,CAAC;AAElD,MAAM,CAAC,MAAM,gBAAgB,GAAG,GAAY,EAAE;IAC5C,OAAO,WAAW,CAAC,CAAC,CAAC,EAAE,EAAE,CAAC,CAAC,CAAC,MAAM,CAAC,OAAO,CAAC,CAAC;AAC9C,CAAC,CAAC"}

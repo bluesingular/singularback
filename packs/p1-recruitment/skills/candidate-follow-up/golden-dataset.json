@@ -1,0 +1,386 @@
+{
+  "skill": "candidate-follow-up",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "cfu-001",
+      "input": {
+        "candidate": { "name": "Thomas Mercier", "email": "thomas.mercier@gmail.com" },
+        "mission": { "title": "Lead Data Engineer", "client": "Doctolib" },
+        "context": "Entretien RH confirmé pour lundi prochain, 10h, locaux Doctolib Paris 12e. Contact sur place : Camille Aubert (RH). Format présentiel.",
+        "follow_up_type": "interview_confirmation"
+      },
+      "expected_output": {
+        "recipient_name": "Thomas Mercier",
+        "recipient_email": "thomas.mercier@gmail.com",
+        "subject": "Confirmation — Entretien Doctolib lundi 28 avril, 10h",
+        "body": "Bonjour Thomas,\n\nTout est confirmé pour votre entretien chez Doctolib :\n\n📅 Lundi 28 avril à 10h00\n📍 Doctolib — 54-56 avenue de la République, Paris 12e\n👤 Vous serez accueilli(e) par Camille Aubert (RH)\n\nFormat présentiel — pensez à vous munir d'une pièce d'identité.\n\nBonne préparation, Thomas. N'hésitez pas si vous avez des questions d'ici là.\n\nBien à vous,\nSophie",
+        "follow_up_type": "interview_confirmation",
+        "next_follow_up_days": 1
+      },
+      "rating": 5,
+      "notes": "Confirmation d'entretien idéale : informations complètes (date, heure, adresse, contact), format lisible sur mobile avec emojis calendrier, rappel pièce d'identité utile pour les grandes entreprises. Suivi programmé à J+1 (le lendemain de l'entretien)."
+    },
+    {
+      "id": "cfu-002",
+      "input": {
+        "candidate": { "name": "Léa Fontaine", "email": "lea.fontaine@outlook.com" },
+        "mission": { "title": "Responsable Marketing Digital", "client": "BlaBlaCar" },
+        "context": "Entretien visio prévu jeudi 14h. Lien Teams fourni. Contact : Marie Chen (RH).",
+        "follow_up_type": "interview_confirmation"
+      },
+      "expected_output": {
+        "recipient_name": "Léa Fontaine",
+        "recipient_email": "lea.fontaine@outlook.com",
+        "subject": "Votre entretien BlaBlaCar — jeudi 1er mai, 14h (visio)",
+        "body": "Bonjour Léa,\n\nVotre entretien avec BlaBlaCar est confirmé :\n\n📅 Jeudi 1er mai à 14h00\n💻 Format visio Microsoft Teams\n🔗 Lien de connexion : [lien Teams transmis par BlaBlaCar]\n👤 Interlocutrice : Marie Chen (Talent Acquisition)\n\nPensez à tester votre connexion quelques minutes avant. Bonne préparation !\n\nBien à vous,\nSophie",
+        "follow_up_type": "interview_confirmation",
+        "next_follow_up_days": 1
+      },
+      "rating": 5,
+      "notes": "Confirmation pour entretien visio. Illustre l'ajout d'un conseil pratique (tester la connexion) spécifique au format distanciel, qui témoigne d'un service attentionné."
+    },
+    {
+      "id": "cfu-003",
+      "input": {
+        "candidate": { "name": "Karim Benali", "email": "k.benali@protonmail.com" },
+        "mission": { "title": "Ingénieur Cybersécurité", "client": "Société Générale" },
+        "context": "Retour positif après entretien RH. Passage en entretien technique prévu la semaine prochaine. Le client est enthousiaste.",
+        "follow_up_type": "status_update"
+      },
+      "expected_output": {
+        "recipient_name": "Karim Benali",
+        "recipient_email": "k.benali@protonmail.com",
+        "subject": "Bonne nouvelle — Votre candidature chez la Société Générale",
+        "body": "Bonjour Karim,\n\nJ'ai une bonne nouvelle à partager : votre entretien de la semaine dernière s'est très bien passé. La Société Générale souhaite vous recevoir pour un entretien technique la semaine prochaine.\n\nJe vous confirme les modalités dès que la date est fixée — vous devriez avoir des nouvelles dans les prochaines 48h.\n\nExcellente journée,\nSophie",
+        "follow_up_type": "status_update",
+        "next_follow_up_days": 2
+      },
+      "rating": 5,
+      "notes": "Mise à jour positive sans sur-promettre. Le consultant partage l'enthousiasme du client sans le chiffrer ni le qualifier avec des superlatifs qui créeraient de fausses attentes. Délai de suivi court (48h) cohérent avec l'urgence annoncée."
+    },
+    {
+      "id": "cfu-004",
+      "input": {
+        "candidate": { "name": "Amira Khalil", "email": "amira.khalil@gmail.com" },
+        "mission": { "title": "Chef de Projet Marketing", "client": "L'Oréal" },
+        "context": "Candidature retenue, offre d'embauche en cours de rédaction. Début souhaité : 2 juin. Package final pas encore communiqué.",
+        "follow_up_type": "positive_outcome"
+      },
+      "expected_output": {
+        "recipient_name": "Amira Khalil",
+        "recipient_email": "amira.khalil@gmail.com",
+        "subject": "L'Oréal vous fait une proposition — félicitations !",
+        "body": "Bonjour Amira,\n\nJ'ai le plaisir de vous annoncer que L'Oréal a décidé de vous faire une proposition pour le poste de Chef de Projet Marketing.\n\nLe détail de l'offre (package, date de prise de poste) vous sera communiqué dans les prochains jours. La date de début envisagée est le 2 juin.\n\nFélicitations pour ce beau résultat — vous l'avez mérité.\n\nJe reste disponible pour la suite,\nSophie",
+        "follow_up_type": "positive_outcome",
+        "next_follow_up_days": 3
+      },
+      "rating": 5,
+      "notes": "Annonce de proposition d'embauche. Illustre la bonne pratique d'annoncer la décision positive sans attendre le détail de l'offre (évite que le candidat l'apprenne autrement), tout en gérant l'attente sur le package."
+    },
+    {
+      "id": "cfu-005",
+      "input": {
+        "candidate": { "name": "Romain Petit", "email": "romain.petit@free.fr" },
+        "mission": { "title": "Développeur Full Stack React/Node", "client": "Swile" },
+        "context": "Candidature non retenue après le premier entretien. Décision du client : profil trop junior.",
+        "follow_up_type": "rejection"
+      },
+      "expected_output": {
+        "recipient_name": "Romain Petit",
+        "recipient_email": "romain.petit@free.fr",
+        "subject": "Suite de votre candidature chez Swile",
+        "body": "Bonjour Romain,\n\nJe reviens vers vous concernant votre candidature pour le poste de Développeur Full Stack chez Swile.\n\nAprès examen, Swile a décidé de ne pas poursuivre avec votre profil pour cette mission. Je sais que cette nouvelle n'est pas celle que vous espériez.\n\nVotre parcours est réel et votre enthousiasme appréciable. Je garde votre dossier actif et vous recontacterai dès qu'une opportunité correspondant mieux à votre profil se présente.\n\nBon courage dans vos recherches,\nSophie",
+        "follow_up_type": "rejection",
+        "next_follow_up_days": 30
+      },
+      "rating": 5,
+      "notes": "Refus respectueux après premier entretien. La formulation 'a décidé de ne pas poursuivre' est directe sans être brutale. L'engagement de rappeler pour une future opportunité est sincère — ne pas le formuler si ce n'est pas l'intention."
+    },
+    {
+      "id": "cfu-006",
+      "input": {
+        "candidate": { "name": "Nicolas Garnier", "email": "nicolas.garnier@gmail.com" },
+        "mission": { "title": "Ingénieur DevOps Senior", "client": "OVHcloud" },
+        "context": "Candidature retenue en réserve — OVHcloud préfère un autre candidat mais garde Nicolas pour d'autres opportunités similaires dans le groupe.",
+        "follow_up_type": "on_hold"
+      },
+      "expected_output": {
+        "recipient_name": "Nicolas Garnier",
+        "recipient_email": "nicolas.garnier@gmail.com",
+        "subject": "Suite de votre candidature — OVHcloud",
+        "body": "Bonjour Nicolas,\n\nJe vous contacte pour vous tenir informé de la suite concernant le poste DevOps Senior chez OVHcloud.\n\nOVHcloud a choisi de progresser avec un autre candidat pour cette mission spécifique. Cela ne remet pas en cause la qualité de votre profil — votre dossier a été apprécié.\n\nJe garde votre candidature en base active pour les prochaines opportunités DevOps senior, que ce soit chez OVHcloud ou dans des entreprises similaires.\n\nJe vous recontacte dès que quelque chose de pertinent se présente.\n\nBonne continuation,\nSophie",
+        "follow_up_type": "on_hold",
+        "next_follow_up_days": 45
+      },
+      "rating": 5,
+      "notes": "Mise en réserve bien formulée. Distingue clairement 'choix d'un autre candidat pour ce poste' de 'profil insuffisant' — nuance importante pour maintenir la relation candidat. L'engagement de rappeler est spécifique (opportunités similaires)."
+    },
+    {
+      "id": "cfu-007",
+      "input": {
+        "candidate": { "name": "Marie-Claire Dupont", "email": "mc.dupont@yahoo.fr" },
+        "mission": { "title": "Responsable RH", "client": "Capgemini Engineering" },
+        "context": "Le client n'a pas encore rendu sa décision après l'entretien final il y a 10 jours. Candidat qui attend.",
+        "follow_up_type": "status_update"
+      },
+      "expected_output": {
+        "recipient_name": "Marie-Claire Dupont",
+        "recipient_email": "mc.dupont@yahoo.fr",
+        "subject": "Point sur votre candidature Capgemini",
+        "body": "Bonjour Marie-Claire,\n\nJe voulais vous tenir informée : je n'ai pas encore reçu la décision finale de Capgemini concernant votre candidature.\n\nJe comprends que l'attente est longue et je m'en excuse. Je relance le client aujourd'hui et vous reviens avant vendredi.\n\nMerci de votre patience,\nSophie",
+        "follow_up_type": "status_update",
+        "next_follow_up_days": 4
+      },
+      "rating": 5,
+      "notes": "Suivi en cas de délai client excessif. Illustre la transparence (on n'a pas encore la décision), l'excuse brève et sincère, et l'engagement concret avec une date de retour (vendredi). Ne pas promettre ce qu'on ne contrôle pas."
+    },
+    {
+      "id": "cfu-008",
+      "input": {
+        "candidate": { "name": "Isabelle Rousseau", "email": "i.rousseau@gmail.com" },
+        "mission": { "title": "Directrice Financière", "client": "Kering" },
+        "context": "Offre acceptée. Prise de poste dans 3 mois (préavis). Documents à transmettre pour l'onboarding RH Kering.",
+        "follow_up_type": "positive_outcome"
+      },
+      "expected_output": {
+        "recipient_name": "Isabelle Rousseau",
+        "recipient_email": "i.rousseau@gmail.com",
+        "subject": "Prochaines étapes — Onboarding Kering",
+        "body": "Bonjour Isabelle,\n\nEnchanté de vous accompagner jusqu'à la dernière étape ! L'équipe RH de Kering va vous contacter directement pour les formalités d'onboarding.\n\nDe leur côté, ils auront besoin de :\n• Copie de vos diplômes\n• Relevé d'identité bancaire (RIB)\n• Carte Vitale\n\nJe reste disponible si une question surgit d'ici votre prise de poste. Très belle aventure en perspective !\n\nChaleureusement,\nSophie",
+        "follow_up_type": "positive_outcome",
+        "next_follow_up_days": 14
+      },
+      "rating": 5,
+      "notes": "Suivi post-acceptation d'offre. Illustre la valeur ajoutée du cabinet jusqu'à l'intégration (anticiper les documents d'onboarding), qui renforce la relation candidat/cabinet pour les futures opportunités."
+    },
+    {
+      "id": "cfu-009",
+      "input": {
+        "candidate": { "name": "Sophie Leblanc", "email": "sophie.leblanc@linklaters.com" },
+        "mission": { "title": "Juriste Droit des Sociétés", "client": "Veolia" },
+        "context": "Entretien technique replanifié — initialement prévu vendredi, annulé par le client pour contrainte agenda. Replanifié mardi suivant, même format.",
+        "follow_up_type": "interview_confirmation"
+      },
+      "expected_output": {
+        "recipient_name": "Sophie Leblanc",
+        "recipient_email": "sophie.leblanc@linklaters.com",
+        "subject": "Entretien Veolia replanifié — mardi 6 mai, 15h",
+        "body": "Bonjour Sophie,\n\nJe reviens vers vous concernant votre entretien chez Veolia. En raison d'une contrainte d'agenda de leur côté, l'entretien du vendredi a été déplacé.\n\nNouvelle date : mardi 6 mai à 15h00 — format et lieu identiques.\n\nJe m'excuse pour ce changement de dernière minute, indépendant de votre candidature. La Direction Juridique Veolia reste très intéressée par votre profil.\n\nBonne préparation,\nSophie",
+        "follow_up_type": "interview_confirmation",
+        "next_follow_up_days": 1
+      },
+      "rating": 5,
+      "notes": "Gestion d'un entretien annulé et replanifié. Illustre la transparence sur la responsabilité du client (contrainte agenda, pas du candidat) et le soin de rassurer le candidat sur l'intérêt de sa candidature."
+    },
+    {
+      "id": "cfu-010",
+      "input": {
+        "candidate": { "name": "Antoine Moreau", "email": "a.moreau@safran.com" },
+        "mission": { "title": "Responsable Supply Chain", "client": "Airbus" },
+        "context": "Candidature non retenue après 3 entretiens et une étude de cas. Process long de 6 semaines. Candidat très investi.",
+        "follow_up_type": "rejection"
+      },
+      "expected_output": {
+        "recipient_name": "Antoine Moreau",
+        "recipient_email": "a.moreau@safran.com",
+        "subject": "Suite de votre process chez Airbus",
+        "body": "Bonjour Antoine,\n\nJ'ai une nouvelle difficile à vous transmettre : Airbus a décidé de ne pas donner suite à votre candidature pour ce poste.\n\nJe mesure l'investissement que représentent 6 semaines de process et trois entretiens. Votre engagement tout au long de cette sélection a été exemplaire, et je regrette sincèrement cette issue.\n\nVotre profil est solide — c'est une décision qui s'est jouée sur des éléments de contexte interne. Je serai proactif pour vous proposer des opportunités comparables dans les prochaines semaines.\n\nMerci pour votre confiance,\nSophie",
+        "follow_up_type": "rejection",
+        "next_follow_up_days": 14
+      },
+      "rating": 5,
+      "notes": "Refus après long process (3 entretiens + étude de cas). Illustre l'adaptation du ton à l'investissement du candidat — plus de chaleur et de reconnaissance, engagement de suivi plus rapproché. La formulation 'éléments de contexte interne' est honnête sans être trop précise."
+    },
+    {
+      "id": "cfu-011",
+      "input": {
+        "candidate": { "name": "Hugo Lefort", "email": "hugo.lefort@gmail.com" },
+        "mission": { "title": "Commercial B2B SaaS", "client": "Pennylane" },
+        "context": "Offre reçue par le candidat. Il hésite entre Pennylane et une autre offre qu'il a reçue en parallèle. Il vous demande votre avis.",
+        "follow_up_type": "status_update"
+      },
+      "expected_output": {
+        "recipient_name": "Hugo Lefort",
+        "recipient_email": "hugo.lefort@gmail.com",
+        "subject": "Re: Votre décision — quelques éléments pour vous aider",
+        "body": "Bonjour Hugo,\n\nJe comprends la situation — c'est une belle problématique à avoir.\n\nQuelques éléments qui peuvent vous aider à trancher : la culture de Pennylane (très orientée impact individuel et variable), le marché ciblé (PME françaises, cycle de vente court) et la trajectoire de l'entreprise (Series B, forte croissance).\n\nSi vous souhaitez en parler de vive voix, je suis disponible ce matin. Prenez le temps qu'il vous faut — mais Pennylane attend votre réponse pour vendredi.\n\nBien à vous,\nSophie",
+        "follow_up_type": "status_update",
+        "next_follow_up_days": 2
+      },
+      "rating": 5,
+      "notes": "Gestion d'un candidat en hésitation. Illustre le rôle de conseil du consultant (informations factuelles, pas de pression) tout en transmettant clairement le délai de réponse du client. Ne pas pousser le candidat mais ne pas non plus masquer l'urgence."
+    },
+    {
+      "id": "cfu-012",
+      "input": {
+        "candidate": { "name": "Fatima Ouldali", "email": "f.ouldali@ap-hp.fr" },
+        "mission": { "title": "Infirmière Coordinatrice", "client": "Korian" },
+        "context": "Entretien RH passé, retour positif. Passage en entretien avec la directrice de l'EHPAD. Date à confirmer.",
+        "follow_up_type": "status_update"
+      },
+      "expected_output": {
+        "recipient_name": "Fatima Ouldali",
+        "recipient_email": "f.ouldali@ap-hp.fr",
+        "subject": "Votre candidature Korian — suite positive",
+        "body": "Bonjour Fatima,\n\nBonne nouvelle : votre entretien avec l'équipe RH s'est très bien passé. Korian souhaite vous rencontrer dans un second temps, directement avec la directrice de l'établissement.\n\nJe vous confirme la date dans les prochains jours dès que Korian m'a transmis les disponibilités.\n\nÀ très vite,\nSophie",
+        "follow_up_type": "status_update",
+        "next_follow_up_days": 3
+      },
+      "rating": 5,
+      "notes": "Mise à jour positive simple et directe. Illustre la bonne pratique de confirmer rapidement les bonnes nouvelles sans attendre le détail de la suite — le candidat doit se sentir accompagné."
+    },
+    {
+      "id": "cfu-013",
+      "input": {
+        "candidate": { "name": "Pierre-Emmanuel Tardif", "email": "pe.tardif@engie.com" },
+        "mission": { "title": "Contrôleur de Gestion Senior", "client": "TotalEnergies" },
+        "context": "Entretien de clôture (final) prévu. Format : déjeuner avec le DG Finance. Restaurant George V, Paris 8e. 12h30.",
+        "follow_up_type": "interview_confirmation"
+      },
+      "expected_output": {
+        "recipient_name": "Pierre-Emmanuel Tardif",
+        "recipient_email": "pe.tardif@engie.com",
+        "subject": "Entretien final TotalEnergies — déjeuner lundi 12 mai, 12h30",
+        "body": "Bonjour Pierre-Emmanuel,\n\nVotre entretien de clôture avec TotalEnergies est confirmé :\n\n📅 Lundi 12 mai à 12h30\n🍽️ Format déjeuner — Restaurant George V, avenue George V, Paris 8e\n👤 Vous rencontrerez le Directeur Général Finance du groupe\n\nC'est un format plus informel que les précédents — l'idée est d'échanger sur la vision et la culture. Préparez quelques questions sur la stratégie financière du groupe.\n\nBonne préparation,\nSophie",
+        "follow_up_type": "interview_confirmation",
+        "next_follow_up_days": 1
+      },
+      "rating": 5,
+      "notes": "Confirmation d'un entretien atypique (déjeuner C-level). Illustre l'ajout de conseils de préparation adaptés au format — un déjeuner avec un DG nécessite une autre posture qu'un entretien RH standard."
+    },
+    {
+      "id": "cfu-014",
+      "input": {
+        "candidate": { "name": "Vanessa Touré", "email": "v.toure@sg.com" },
+        "mission": { "title": "Chef de Projet SI", "client": "Crédit Agricole SA" },
+        "context": "Refus après premier entretien — le client souhaite un profil avec expérience en MOA bancaire Agile, que Vanessa n'a pas.",
+        "follow_up_type": "rejection"
+      },
+      "expected_output": {
+        "recipient_name": "Vanessa Touré",
+        "recipient_email": "v.toure@sg.com",
+        "subject": "Suite de votre candidature au Crédit Agricole SA",
+        "body": "Bonjour Vanessa,\n\nJe reviens vers vous concernant votre candidature pour le poste de Chef de Projet SI au Crédit Agricole SA.\n\nLe Crédit Agricole a décidé d'orienter sa recherche vers un profil avec une expérience spécifique en MOA Agile, qu'ils n'ont pas trouvée dans votre parcours actuel.\n\nCela ne remet pas en cause la qualité de votre profil — votre expérience AMOA en banque reste très solide et recherchée. Je vous recontacte dès qu'une opportunité similaire sans cette contrainte spécifique se présente.\n\nBien à vous,\nSophie",
+        "follow_up_type": "rejection",
+        "next_follow_up_days": 21
+      },
+      "rating": 5,
+      "notes": "Refus avec motif spécifique communicable (Agile). Illustre la bonne pratique de partager le motif quand il est factuel et non discriminant — cela aide le candidat à comprendre et à cibler mieux ses prochaines candidatures."
+    },
+    {
+      "id": "cfu-015",
+      "input": {
+        "candidate": { "name": "Julie Marchand", "email": "julie.marchand@cdiscount.com" },
+        "mission": { "title": "Product Manager", "client": "Mirakl" },
+        "context": "Candidature en attente — Mirakl tarde à rendre sa décision (2 semaines sans retour). Budget validé mais décision RH bloquée pour raisons internes.",
+        "follow_up_type": "on_hold"
+      },
+      "expected_output": {
+        "recipient_name": "Julie Marchand",
+        "recipient_email": "julie.marchand@cdiscount.com",
+        "subject": "Point sur votre candidature Mirakl",
+        "body": "Bonjour Julie,\n\nJe voulais vous tenir informée : Mirakl prend plus de temps que prévu pour finaliser leur décision — des contraintes d'agenda interne ralentissent le processus de leur côté.\n\nVotre candidature reste très bien considérée. Je relance leur équipe cette semaine et vous reviens dès que j'ai une date.\n\nMerci pour votre patience, Julie. Je comprends que l'attente est difficile à gérer quand on a d'autres opportunités en parallèle.",
+        "follow_up_type": "on_hold",
+        "next_follow_up_days": 5
+      },
+      "rating": 5,
+      "notes": "Gestion d'un délai client excessif. Illustre la transparence (raisons internes côté client), la réassurance sur l'intérêt de la candidature, et la prise en compte implicite de la pression d'autres offres concurrentes."
+    },
+    {
+      "id": "cfu-016",
+      "input": {
+        "candidate": { "name": "Sébastien Collin", "email": "s.collin@zalando.fr" },
+        "mission": { "title": "Chargé d'Affaires Grands Comptes", "client": "Veepee" },
+        "context": "Candidature avancée — le candidat a négocié son package. Accord trouvé. Lettre de promesse d'embauche à venir d'ici 48h.",
+        "follow_up_type": "positive_outcome"
+      },
+      "expected_output": {
+        "recipient_name": "Sébastien Collin",
+        "recipient_email": "s.collin@zalando.fr",
+        "subject": "Accord trouvé avec Veepee — promesse d'embauche dans 48h",
+        "body": "Bonjour Sébastien,\n\nExcellente nouvelle : Veepee et vous êtes bien tombés d'accord sur le package. La promesse d'embauche vous sera transmise par email dans les 48 heures.\n\nUne fois que vous l'aurez reçue et signée, vous pouvez remettre votre démission chez Zalando — je reste disponible si vous avez besoin d'aide pour préparer ce moment.\n\nFélicitations — c'est une belle étape !\n\nSophie",
+        "follow_up_type": "positive_outcome",
+        "next_follow_up_days": 2
+      },
+      "rating": 5,
+      "notes": "Suivi post-négociation acceptée. Illustre le conseil pratique (attendre la promesse signée avant de démissionner) qui témoigne d'une expérience réelle et protège le candidat de potentiels aléas de dernière minute."
+    },
+    {
+      "id": "cfu-017",
+      "input": {
+        "candidate": { "name": "Maxime Girard", "email": "m.girard@pierre-fabre.com" },
+        "mission": { "title": "Ingénieur Procédés", "client": "Sanofi" },
+        "context": "Candidature conditionnelle à confirmation de mobilité. Maxime a confirmé qu'il peut se relocaliser. Entretien technique à planifier.",
+        "follow_up_type": "status_update"
+      },
+      "expected_output": {
+        "recipient_name": "Maxime Girard",
+        "recipient_email": "m.girard@pierre-fabre.com",
+        "subject": "Mobilité confirmée — Sanofi passe à l'étape suivante",
+        "body": "Bonjour Maxime,\n\nMerci pour votre confirmation concernant la mobilité sur Vitry-sur-Seine — j'ai transmis l'information à Sanofi.\n\nBonne nouvelle : ils souhaitent passer à l'entretien technique. Je suis en train de caler les disponibilités et vous reviens avec une date en fin de semaine.\n\nÀ très vite,\nSophie",
+        "follow_up_type": "status_update",
+        "next_follow_up_days": 3
+      },
+      "rating": 5,
+      "notes": "Suivi après levée d'un prérequis (mobilité). Illustre la rapidité d'action attendue une fois le blocage levé — confirmer immédiatement la prochaine étape renforce la confiance du candidat."
+    },
+    {
+      "id": "cfu-018",
+      "input": {
+        "candidate": { "name": "Emilie Castaing", "email": "e.castaing@publicis.fr" },
+        "mission": { "title": "Responsable Communication Interne", "client": "Michelin" },
+        "context": "Candidature non retenue avant entretien — le profil a été analysé et ne correspond pas au besoin (comms externe vs interne). Le client n'a pas souhaité la recevoir.",
+        "follow_up_type": "rejection"
+      },
+      "expected_output": {
+        "recipient_name": "Emilie Castaing",
+        "recipient_email": "e.castaing@publicis.fr",
+        "subject": "Votre candidature Michelin",
+        "body": "Bonjour Emilie,\n\nJe reviens vers vous concernant la mission Responsable Communication Interne chez Michelin.\n\nAprès analyse de votre profil, Michelin a décidé de ne pas donner suite. Le poste nécessite une expérience spécifique en communication interne et conduite du changement qui ne ressort pas de votre parcours actuel, très orienté communication externe et relations presse.\n\nVotre profil RP/communication externe est solide — il correspond à d'autres types de missions que je pourrai vous proposer.\n\nBonne continuation,\nSophie",
+        "follow_up_type": "rejection",
+        "next_follow_up_days": 30
+      },
+      "rating": 5,
+      "notes": "Refus avant entretien avec motif clair. Illustre la transparence sur la raison du refus (mismatch fonctionnel, non discriminant) et le repositionnement constructif du candidat sur d'autres types de missions."
+    },
+    {
+      "id": "cfu-019",
+      "input": {
+        "candidate": { "name": "Lucas Bernard", "email": "lucas.bernard@rakuten.fr" },
+        "mission": { "title": "Développeur Mobile iOS", "client": "Cdiscount" },
+        "context": "Candidature non retenue — mismatch Android/iOS. Recommandation : proposer au candidat un poste Android si Cdiscount en ouvre un.",
+        "follow_up_type": "rejection"
+      },
+      "expected_output": {
+        "recipient_name": "Lucas Bernard",
+        "recipient_email": "lucas.bernard@rakuten.fr",
+        "subject": "Suite de votre candidature Cdiscount",
+        "body": "Bonjour Lucas,\n\nJe reviens vers vous concernant le poste de Développeur Mobile chez Cdiscount.\n\nLe poste est exclusivement iOS (Swift/SwiftUI) — votre expertise étant sur Android (Kotlin), il n'y avait pas d'adéquation technique pour cette mission.\n\nVotre expérience en développement Android dans un contexte e-commerce est réelle et intéressante. Si Cdiscount ouvre un poste Android, je penserai à vous en priorité.\n\nBonne continuation,\nSophie",
+        "follow_up_type": "rejection",
+        "next_follow_up_days": 60
+      },
+      "rating": 5,
+      "notes": "Refus technique sans ambiguité. Illustre la clarté sur le motif (mismatch iOS/Android est factuel) et la promesse de suivi spécifique (poste Android chez Cdiscount) — engagement concret, pas une formule."
+    },
+    {
+      "id": "cfu-020",
+      "input": {
+        "candidate": { "name": "Chloé Martin", "email": "chloe.martin@manpower.fr" },
+        "mission": { "title": "Chargée de Recrutement", "client": "Sodexo" },
+        "context": "Candidature retenue. Offre orale acceptée. Prise de poste dans 2 semaines (pas de préavis). Paperasse RH Sodexo en cours.",
+        "follow_up_type": "positive_outcome"
+      },
+      "expected_output": {
+        "recipient_name": "Chloé Martin",
+        "recipient_email": "chloe.martin@manpower.fr",
+        "subject": "C'est officiel — bienvenue chez Sodexo !",
+        "body": "Bonjour Chloé,\n\nFélicitations — votre arrivée chez Sodexo est officiellement confirmée pour dans deux semaines !\n\nL'équipe RH Sodexo vous contactera directement pour les formalités d'intégration. Si vous ne recevez pas de nouvelles d'ici jeudi, n'hésitez pas à me le signaler.\n\nC'est un très beau départ. Bonne intégration !\n\nSophie",
+        "follow_up_type": "positive_outcome",
+        "next_follow_up_days": 7
+      },
+      "rating": 5,
+      "notes": "Confirmation d'intégration imminente. Illustre le ton chaleureux adapté à une issue positive, et le filet de sécurité ('si vous n'avez pas de nouvelles d'ici jeudi') qui montre que le consultant reste impliqué jusqu'au bout."
+    }
+  ]
+}

@@ -1,0 +1,986 @@
+{
+  "skill": "candidate-sourcing",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "cs-001",
+      "input": {
+        "mission": {
+          "title": "Ingénieur Machine Learning Senior",
+          "client": "Dataiku",
+          "requirements": ["Python", "MLOps", "5+ ans", "Paris"],
+          "salary_range": "75 000 – 95 000 €",
+          "urgency": "Haute — poste ouvert depuis 3 semaines"
+        },
+        "search_directive": "Recherche active sur LinkedIn et job boards — base interne vide sur ce profil"
+      },
+      "expected_output": {
+        "mission_title": "Ingénieur Machine Learning Senior — Dataiku",
+        "search_strategy": "Recherche LinkedIn avec filtres : titre 'Machine Learning Engineer' OR 'ML Engineer', localisation Paris, entreprises tech/data (Criteo, Deezer, BlaBlaCar, ManoMano, Back Market, Meero, Jellysmack). Complément sur Welcome to the Jungle et Stack Overflow Jobs.",
+        "profiles_found": [
+          {
+            "name": "Adrien Lecomte",
+            "current_title": "Senior ML Engineer",
+            "current_company": "Criteo",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "En veille active — profil mis à jour il y a 2 semaines",
+            "contact_method": "InMail LinkedIn + email pro public sur GitHub",
+            "notes": "7 ans d'expérience ML, Criteo est une référence absolue en ML à l'échelle. Stack Python/PyTorch/MLflow. A publié 2 articles sur le MLOps. Profil à contacter en priorité."
+          },
+          {
+            "name": "Camille Vernet",
+            "current_title": "ML Engineer",
+            "current_company": "Qonto",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Aucun signal de recherche — profil à sonder",
+            "contact_method": "InMail LinkedIn",
+            "notes": "5 ans d'expérience, contexte fintech. MLOps avec Kubeflow et Airflow. Python avancé. Moins de séniorité que Adrien mais profil solide."
+          },
+          {
+            "name": "Nassim Brahimi",
+            "current_title": "Data Scientist",
+            "current_company": "SNCF Digital",
+            "source": "linkedin",
+            "relevance_score": 3,
+            "availability": "Inconnu",
+            "contact_method": "InMail LinkedIn",
+            "notes": "6 ans d'expérience mais titre Data Scientist — à confirmer si MLOps pratiqué. Grand groupe public : motivations de mobilité vers une scale-up à explorer."
+          },
+          {
+            "name": "Julie Marchand",
+            "current_title": "ML Platform Engineer",
+            "current_company": "ManoMano",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "A liké des posts de recrutement récemment — signal fort",
+            "contact_method": "InMail LinkedIn",
+            "notes": "5 ans, titre orienté MLOps, stack Seldon + MLflow + Airflow. Contexte e-commerce scale-up similaire à Dataiku. Profil à contacter en priorité."
+          },
+          {
+            "name": "Théo Blanchard",
+            "current_title": "Senior Data Scientist",
+            "current_company": "Deezer",
+            "source": "database",
+            "relevance_score": 4,
+            "availability": "Rencontré en cabinet il y a 8 mois — disponible selon ses dires",
+            "contact_method": "Email direct (base cabinet)",
+            "notes": "En base depuis 8 mois. Python/Spark/TensorFlow. Secteur media. Demander si toujours en recherche."
+          }
+        ],
+        "recommended_count": 3,
+        "next_action": "Soumettre Adrien Lecomte, Julie Marchand et Théo Blanchard (si toujours disponible) à l'approbation de l'opérateur avant prise de contact. Nassim Brahimi en réserve."
+      },
+      "rating": 5,
+      "notes": "Exemple de sourcing ML senior bien exécuté : stratégie explicite, scoring différencié, signals de disponibilité identifiés (profil mis à jour, likes sur posts recrutement). Les 3 recommandés sont justifiés."
+    },
+    {
+      "id": "cs-002",
+      "input": {
+        "mission": {
+          "title": "Directeur(trice) Commercial(e)",
+          "client": "Confidentiel (scale-up SaaS HR, 150 salariés, Series A)",
+          "requirements": ["Leadership commercial", "SaaS B2B", "PME/ETI cibles", "8+ ans", "Paris"],
+          "salary_range": "100 000 – 130 000 € + BSPCE",
+          "urgency": "Critique — départ VP Sales"
+        },
+        "search_directive": "Recherche discrète — ne pas mentionner le client. Profils en poste acceptés."
+      },
+      "expected_output": {
+        "mission_title": "Directeur(trice) Commercial(e) — Scale-up SaaS HR (confidentiel)",
+        "search_strategy": "Recherche LinkedIn ciblée : 'VP Sales', 'Directeur Commercial', 'Head of Sales' en scale-up SaaS B2B avec cible PME/ETI. Entreprises cibles : Lucca, Payfit, Learnin, Factorial, Workelo, Workday France. Réseau du cabinet (référencements).",
+        "profiles_found": [
+          {
+            "name": "Bertrand Moulin",
+            "current_title": "Head of Sales France",
+            "current_company": "Lucca",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "En poste, aucun signal actif — profil à approcher discrètement",
+            "contact_method": "InMail LinkedIn — approche discrète conseillée",
+            "notes": "6 ans chez Lucca dont 3 en Head of Sales. Contexte SaaS RH parfait. Connu pour avoir structuré l'équipe commerciale de 3 à 20 AE. Approche délicate — concurrent direct."
+          },
+          {
+            "name": "Audrey Schmitt",
+            "current_title": "VP Sales EMEA",
+            "current_company": "Factorial HR (ex-Workday)",
+            "source": "referral",
+            "relevance_score": 5,
+            "availability": "Référencée par un contact réseau — ouverte selon source",
+            "contact_method": "Mise en relation via réseau commun (contact: Julien K.)",
+            "notes": "10 ans d'expérience SaaS RH, dont VP Sales EMEA. Profil senior au-dessus du besoin en séniorité mais en ligne avec les ambitions de la scale-up. À évaluer si les BSPCE compensent."
+          },
+          {
+            "name": "Marc Duhamel",
+            "current_title": "Directeur Commercial",
+            "current_company": "Learnin",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "A commenté un post sur le changement de vie professionnelle — signal modéré",
+            "contact_method": "InMail LinkedIn",
+            "notes": "7 ans dont 4 en direction commerciale SaaS RH. Moins de leadership équipe que Bertrand mais bonnes références. Vaut le contact."
+          },
+          {
+            "name": "Caroline Nguyen",
+            "current_title": "Sales Director",
+            "current_company": "Payfit",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Aucun signal",
+            "contact_method": "InMail LinkedIn",
+            "notes": "9 ans, Payfit est une référence absolue en SaaS RH. Profil à contacter mais risque de refus — bien payée et bien positionnée."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Approcher Audrey Schmitt via réseau commun (Julien K.) en priorité. Contacter Bertrand Moulin par InMail discret. Attendre les deux réponses avant de contacter Marc et Caroline."
+      },
+      "rating": 5,
+      "notes": "Sourcing C-level discret bien exécuté. Illustre la gestion de la confidentialité, l'utilisation du réseau pour les approches délicates, et la priorisation intelligente (réseau avant InMail froid)."
+    },
+    {
+      "id": "cs-003",
+      "input": {
+        "mission": {
+          "title": "Infirmier(ère) Puériculteur(trice)",
+          "client": "Clinique Pierre-Cherest (Neuilly-sur-Seine)",
+          "requirements": ["IPDE ou IDE pédiatrie", "3+ ans en pédiatrie ou maternité", "Neuilly ou proche"],
+          "salary_range": "38 000 – 46 000 €",
+          "urgency": "Urgente — remplacement congé maternité + CDI"
+        },
+        "search_directive": "Recherche sur job boards spécialisés santé + LinkedIn. Profils disponibles rapidement."
+      },
+      "expected_output": {
+        "mission_title": "Infirmier(ère) Puériculteur(trice) — Clinique Pierre-Cherest Neuilly",
+        "search_strategy": "Job boards spécialisés santé : Caducee.net, Staffsanté, Adecco Medical. LinkedIn avec filtres : 'Infirmier puériculteur' OR 'IPDE' OR 'pédiatrie', Île-de-France. Annonce déposée sur Pôle Emploi Santé.",
+        "profiles_found": [
+          {
+            "name": "Stéphanie Moreau",
+            "current_title": "Infirmière Puéricultrice",
+            "current_company": "AP-HP Necker Enfants Malades",
+            "source": "job_board",
+            "relevance_score": 5,
+            "availability": "A postulé sur Staffsanté — disponible dans 1 mois",
+            "contact_method": "Email via candidature Staffsanté",
+            "notes": "8 ans d'expérience IPDE à Necker — référence absolue en pédiatrie. Cherche clinique privée pour meilleur équilibre vie pro/perso. Profil exceptionnel à contacter immédiatement."
+          },
+          {
+            "name": "Fatou Diallo",
+            "current_title": "Infirmière",
+            "current_company": "Clinique Sainte-Marie Paris",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Aucun signal — à sonder",
+            "contact_method": "InMail LinkedIn",
+            "notes": "5 ans IDE dont 3 en maternité. IPDE non confirmé mais expérience maternité solide. Neuilly accessible depuis son profil. Vaut le contact."
+          },
+          {
+            "name": "Ambre Leclerc",
+            "current_title": "Infirmière Puéricultrice",
+            "current_company": "Clinique de la Muette Paris 16e",
+            "source": "database",
+            "relevance_score": 5,
+            "availability": "En base depuis 6 mois — à recontacter",
+            "contact_method": "Téléphone (base cabinet)",
+            "notes": "Profil idéal — IPDE, clinique privée, proche géographiquement (Paris 16e). À recontacter en priorité avant tout InMail."
+          }
+        ],
+        "recommended_count": 3,
+        "next_action": "Contacter Ambre Leclerc par téléphone aujourd'hui (base cabinet). Répondre à la candidature de Stéphanie Moreau (Staffsanté). Approcher Fatou Diallo par InMail."
+      },
+      "rating": 5,
+      "notes": "Sourcing santé avec mélange de canaux (base interne, candidature entrante, InMail). Illustre la bonne pratique de prioriser la base interne et les candidatures actives avant le sourcing froid."
+    },
+    {
+      "id": "cs-004",
+      "input": {
+        "mission": {
+          "title": "Expert Comptable",
+          "client": "Cabinet d'expertise comptable régional (confidentiel, Lyon)",
+          "requirements": ["DEC obtenu ou en cours", "3+ ans en cabinet", "Lyon ou agglomération"],
+          "salary_range": "55 000 – 70 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Marché tendu — Expert-Comptable est une denrée rare. Stratégie multi-canaux."
+      },
+      "expected_output": {
+        "mission_title": "Expert Comptable H/F/X — Cabinet Lyon (confidentiel)",
+        "search_strategy": "LinkedIn (titres : 'Expert-Comptable', 'Chef de mission', 'Commissaire aux comptes'), filtres Lyon + 50km. Annonce sur Comptabestjobs et Cadremploi. Réseau IFEC Rhône-Alpes. Démarche auprès des associations professionnelles d'experts-comptables.",
+        "profiles_found": [
+          {
+            "name": "Laurent Faure",
+            "current_title": "Chef de Mission",
+            "current_company": "KPMG Lyon",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "DEC en cours (dernière épreuve en novembre) — disponible début 2026",
+            "contact_method": "InMail LinkedIn",
+            "notes": "8 ans de cabinet Big 4. DEC en cours — timing à discuter. Profil qui cherchera probablement une opportunité dès l'obtention du DEC. Vaut le contact préventif."
+          },
+          {
+            "name": "Marie Perrin",
+            "current_title": "Expert-Comptable",
+            "current_company": "Cabinet Perrin & Associés (indépendant)",
+            "source": "referral",
+            "relevance_score": 5,
+            "availability": "Référencée par réseau — ouverte à la discussion",
+            "contact_method": "Mise en relation directe via réseau",
+            "notes": "DEC obtenu, 10 ans d'expérience, dirige un petit cabinet. Contexte à comprendre — pourquoi envisager de rejoindre un cabinet ? Potentiel de montée en responsabilité ou d'association."
+          },
+          {
+            "name": "Yoann Berthier",
+            "current_title": "Chef de Mission Senior",
+            "current_company": "Deloitte Lyon",
+            "source": "job_board",
+            "relevance_score": 3,
+            "availability": "A postulé sur Cadremploi — disponible",
+            "contact_method": "Email via candidature",
+            "notes": "DEC non mentionné. À vérifier. 6 ans chez Deloitte, bon parcours mais la qualification DEC est critique pour ce poste."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Contacter Marie Perrin via réseau en priorité (profil DEC obtenu, disponible, motivations à comprendre). Approcher Laurent Faure pour anticiper son marché post-DEC. Vérifier DEC de Yoann avant de le soumettre."
+      },
+      "rating": 5,
+      "notes": "Sourcing sur marché tendu (expert-comptable). Illustre la stratégie préventive (contacter avant obtention du DEC), l'utilisation du réseau professionnel sectoriel, et la rigueur sur les qualifications obligatoires."
+    },
+    {
+      "id": "cs-005",
+      "input": {
+        "mission": {
+          "title": "Responsable Qualité",
+          "client": "Groupe Bel (La Vache qui rit)",
+          "requirements": ["Qualité agroalimentaire", "ISO 22000", "HACCP", "5+ ans", "Paris ou Île-de-France"],
+          "salary_range": "58 000 – 72 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Recherche multi-canaux. Cible : profils agroalimentaire ou industrie alimentaire."
+      },
+      "expected_output": {
+        "mission_title": "Responsable Qualité — Groupe Bel Paris",
+        "search_strategy": "LinkedIn : 'Responsable Qualité', 'Quality Manager' en agroalimentaire, Île-de-France. Cibles : Danone, Nestlé France, Bonduelle, Fleury Michon, Lactalis, Savencia. Annonce Welcome to the Jungle + LinkedIn Jobs.",
+        "profiles_found": [
+          {
+            "name": "Sophie Henault",
+            "current_title": "Responsable Qualité",
+            "current_company": "Fleury Michon",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "A liké une offre d'emploi similaire — signal d'ouverture",
+            "contact_method": "InMail LinkedIn",
+            "notes": "7 ans en qualité agroalimentaire, ISO 22000 et HACCP confirmés sur le profil. Fleury Michon : culture qualité exigeante, contexte très proche de Bel."
+          },
+          {
+            "name": "Renaud Lacombe",
+            "current_title": "Quality Assurance Manager",
+            "current_company": "Nestlé France",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Inconnu — profil non mis à jour récemment",
+            "contact_method": "InMail LinkedIn",
+            "notes": "9 ans chez Nestlé dont 4 en QA. Profil senior. Peut être difficile à approcher (grand groupe bien rémunéré) mais vaut le contact. Angle : enjeux de sens et de marque iconique."
+          },
+          {
+            "name": "Amina Cherif",
+            "current_title": "Ingénieure Qualité",
+            "current_company": "Savencia Fromage & Dairy",
+            "source": "database",
+            "relevance_score": 4,
+            "availability": "En base — rencontrée il y a 4 mois, cherchait une évolution responsable",
+            "contact_method": "Email direct (base cabinet)",
+            "notes": "5 ans d'expérience qualité en laiterie. Profil fromager = pertinent pour Bel. À recontacter pour confirmer disponibilité."
+          }
+        ],
+        "recommended_count": 3,
+        "next_action": "Recontacter Amina Cherif (base) par email. Approcher Sophie Henault par InMail (signal d'ouverture). Contacter Renaud Lacombe avec un angle valorisant (impact, marque iconique)."
+      },
+      "rating": 5,
+      "notes": "Sourcing qualité agroalimentaire. Illustre l'utilisation du signal LinkedIn (like sur offre d'emploi) pour prioriser l'approche, et l'adaptation de l'angle d'approche selon le contexte du candidat."
+    },
+    {
+      "id": "cs-006",
+      "input": {
+        "mission": {
+          "title": "Développeur React Native",
+          "client": "Mano (ONG — application pour personnes sans-abri)",
+          "requirements": ["React Native", "TypeScript", "2+ ans", "Paris", "Sensibilité à l'impact social"],
+          "salary_range": "45 000 – 58 000 € (ONG — budget contraint)",
+          "urgency": "Normale — budget ONG limité"
+        },
+        "search_directive": "Profils tech avec appétit pour le secteur non-marchand. Welcome to the Jungle et communautés."
+      },
+      "expected_output": {
+        "mission_title": "Développeur React Native — Mano (impact social)",
+        "search_strategy": "Welcome to the Jungle (filtre 'impact social', 'ONG', 'ESS'). LinkedIn : dev React Native Paris avec profil ESS ou bénévolat visible. Communautés Tech for Good (Techforgood.fr, Latitudes). Annonce sur Makesense Jobs.",
+        "profiles_found": [
+          {
+            "name": "Clément Rousseau",
+            "current_title": "Développeur React Native",
+            "current_company": "Startup SaaS (en freelance)",
+            "source": "job_board",
+            "relevance_score": 5,
+            "availability": "A postulé directement sur Welcome to the Jungle",
+            "contact_method": "Email via candidature WTJ",
+            "notes": "3 ans React Native, TypeScript maîtrisé. Mentionne sur son profil un bénévolat tech chez Emmaüs Connect. Candidature active = disponible et motivé. Profil idéal."
+          },
+          {
+            "name": "Ines Sorel",
+            "current_title": "Mobile Developer",
+            "current_company": "Back Market",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Membre du collectif Latitudes — signal d'appétit pour le Tech for Good",
+            "contact_method": "InMail LinkedIn + messagerie Latitudes",
+            "notes": "4 ans mobile (iOS + React Native). Bien payée chez Back Market — le salaire ONG est un frein potentiel à évaluer dès le premier échange."
+          },
+          {
+            "name": "Gabriel Morin",
+            "current_title": "Développeur Frontend React",
+            "current_company": "Agence web",
+            "source": "database",
+            "relevance_score": 3,
+            "availability": "En base — disponible selon fiche",
+            "contact_method": "Email base cabinet",
+            "notes": "React Web mais pas React Native confirmé. À vérifier. Moins senior mais budget aligné."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Traiter la candidature de Clément Rousseau en priorité (déjà candidat actif, profil aligné). Approcher Ines Sorel en étant transparent sur le package dès le premier message."
+      },
+      "rating": 5,
+      "notes": "Sourcing impact social. Illustre l'utilisation de canaux spécialisés (Makesense, Latitudes, Tech for Good) pour trouver des profils tech motivés par la mission plutôt que le salaire, et la transparence sur les contraintes budgétaires ONG."
+    },
+    {
+      "id": "cs-007",
+      "input": {
+        "mission": {
+          "title": "Responsable Grands Comptes",
+          "client": "Sodexo Services aux Entreprises",
+          "requirements": ["Account management B2B", "Grands comptes (>500 salariés)", "Restauration d'entreprise ou FM", "6+ ans", "Île-de-France"],
+          "salary_range": "65 000 – 80 000 € fixe + variable",
+          "urgency": "Haute"
+        },
+        "search_directive": "Profils issus de la concurrence directe (Elior, Compass, ISS) en priorité."
+      },
+      "expected_output": {
+        "mission_title": "Responsable Grands Comptes — Sodexo Services Entreprises",
+        "search_strategy": "LinkedIn ciblé sur les entreprises concurrentes : Elior Group, Compass Group France, ISS France, Atalian, Derichebourg Services. Titres : 'Responsable Grands Comptes', 'Key Account Manager', 'Directeur de Compte'. Filtres Île-de-France.",
+        "profiles_found": [
+          {
+            "name": "Xavier Fontaine",
+            "current_title": "Responsable Grands Comptes",
+            "current_company": "Elior Group",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "A publié un post sur 'les challenges de la restauration d'entreprise' — profil actif, ouvert au dialogue",
+            "contact_method": "InMail LinkedIn",
+            "notes": "8 ans chez Elior dont 5 en gestion grands comptes. Portefeuille de comptes similaire à Sodexo. Approche directe mais non agressive."
+          },
+          {
+            "name": "Isabelle Grange",
+            "current_title": "Directrice de Compte Senior",
+            "current_company": "Compass Group France",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "Aucun signal actif",
+            "contact_method": "InMail LinkedIn",
+            "notes": "11 ans Compass Group. Profil très senior. Connait le marché FM mieux que quiconque. Profil difficile à approcher mais potentiellement en plateau de carrière."
+          },
+          {
+            "name": "Romain Petit",
+            "current_title": "Account Manager",
+            "current_company": "ISS France",
+            "source": "linkedin",
+            "relevance_score": 3,
+            "availability": "Profil mis à jour récemment",
+            "contact_method": "InMail LinkedIn",
+            "notes": "4 ans seulement. En dessous du minimum requis (6 ans). À garder en réserve si les profils seniors ne répondent pas."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Approcher Xavier Fontaine (Elior) en priorité — signal d'activité. Contacter Isabelle Grange (Compass) avec l'angle 'nouveau challenge après 11 ans'. Garder Romain Petit en réserve."
+      },
+      "rating": 5,
+      "notes": "Sourcing concurrence directe dans les services B2B. Illustre la stratégie de ciblage par entreprise concurrente et l'utilisation de l'angle 'nouveau challenge' pour les profils très seniors en poste depuis longtemps."
+    },
+    {
+      "id": "cs-008",
+      "input": {
+        "mission": {
+          "title": "Analyste Risques de Crédit",
+          "client": "Société Générale CIB",
+          "requirements": ["Analyse crédit", "Modélisation risque", "Master Finance ou équivalent", "2-5 ans", "Paris La Défense"],
+          "salary_range": "55 000 – 70 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profils banque/finance. LinkedIn + réseau grandes écoles."
+      },
+      "expected_output": {
+        "mission_title": "Analyste Risques de Crédit — Société Générale CIB",
+        "search_strategy": "LinkedIn : 'Analyste Crédit', 'Credit Analyst', 'Risk Analyst' dans les banques et fonds. Cibles : BNP Paribas CIB, Natixis, Crédit Agricole CIB, Rothschild, Lazard Paris. Annuaires Alumni HEC, ESCP, Sciences Po Finance.",
+        "profiles_found": [
+          {
+            "name": "Hugo Delmas",
+            "current_title": "Credit Analyst",
+            "current_company": "Natixis CIB",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "En veille discrète selon LinkedIn — profil ouvert aux opportunités",
+            "contact_method": "InMail LinkedIn",
+            "notes": "3 ans en analyse crédit corporate chez Natixis. Master Finance Paris Dauphine. Profil standard pour le poste. Salaire actuel estimé à 58-62k — budget SG compatible."
+          },
+          {
+            "name": "Pauline Aubert",
+            "current_title": "Analyste Risques",
+            "current_company": "BNP Paribas",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Aucun signal",
+            "contact_method": "InMail LinkedIn",
+            "notes": "4 ans chez BNP. Contexte banque d'investissement solide. La mobilité BNP→SG est courante sur ce segment."
+          },
+          {
+            "name": "Alexandre Lamy",
+            "current_title": "Analyste Financier",
+            "current_company": "Fitch Ratings Paris",
+            "source": "database",
+            "relevance_score": 5,
+            "availability": "En base — cherchait à rejoindre une banque (en rating depuis 2 ans, veut passer côté buy-side)",
+            "contact_method": "Email base cabinet",
+            "notes": "Fitch Rating = formation crédit exceptionnelle. Transition vers une banque est logique après 2-3 ans en agence de notation. Profil rare et très recherché. À contacter immédiatement."
+          }
+        ],
+        "recommended_count": 3,
+        "next_action": "Recontacter Alexandre Lamy (base) immédiatement — profil très demandé. Approcher Hugo Delmas (signal de veille). Contacter Pauline Aubert (mobilité BNP→SG courante)."
+      },
+      "rating": 5,
+      "notes": "Sourcing finance de marché. Illustre la valeur des profils issus d'agences de notation (Fitch, Moody's, S&P) pour des postes d'analyse crédit bancaire, et la gestion d'une base de candidats avec des projets de mobilité documentés."
+    },
+    {
+      "id": "cs-009",
+      "input": {
+        "mission": {
+          "title": "Chef de Cuisine",
+          "client": "Restaurant gastronomique (étoilé Michelin, Paris 6e)",
+          "requirements": ["Formation gastronomique", "Brigade expérimentée", "5+ ans en cuisine étoilée", "Paris"],
+          "salary_range": "55 000 – 68 000 €",
+          "urgency": "Haute — ouverture prochaine"
+        },
+        "search_directive": "Réseau très fermé. Approche réseau et recommandations uniquement. Discrétion totale."
+      },
+      "expected_output": {
+        "mission_title": "Chef de Cuisine — Restaurant gastronomique étoilé Paris 6e (confidentiel)",
+        "search_strategy": "Approche 100% réseau : maîtres de maison et chefs connus par le cabinet, Gault & Millau, associations des Toques Blanches. LinkedIn limité sur ce secteur. Discrétion absolue — ne pas poster d'annonce.",
+        "profiles_found": [
+          {
+            "name": "Sébastien Arnaud",
+            "current_title": "Second de cuisine",
+            "current_company": "Restaurant Guy Savoy (Paris)",
+            "source": "referral",
+            "relevance_score": 5,
+            "availability": "Référencé par un chef étoilé — prêt pour sa première toque en tant que chef",
+            "contact_method": "Mise en relation via chef référent",
+            "notes": "8 ans chez Guy Savoy dont 3 comme second. Prêt à sa première prise de poste chef. Profil rare et recommandé par source de confiance. Approche via le chef référent obligatoire."
+          },
+          {
+            "name": "Élise Chartier",
+            "current_title": "Chef de Cuisine",
+            "current_company": "Restaurant 1* Bordeaux",
+            "source": "referral",
+            "relevance_score": 4,
+            "availability": "Ouverte à Paris selon son entourage — à confirmer",
+            "contact_method": "Mise en relation via réseau commun",
+            "notes": "3 ans chef, étoile obtenue. Mobilité Paris non confirmée. Contexte à sonder avec tact."
+          }
+        ],
+        "recommended_count": 1,
+        "next_action": "Contacter Sébastien Arnaud via le chef référent uniquement — approche directe non appropriée sur ce réseau. Soumettre son profil à l'opérateur avant tout contact."
+      },
+      "rating": 5,
+      "notes": "Sourcing secteur fermé (gastronomie étoilée). Illustre l'importance d'une stratégie 100% réseau dans des secteurs où LinkedIn ne fonctionne pas, et la gestion de la mise en relation via intermédiaire de confiance."
+    },
+    {
+      "id": "cs-010",
+      "input": {
+        "mission": {
+          "title": "Ingénieur Procédés Chimiques",
+          "client": "TotalEnergies (site de Normandie)",
+          "requirements": ["Génie chimique", "Procédés raffinage ou pétrochimie", "5+ ans", "Mobilité Normandie requise"],
+          "salary_range": "65 000 – 78 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profils ingénierie chimique. Mobilité obligatoire — filtrer dès le début."
+      },
+      "expected_output": {
+        "mission_title": "Ingénieur Procédés Chimiques — TotalEnergies Normandie",
+        "search_strategy": "LinkedIn : 'Process Engineer', 'Ingénieur Procédés', filtres secteur pétrole/chimie. Cibles : Exxon Normandie, Ineos, Air Liquide, Arkema, Solvay. Annonce sur Techniques de l'Ingénieur + LinkedIn Jobs.",
+        "profiles_found": [
+          {
+            "name": "Matthieu Collet",
+            "current_title": "Process Engineer",
+            "current_company": "Exxon Normandie (Port-Jérôme)",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "Basé en Normandie — pas de contrainte de mobilité",
+            "contact_method": "InMail LinkedIn",
+            "notes": "6 ans en raffinage sur le même bassin géographique. Mobilité résolue d'emblée — candidat idéal du point de vue logistique. Stack technique identique (raffinage, procédés)."
+          },
+          {
+            "name": "Thomas Gauthier",
+            "current_title": "Ingénieur Procédés",
+            "current_company": "Arkema (Saint-Avold, 57)",
+            "source": "linkedin",
+            "relevance_score": 3,
+            "availability": "A mentionné dans un post vouloir 'changer de région' — à confirmer",
+            "contact_method": "InMail LinkedIn",
+            "notes": "7 ans en chimie de spécialité (pas raffinage). Signal de mobilité à vérifier. Compétences transférables mais différence de secteur à évaluer."
+          }
+        ],
+        "recommended_count": 1,
+        "next_action": "Contacter Matthieu Collet en priorité absolue (Normandie, raffinage, profil parfait). Sonder Thomas Gauthier sur ses plans de mobilité avant d'évaluer sa candidature."
+      },
+      "rating": 5,
+      "notes": "Sourcing pour poste avec contrainte géographique forte. Illustre la bonne pratique de filtrer d'abord la mobilité et de prioriser massivement les profils déjà localisés sur le bassin cible."
+    },
+    {
+      "id": "cs-011",
+      "input": {
+        "mission": {
+          "title": "UX Researcher",
+          "client": "Deezer",
+          "requirements": ["UX Research", "Tests utilisateurs", "Interview", "3+ ans", "Paris", "Anglais courant"],
+          "salary_range": "55 000 – 68 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profils UX Research. Welcome to the Jungle et LinkedIn."
+      },
+      "expected_output": {
+        "mission_title": "UX Researcher — Deezer Paris",
+        "search_strategy": "LinkedIn : 'UX Researcher', 'User Researcher', 'Research Lead'. Cibles : Doctolib, BlaBlaCar, Leboncoin, OUI.sncf, Veepee, CDiscount. Welcome to the Jungle avec filtre UX Research.",
+        "profiles_found": [
+          {
+            "name": "Naomi Bernard",
+            "current_title": "UX Researcher",
+            "current_company": "Leboncoin",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "A posté un article sur Medium récemment — signe d'un profil actif et visible",
+            "contact_method": "InMail LinkedIn + commentaire Medium",
+            "notes": "5 ans UX Research. Expérience sur produit grand public (marketplace) — pertinent pour Deezer. Anglais confirmé dans le profil (études à Londres). Profil à contacter rapidement."
+          },
+          {
+            "name": "Julien Pham",
+            "current_title": "User Researcher",
+            "current_company": "OUI.sncf",
+            "source": "job_board",
+            "relevance_score": 4,
+            "availability": "A postulé sur une offre similaire — disponible",
+            "contact_method": "Email via candidature",
+            "notes": "4 ans de recherche utilisateur. Anglais à vérifier. Expérience produit voyage — transférable à streaming culturel."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Contacter Naomi Bernard en priorité (InMail + éventuellement via Medium). Traiter la candidature de Julien Pham et vérifier niveau d'anglais avant présentation."
+      },
+      "rating": 5,
+      "notes": "Sourcing UX Research. Illustre la technique d'approche via la présence en ligne du candidat (Medium, blog) en complément de LinkedIn — signal d'un profil engagé dans sa discipline."
+    },
+    {
+      "id": "cs-012",
+      "input": {
+        "mission": {
+          "title": "Comptable Clients",
+          "client": "PME distribution (confidentielle, 80 personnes, Lyon)",
+          "requirements": ["Comptabilité clients", "Relances", "Sage", "2+ ans", "Lyon ou proche"],
+          "salary_range": "32 000 – 38 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profil terrain. Cadremploi et Pôle Emploi. Pas de LinkedIn nécessaire."
+      },
+      "expected_output": {
+        "mission_title": "Comptable Clients — PME Lyon (confidentielle)",
+        "search_strategy": "Cadremploi, Indeed, Pôle Emploi. Annonce déposée avec description du poste sans nom du client. LinkedIn secondaire sur ce niveau de poste.",
+        "profiles_found": [
+          {
+            "name": "Valérie Dumas",
+            "current_title": "Comptable",
+            "current_company": "PME transport Lyon",
+            "source": "job_board",
+            "relevance_score": 4,
+            "availability": "A postulé sur Indeed — disponible immédiatement (rupture conventionnelle)",
+            "contact_method": "Email via Indeed",
+            "notes": "4 ans en comptabilité clients, Sage maîtrisé. Disponible immédiatement. Profil solide et opérationnel pour une PME."
+          },
+          {
+            "name": "Kevin Aubert",
+            "current_title": "Assistant Comptable",
+            "current_company": "Cabinet comptable Lyon 3e",
+            "source": "job_board",
+            "relevance_score": 3,
+            "availability": "A postulé sur Cadremploi",
+            "contact_method": "Email via Cadremploi",
+            "notes": "2 ans en cabinet. Comptabilité générale surtout. Expérience clients à préciser. Profil en bas de fourchette."
+          }
+        ],
+        "recommended_count": 1,
+        "next_action": "Qualifier Valérie Dumas par téléphone (10 min) avant de la proposer au client. Vérifier les raisons de la rupture conventionnelle."
+      },
+      "rating": 5,
+      "notes": "Sourcing terrain pour poste PME. Illustre l'adaptation des canaux au niveau du poste (Indeed/Pôle Emploi > LinkedIn pour les postes d'exécution comptable) et la qualification téléphonique avant présentation client."
+    },
+    {
+      "id": "cs-013",
+      "input": {
+        "mission": {
+          "title": "Chef de Projet R&D Cosmétique",
+          "client": "L'Oréal Recherche & Innovation",
+          "requirements": ["Formulation cosmétique", "Projets R&D", "Chimie ou biochimie", "4+ ans", "Aulnay-sous-Bois ou Chevilly-Larue"],
+          "salary_range": "58 000 – 72 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profils R&D cosmétique. Concurrents : LVMH Beauty, NAOS, Pierre Fabre Dermo-Cosmétique."
+      },
+      "expected_output": {
+        "mission_title": "Chef de Projet R&D Cosmétique — L'Oréal R&I",
+        "search_strategy": "LinkedIn : 'Chef de Projet R&D', 'Formulation Scientist', 'Project Manager Cosmetics'. Cibles : NAOS (Bioderma/Institut Esthederm), Pierre Fabre Dermo-Cosmétique, Clarins, Shiseido France, Coty Paris.",
+        "profiles_found": [
+          {
+            "name": "Chloé Renard",
+            "current_title": "Chef de Projet Formulation",
+            "current_company": "NAOS (Bioderma)",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "A mis à jour son profil LinkedIn il y a 3 semaines — signal d'ouverture",
+            "contact_method": "InMail LinkedIn",
+            "notes": "6 ans en formulation cosmétique dermatologique. NAOS est un concurrent de référence. Master biochimie UPEC. Localisation Aix-en-Provence — mobilité en Île-de-France à confirmer."
+          },
+          {
+            "name": "Rémi Poirier",
+            "current_title": "Research Scientist",
+            "current_company": "Shiseido France (Orléans)",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Inconnu",
+            "contact_method": "InMail LinkedIn",
+            "notes": "5 ans en R&D parfumerie/cosmétique. Profil chimiste solide. Localisation Orléans — mobilité Île-de-France à vérifier."
+          }
+        ],
+        "recommended_count": 1,
+        "next_action": "Approcher Chloé Renard (signal d'ouverture, profil idéal) en questionnant d'emblée la mobilité vers l'Île-de-France. Contacter Rémi Poirier si Chloé ne répond pas sous 5 jours."
+      },
+      "rating": 5,
+      "notes": "Sourcing R&D cosmétique. Illustre la gestion de la contrainte géographique en l'intégrant dans le premier message d'approche plutôt qu'en bloquant le profil — gain de temps pour tout le monde."
+    },
+    {
+      "id": "cs-014",
+      "input": {
+        "mission": {
+          "title": "Architecte Cloud AWS",
+          "client": "OVHcloud",
+          "requirements": ["AWS", "Terraform", "Architecture multi-cloud", "7+ ans", "Roubaix ou remote"],
+          "salary_range": "85 000 – 105 000 €",
+          "urgency": "Haute"
+        },
+        "search_directive": "Profils cloud expert. Marché très tendu — être réactif."
+      },
+      "expected_output": {
+        "mission_title": "Architecte Cloud AWS — OVHcloud (Roubaix/Remote)",
+        "search_strategy": "LinkedIn ciblé : 'Cloud Architect', 'Solutions Architect', 'Principal Engineer'. Entreprises cloud/tech : AWS France, Google Cloud France, Microsoft Azure, Cloudreach, Claranet. Communautés : AWS User Group France, HashiCorp User Group France.",
+        "profiles_found": [
+          {
+            "name": "Pierre Lemaire",
+            "current_title": "Solutions Architect",
+            "current_company": "Amazon Web Services France",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "En veille active (paramètre LinkedIn 'Open to Work' visible des recruteurs)",
+            "contact_method": "InMail LinkedIn en urgence",
+            "notes": "9 ans cloud dont 4 chez AWS. Terraform avancé, multi-cloud. Certifié AWS Pro et Google Cloud. Profil rare — à contacter AUJOURD'HUI. Autres cabinets le sourcent sûrement."
+          },
+          {
+            "name": "Lucie Favre",
+            "current_title": "Cloud Infrastructure Engineer",
+            "current_company": "Claranet France",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Aucun signal",
+            "contact_method": "InMail LinkedIn",
+            "notes": "7 ans en infra cloud. AWS et Terraform confirmés. Expérience MSP utile. Claranet = partenaire AWS Gold. Profil crédible mais à vérifier sur l'architecture."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "URGENT — Contacter Pierre Lemaire immédiatement (Open to Work visible, profil rare). Approcher Lucie Favre en parallèle sans attendre. Délai de réponse : 24h max sur ce type de profil."
+      },
+      "rating": 5,
+      "notes": "Sourcing marché tendu. Illustre la gestion de l'urgence sur les profils rares (architecte cloud senior) et l'utilisation du paramètre 'Open to Work' LinkedIn comme signal de priorité absolue."
+    },
+    {
+      "id": "cs-015",
+      "input": {
+        "mission": {
+          "title": "Attaché(e) Commercial(e) Pharmaceutique",
+          "client": "Servier",
+          "requirements": ["Visite médicale ou vente B2B santé", "Permis B", "Région PACA", "2+ ans"],
+          "salary_range": "38 000 – 46 000 € fixe + variable + véhicule",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profils terrain santé, PACA. Pôle Emploi et LinkedIn."
+      },
+      "expected_output": {
+        "mission_title": "Attaché(e) Commercial(e) Pharmaceutique — Servier PACA",
+        "search_strategy": "LinkedIn : 'Délégué Médical', 'Attaché Commercial Pharmaceutique', filtre PACA. Pôle Emploi région PACA. Associations : UCPM (Union des Commerciaux Pharmaceutiques). Indeed PACA.",
+        "profiles_found": [
+          {
+            "name": "Sonia Belhadj",
+            "current_title": "Déléguée Médicale",
+            "current_company": "Sanofi (région PACA)",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "A commenté un post sur la 'restructuration en pharma' — signal de mobilité",
+            "contact_method": "InMail LinkedIn",
+            "notes": "5 ans délégué médical sur la même région. Contexte restructuration Sanofi = candidat probablement en recherche discrète. Profil idéal — même bassin, même secteur."
+          },
+          {
+            "name": "Damien Vial",
+            "current_title": "Commercial B2B",
+            "current_company": "Distributeur médical Marseille",
+            "source": "job_board",
+            "relevance_score": 3,
+            "availability": "A postulé sur Indeed",
+            "contact_method": "Email via Indeed",
+            "notes": "3 ans en distribution médicale. Moins spécialisé que Sonia mais terrain PACA maîtrisé. Profil de secours."
+          }
+        ],
+        "recommended_count": 1,
+        "next_action": "Approcher Sonia Belhadj rapidement — signal clair de mobilité liée à la restructuration Sanofi. Qualifier Damien Vial par téléphone pour évaluer son niveau de connaissance médicale."
+      },
+      "rating": 5,
+      "notes": "Sourcing terrain santé. Illustre l'utilisation d'actualités sectorielles (restructuration Sanofi) comme signal d'opportunité de sourcing, et la distinction entre profil 'idéal' et 'secours' pour gérer les attentes du client."
+    },
+    {
+      "id": "cs-016",
+      "input": {
+        "mission": {
+          "title": "Développeur Salesforce",
+          "client": "Danone",
+          "requirements": ["Salesforce (Apex, LWC)", "CRM B2B", "3+ ans", "Paris"],
+          "salary_range": "55 000 – 68 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Niche technique. Communautés Salesforce et LinkedIn."
+      },
+      "expected_output": {
+        "mission_title": "Développeur Salesforce — Danone Paris",
+        "search_strategy": "LinkedIn : 'Salesforce Developer', 'Développeur Salesforce', 'Apex Developer'. Communautés : Salesforce France Trailblazers, Salesforce Developer Group Paris. Trailhead (profils publics certifiés).",
+        "profiles_found": [
+          {
+            "name": "Kevin Tran",
+            "current_title": "Salesforce Developer",
+            "current_company": "Capgemini (mission chez Schneider Electric)",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "Fin de mission dans 6 semaines selon son profil",
+            "contact_method": "InMail LinkedIn",
+            "notes": "4 ans Salesforce, certifié Platform Developer I et II. Apex et LWC confirmés. Fin de mission ESN = moment idéal pour proposer une opportunité en interne."
+          },
+          {
+            "name": "Morgane Petit",
+            "current_title": "Salesforce Admin & Developer",
+            "current_company": "Scale-up SaaS RH",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "Membre active du groupe Trailblazer Paris — rencontrée à un meetup selon un contact réseau",
+            "contact_method": "Mise en relation via contact réseau commun",
+            "notes": "5 ans Salesforce, triple certifiée. Profil full-stack Salesforce. Recommandée par contact réseau = approche chaleureuse possible."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Mettre en relation avec Morgane Petit via contact commun. Approcher Kevin Tran par InMail en ciblant sa fin de mission imminente."
+      },
+      "rating": 5,
+      "notes": "Sourcing niche technique (Salesforce). Illustre l'utilisation des communautés spécialisées (Trailblazer Groups) et le bon timing d'approche pour les profils ESN en fin de mission."
+    },
+    {
+      "id": "cs-017",
+      "input": {
+        "mission": {
+          "title": "Responsable HSE",
+          "client": "Veolia (site industriel, Lyon)",
+          "requirements": ["Hygiène Sécurité Environnement", "ICPE", "5+ ans industrie", "Lyon ou Rhône-Alpes"],
+          "salary_range": "55 000 – 68 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Profils HSE industrie, région Rhône-Alpes."
+      },
+      "expected_output": {
+        "mission_title": "Responsable HSE — Veolia Lyon",
+        "search_strategy": "LinkedIn : 'Responsable HSE', 'QHSE Manager', 'EHS Manager', filtres Lyon/Rhône-Alpes. Cibles : Arkema, Solvay, Kem One, Rhodia, Total Petrochemicals. Association INRS.",
+        "profiles_found": [
+          {
+            "name": "Franck Martineau",
+            "current_title": "Responsable HSE",
+            "current_company": "Arkema (site de Pierre-Bénite)",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "Profil mis à jour récemment",
+            "contact_method": "InMail LinkedIn",
+            "notes": "8 ans HSE en industrie chimique classée ICPE. Pierre-Bénite = même bassin que Lyon. Expérience ICPE critique pour Veolia. Profil parfait à contacter."
+          },
+          {
+            "name": "Nadia Khelil",
+            "current_title": "Ingénieure QHSE",
+            "current_company": "Suez (ex-Veolia concurrent)",
+            "source": "database",
+            "relevance_score": 5,
+            "availability": "En base — cherchait un poste responsable (elle était N-1)",
+            "contact_method": "Email base cabinet",
+            "notes": "6 ans chez Suez, ICPE maîtrisée, veut progresser vers un poste de responsable. Veolia est une évolution naturelle depuis Suez. Recontacter immédiatement."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Recontacter Nadia Khelil (base cabinet, projet de progression documenté). Approcher Franck Martineau par InMail. Deux profils solides à soumettre simultanément."
+      },
+      "rating": 5,
+      "notes": "Sourcing HSE industrie. Illustre l'argument de progression de carrière (N-1 → Responsable) comme angle d'approche, et la valeur d'une base de candidats avec les projets professionnels documentés."
+    },
+    {
+      "id": "cs-018",
+      "input": {
+        "mission": {
+          "title": "Analyste M&A",
+          "client": "Rothschild & Co Paris",
+          "requirements": ["Modélisation financière", "M&A", "Master Grande École", "1-3 ans en banque d'affaires", "Paris"],
+          "salary_range": "65 000 – 80 000 €",
+          "urgency": "Haute"
+        },
+        "search_directive": "Profil junior M&A. Réseau Grandes Écoles + LinkedIn."
+      },
+      "expected_output": {
+        "mission_title": "Analyste M&A — Rothschild & Co Paris",
+        "search_strategy": "LinkedIn : 'M&A Analyst', 'Investment Banking Analyst', Junior. Cibles : BNP Paribas CIB, Société Générale CIB, Lazard, Messier Maris, Natixis M&A. Réseaux Alumni HEC, ESSEC, ESCP, Sciences Po.",
+        "profiles_found": [
+          {
+            "name": "Antoine Lefebvre",
+            "current_title": "Analyste M&A",
+            "current_company": "Lazard Paris",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "Fin de programme analyst (2 ans) — timing parfait pour une transition",
+            "contact_method": "InMail LinkedIn",
+            "notes": "2 ans Lazard en M&A. HEC Paris. Fin de programme analyst standard = fenêtre de recrutement idéale. Rothschild est une opportunité de prestige équivalente, voire supérieure sur certains secteurs."
+          },
+          {
+            "name": "Léa Jacquier",
+            "current_title": "Analyste Corporate Finance",
+            "current_company": "BNP Paribas CIB",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "1 an et demi d'expérience — peut chercher un move latéral",
+            "contact_method": "InMail LinkedIn",
+            "notes": "ESSEC. 18 mois BNP CIB. M&A moins marqué que Lazard mais profil solide. Approcher avec l'angle 'boutique vs banque universelle'."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Contacter Antoine Lefebvre en priorité — fenêtre de fin de programme analyst à ne pas manquer. Approcher Léa Jacquier avec l'angle différenciant boutique M&A vs grande banque."
+      },
+      "rating": 5,
+      "notes": "Sourcing junior M&A très ciblé. Illustre la connaissance des cycles de carrière en banque d'affaires (fin de programme analyst à 2 ans = fenêtre de recrutement naturelle) et l'utilisation de cette temporalité comme argument d'approche."
+    },
+    {
+      "id": "cs-019",
+      "input": {
+        "mission": {
+          "title": "Formateur SIMDUT / Sécurité industrielle",
+          "client": "Confidentiel (groupe chimie, site de Rouen)",
+          "requirements": ["Formation SST", "Sécurité industrielle", "Pédagogie terrain", "5+ ans", "Normandie"],
+          "salary_range": "42 000 – 52 000 €",
+          "urgency": "Normale"
+        },
+        "search_directive": "Niche formation sécurité. Centres de formation + LinkedIn."
+      },
+      "expected_output": {
+        "mission_title": "Formateur Sécurité Industrielle — Groupe Chimie Rouen (confidentiel)",
+        "search_strategy": "LinkedIn : 'Formateur Sécurité', 'HSE Trainer', filtre Normandie. Centres de formation : AFPI Normandie, AFNOR Formation, Bureau Veritas Formation. Réseaux INRS et OPPBTP.",
+        "profiles_found": [
+          {
+            "name": "Patrick Renaud",
+            "current_title": "Formateur HSE",
+            "current_company": "Bureau Veritas Formation",
+            "source": "linkedin",
+            "relevance_score": 5,
+            "availability": "Basé à Rouen — aucune contrainte de mobilité",
+            "contact_method": "InMail LinkedIn",
+            "notes": "12 ans en formation HSE industrielle. Intervient sur sites pétrochimiques et chimiques en Normandie. Profil parfait pour ce type de mission. À contacter rapidement."
+          },
+          {
+            "name": "Christine Mallet",
+            "current_title": "Responsable Sécurité",
+            "current_company": "Ineos Normandie",
+            "source": "linkedin",
+            "relevance_score": 3,
+            "availability": "Inconnu — profil non mis à jour",
+            "contact_method": "InMail LinkedIn",
+            "notes": "Opérationnelle plutôt que formatrice. Transition vers formation non évidente mais à explorer si Patrick est indisponible."
+          }
+        ],
+        "recommended_count": 1,
+        "next_action": "Contacter Patrick Renaud en priorité (profil idéal, déjà formateur, localisation parfaite). Garder Christine Mallet en réserve uniquement."
+      },
+      "rating": 5,
+      "notes": "Sourcing niche formation industrielle. Illustre l'utilisation des réseaux sectoriels spécialisés (INRS, OPPBTP, Bureau Veritas) comme canaux alternatifs à LinkedIn pour les métiers de terrain spécialisés."
+    },
+    {
+      "id": "cs-020",
+      "input": {
+        "mission": {
+          "title": "Chargé de Clientèle Banque de Détail",
+          "client": "LCL (Crédit Lyonnais)",
+          "requirements": ["Banque de détail", "Gestion portefeuille clients", "2+ ans", "Paris ou Île-de-France"],
+          "salary_range": "34 000 – 42 000 €",
+          "urgency": "Normale — recrutement régulier (5 postes sur l'année)"
+        },
+        "search_directive": "Volume modéré. Candidatures entrantes + LinkedIn. Cibles : jeunes profils Banque/Finance."
+      },
+      "expected_output": {
+        "mission_title": "Chargé(e) de Clientèle Banque de Détail — LCL Île-de-France",
+        "search_strategy": "Annonce déposée sur LinkedIn Jobs, Indeed, Cadremploi. Filtres : licence ou master banque/finance, Île-de-France, 1-4 ans d'expérience. Cibles : Société Générale réseau, BNP réseau, Crédit Agricole Île-de-France.",
+        "profiles_found": [
+          {
+            "name": "Marion Leconte",
+            "current_title": "Conseillère Bancaire",
+            "current_company": "Société Générale (agence Paris 15e)",
+            "source": "job_board",
+            "relevance_score": 4,
+            "availability": "A postulé sur Indeed — disponible dans 1 mois",
+            "contact_method": "Email via Indeed",
+            "notes": "3 ans en agence SG. Licence bancaire. Veut évoluer vers une clientèle plus premium (LCL pro). Profil standard mais solide."
+          },
+          {
+            "name": "Youssef Haddad",
+            "current_title": "Conseiller Financier",
+            "current_company": "BNP Paribas (agence Créteil)",
+            "source": "linkedin",
+            "relevance_score": 4,
+            "availability": "A mis son profil en 'Open to Work'",
+            "contact_method": "InMail LinkedIn",
+            "notes": "2 ans BNP. Master Banque Finance Paris-Est. Cherche activement. Compatible avec LCL."
+          },
+          {
+            "name": "Sara Benali",
+            "current_title": "Assistante Relation Client",
+            "current_company": "Crédit Agricole IDF",
+            "source": "job_board",
+            "relevance_score": 3,
+            "availability": "A postulé — disponible immédiatement",
+            "contact_method": "Email via Indeed",
+            "notes": "Expérience partielle (1,5 an) et titre d'assistante — à vérifier si elle peut prendre en charge un portefeuille en autonomie."
+          }
+        ],
+        "recommended_count": 2,
+        "next_action": "Traiter les candidatures de Marion et Sara (qualifier Sara par téléphone sur l'autonomie). Contacter Youssef Haddad par InMail. Ces 3 profils peuvent être présentés en même temps — poste en volume."
+      },
+      "rating": 5,
+      "notes": "Sourcing en volume (5 postes). Illustre l'adaptation de la stratégie au recrutement volumique (annonces actives + LinkedIn en parallèle) et le traitement simultané de plusieurs profils sans bloquer le processus."
+    }
+  ]
+}

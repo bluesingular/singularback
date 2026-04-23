@@ -1,0 +1,103 @@
+{
+  "pack_slug": "p1-recruitment",
+  "moments": [
+    {
+      "key": "moment_1_seed_ready",
+      "day": 0,
+      "trigger": "seed_task_complete",
+      "trigger_task_id": "seed-sophie-qualification",
+      "fire_within_minutes": 10,
+      "push_notification": {
+        "title": "Sophie vient de finir sa première sélection.",
+        "body": "Elle a analysé 5 profils et en a retenu 2. Voir ce qu'elle a trouvé →"
+      },
+      "in_app_banner": {
+        "text": "Sophie a qualifié 5 CV pour votre mission React Senior. Elle recommande 2 profils.",
+        "cta": "Voir la sélection →"
+      },
+      "micro_rewards": {
+        "on_rating_high": "Merci. Sophie a enregistré vos critères — elle s'en souviendra pour toutes vos prochaines missions.",
+        "on_rating_low": "Merci. Sophie a pris note et ajustera ses prochaines évaluations."
+      }
+    },
+    {
+      "key": "moment_2_first_real_task",
+      "day": 2,
+      "trigger": "first_real_task_complete",
+      "fire_within_minutes": 5,
+      "push_notification": {
+        "title": "{candidate_firstname} vient d'arriver dans votre boîte.",
+        "body": "Sophie vient de le lire. Elle lui donne 4,5/5. →",
+        "fallback_title": "Un nouveau profil vient d'arriver dans votre boîte.",
+        "fallback_body": "Sophie vient de le lire. Elle lui donne 4,5/5. →"
+      },
+      "in_app_banner": {
+        "text": "Sophie a analysé le CV de {candidate_firstname} reçu ce matin. Score : 4,5/5 — profil correspondant à votre mission {mission_title}.",
+        "cta": "Voir →"
+      },
+      "micro_rewards": {
+        "on_rating_high": "Sophie est bien alignée avec vos critères. Elle continuera sur cette base.",
+        "on_rating_low": "Sophie a pris note. Elle ajustera ses prochaines évaluations.",
+        "no_rating_after_48h": null
+      }
+    },
+    {
+      "key": "moment_3_capability_reveal",
+      "day": 4,
+      "trigger": "schedule",
+      "fire_at": "08:05",
+      "intelligence_card": {
+        "card_type": "capability_reveal",
+        "headline": "Sophie a remarqué quelque chose cette semaine.",
+        "body": "Trois des profils qualifiés viennent du même département chez {top_source_company}. Cela pourrait indiquer une réorganisation en cours.",
+        "cta": "En savoir plus →",
+        "dismiss": "Pas intéressant",
+        "urgency": 2
+      },
+      "console_followup": "Sophie a détecté un signal marché intéressant. Voulez-vous qu'elle approfondisse ? Elle pourrait aussi sourcer directement sur LinkedIn si vous lui donnez accès — elle ne publie et ne contacte jamais sans votre accord."
+    },
+    {
+      "key": "moment_4_proactive_insight",
+      "day": 6,
+      "trigger": "schedule",
+      "fire_at": "08:05",
+      "push_notification": {
+        "title": "Trois de vos candidats attendent depuis 4 jours.",
+        "body": "Aucun d'eux n'a eu de nouvelles. Sophie peut les contacter aujourd'hui. →"
+      },
+      "intelligence_card": {
+        "card_type": "proactive_action",
+        "headline": "Trois candidats qualifiés, aucun contact.",
+        "body": "{candidate_1}, {candidate_2} et {candidate_3} ont été qualifiés il y a 4 jours. Aucun e-mail n'est parti. Sophie a préparé trois messages.",
+        "cta": "Voir les drafts →",
+        "dismiss": "Je m'en occupe moi-même",
+        "urgency": 4
+      },
+      "task_thread_opening": "Trois de vos candidats qualifiés n'ont pas encore eu de nouvelles de votre cabinet. J'ai préparé un message de prise de contact pour chacun d'eux. Lisez et approuvez — ou modifiez si vous voulez changer le ton.",
+      "micro_reward": "Envoyés. Sophie notera leurs réponses et vous tiendra informé(e)."
+    },
+    {
+      "key": "moment_5_week_summary",
+      "day": 7,
+      "trigger": "schedule",
+      "fire_at": "08:00",
+      "push_notification": {
+        "title": "Votre première semaine avec votre équipe IA.",
+        "body": "Sophie, Marc et Clara ont travaillé pendant 7 jours. Voici le bilan. →"
+      },
+      "email": {
+        "subject": "{operator_firstname}, voici ce que votre équipe IA a accompli cette semaine",
+        "headline": "Votre première semaine",
+        "subline": "Voici ce que Sophie, Marc et Clara ont fait pendant que vous gériez votre cabinet."
+      },
+      "shareable_card": {
+        "title": "Ma première semaine avec mon équipe IA",
+        "fields": ["cvs_qualified", "hours_saved_per_week", "monthly_cost_vs_human"],
+        "default_quote": "C'est comme avoir une chargée de recherche qui travaille la nuit.",
+        "share_label": "Partager votre première semaine",
+        "share_buttons": ["linkedin", "whatsapp", "copy_link"],
+        "upsell": "Votre équipe peut faire encore plus. Explorez ce qu'elle peut apprendre. →"
+      }
+    }
+  ]
+}

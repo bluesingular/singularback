@@ -1,0 +1,1 @@
+{"version":3,"file":"branchPicker.d.ts","sourceRoot":"","sources":["../../src/primitives/branchPicker.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,yBAAyB,IAAI,IAAI,EAAE,2CAAwC;AACpF,OAAO,EAAE,6BAA6B,IAAI,QAAQ,EAAE,+CAA4C;AAChG,OAAO,EAAE,0BAA0B,IAAI,KAAK,EAAE,4CAAyC;AACvF,OAAO,EAAE,2BAA2B,IAAI,MAAM,EAAE,6CAA0C;AAC1F,OAAO,EAAE,yBAAyB,IAAI,IAAI,EAAE,2CAAwC"}

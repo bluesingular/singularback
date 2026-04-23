@@ -1,0 +1,1 @@
+{"version":3,"file":"useAssistantDataUI.d.ts","sourceRoot":"","sources":["../../../src/react/model-context/useAssistantDataUI.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,wBAAwB,EAAE,8CAA2C;AAEnF,MAAM,MAAM,oBAAoB,CAAC,CAAC,GAAG,GAAG,IAAI;IAC1C,IAAI,EAAE,MAAM,CAAC;IACb,MAAM,EAAE,wBAAwB,CAAC,CAAC,CAAC,CAAC;CACrC,CAAC;AAEF,eAAO,MAAM,kBAAkB,GAAI,QAAQ,oBAAoB,GAAG,IAAI,SAMrE,CAAC"}

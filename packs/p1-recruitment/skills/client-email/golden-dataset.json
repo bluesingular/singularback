@@ -1,0 +1,386 @@
+{
+  "skill": "client-email",
+  "version": "1.0",
+  "examples": [
+    {
+      "id": "ce-001",
+      "input": {
+        "client": { "name": "Camille Aubert", "email": "caubert@doctolib.fr", "title": "Head of Talent Acquisition", "relationship": "établie" },
+        "mission": { "title": "Lead Data Engineer", "open_since": "3 semaines" },
+        "context": "Présentation de 3 candidats qualifiés. Profils : Thomas Mercier (5/5), Julie Marchand (4/5 — PM mais intéressant), Adrien Lecomte (5/5).",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Camille Aubert",
+        "recipient_email": "caubert@doctolib.fr",
+        "subject": "Lead Data Engineer — 3 profils à découvrir",
+        "body": "Bonjour Camille,\n\nVoici les trois premiers profils identifiés pour votre mission Lead Data Engineer.\n\n**Thomas Mercier** — Senior Data Engineer chez Alan (7 ans d'expérience). Stack Python/Spark/dbt/AWS parfaitement alignée. Disponible dans 3 semaines. Prétentions : 78k.\n\n**Adrien Lecomte** — Senior ML Engineer chez Criteo (9 ans). Expertise data à très grande échelle. A publié sur le MLOps. Disponible rapidement.\n\n**Julie Marchand** — Product Manager chez Cdiscount (5 ans sur un périmètre marketplace data). Profil atypique mais solide bagage analytique et SQL avancé — je le soumets pour votre avis.\n\nJe vous transmets les synthèses complètes en pièce jointe. Êtes-vous disponible cette semaine pour des entretiens ?\n\nBien à vous,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Présentation de 3 candidats bien structurée. Chaque profil en 2-3 lignes avec les points clés. La demande de disponibilité est intégrée naturellement. Le troisième profil (atypique) est soumis avec transparence ('pour votre avis') — bonne pratique de conseil."
+    },
+    {
+      "id": "ce-002",
+      "input": {
+        "client": { "name": "Pierre Renaud", "email": "p.renaud@blablacar.com", "title": "DRH", "relationship": "nouvelle" },
+        "mission": { "title": "Responsable Marketing Digital", "open_since": "2 semaines" },
+        "context": "Point de situation après 2 semaines de recherche. 12 CVs analysés, 2 profils intéressants, 1 en cours de qualification.",
+        "email_type": "mission_update"
+      },
+      "expected_output": {
+        "recipient_name": "Pierre Renaud",
+        "recipient_email": "p.renaud@blablacar.com",
+        "subject": "Mission Responsable Marketing — point de situation semaine 2",
+        "body": "Monsieur Renaud,\n\nVoici un point de situation sur la mission Responsable Marketing Digital.\n\n**Avancement à ce jour**\n12 CVs analysés depuis le lancement. Deux profils se distinguent et sont en cours de qualification approfondie. Un troisième profil issu du sourcing actif est en attente de retour.\n\n**Prochaine étape**\nJe compte vous soumettre une première sélection en début de semaine prochaine, dès confirmation de la disponibilité des candidats.\n\n**Point de contexte**\nLe marché est compétitif sur ce type de profil à Paris — les candidats qualifiés ont souvent plusieurs opportunités en parallèle. Je privilégie la qualité à la vitesse pour vous présenter des profils réellement disponibles et motivés.\n\nJe reviens vers vous mardi au plus tard.\n\nBien cordialement,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "mission_update",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Mise à jour de mission sans candidats à présenter. Illustre comment être transparent sur la lenteur du marché sans être négatif — le 'contexte marché compétitif' est une information utile pour le client, pas une excuse."
+    },
+    {
+      "id": "ce-003",
+      "input": {
+        "client": { "name": "Isabelle Moreau", "email": "i.moreau@kering.com", "title": "DRH Kering", "relationship": "établie (10 ans de collaboration)" },
+        "mission": { "title": "Directrice Financière", "candidate": "Isabelle Rousseau" },
+        "context": "Retour post-entretien final. Le client était enthousiaste. Prochaine étape : offre à préparer.",
+        "email_type": "interview_followup"
+      },
+      "expected_output": {
+        "recipient_name": "Isabelle Moreau",
+        "recipient_email": "i.moreau@kering.com",
+        "subject": "Isabelle Rousseau — suite à votre entretien",
+        "body": "Bonjour Isabelle,\n\nJ'ai eu Isabelle Rousseau en ligne ce matin après votre entretien — ses retours sont très positifs sur le poste et sur l'équipe. La mission l'enthousiasme et elle est prête à entrer en négociation.\n\nQuelques éléments utiles pour la construction de l'offre :\n• Prétentions exprimées : 155k (dans votre fourchette)\n• Préavis : 3 mois (date de prise de poste envisagée : mi-juillet)\n• Pas d'autre process concurrent en cours à ce stade\n\nQuand souhaitez-vous avancer sur l'offre ? Je reste disponible pour faciliter la négociation si besoin.\n\nÀ très vite,\nMarc",
+        "email_type": "interview_followup",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Retour post-entretien final vers un DRH avec relation établie. Ton plus familier (prénom seul). Les éléments chiffrés (prétentions, préavis, absence d'autres process) sont exactement ce dont le client a besoin pour construire l'offre."
+    },
+    {
+      "id": "ce-004",
+      "input": {
+        "client": { "name": "Jean-François Petit", "email": "jf.petit@societe-generale.fr", "title": "Directeur des Risques", "relationship": "nouvelle" },
+        "mission": { "title": "Ingénieur Cybersécurité" },
+        "context": "Présentation d'un seul candidat exceptionnel. Karim Benali, 5/5. Timing idéal.",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Jean-François Petit",
+        "recipient_email": "jf.petit@societe-generale.fr",
+        "subject": "Ingénieur Cybersécurité — un profil prioritaire à rencontrer",
+        "body": "Monsieur Petit,\n\nJ'ai le plaisir de vous soumettre un premier profil pour votre mission Ingénieur Cybersécurité.\n\n**Karim Benali** — Analyste SOC N2 chez Thales (6 ans). Double expertise SIEM (Splunk + QRadar), certification CEH validée, expérience pentest confirmée. Disponible immédiatement suite à rupture conventionnelle finalisée. Prétentions : 82k (dans votre fourchette).\n\nProfil rare sur le marché : la combinaison SIEM double + CEH + expérience grand groupe industriel se présente rarement. Je vous recommande de le rencontrer rapidement.\n\nÊtes-vous disponible cette semaine ou la suivante pour un entretien ? Je peux coordonner les agendas.\n\nBien cordialement,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Présentation d'un seul profil exceptionnel avec recommandation de rapidité. Illustre comment créer un sentiment d'urgence légitime ('profil rare', 'recommande de rencontrer rapidement') sans manipulation — c'est simplement la réalité du marché cybersécurité."
+    },
+    {
+      "id": "ce-005",
+      "input": {
+        "client": { "name": "Sophie Lambert", "email": "sophie.lambert@capgemini.com", "title": "HR Business Partner", "relationship": "établie" },
+        "mission": { "title": "Responsable RH", "candidate_rejected": "Marie-Claire Dupont" },
+        "context": "Retour de Capgemini : Marie-Claire non retenue. Le client demande d'autres profils. La recherche continue.",
+        "email_type": "mission_update"
+      },
+      "expected_output": {
+        "recipient_name": "Sophie Lambert",
+        "recipient_email": "sophie.lambert@capgemini.com",
+        "subject": "Mission RH — suite à votre retour",
+        "body": "Bonjour Sophie,\n\nMerci pour votre retour sur Marie-Claire Dupont — j'en prends note pour affiner les profils suivants.\n\nJe reprends le sourcing en tenant compte de vos critères actualisés, notamment sur l'autonomie en droit social et l'expérience des relations sociales en ESN.\n\nJe reviens vers vous avec de nouveaux profils d'ici la fin de la semaine prochaine. Si des critères ont évolué depuis notre brief initial, n'hésitez pas à me le signaler — cela m'aide à cibler plus précisément.\n\nÀ bientôt,\nMarc",
+        "email_type": "mission_update",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Mise à jour après rejet d'un candidat par le client. Illustre la bonne pratique de rebondir positivement (j'en prends note pour affiner), de reconfirmer sa compréhension des critères, et de proposer une date de retour. Pas de terme négatif."
+    },
+    {
+      "id": "ce-006",
+      "input": {
+        "client": { "name": "Thomas Girard", "email": "t.girard@swile.co", "title": "Head of Engineering", "relationship": "nouvelle" },
+        "mission": { "title": "Développeur Full Stack React/Node" },
+        "context": "Première prise de contact commerciale. Le cabinet cherche à décrocher un mandat de recrutement tech.",
+        "email_type": "commercial"
+      },
+      "expected_output": {
+        "recipient_name": "Thomas Girard",
+        "recipient_email": "t.girard@swile.co",
+        "subject": "Recrutement tech Swile — notre approche",
+        "body": "Bonjour Thomas,\n\nJe me permets de vous contacter au sujet de vos recrutements tech chez Swile.\n\nNotre cabinet est spécialisé dans les profils engineering pour les scale-ups françaises. Nous avons récemment accompagné des recrutements similaires aux vôtres chez Pennylane, Qonto et ManoMano.\n\nCe qui différencie notre approche : un sourcing actif sur les profils passifs (non en recherche), une qualification technique avant toute présentation, et un engagement sur des délais de présentation de 7 jours ouvrés.\n\nSi vous avez des besoins ouverts ou à venir, je serais ravi d'échanger 20 minutes pour voir si nous pouvons vous être utiles.\n\nBien à vous,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "commercial",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email commercial première prise de contact. Illustre les 3 éléments d'un bon email commercial B2B : références sectorielles pertinentes, proposition de valeur différenciante, appel à l'action léger (20 minutes, pas 'un rendez-vous')."
+    },
+    {
+      "id": "ce-007",
+      "input": {
+        "client": { "name": "Antoine Lebrun", "email": "a.lebrun@loreal.com", "title": "Talent Manager L'Oréal", "relationship": "établie" },
+        "mission": { "title": "Chef de Projet Marketing", "candidate": "Amira Khalil" },
+        "context": "Annonce de proposition d'embauche acceptée. Prise de poste dans 2 mois.",
+        "email_type": "general"
+      },
+      "expected_output": {
+        "recipient_name": "Antoine Lebrun",
+        "recipient_email": "a.lebrun@loreal.com",
+        "subject": "Amira Khalil — offre acceptée !",
+        "body": "Bonjour Antoine,\n\nBonne nouvelle : Amira Khalil a accepté votre proposition ce matin.\n\nÀ retenir pour l'onboarding :\n• Date de prise de poste confirmée : 2 juin\n• Préavis en cours de notification chez Unilever\n• Pas de contre-offre à signaler — sa décision est ferme\n\nJe vous transmets sa confirmation écrite dès réception. L'équipe RH peut entamer les démarches contractuelles.\n\nMerci pour votre confiance sur ce recrutement — je reste disponible pour la suite.\n\nBien à vous,\nMarc",
+        "email_type": "general",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email d'annonce d'acceptation d'offre. Les 3 éléments clés pour l'onboarding client (date, préavis, solidité de la décision) sont structurés clairement. La mention 'pas de contre-offre' est une information que le client cherche implicitement."
+    },
+    {
+      "id": "ce-008",
+      "input": {
+        "client": { "name": "Nadia Fontaine", "email": "n.fontaine@pennylane.com", "title": "People & Culture Lead", "relationship": "établie" },
+        "mission": { "title": "Commercial B2B SaaS", "candidate": "Hugo Lefort" },
+        "context": "Hugo Lefort hésite entre Pennylane et une autre offre. Le client veut savoir quoi faire.",
+        "email_type": "interview_followup"
+      },
+      "expected_output": {
+        "recipient_name": "Nadia Fontaine",
+        "recipient_email": "n.fontaine@pennylane.com",
+        "subject": "Hugo Lefort — point sur sa décision",
+        "body": "Bonjour Nadia,\n\nHugo m'a confirmé avoir reçu une seconde offre en parallèle. Il est réellement attiré par Pennylane — l'ambiance commerciale et le produit lui correspondent — mais le timing de sa décision se resserre.\n\nSi Pennylane peut lui confirmer le package final et la date de prise de poste avant vendredi, je pense que vous avez de bonnes chances. Il attend surtout une confirmation de votre côté pour avancer.\n\nJe reste disponible pour coordonner si vous souhaitez lui passer un appel direct — parfois un appel du futur manager accélère les choses.\n\nÀ vous de jouer,\nMarc",
+        "email_type": "interview_followup",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email de conseil en situation de compétition pour un candidat. Illustre le rôle d'intermédiaire honnête du cabinet — transmettre l'information utile au client (attentes du candidat, timing) sans mentir sur la situation pour créer de la pression artificielle."
+    },
+    {
+      "id": "ce-009",
+      "input": {
+        "client": { "name": "Dominique Bertrand", "email": "d.bertrand@veolia.com", "title": "DRH Veolia France", "relationship": "nouvelle" },
+        "mission": { "title": "Juriste Droit des Sociétés" },
+        "context": "Présentation de 2 candidats. Sophie Leblanc (5/5 Linklaters) et un second profil solide.",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Dominique Bertrand",
+        "recipient_email": "d.bertrand@veolia.com",
+        "subject": "Juriste Droit des Sociétés — 2 profils pour votre mission",
+        "body": "Monsieur Bertrand,\n\nJ'ai le plaisir de vous soumettre deux profils pour la mission Juriste Droit des Sociétés.\n\n**Sophie Leblanc** — Juriste Corporate chez Linklaters Paris (5 ans). Expertise M&A et due diligence, anglais juridique courant, allemand B2 — un atout pour vos opérations en Allemagne. CAPA obtenu. Disponible dans 3 mois. Prétentions : 71k.\n\n**Éric Soulas** — Juriste Droit des Sociétés chez BNP Paribas (4 ans). Solide expérience corporate en grand groupe financier. Anglais courant. Disponible dans 6 semaines. Prétentions : 65k.\n\nLes synthèses détaillées sont en pièce jointe. Je vous propose des entretiens en fin de semaine ou début de semaine prochaine — quelles créneaux vous conviendraient ?\n\nBien cordialement,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Présentation 2 candidats à un nouveau client. L'allemand de Sophie est mis en valeur en contexte (opérations Veolia en Allemagne) — illustre la connaissance du client. La demande de créneaux est ouverte mais formulée avec une proposition de timing."
+    },
+    {
+      "id": "ce-010",
+      "input": {
+        "client": { "name": "Fabienne Lecourt", "email": "f.lecourt@airbus.com", "title": "HR Manager Airbus", "relationship": "établie" },
+        "mission": { "title": "Responsable Supply Chain" },
+        "context": "Annonce d'un refus du candidat préféré (Antoine Moreau) — il a finalement accepté une contre-offre de Safran. La recherche repart.",
+        "email_type": "mission_update"
+      },
+      "expected_output": {
+        "recipient_name": "Fabienne Lecourt",
+        "recipient_email": "f.lecourt@airbus.com",
+        "subject": "Mission Supply Chain — point de situation",
+        "body": "Bonjour Fabienne,\n\nJe vous contacte pour vous tenir informée : Antoine Moreau a finalement décidé de rester chez Safran, après une contre-offre de leur part. Cette décision est indépendante de votre mission ou de votre processus.\n\nJe reprends le sourcing activement. Deux profils identifiés en parallèle lors du premier cycle sont toujours disponibles — je les qualifie en priorité cette semaine.\n\nJe reviens vers vous avec une nouvelle sélection avant vendredi.\n\nÀ bientôt,\nMarc",
+        "email_type": "mission_update",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Annonce d'un candidat qui se désiste après contre-offre. Ton neutre et factuel — pas d'excuse excessive, information claire, plan d'action immédiat. La précision 'indépendante de votre mission' protège la relation client en évitant toute remise en cause du process."
+    },
+    {
+      "id": "ce-011",
+      "input": {
+        "client": { "name": "Julien Masse", "email": "j.masse@totalenergies.com", "title": "Directeur RH TotalEnergies", "relationship": "nouvelle" },
+        "mission": { "title": "Contrôleur de Gestion Senior" },
+        "context": "Présentation de Pierre-Emmanuel Tardif (5/5). Un seul profil au premier cycle.",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Julien Masse",
+        "recipient_email": "j.masse@totalenergies.com",
+        "subject": "Contrôleur de Gestion Senior — un profil à découvrir cette semaine",
+        "body": "Monsieur Masse,\n\nSuite à notre échange de la semaine dernière, voici un premier profil pour votre mission.\n\n**Pierre-Emmanuel Tardif** — Contrôleur de Gestion chez Engie (7 ans dont 4 ans en reporting IFRS sur un grand groupe énergie). SAP BPC maîtrisé, Power BI, clôtures mensuelles et bilan en autonomie. Localisation Nanterre — trajet La Défense facilement gérable. Prétentions : 83k. Disponible dans 3 mois.\n\nSon parcours chez Engie dans un contexte très proche du vôtre (grand groupe énergie, périmètre international, SAP BPC) fait de lui un profil particulièrement pertinent.\n\nLa synthèse complète est en pièce jointe. Êtes-vous disponible cette semaine pour le rencontrer ?\n\nBien cordialement,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Présentation d'un seul profil avec contextualisation forte (Engie vs TotalEnergies — même secteur énergie, même SAP BPC). Illustre comment l'argument 'contexte similaire' est plus convaincant qu'une liste de compétences abstraites."
+    },
+    {
+      "id": "ce-012",
+      "input": {
+        "client": { "name": "Caroline Nguyen", "email": "c.nguyen@capgemini.com", "title": "Talent Partner Capgemini", "relationship": "établie" },
+        "mission": { "title": "Chargé de Recrutement IT" },
+        "context": "Entretien passé avec Chloé Martin. Retour du client : elle est retenue. L'offre va partir.",
+        "email_type": "interview_followup"
+      },
+      "expected_output": {
+        "recipient_name": "Caroline Nguyen",
+        "recipient_email": "c.nguyen@capgemini.com",
+        "subject": "Chloé Martin — suite à votre entretien",
+        "body": "Bonjour Caroline,\n\nJ'ai eu Chloé en ligne ce matin — l'entretien s'est très bien passé de son côté aussi. Elle est enthousiaste par l'équipe et le périmètre de recrutement chez Capgemini.\n\nDeux éléments pratiques avant l'offre :\n• Elle est disponible immédiatement (fin de CDD) — la prise de poste peut être rapide\n• Sa prétention est de 35k, ce que vous nous aviez confirmé être dans votre fourchette\n\nElle n'a pas d'autre process en cours à ce jour. Si l'offre part cette semaine, le timing est idéal.\n\nÀ vous,\nMarc",
+        "email_type": "interview_followup",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email post-entretien positif avec éléments pratiques pour l'offre. La disponibilité immédiate est mise en avant — c'est le point fort du profil. L'absence de contre-processus est signalée proactivement pour faciliter la décision rapide."
+    },
+    {
+      "id": "ce-013",
+      "input": {
+        "client": { "name": "Bertrand Faure", "email": "b.faure@ovhcloud.com", "title": "CTO OVHcloud", "relationship": "nouvelle" },
+        "mission": { "title": "Architecte Cloud AWS" },
+        "context": "Présentation de Pierre Lemaire (5/5). Le profil est rare et en Open to Work. Urgence.",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Bertrand Faure",
+        "recipient_email": "b.faure@ovhcloud.com",
+        "subject": "Architecte Cloud AWS — profil rare disponible maintenant",
+        "body": "Monsieur Faure,\n\nUn profil que je souhaitais vous signaler rapidement.\n\n**Pierre Lemaire** — Solutions Architect chez AWS France (9 ans d'expérience cloud dont 4 chez AWS). Certifié AWS Solutions Architect Professional + Google Cloud Professional. Terraform avancé, architecture multi-cloud en production. Actuellement en veille active.\n\nLa combinaison AWS + certifications Pro + Terraform à ce niveau de séniorité est rare sur le marché français. D'autres cabinets ont accès à son profil — si OVHcloud est intéressé, je vous recommande de le rencontrer avant la fin de la semaine.\n\nJe coordonne les agendas dès votre retour.\n\nBien cordialement,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Présentation urgente d'un profil rare. L'urgence est justifiée honnêtement (profil rare, Open to Work = autres cabinets actifs). La recommandation de rapidité est explicite sans être agressive — c'est du conseil, pas de la manipulation."
+    },
+    {
+      "id": "ce-014",
+      "input": {
+        "client": { "name": "Hélène Morin", "email": "h.morin@korian.fr", "title": "DRH Korian EHPAD Paris", "relationship": "nouvelle" },
+        "mission": { "title": "Infirmière Coordinatrice" },
+        "context": "Présentation de Fatima Ouldali (4/5) et Stéphanie Moreau (5/5). Deux profils distincts.",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Hélène Morin",
+        "recipient_email": "h.morin@korian.fr",
+        "subject": "Infirmière Coordinatrice — 2 profils pour votre EHPAD",
+        "body": "Madame Morin,\n\nVoici deux profils pour votre mission Infirmière Coordinatrice.\n\n**Stéphanie Moreau** — IPDE (Infirmière Puéricultrice Diplômée d'État) chez l'AP-HP Necker (8 ans). Expérience de coordination en service pédiatrique de référence nationale. Cherche un meilleur équilibre vie professionnelle/personnelle en clinique privée. Disponible dans 1 mois.\n\n**Fatima Ouldali** — IDE avec 6 ans dont 3 ans en urgences AP-HP, expérience de coordination d'équipe confirmée. Ouverture au secteur médico-social avérée. Arabe natif — atout dans votre bassin de résidents. Disponible dans 2 mois.\n\nDeux approches différentes : Stéphanie arrive avec une expertise pédiatrique très poussée, Fatima avec une polyvalence urgentiste. Les deux ont l'aptitude à la coordination.\n\nJe vous propose des entretiens cette semaine ou la suivante selon vos disponibilités.\n\nBien cordialement,\nMarc — Cabinet Singular",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Présentation santé avec 2 profils aux profils distincts. La comparaison finale ('deux approches différentes') aide le client à se positionner sans que le cabinet impose son choix. L'atout linguistique de Fatima (arabe) est contextualisé de façon pertinente."
+    },
+    {
+      "id": "ce-015",
+      "input": {
+        "client": { "name": "Mathieu Chevalier", "email": "m.chevalier@mirakl.com", "title": "VP Product Mirakl", "relationship": "établie" },
+        "mission": { "title": "Product Manager", "candidate": "Julie Marchand" },
+        "context": "Julie Marchand a confirmé sa disponibilité remote. L'entretien peut être planifié.",
+        "email_type": "general"
+      },
+      "expected_output": {
+        "recipient_name": "Mathieu Chevalier",
+        "recipient_email": "m.chevalier@mirakl.com",
+        "subject": "Julie Marchand — disponibilité remote confirmée",
+        "body": "Bonjour Mathieu,\n\nBonne nouvelle : Julie Marchand a confirmé qu'elle est disponible pour venir 1 jour par semaine à Paris depuis Bordeaux — le format s'aligne donc avec vos exigences.\n\nElle reste très intéressée par la mission marketplace chez Mirakl. On peut planifier l'entretien dès cette semaine.\n\nQuels créneaux vous conviennent ? Je coordonne avec Julie directement.\n\nÀ très vite,\nMarc",
+        "email_type": "general",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email court de coordination post-qualification. Illustre l'efficacité d'un email qui n'a qu'un seul but (débloquer l'entretien) et qui va à l'essentiel sans rembourrage superflu."
+    },
+    {
+      "id": "ce-016",
+      "input": {
+        "client": { "name": "Virginie Lamy", "email": "v.lamy@sodexo.com", "title": "DRH Sodexo France", "relationship": "établie" },
+        "mission": { "title": "Chargée de Recrutement", "candidate": "Chloé Martin" },
+        "context": "Intégration confirmée. Chloé démarre lundi prochain. Dernière étape de la mission.",
+        "email_type": "general"
+      },
+      "expected_output": {
+        "recipient_name": "Virginie Lamy",
+        "recipient_email": "v.lamy@sodexo.com",
+        "subject": "Chloé Martin — bienvenue lundi !",
+        "body": "Bonjour Virginie,\n\nChloé Martin démarre chez Sodexo lundi prochain — tout est en ordre de son côté.\n\nC'est notre dernier échange sur ce recrutement. Je reste bien sûr disponible si une question surgit pendant la période d'intégration.\n\nMerci pour la confiance que vous accordez au cabinet — n'hésitez pas à me contacter si d'autres besoins se profilent.\n\nBelle continuation,\nMarc",
+        "email_type": "general",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email de clôture de mission. Court et chaleureux. La disponibilité pendant l'intégration est signalée sans créer d'obligation. La porte ouverte pour de futurs besoins est mentionnée de façon naturelle, pas commerciale."
+    },
+    {
+      "id": "ce-017",
+      "input": {
+        "client": { "name": "Éric Dumont", "email": "e.dumont@servier.com", "title": "HR Business Partner Servier", "relationship": "nouvelle" },
+        "mission": { "title": "Pharmacien Responsable de Production" },
+        "context": "Présentation de Maxime Girard — mais sa mobilité depuis Toulouse n'est pas encore 100% confirmée. À signaler au client.",
+        "email_type": "candidate_presentation"
+      },
+      "expected_output": {
+        "recipient_name": "Éric Dumont",
+        "recipient_email": "e.dumont@servier.com",
+        "subject": "Pharmacien Responsable — un profil en cours de confirmation",
+        "body": "Monsieur Dumont,\n\nJe viens vers vous avec un profil solide sur le fond, assorti d'un point à confirmer.\n\n**Maxime Girard** — Ingénieur Procédés Pharmaceutiques chez Pierre Fabre (5 ans). GMP et validation process maîtrisés. DoE, Lean Manufacturing. Python pour l'analyse de données — profil analytique appréciable en contexte de digitalisation. Prétentions : 62k.\n\nPoint à confirmer : Maxime est actuellement basé à Toulouse et se dit ouvert à la mobilité sur Vitry-sur-Seine. Je finalise la qualification sur ce point cette semaine avant de vous soumettre une synthèse complète.\n\nJe voulais vous signaler ce profil dès maintenant compte tenu de sa rareté. Je reviens vers vous avec confirmation d'ici jeudi.\n\nBien cordialement,\nMarc — Cabinet Singular",
+        "email_type": "candidate_presentation",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email avec point en attente de confirmation. Illustre la transparence sur un élément non encore qualifié — mieux vaut le signaler dès le départ que de présenter le profil comme parfait puis devoir se rétracter."
+    },
+    {
+      "id": "ce-018",
+      "input": {
+        "client": { "name": "Laura Bénard", "email": "l.benard@kering.com", "title": "DRH Kering Sustainability", "relationship": "nouvelle" },
+        "mission": { "title": "Chargé de Mission RSE" },
+        "context": "Mission lancée depuis 1 semaine. Marché RSE tendu, peu de candidats avec CSRD + secteur luxe.",
+        "email_type": "mission_update"
+      },
+      "expected_output": {
+        "recipient_name": "Laura Bénard",
+        "recipient_email": "l.benard@benard@kering.com",
+        "subject": "Mission RSE Kering — point d'étape semaine 1",
+        "body": "Madame Bénard,\n\nPoint de situation après une première semaine de recherche pour votre mission Chargé de Mission RSE.\n\nLe marché des profils CSRD expérimentés en secteur luxe est particulièrement sélectif — la combinaison référentiel CSRD + GRI + expérience luxe se trouve principalement chez un cercle restreint d'acteurs (Kering, LVMH, Hermès, L'Oréal). Trois profils sont en cours d'approche cette semaine.\n\nJe reviens vers vous avec une première sélection début de semaine prochaine. Si vous souhaitez élargir le périmètre à des profils issus d'autres secteurs premium (cosmétique, finance durable), faites-le moi savoir — cela élargirait le vivier de façon significative.\n\nBien cordialement,\nMarc — Cabinet Singular",
+        "email_type": "mission_update",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Point d'étape sur un marché tendu. Illustre comment informer le client d'une réalité de marché difficile (peu de candidats CSRD luxe) de façon constructive, avec une proposition d'élargissement du périmètre comme option."
+    },
+    {
+      "id": "ce-019",
+      "input": {
+        "client": { "name": "Vincent Lacombe", "email": "v.lacombe@michelin.com", "title": "DRH Site Clermont-Ferrand", "relationship": "établie" },
+        "mission": { "title": "Technicien de Maintenance Industrielle" },
+        "context": "3 candidats présentés, 2 entretiens passés. Candidat retenu : Franck Masson. Confirmation d'embauche.",
+        "email_type": "general"
+      },
+      "expected_output": {
+        "recipient_name": "Vincent Lacombe",
+        "recipient_email": "v.lacombe@michelin.com",
+        "subject": "Franck Masson — mission accomplie !",
+        "body": "Bonjour Vincent,\n\nFranck Masson a accepté votre offre — démarrage prévu le 15 mai.\n\nMerci pour la fluidité du process de votre côté — le calendrier court que vous vous étiez fixé a été tenu.\n\nJe reste disponible pour tout besoin futur sur le site de Clermont. N'hésitez pas.\n\nBonne intégration à Franck et à l'équipe,\nMarc",
+        "email_type": "general",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email de clôture pour un recrutement terrain réussi dans les délais. La mention des mérites du client ('fluidité du process, calendrier tenu') est sincère et renforce la relation sans être de la flatterie creuse."
+    },
+    {
+      "id": "ce-020",
+      "input": {
+        "client": { "name": "Carole Mercier", "email": "c.mercier@totalenergies.com", "title": "VP Finance TotalEnergies", "relationship": "nouvelle" },
+        "mission": { "title": "Directeur Financier France" },
+        "context": "Première rencontre commerciale. Le cabinet souhaite décrocher ce mandat prestigieux.",
+        "email_type": "commercial"
+      },
+      "expected_output": {
+        "recipient_name": "Carole Mercier",
+        "recipient_email": "c.mercier@totalenergies.com",
+        "subject": "Recrutement DAF France — notre approche pour TotalEnergies",
+        "body": "Madame Mercier,\n\nMerci pour l'échange de la semaine dernière — permettez-moi de vous présenter brièvement notre approche pour les recrutements de direction financière.\n\nNotre cabinet a accompagné ces 24 derniers mois plusieurs missions similaires dans l'énergie et l'industrie, dont deux postes de DAF France pour des groupes du CAC 40. Notre méthode pour les profils C-level : sourcing discret sur profils en poste, approche directe via réseau, présentation de 2-3 profils seulement — qualité avant volume.\n\nPour un groupe comme TotalEnergies, nous ciblons des candidats issus des grands groupes énergie et industriels français et européens, avec une expérience dans des environnements IFRS et reportings groupe.\n\nSi vous souhaitez aller plus loin, je vous propose un échange d'une heure pour détailler notre processus et les honoraires associés.\n\nBien cordialement,\nMarc — Cabinet Singular\n+33 6 XX XX XX XX",
+        "email_type": "commercial",
+        "tone_check": { "is_professional": true, "no_negative_terms": true }
+      },
+      "rating": 5,
+      "notes": "Email commercial pour un mandat C-level grand groupe. Illustre le positionnement premium (2-3 profils seulement, sourcing discret), les références sectorielles spécifiques (énergie, CAC 40), et la proposition d'un échange structuré plutôt qu'un simple 'rdv'."
+    }
+  ]
+}

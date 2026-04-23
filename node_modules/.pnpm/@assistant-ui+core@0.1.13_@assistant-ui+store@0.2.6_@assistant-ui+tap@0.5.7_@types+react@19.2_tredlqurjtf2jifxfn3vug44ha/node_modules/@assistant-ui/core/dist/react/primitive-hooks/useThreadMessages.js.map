@@ -1,0 +1,1 @@
+{"version":3,"file":"useThreadMessages.js","sourceRoot":"","sources":["../../../src/react/primitive-hooks/useThreadMessages.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,qBAAqB,CAAC;AAGlD,MAAM,CAAC,MAAM,iBAAiB,GAAG,GAA4B,EAAE;IAC7D,OAAO,WAAW,CAAC,CAAC,CAAC,EAAE,EAAE,CAAC,CAAC,CAAC,MAAM,CAAC,QAAQ,CAAC,CAAC;AAC/C,CAAC,CAAC"}

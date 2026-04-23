@@ -1,0 +1,18 @@
+import { useEffect, useRef } from "react";
+import { useAui } from "@assistant-ui/store";
+export const useAssistantContext = (config) => {
+    const { getContext, disabled = false } = config;
+    const aui = useAui();
+    const getContextRef = useRef(getContext);
+    getContextRef.current = getContext;
+    useEffect(() => {
+        if (disabled)
+            return;
+        return aui.modelContext().register({
+            getModelContext: () => ({
+                system: getContextRef.current(),
+            }),
+        });
+    }, [aui, disabled]);
+};
+//# sourceMappingURL=useAssistantContext.js.map
