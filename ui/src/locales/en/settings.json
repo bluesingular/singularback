@@ -1,0 +1,26 @@
+{
+  "title": "Settings",
+  "dna": {
+    "title": "Company DNA",
+    "subtitle": "This information guides the behaviour of your entire AI team",
+    "name": "Company name",
+    "sector": "Industry",
+    "tone": "Communication tone",
+    "tone_placeholder": "E.g. professional but warm",
+    "values": "Core values",
+    "values_placeholder": "E.g. responsiveness, quality, client proximity",
+    "forbidden": "Topics to avoid",
+    "forbidden_placeholder": "E.g. never mention competitors",
+    "saved": "Saved ✓"
+  },
+  "language": {
+    "title": "Interface language",
+    "subtitle": "Choose your display language"
+  },
+  "billing": {
+    "title": "Subscription",
+    "plan": "Current plan",
+    "upgrade": "Upgrade plan",
+    "usage": "Usage this month"
+  }
+}

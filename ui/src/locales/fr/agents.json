@@ -1,0 +1,28 @@
+{
+  "team": {
+    "title": "Mon équipe",
+    "subtitle": "{{count}} agent actif",
+    "subtitle_plural": "{{count}} agents actifs"
+  },
+  "card": {
+    "lastActive": "Dernière activité : {{time}}",
+    "currentTask": "En ce moment : {{task}}",
+    "trustLevel": "Niveau de confiance"
+  },
+  "detail": {
+    "about": "À propos",
+    "skills": "Compétences",
+    "trustTrack": "Historique de confiance",
+    "recentTasks": "Tâches récentes",
+    "autonomyLevel": "Niveau d'autonomie",
+    "approvalStreak": "{{count}} approbation consécutive",
+    "approvalStreak_plural": "{{count}} approbations consécutives",
+    "handoffs": "Transmissions récentes"
+  },
+  "autonomy": {
+    "building": "En apprentissage",
+    "supervised": "Supervisé",
+    "trusted": "De confiance",
+    "highlyTrusted": "Très autonome"
+  }
+}

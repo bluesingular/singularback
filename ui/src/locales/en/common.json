@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "team": "My team",
+    "trust": "Trust centre",
+    "console": "CEO Console",
+    "contacts": "Contacts",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "actions": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "view": "View",
+    "seeAll": "See all"
+  },
+  "status": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "empty": "Nothing here yet",
+    "live": "Live"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} day ago",
+    "daysAgo_plural": "{{count}} days ago",
+    "hoursAgo": "{{count}} hour ago",
+    "hoursAgo_plural": "{{count}} hours ago",
+    "minutesAgo": "{{count}} minute ago",
+    "minutesAgo_plural": "{{count}} minutes ago",
+    "justNow": "just now"
+  },
+  "language": {
+    "label": "Language",
+    "fr": "Français",
+    "en": "English"
+  }
+}

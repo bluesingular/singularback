@@ -1,0 +1,26 @@
+{
+  "title": "Paramètres",
+  "dna": {
+    "title": "ADN de votre entreprise",
+    "subtitle": "Ces informations guident le comportement de toute votre équipe IA",
+    "name": "Nom de l'entreprise",
+    "sector": "Secteur d'activité",
+    "tone": "Ton de communication",
+    "tone_placeholder": "Ex : professionnel mais chaleureux",
+    "values": "Valeurs clés",
+    "values_placeholder": "Ex : réactivité, qualité, proximité client",
+    "forbidden": "Sujets à éviter",
+    "forbidden_placeholder": "Ex : ne jamais mentionner les concurrents",
+    "saved": "Enregistré ✓"
+  },
+  "language": {
+    "title": "Langue de l'interface",
+    "subtitle": "Choisissez la langue d'affichage"
+  },
+  "billing": {
+    "title": "Abonnement",
+    "plan": "Plan actuel",
+    "upgrade": "Passer au plan supérieur",
+    "usage": "Utilisation ce mois-ci"
+  }
+}

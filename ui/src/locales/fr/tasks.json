@@ -1,0 +1,26 @@
+{
+  "title": "Fil de tâche",
+  "approval": {
+    "pending": "En attente de votre validation",
+    "approved": "Validé — merci !",
+    "streak": "🎯 {{count}} validation d'affilée — vous êtes en rythme !",
+    "suggestion": "Sur la base de vos {{count}} validations consécutives, {{agent}} pourrait travailler de manière plus autonome. Intéressé ?",
+    "schemaNote": "La réponse a été corrigée automatiquement pour respecter le format attendu."
+  },
+  "handoff": {
+    "label": "Transmission",
+    "to": "Transmis à {{agent}}",
+    "reason": "Score ≥ 4 — passage automatique à l'étape suivante"
+  },
+  "status": {
+    "started": "Démarré",
+    "completed": "Terminé",
+    "blocked": "En attente",
+    "failed": "Échec"
+  },
+  "damage": {
+    "title": "Incident signalé",
+    "recoveryPlan": "Plan de récupération",
+    "correction": "Brouillon de correction"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Centre de confiance",
+  "subtitle": "Gérez l'autonomie de votre équipe IA",
+  "proposals": {
+    "title": "Propositions en attente",
+    "empty": "Aucune proposition en attente",
+    "approve": "Accorder l'autonomie",
+    "reject": "Pas encore",
+    "evidence": "Preuves",
+    "streak": "{{count}} approbation sans erreur",
+    "streak_plural": "{{count}} approbations sans erreur",
+    "quality": "Qualité moyenne",
+    "gatePass": "Taux de validation",
+    "schemaPass": "Taux de conformité"
+  },
+  "levels": {
+    "title": "Niveaux actuels",
+    "building": "En apprentissage",
+    "supervised": "Supervisé — chaque action validée",
+    "trusted": "De confiance — contrôle aléatoire",
+    "highlyTrusted": "Très autonome — résumé hebdomadaire"
+  },
+  "downgrade": {
+    "notice": "Le niveau de confiance de {{agent}} a baissé suite à des erreurs récentes."
+  }
+}

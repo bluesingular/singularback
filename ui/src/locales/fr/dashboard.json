@@ -1,0 +1,31 @@
+{
+  "title": "Bonjour",
+  "subtitle": "Voici ce qui s'est passé dans votre entreprise",
+  "intelligence": {
+    "title": "Ce qui mérite votre attention",
+    "empty": "Tout roule — aucune alerte aujourd'hui"
+  },
+  "feed": {
+    "title": "Activité en direct",
+    "empty": "Votre équipe se repose. Les prochaines tâches apparaîtront ici."
+  },
+  "team": {
+    "title": "Votre équipe",
+    "working": "En cours",
+    "waiting": "En attente",
+    "idle": "Disponible"
+  },
+  "usage": {
+    "title": "Utilisation ce mois-ci",
+    "remaining": "restants",
+    "of": "sur"
+  },
+  "events": {
+    "agentReading": "{{agent}} lit les informations…",
+    "agentAnalysing": "{{agent}} analyse…",
+    "agentWriting": "{{agent}} rédige…",
+    "taskStarted": "{{agent}} a démarré une nouvelle tâche",
+    "taskCompleted": "{{agent}} a terminé",
+    "taskBlocked": "{{agent}} attend votre validation"
+  }
+}

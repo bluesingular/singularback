@@ -1,0 +1,26 @@
+{
+  "title": "Task thread",
+  "approval": {
+    "pending": "Waiting for your approval",
+    "approved": "Approved — thank you!",
+    "streak": "🎯 {{count}} approval in a row — you're on a roll!",
+    "suggestion": "Based on {{count}} consecutive approvals, {{agent}} could work more autonomously. Interested?",
+    "schemaNote": "The output was automatically corrected to match the expected format."
+  },
+  "handoff": {
+    "label": "Handoff",
+    "to": "Handed off to {{agent}}",
+    "reason": "Score ≥ 4 — automatic progression to next step"
+  },
+  "status": {
+    "started": "Started",
+    "completed": "Completed",
+    "blocked": "Waiting",
+    "failed": "Failed"
+  },
+  "damage": {
+    "title": "Incident reported",
+    "recoveryPlan": "Recovery plan",
+    "correction": "Correction draft"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "title": "CEO Console",
+  "greeting": "Good morning. Here's what's waiting for you.",
+  "queue": {
+    "label": "Queue",
+    "empty": "Nothing pending — your team is handling everything.",
+    "depth": "{{count}} action pending",
+    "depth_plural": "{{count}} actions pending"
+  },
+  "intelligence": {
+    "label": "Today's alerts",
+    "empty": "No alerts. Have a great day!"
+  },
+  "actions": {
+    "approveAll": "Approve all",
+    "reviewLater": "Review later"
+  }
+}

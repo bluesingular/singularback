@@ -1,0 +1,31 @@
+{
+  "title": "Hello",
+  "subtitle": "Here's what's been happening in your company",
+  "intelligence": {
+    "title": "What needs your attention",
+    "empty": "All good — no alerts today"
+  },
+  "feed": {
+    "title": "Live activity",
+    "empty": "Your team is resting. Upcoming tasks will appear here."
+  },
+  "team": {
+    "title": "Your team",
+    "working": "Working",
+    "waiting": "Waiting",
+    "idle": "Available"
+  },
+  "usage": {
+    "title": "Usage this month",
+    "remaining": "remaining",
+    "of": "of"
+  },
+  "events": {
+    "agentReading": "{{agent}} is reading…",
+    "agentAnalysing": "{{agent}} is analysing…",
+    "agentWriting": "{{agent}} is writing…",
+    "taskStarted": "{{agent}} started a new task",
+    "taskCompleted": "{{agent}} completed",
+    "taskBlocked": "{{agent}} is waiting for your approval"
+  }
+}

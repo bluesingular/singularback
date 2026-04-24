@@ -1,0 +1,26 @@
+{
+  "title": "Trust centre",
+  "subtitle": "Manage your AI team's autonomy",
+  "proposals": {
+    "title": "Pending proposals",
+    "empty": "No pending proposals",
+    "approve": "Grant autonomy",
+    "reject": "Not yet",
+    "evidence": "Evidence",
+    "streak": "{{count}} approval without error",
+    "streak_plural": "{{count}} approvals without errors",
+    "quality": "Average quality",
+    "gatePass": "Gate pass rate",
+    "schemaPass": "Schema pass rate"
+  },
+  "levels": {
+    "title": "Current levels",
+    "building": "Building trust",
+    "supervised": "Supervised — every action approved",
+    "trusted": "Trusted — spot checks",
+    "highlyTrusted": "Highly autonomous — weekly summary"
+  },
+  "downgrade": {
+    "notice": "{{agent}}'s trust level was reduced due to recent errors."
+  }
+}

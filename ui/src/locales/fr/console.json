@@ -1,0 +1,18 @@
+{
+  "title": "Console CEO",
+  "greeting": "Bonjour. Voici ce qui vous attend.",
+  "queue": {
+    "label": "File d'attente",
+    "empty": "Rien en attente — votre équipe gère tout.",
+    "depth": "{{count}} action en attente",
+    "depth_plural": "{{count}} actions en attente"
+  },
+  "intelligence": {
+    "label": "Alertes du jour",
+    "empty": "Aucune alerte. Bonne journée !"
+  },
+  "actions": {
+    "approveAll": "Tout approuver",
+    "reviewLater": "Revoir plus tard"
+  }
+}

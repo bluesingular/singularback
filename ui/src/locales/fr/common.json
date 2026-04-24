@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "team": "Mon équipe",
+    "trust": "Centre de confiance",
+    "console": "Console CEO",
+    "contacts": "Contacts",
+    "reports": "Rapports",
+    "settings": "Paramètres"
+  },
+  "actions": {
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "back": "Retour",
+    "next": "Suivant",
+    "close": "Fermer",
+    "view": "Voir",
+    "seeAll": "Tout voir"
+  },
+  "status": {
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "empty": "Aucun élément",
+    "live": "En direct"
+  },
+  "time": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "daysAgo": "il y a {{count}} jour",
+    "daysAgo_plural": "il y a {{count}} jours",
+    "hoursAgo": "il y a {{count}} heure",
+    "hoursAgo_plural": "il y a {{count}} heures",
+    "minutesAgo": "il y a {{count}} minute",
+    "minutesAgo_plural": "il y a {{count}} minutes",
+    "justNow": "à l'instant"
+  },
+  "language": {
+    "label": "Langue",
+    "fr": "Français",
+    "en": "English"
+  }
+}
