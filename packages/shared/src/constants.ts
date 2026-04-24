@@ -739,3 +739,18 @@ export const PLUGIN_BRIDGE_ERROR_CODES = [
   "UNKNOWN",
 ] as const;
 export type PluginBridgeErrorCode = (typeof PLUGIN_BRIDGE_ERROR_CODES)[number];
+
+export const AGENT_DEFAULT_MAX_CONCURRENT_RUNS = 5;
+
+export const ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY = "continuation-summary" as const;
+
+export const RUN_LIVENESS_STATES = [
+  "completed",
+  "advanced",
+  "plan_only",
+  "empty_response",
+  "blocked",
+  "failed",
+  "needs_followup",
+] as const;
+export type RunLivenessState = (typeof RUN_LIVENESS_STATES)[number];
