@@ -8,6 +8,5 @@
  * here as those modules are implemented.
  */
 
-export { heartbeatWorker } from "./heartbeat.worker.js";
 export { emailWorker } from "./emailReceived.worker.js";
 export { taskApprovedWorker } from "./taskApproved.worker.js";

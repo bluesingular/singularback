@@ -606,7 +606,7 @@ export async function startServer(): Promise<StartedServer> {
 
     // M1: BullMQ replaces setInterval polling. bootstrapScheduler seeds
     // per-agent heartbeat jobs and monthly cost reset schedules.
-    // Workers (heartbeat.worker.ts) re-schedule after each execution.
+    // BullMQ workers re-schedule after each execution.
     void bootstrapScheduler(db as any).catch((err) => {
       logger.error({ err }, "BullMQ scheduler bootstrap failed");
     });

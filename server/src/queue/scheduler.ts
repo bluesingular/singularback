@@ -7,7 +7,7 @@
  *
  * This replaces Paperclip's setInterval(tickTimers) polling loop. Instead
  * of checking all agents every N seconds, each agent has its own BullMQ
- * job that reschedules itself after execution (see heartbeat.worker.ts).
+ * job that reschedules itself after execution via BullMQ.
  */
 
 import { eq } from "drizzle-orm";
