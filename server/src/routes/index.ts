@@ -17,3 +17,6 @@ export { inboxDismissalRoutes } from "./inbox-dismissals.js";
 export { llmRoutes } from "./llms.js";
 export { accessRoutes } from "./access.js";
 export { instanceSettingsRoutes } from "./instance-settings.js";
+export { consoleRoutes } from "./console.js";
+export { trustRoutes } from "./trust.js";
+export { intelligenceRoutes } from "./intelligence.js";
