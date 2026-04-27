@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Send, Lightbulb, X, ChevronRight } from "lucide-react";
 
 interface Message {
@@ -48,6 +49,7 @@ const intelligencePoints = [
 ];
 
 export function ConsoleCEO() {
+  const { t } = useTranslation("console");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const [showIntelligence, setShowIntelligence] = useState(true);
@@ -78,7 +80,7 @@ export function ConsoleCEO() {
       const consoleMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "console",
-        text: "Je transmets votre demande à l'équipe. Je vous tiens informé dès qu'une réponse est disponible.",
+        text: t("thinking"),
         timestamp: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, consoleMsg]);
@@ -111,10 +113,10 @@ export function ConsoleCEO() {
           className="text-xl leading-tight"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Console CEO
+          {t("title")}
         </h1>
         <p className="text-sm mt-0.5" style={{ color: "#8A8680" }}>
-          Propulsé par votre équipe IA
+          {t("subtitle")}
         </p>
       </div>
 
@@ -139,7 +141,7 @@ export function ConsoleCEO() {
                   className="text-sm font-semibold mb-2"
                   style={{ color: "#1A4E8C" }}
                 >
-                  3 points à traiter ce matin
+                  {t("intelligence.count", { count: intelligencePoints.length })}
                 </p>
                 <div
                   className="w-full mb-3"
@@ -163,7 +165,7 @@ export function ConsoleCEO() {
                     style={{ backgroundColor: "#1A4E8C", color: "#FFFFFF" }}
                     onClick={() => setShowIntelligence(false)}
                   >
-                    Traiter maintenant
+                    {t("actions.processNow")}
                   </button>
                   <button
                     className="text-sm font-medium px-4 py-1.5 rounded-lg transition-colors hover:opacity-80"
@@ -174,7 +176,7 @@ export function ConsoleCEO() {
                     }}
                     onClick={() => setShowIntelligence(false)}
                   >
-                    Plus tard
+                    {t("actions.later")}
                   </button>
                 </div>
               </div>
@@ -310,7 +312,7 @@ export function ConsoleCEO() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Posez une question ou donnez une instruction à votre équipe..."
+            placeholder={t("placeholder")}
             rows={1}
             className="flex-1 resize-none text-sm outline-none bg-transparent leading-relaxed"
             style={{ color: "#0F0F0D", maxHeight: "120px" }}

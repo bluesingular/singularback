@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@/lib/router"
 import {
   ApprovalBanner,
@@ -42,6 +43,8 @@ const agentSlugMap: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export default function TableauDeBord() {
+  const { t, i18n } = useTranslation("dashboard")
+  const { t: tc } = useTranslation("common")
   const navigate = useNavigate()
 
   const [dismissedCards, setDismissedCards] = React.useState<number[]>([])
@@ -51,19 +54,18 @@ export default function TableauDeBord() {
   }
 
   const today = new Date()
-  const dayNames = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
-  const monthNames = [
-    "janvier", "février", "mars", "avril", "mai", "juin",
-    "juillet", "août", "septembre", "octobre", "novembre", "décembre",
-  ]
-  const dateLabel = `${dayNames[today.getDay()]} ${today.getDate()} ${monthNames[today.getMonth()]}`
+  const dateLabel = today.toLocaleDateString(i18n.language === "en" ? "en-GB" : "fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  })
 
   const intelCards = [
     {
       type: "insight" as const,
       headline: "Sophie n'a placé aucun candidat depuis 18 jours",
       body: "40 % sous votre rythme habituel sur la même période.",
-      cta: "Analyser",
+      cta: tc("actions.view"),
       urgency: 3,
       onCta: () => navigate("/agents/sophie"),
     },
@@ -71,7 +73,7 @@ export default function TableauDeBord() {
       type: "trust_proposal" as const,
       headline: "Sophie qualifie les CV à 4,8/5 depuis 6 semaines",
       body: "Elle est prête pour un niveau d'autonomie supérieur.",
-      cta: "Voir la proposition",
+      cta: tc("actions.view"),
       urgency: 2,
       onCta: () => navigate("/confiance"),
     },
@@ -79,11 +81,13 @@ export default function TableauDeBord() {
       type: "relationship_gap" as const,
       headline: "Buildtech n'a pas reçu de rapport depuis 12 jours",
       body: "Leur contrat se renouvelle dans 30 jours.",
-      cta: "Déléguer à Marc",
+      cta: tc("actions.view"),
       urgency: 2,
       onCta: () => navigate("/agents/marc"),
     },
   ]
+
+  const visibleCards = intelCards.filter((_, i) => !dismissedCards.includes(i))
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -99,19 +103,20 @@ export default function TableauDeBord() {
         <section className="flex flex-col gap-3">
           <div>
             <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">
-              Bonjour, Marie 👋
+              {t("title")}, Marie 👋
             </h1>
             <p className="text-sm text-[#8A8680] mt-0.5">{dateLabel}</p>
           </div>
           <p className="text-base text-[#0F0F0D]">
-            Votre équipe a complété{" "}
-            <span className="font-semibold text-[#1A9E68]">47 tâches</span> ce
-            week-end.
+            {i18n.language === "en"
+              ? <>Your team completed <span className="font-semibold text-[#1A9E68]">47 tasks</span> this weekend.</>
+              : <>Votre équipe a complété <span className="font-semibold text-[#1A9E68]">47 tâches</span> ce week-end.</>
+            }
           </p>
           <UsageGauge
             used={847}
             limit={2000}
-            translation="environ 95 sélections de CV restantes"
+            translation={i18n.language === "en" ? "~95 CV batches remaining" : "environ 95 sélections de CV restantes"}
             className="max-w-sm"
           />
         </section>
@@ -120,30 +125,30 @@ export default function TableauDeBord() {
         <section className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-              Intelligence du matin
+              {t("morning.title")}
             </h2>
-            <span className="text-xs text-[#8A8680]">
-              {intelCards.length - dismissedCards.length} nouvelles
-            </span>
+            {visibleCards.length > 0 && (
+              <span className="text-xs text-[#8A8680]">
+                {t("morning.count", { count: visibleCards.length })}
+              </span>
+            )}
           </div>
           <div className="flex flex-col gap-3">
-            {intelCards
-              .filter((_, i) => !dismissedCards.includes(i))
-              .map((card, i) => (
-                <IntelCard
-                  key={i}
-                  type={card.type}
-                  headline={card.headline}
-                  body={card.body}
-                  cta={card.cta}
-                  urgency={card.urgency}
-                  onCta={card.onCta}
-                  onDismiss={() => dismiss(i)}
-                />
-              ))}
+            {visibleCards.map((card, i) => (
+              <IntelCard
+                key={i}
+                type={card.type}
+                headline={card.headline}
+                body={card.body}
+                cta={card.cta}
+                urgency={card.urgency}
+                onCta={card.onCta}
+                onDismiss={() => dismiss(i)}
+              />
+            ))}
             {dismissedCards.length === intelCards.length && (
               <p className="text-sm text-[#8A8680] py-2">
-                Toutes les suggestions du jour ont été traitées.
+                {t("morning.cleared")}
               </p>
             )}
           </div>
@@ -156,11 +161,11 @@ export default function TableauDeBord() {
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-                Activité récente
+                {t("activity.title")}
               </h2>
               <span className="flex items-center gap-1 text-xs font-semibold text-[#B91C1C] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C] animate-pulse" />
-                En direct
+                {tc("status.live")}
               </span>
             </div>
             <div className="bg-white rounded-xl border border-[#E8E4DC] shadow-sm divide-y divide-[#E8E4DC]">
@@ -181,7 +186,7 @@ export default function TableauDeBord() {
 
           {/* Right: Mon équipe */}
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Mon équipe</h2>
+            <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">{t("team.title")}</h2>
             <div className="bg-white rounded-xl border border-[#E8E4DC] shadow-sm divide-y divide-[#E8E4DC]">
               {agents.map((agent) => (
                 <button
@@ -191,7 +196,6 @@ export default function TableauDeBord() {
                   }
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8] transition-colors text-left"
                 >
-                  {/* Avatar */}
                   <div
                     className={[
                       "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-semibold",
@@ -200,14 +204,10 @@ export default function TableauDeBord() {
                   >
                     {agent.name.charAt(0)}
                   </div>
-
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#0F0F0D]">{agent.name}</p>
                     <p className="text-xs text-[#8A8680] truncate">{agent.action}</p>
                   </div>
-
-                  {/* Right side */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <AgentStatusBadge status={agent.status} />
                     <TrustDot level={agent.trust} />
@@ -222,14 +222,15 @@ export default function TableauDeBord() {
         <section className="bg-[#1A9E68] rounded-xl p-5 text-white flex flex-col gap-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-[Georgia,serif]">Objectif du mois</h2>
+              <h2 className="text-lg font-[Georgia,serif]">{t("goal.title")}</h2>
               <p className="text-sm text-white/80 mt-0.5">
-                Placer 8 candidats en CDI avant le 30 avril
+                {i18n.language === "en"
+                  ? "Place 8 permanent contracts by April 30"
+                  : "Placer 8 candidats en CDI avant le 30 avril"}
               </p>
             </div>
             <span className="text-2xl font-bold font-[Georgia,serif]">5/8</span>
           </div>
-          {/* Progress bar */}
           <div className="h-2 bg-white/20 rounded-full overflow-hidden">
             <div
               className="h-full bg-white rounded-full transition-all"
@@ -237,7 +238,7 @@ export default function TableauDeBord() {
             />
           </div>
           <p className="text-xs text-white/70">
-            3 placements restants · 8 jours avant la fin du mois
+            {t("goal.remaining", { count: 3, days: 8 })}
           </p>
         </section>
 

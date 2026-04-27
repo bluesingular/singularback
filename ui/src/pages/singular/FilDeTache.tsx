@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { ArrowLeft, AlertTriangle, Star } from "lucide-react"
 import { useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
@@ -136,6 +137,7 @@ interface ApprovalWidgetProps {
 }
 
 function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
+  const { t } = useTranslation("tasks")
   const [hovered, setHovered] = React.useState(0)
   const [selected, setSelected] = React.useState(0)
 
@@ -143,10 +145,10 @@ function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
     <div className="bg-white border border-[#E8E4DC] rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
       <div>
         <p className="text-sm font-semibold text-[#0F0F0D]">
-          Approuver cette sélection
+          {t("approval.title")}
         </p>
         <p className="text-xs text-[#8A8680] mt-0.5">
-          Notez la qualité du travail de Sophie pour l'aider à progresser.
+          {t("approval.rate", { agent: "Sophie" })}
         </p>
       </div>
 
@@ -182,7 +184,7 @@ function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
         disabled={selected === 0}
         size="sm"
       >
-        Approuver
+        {t("approval.approve")}
       </Button>
     </div>
   )
@@ -193,6 +195,7 @@ function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
 // ---------------------------------------------------------------------------
 
 export default function FilDeTache() {
+  const { t } = useTranslation("tasks")
   const navigate = useNavigate()
   const [approved, setApproved] = React.useState(false)
 
@@ -205,20 +208,19 @@ export default function FilDeTache() {
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
         >
-          <ArrowLeft size={14} /> Retour
+          <ArrowLeft size={14} /> {t("back")}
         </button>
 
         {/* Schema warning (conditional) */}
         <div className="bg-[#FFF8EC] border border-[#C97C0A]/30 rounded-xl px-4 py-3 flex items-start gap-2.5">
           <AlertTriangle size={15} className="text-[#C97C0A] flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <span className="font-medium text-[#0F0F0D]">Note : </span>
+            <span className="font-medium text-[#0F0F0D]">{t("schema.title")} </span>
             <span className="text-[#8A8680]">
-              La réponse de Sophie ne contenait pas le champ &laquo;&nbsp;concerns&nbsp;&raquo;
-              requis. Elle l'a complété automatiquement.
+              {t("schema.missing", { agent: "Sophie", field: "concerns" })}
             </span>
             <button className="ml-1.5 text-[#C97C0A] font-medium hover:underline">
-              Voir la correction →
+              {t("schema.viewFix")}
             </button>
           </div>
         </div>
@@ -233,7 +235,7 @@ export default function FilDeTache() {
               <p className="text-sm text-[#8A8680] mt-0.5">Sophie · Qualification de CV</p>
             </div>
             <span className="text-xs px-2.5 py-1 rounded-full bg-[#FFF8EC] text-[#C97C0A] border border-[#C97C0A]/20 font-medium flex-shrink-0">
-              En attente de validation
+              {t("status.awaitingApproval")}
             </span>
           </div>
         </section>
@@ -270,8 +272,8 @@ export default function FilDeTache() {
           <MicroReward message="Merci. Sophie a enregistré vos critères — elle s'en souviendra pour toutes vos prochaines missions." />
         ) : (
           <div className="flex items-start gap-3">
-            <div className="w-8 flex-shrink-0" />
-            <div className="flex-1">
+            <div className="hidden sm:block w-8 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
               <ApprovalWidget onApprove={() => setApproved(true)} />
             </div>
           </div>

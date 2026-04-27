@@ -1,5 +1,6 @@
 {
   "title": "Console CEO",
+  "subtitle": "Propulsé par votre équipe IA",
   "greeting": "Bonjour. Voici ce qui vous attend.",
   "queue": {
     "label": "File d'attente",
@@ -9,10 +10,16 @@
   },
   "intelligence": {
     "label": "Alertes du jour",
-    "empty": "Aucune alerte. Bonne journée !"
+    "empty": "Aucune alerte. Bonne journée !",
+    "count": "{{count}} point à traiter ce matin",
+    "count_plural": "{{count}} points à traiter ce matin"
   },
   "actions": {
     "approveAll": "Tout approuver",
-    "reviewLater": "Revoir plus tard"
-  }
+    "reviewLater": "Revoir plus tard",
+    "processNow": "Traiter maintenant",
+    "later": "Plus tard"
+  },
+  "placeholder": "Posez une question ou donnez une instruction à votre équipe…",
+  "thinking": "Je transmets votre demande à l'équipe. Je vous tiens informé dès qu'une réponse est disponible."
 }

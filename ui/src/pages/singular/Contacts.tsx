@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, Plus, ChevronDown, ChevronUp, Clock, AlertCircle } from "lucide-react";
 
 type ContactType = "candidat" | "client" | "partenaire";
@@ -91,21 +92,16 @@ const contacts: Contact[] = [
 
 type FilterTab = "tous" | "candidats" | "clients" | "partenaires";
 
-const filterTabs: { key: FilterTab; label: string }[] = [
-  { key: "tous", label: "Tous" },
-  { key: "candidats", label: "Candidats" },
-  { key: "clients", label: "Clients" },
-  { key: "partenaires", label: "Partenaires" },
-];
+type TFunc = (key: string, opts?: Record<string, unknown>) => string;
 
-function typeBadge(type: ContactType, company?: string) {
+function typeBadge(type: ContactType, t: TFunc, company?: string) {
   if (type === "candidat") {
     return (
       <span
         className="text-xs font-medium px-2 py-0.5 rounded-full"
         style={{ backgroundColor: "#1A9E6815", color: "#1A9E68" }}
       >
-        Candidat
+        {t("types.candidate")}
       </span>
     );
   }
@@ -115,7 +111,7 @@ function typeBadge(type: ContactType, company?: string) {
         className="text-xs font-medium px-2 py-0.5 rounded-full"
         style={{ backgroundColor: "#1A4E8C15", color: "#1A4E8C" }}
       >
-        Contact client{company ? ` · ${company}` : ""}
+        {t("types.client")}{company ? ` · ${company}` : ""}
       </span>
     );
   }
@@ -124,18 +120,25 @@ function typeBadge(type: ContactType, company?: string) {
       className="text-xs font-medium px-2 py-0.5 rounded-full"
       style={{ backgroundColor: "#8A868015", color: "#8A8680" }}
     >
-      Partenaire
+      {t("types.partner")}
     </span>
   );
 }
 
-function lastContactLabel(days: number) {
-  if (days === 0) return "aujourd'hui";
-  if (days === 1) return "hier";
-  return `il y a ${days} jours`;
+function lastContactLabel(days: number, t: TFunc) {
+  if (days === 0) return t("today");
+  if (days === 1) return t("yesterday");
+  return t("daysAgo", { count: days });
 }
 
 export function Contacts() {
+  const { t } = useTranslation("contacts");
+  const filterTabs: { key: FilterTab; label: string }[] = [
+    { key: "tous", label: t("filters.all") },
+    { key: "candidats", label: t("filters.candidates") },
+    { key: "clients", label: t("filters.clients") },
+    { key: "partenaires", label: t("filters.partners") },
+  ];
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterTab>("tous");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -166,9 +169,9 @@ export function Contacts() {
           className="text-2xl"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Contacts{" "}
+          {t("title")}{" "}
           <span className="text-lg font-normal" style={{ color: "#8A8680" }}>
-            · {contacts.length} personnes
+            {t("count", { count: contacts.length })}
           </span>
         </h1>
         <button
@@ -176,7 +179,7 @@ export function Contacts() {
           style={{ backgroundColor: "#1A9E68", color: "#FFFFFF" }}
         >
           <Plus size={14} />
-          Ajouter un contact
+          {t("addContact")}
         </button>
       </div>
 
@@ -189,7 +192,7 @@ export function Contacts() {
         />
         <input
           type="text"
-          placeholder="Rechercher un contact..."
+          placeholder={t("search")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none"
@@ -242,7 +245,7 @@ export function Contacts() {
                       >
                         {contact.name}
                       </span>
-                      {typeBadge(contact.type, contact.company)}
+                      {typeBadge(contact.type, t, contact.company)}
                     </div>
 
                     <div
@@ -251,7 +254,7 @@ export function Contacts() {
                     >
                       <Clock size={12} />
                       <span>
-                        Dernier contact : {lastContactLabel(contact.lastContactDays)} par{" "}
+                        {t("lastContact")} : {lastContactLabel(contact.lastContactDays, t)} par{" "}
                         <span className="font-medium" style={{ color: "#0F0F0D" }}>
                           {contact.lastContactAgent}
                         </span>{" "}
@@ -267,8 +270,7 @@ export function Contacts() {
                       <div className="flex items-center gap-1.5 mt-2">
                         <AlertCircle size={13} style={{ color: "#C97C0A" }} />
                         <span className="text-xs font-medium" style={{ color: "#C97C0A" }}>
-                          {contact.openTasks} tâche ouverte
-                          {contact.openTasks > 1 ? "s" : ""}{" "}
+                          {t("openTasks", { count: contact.openTasks })}{" "}
                           {contact.openTaskLabel ? `(${contact.openTaskLabel})` : ""}
                         </span>
                       </div>
@@ -290,7 +292,7 @@ export function Contacts() {
                     className="text-xs font-medium uppercase tracking-wide pt-4 mb-3"
                     style={{ color: "#8A8680" }}
                   >
-                    Historique des interactions
+                    {t("history")}
                   </p>
                   <div className="space-y-2.5">
                     {contact.history.map((item, i) => (

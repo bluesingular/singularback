@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { ArrowRight } from "lucide-react"
 import { useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
@@ -76,27 +77,20 @@ interface AgentCardProps {
 }
 
 function AgentCard({ agent, onClick }: AgentCardProps) {
-  const avatarBg =
-    agent.status === "actif" ? "bg-[#1A9E68]" : "bg-[#8A8680]"
+  const { t } = useTranslation("agents")
+  const avatarBg = agent.status === "actif" ? "bg-[#1A9E68]" : "bg-[#8A8680]"
 
   return (
     <button
       onClick={onClick}
       className="bg-white border border-[#E8E4DC] rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-[#1A9E68]/30 transition-all text-left relative group"
     >
-      {/* Trust dot — top right */}
       <div className="absolute top-4 right-4">
         <TrustDot level={agent.trust} />
       </div>
 
-      {/* Avatar + name */}
       <div className="flex items-center gap-3">
-        <div
-          className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-semibold flex-shrink-0",
-            avatarBg
-          )}
-        >
+        <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-semibold flex-shrink-0", avatarBg)}>
           {agent.name.charAt(0)}
         </div>
         <div>
@@ -107,35 +101,28 @@ function AgentCard({ agent, onClick }: AgentCardProps) {
         </div>
       </div>
 
-      {/* Status */}
       <AgentStatusBadge status={agent.status} />
 
-      {/* Skills */}
       <div className="flex flex-wrap gap-1.5">
         {agent.skills.map((skill) => (
-          <span
-            key={skill}
-            className="text-xs px-2 py-0.5 rounded-full bg-[#F5F5F3] text-[#8A8680] border border-[#E8E4DC]"
-          >
+          <span key={skill} className="text-xs px-2 py-0.5 rounded-full bg-[#F5F5F3] text-[#8A8680] border border-[#E8E4DC]">
             {skill}
           </span>
         ))}
       </div>
 
-      {/* Stats */}
       <div className="flex items-center justify-between text-xs text-[#8A8680] pt-1 border-t border-[#E8E4DC]">
         <span>
-          <span className="font-semibold text-[#0F0F0D]">{agent.tasksDone}</span> tâches
-          ce mois
+          <span className="font-semibold text-[#0F0F0D]">{agent.tasksDone}</span>{" "}
+          {t("card.tasksDone", { count: agent.tasksDone })}
         </span>
         {agent.handoffsOut > 0 && agent.handoffTarget && (
           <span className="text-[#1A4E8C]">
-            {agent.handoffsOut} passation{agent.handoffsOut > 1 ? "s" : ""} → {agent.handoffTarget}
+            {t("card.handoff", { count: agent.handoffsOut, target: agent.handoffTarget })}
           </span>
         )}
       </div>
 
-      {/* Handoff indicator */}
       {agent.handoffsOut > 0 && agent.handoffTarget && (
         <HandoffIndicator
           from={agent.name}
@@ -145,35 +132,35 @@ function AgentCard({ agent, onClick }: AgentCardProps) {
         />
       )}
 
-      {/* Arrow */}
       <div className="flex items-center gap-1 text-xs font-medium text-[#1A4E8C] opacity-0 group-hover:opacity-100 transition-opacity -mt-1">
-        Voir la fiche <ArrowRight size={12} />
+        {t("card.viewProfile")} <ArrowRight size={12} />
       </div>
     </button>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Mon Équipe page
+// Page
 // ---------------------------------------------------------------------------
 
 export default function MonEquipe() {
+  const { t } = useTranslation("agents")
   const navigate = useNavigate()
+
+  const activeCount = agents.filter((a) => a.status === "actif").length
+  const totalTasks = agents.reduce((s, a) => s + a.tasksDone, 0)
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-6">
 
-        {/* Header */}
         <div>
-          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Mon équipe IA</h1>
+          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("team.titleAI")}</h1>
           <p className="text-sm text-[#8A8680] mt-1">
-            {agents.filter((a) => a.status === "actif").length} membres actifs ·{" "}
-            {agents.reduce((s, a) => s + a.tasksDone, 0)} tâches complétées ce mois
+            {t("team.activeCount", { count: activeCount, tasks: totalTasks })}
           </p>
         </div>
 
-        {/* Agent grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {agents.map((agent) => (
             <AgentCard

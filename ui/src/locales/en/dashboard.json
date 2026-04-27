@@ -1,9 +1,18 @@
 {
   "title": "Hello",
   "subtitle": "Here's what's been happening in your company",
+  "morning": {
+    "title": "Morning intelligence",
+    "cleared": "All suggestions for today have been handled.",
+    "count": "{{count}} new",
+    "count_plural": "{{count}} new"
+  },
   "intelligence": {
     "title": "What needs your attention",
     "empty": "All good — no alerts today"
+  },
+  "activity": {
+    "title": "Recent activity"
   },
   "feed": {
     "title": "Live activity",
@@ -20,6 +29,11 @@
     "remaining": "remaining",
     "of": "of"
   },
+  "goal": {
+    "title": "Monthly goal",
+    "remaining": "{{count}} remaining · {{days}} days until end of month"
+  },
+  "summary": "Your team completed <strong>{{count}} tasks</strong> this weekend.",
   "events": {
     "agentReading": "{{agent}} is reading…",
     "agentAnalysing": "{{agent}} is analysing…",

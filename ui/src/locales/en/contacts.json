@@ -1,0 +1,25 @@
+{
+  "title": "Contacts",
+  "count": "· {{count}} people",
+  "addContact": "Add a contact",
+  "search": "Search a contact...",
+  "filters": {
+    "all": "All",
+    "candidates": "Candidates",
+    "clients": "Clients",
+    "partners": "Partners"
+  },
+  "types": {
+    "candidate": "Candidate",
+    "client": "Client contact",
+    "partner": "Partner"
+  },
+  "lastContact": "Last contact",
+  "history": "History",
+  "profile": "Profile",
+  "openTasks": "{{count}} open task",
+  "openTasks_plural": "{{count}} open tasks",
+  "today": "today",
+  "yesterday": "yesterday",
+  "daysAgo": "{{count}} days ago"
+}

@@ -9,6 +9,8 @@ import frTrust from "../locales/fr/trust.json";
 import frTasks from "../locales/fr/tasks.json";
 import frConsole from "../locales/fr/console.json";
 import frSettings from "../locales/fr/settings.json";
+import frReports from "../locales/fr/reports.json";
+import frContacts from "../locales/fr/contacts.json";
 
 import enCommon from "../locales/en/common.json";
 import enDashboard from "../locales/en/dashboard.json";
@@ -17,6 +19,8 @@ import enTrust from "../locales/en/trust.json";
 import enTasks from "../locales/en/tasks.json";
 import enConsole from "../locales/en/console.json";
 import enSettings from "../locales/en/settings.json";
+import enReports from "../locales/en/reports.json";
+import enContacts from "../locales/en/contacts.json";
 
 export const SUPPORTED_LANGUAGES = ["fr", "en"] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -29,6 +33,8 @@ export const NAMESPACES = [
   "tasks",
   "console",
   "settings",
+  "reports",
+  "contacts",
 ] as const;
 
 i18n
@@ -44,6 +50,8 @@ i18n
         tasks: frTasks,
         console: frConsole,
         settings: frSettings,
+        reports: frReports,
+        contacts: frContacts,
       },
       en: {
         common: enCommon,
@@ -53,6 +61,8 @@ i18n
         tasks: enTasks,
         console: enConsole,
         settings: enSettings,
+        reports: enReports,
+        contacts: enContacts,
       },
     },
     defaultNS: "common",

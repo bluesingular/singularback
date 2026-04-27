@@ -1,9 +1,18 @@
 {
   "title": "Bonjour",
   "subtitle": "Voici ce qui s'est passé dans votre entreprise",
+  "morning": {
+    "title": "Intelligence du matin",
+    "cleared": "Toutes les suggestions du jour ont été traitées.",
+    "count": "{{count}} nouvelle",
+    "count_plural": "{{count}} nouvelles"
+  },
   "intelligence": {
     "title": "Ce qui mérite votre attention",
     "empty": "Tout roule — aucune alerte aujourd'hui"
+  },
+  "activity": {
+    "title": "Activité récente"
   },
   "feed": {
     "title": "Activité en direct",
@@ -20,6 +29,11 @@
     "remaining": "restants",
     "of": "sur"
   },
+  "goal": {
+    "title": "Objectif du mois",
+    "remaining": "{{count}} restant · {{days}} jours avant la fin du mois"
+  },
+  "summary": "Votre équipe a complété <strong>{{count}} tâches</strong> ce week-end.",
   "events": {
     "agentReading": "{{agent}} lit les informations…",
     "agentAnalysing": "{{agent}} analyse…",

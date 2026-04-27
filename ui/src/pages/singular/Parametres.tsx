@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CheckCircle2, AlertTriangle, ChevronRight, Save, Package, Loader2 } from "lucide-react";
 import { useCompany } from "../../context/CompanyContext";
 import { companiesApi } from "../../api/companies";
 import { useToastActions } from "../../context/ToastContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 
-type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs";
+type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue";
 
 const tabLabels: { key: Tab; label: string }[] = [
   { key: "adn", label: "ADN de l'entreprise" },
@@ -13,6 +14,7 @@ const tabLabels: { key: Tab; label: string }[] = [
   { key: "facturation", label: "Facturation" },
   { key: "equipe", label: "Équipe" },
   { key: "packs", label: "Packs d'agents" },
+  { key: "langue", label: "Langue" },
 ];
 
 const specialisations = [
@@ -395,6 +397,25 @@ function EquipeTab() {
   );
 }
 
+function LangueTab() {
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2
+          className="text-base font-semibold mb-1"
+          style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
+        >
+          Langue d'affichage
+        </h2>
+        <p className="text-sm mb-4" style={{ color: "#8A8680" }}>
+          Choisissez la langue de votre interface
+        </p>
+        <LanguageSwitcher />
+      </div>
+    </div>
+  );
+}
+
 function Plus() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -569,6 +590,7 @@ export function Parametres() {
         {activeTab === "facturation" && <FacturationTab />}
         {activeTab === "equipe" && <EquipeTab />}
         {activeTab === "packs" && <PacksTab />}
+        {activeTab === "langue" && <LangueTab />}
       </div>
     </div>
   );

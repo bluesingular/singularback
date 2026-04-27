@@ -1,0 +1,30 @@
+{
+  "title": "Reports",
+  "periods": {
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "last3Months": "Last 3 months"
+  },
+  "kpi": {
+    "tasksCompleted": "tasks completed",
+    "hoursSaved": "freed per week",
+    "estimatedTime": "estimated time recovered",
+    "aiCost": "cost this month",
+    "fullTeam": "full AI team",
+    "humanEquivalent": "human equivalent",
+    "estimatedMonthly": "estimated monthly cost"
+  },
+  "simulator": {
+    "title": "Hire simulator",
+    "savings": "Estimated savings",
+    "adjustLabel": "Adjust comparison — {{count}} FTE"
+  },
+  "activityByAgent": "Activity by agent",
+  "taskBreakdown": "Task breakdown",
+  "tasks": "tasks",
+  "share": {
+    "title": "First week accomplished",
+    "subtitle": "Share your results with your network",
+    "cta": "Share your first week"
+  }
+}

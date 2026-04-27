@@ -4,21 +4,32 @@
   "proposals": {
     "title": "Propositions en attente",
     "empty": "Aucune proposition en attente",
-    "approve": "Accorder l'autonomie",
-    "reject": "Pas encore",
+    "approve": "Accepter cette proposition",
+    "reject": "Refuser",
+    "edit": "Modifier le seuil",
     "evidence": "Preuves",
     "streak": "{{count}} approbation sans erreur",
     "streak_plural": "{{count}} approbations sans erreur",
     "quality": "Qualité moyenne",
     "gatePass": "Taux de validation",
-    "schemaPass": "Taux de conformité"
+    "schemaPass": "Taux de conformité",
+    "currentLevel": "Niveau actuel",
+    "proposedLevel": "Proposé",
+    "changes": "Ce qui change",
+    "remains": "Ce qui reste",
+    "accepted": "Proposition acceptée. {{agent}} va opérer avec plus d'autonomie dès maintenant."
   },
   "levels": {
-    "title": "Niveaux actuels",
+    "title": "Niveaux de confiance actifs",
     "building": "En apprentissage",
     "supervised": "Supervisé — chaque action validée",
     "trusted": "De confiance — contrôle aléatoire",
     "highlyTrusted": "Très autonome — résumé hebdomadaire"
+  },
+  "legend": {
+    "building": "En construction (0–3)",
+    "supervised": "Supervisée (3–4)",
+    "trusted": "De confiance (4+)"
   },
   "downgrade": {
     "notice": "Le niveau de confiance de {{agent}} a baissé suite à des erreurs récentes."

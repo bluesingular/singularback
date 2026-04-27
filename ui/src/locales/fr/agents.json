@@ -1,28 +1,56 @@
 {
   "team": {
     "title": "Mon équipe",
+    "titleAI": "Mon équipe IA",
     "subtitle": "{{count}} agent actif",
-    "subtitle_plural": "{{count}} agents actifs"
+    "subtitle_plural": "{{count}} agents actifs",
+    "activeCount": "{{count}} membre actif · {{tasks}} tâches complétées ce mois",
+    "activeCount_plural": "{{count}} membres actifs · {{tasks}} tâches complétées ce mois"
   },
   "card": {
     "lastActive": "Dernière activité : {{time}}",
     "currentTask": "En ce moment : {{task}}",
-    "trustLevel": "Niveau de confiance"
+    "trustLevel": "Niveau de confiance",
+    "viewProfile": "Voir la fiche",
+    "tasksDone": "{{count}} tâche ce mois",
+    "tasksDone_plural": "{{count}} tâches ce mois",
+    "handoff": "{{count}} passation → {{target}}",
+    "handoff_plural": "{{count}} passations → {{target}}"
   },
   "detail": {
     "about": "À propos",
     "skills": "Compétences",
+    "capacites": "Capacités",
     "trustTrack": "Historique de confiance",
+    "trustSummary": "Bilan de confiance",
+    "trustAndAutonomy": "Confiance & Autonomie",
     "recentTasks": "Tâches récentes",
     "autonomyLevel": "Niveau d'autonomie",
+    "currentLevel": "Niveau actuel",
     "approvalStreak": "{{count}} approbation consécutive",
     "approvalStreak_plural": "{{count}} approbations consécutives",
-    "handoffs": "Transmissions récentes"
+    "handoffs": "Transmissions récentes",
+    "handoffsWeek": "Passations cette semaine",
+    "handoffsOut": "Transmis par cet agent",
+    "handoffsIn": "Reçus par cet agent",
+    "streakProgress": "{{count}} / {{target}} validations 4+★",
+    "streakRemaining": "{{count}} validation consécutive 4+★ avant la prochaine proposition d'autonomie",
+    "streakRemaining_plural": "{{count}} validations consécutives 4+★ avant la prochaine proposition d'autonomie",
+    "upgradeReady": "Prête pour un niveau d'autonomie supérieur",
+    "viewProposal": "Voir la proposition",
+    "pause": "Mettre en pause",
+    "resume": "Relancer",
+    "back": "Retour"
   },
   "autonomy": {
     "building": "En apprentissage",
     "supervised": "Supervisé",
     "trusted": "De confiance",
     "highlyTrusted": "Très autonome"
+  },
+  "status": {
+    "done": "Terminé",
+    "inProgress": "En cours",
+    "waiting": "En attente"
   }
 }

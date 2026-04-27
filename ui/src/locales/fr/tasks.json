@@ -1,11 +1,19 @@
 {
   "title": "Fil de tâche",
   "approval": {
+    "title": "Approuver cette sélection",
+    "rate": "Notez la qualité du travail de {{agent}} pour l'aider à progresser.",
     "pending": "En attente de votre validation",
     "approved": "Validé — merci !",
     "streak": "🎯 {{count}} validation d'affilée — vous êtes en rythme !",
     "suggestion": "Sur la base de vos {{count}} validations consécutives, {{agent}} pourrait travailler de manière plus autonome. Intéressé ?",
-    "schemaNote": "La réponse a été corrigée automatiquement pour respecter le format attendu."
+    "schemaNote": "La réponse a été corrigée automatiquement pour respecter le format attendu.",
+    "approve": "Approuver"
+  },
+  "schema": {
+    "title": "Note :",
+    "missing": "La réponse de {{agent}} ne contenait pas le champ « {{field}} » requis. Elle l'a complété automatiquement.",
+    "viewFix": "Voir la correction →"
   },
   "handoff": {
     "label": "Transmission",
@@ -16,11 +24,13 @@
     "started": "Démarré",
     "completed": "Terminé",
     "blocked": "En attente",
-    "failed": "Échec"
+    "failed": "Échec",
+    "awaitingApproval": "En attente de validation"
   },
   "damage": {
     "title": "Incident signalé",
     "recoveryPlan": "Plan de récupération",
     "correction": "Brouillon de correction"
-  }
+  },
+  "back": "Retour"
 }

@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { ArrowLeft, Pause, Play, ArrowRight } from "lucide-react"
 import { useParams, useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
@@ -116,13 +117,14 @@ function TaskRow({
 }: {
   task: AgentData["recentTasks"][number]
 }) {
+  const { t } = useTranslation("agents")
   const statusConfig: Record<
     AgentData["recentTasks"][number]["status"],
     { label: string; classes: string }
   > = {
-    terminé: { label: "Terminé", classes: "text-[#1A9E68] bg-[#ECFBF4]" },
-    "en cours": { label: "En cours", classes: "text-[#1A4E8C] bg-[#EFF3FA]" },
-    "en attente": { label: "En attente", classes: "text-[#C97C0A] bg-[#FFF8EC]" },
+    terminé: { label: t("status.done"), classes: "text-[#1A9E68] bg-[#ECFBF4]" },
+    "en cours": { label: t("status.inProgress"), classes: "text-[#1A4E8C] bg-[#EFF3FA]" },
+    "en attente": { label: t("status.waiting"), classes: "text-[#C97C0A] bg-[#FFF8EC]" },
   }
   const cfg = statusConfig[task.status]
 
@@ -147,6 +149,7 @@ function TaskRow({
 // ---------------------------------------------------------------------------
 
 export default function FicheAgent() {
+  const { t } = useTranslation("agents")
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [paused, setPaused] = React.useState(false)
@@ -162,7 +165,7 @@ export default function FicheAgent() {
           onClick={() => navigate("/equipe")}
           className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
         >
-          <ArrowLeft size={14} /> Mon équipe
+          <ArrowLeft size={14} /> {t("team.title")}
         </button>
 
         {/* Header */}
@@ -192,13 +195,13 @@ export default function FicheAgent() {
             className="flex-shrink-0 text-xs gap-1.5 border-[#E8E4DC]"
           >
             {paused ? <Play size={12} /> : <Pause size={12} />}
-            {paused ? "Reprendre" : "Mettre en pause"}
+            {paused ? t("detail.resume") : t("detail.pause")}
           </Button>
         </section>
 
         {/* Capacités */}
         <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
-          <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">Capacités</h2>
+          <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">{t("detail.capacites")}</h2>
           <div className="flex flex-wrap gap-2">
             {agent.skills.map((skill) => (
               <span
@@ -214,13 +217,13 @@ export default function FicheAgent() {
         {/* Confiance & Autonomie */}
         <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-4">
           <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">
-            Confiance &amp; Autonomie
+            {t("detail.trustAndAutonomy")}
           </h2>
 
           {/* Trust summary */}
           <div className="bg-[#FAFAF8] rounded-xl p-4 flex flex-col gap-2 border border-[#E8E4DC]">
             <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wide">
-              Bilan de confiance
+              {t("detail.trustSummary")}
             </p>
             <p className="text-sm font-semibold text-[#0F0F0D]">
               {agent.name} · {agent.skills[0]}
@@ -234,7 +237,7 @@ export default function FicheAgent() {
               <div className="flex items-center gap-2 mt-1">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#1A4E8C] flex-shrink-0" />
                 <span className="text-sm text-[#1A4E8C] font-medium">
-                  Prête pour un niveau d'autonomie supérieur
+                  {t("detail.upgradeReady")}
                 </span>
               </div>
             )}
@@ -243,7 +246,7 @@ export default function FicheAgent() {
                 onClick={() => navigate("/confiance")}
                 className="flex items-center gap-1 text-sm font-medium text-[#1A4E8C] hover:underline mt-1 w-fit"
               >
-                Voir la proposition <ArrowRight size={13} />
+                {t("detail.viewProposal")} <ArrowRight size={13} />
               </button>
             )}
           </div>
@@ -255,7 +258,7 @@ export default function FicheAgent() {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-[#0F0F0D]">
-                Niveau actuel :
+                {t("detail.currentLevel")} :
               </span>
               <span className="text-sm font-medium text-[#C97C0A]">
                 {agent.autonomyLevel}
@@ -279,8 +282,7 @@ export default function FicheAgent() {
               />
             </div>
             <p className="text-xs text-[#8A8680]">
-              {agent.streakTarget - agent.streak} validations consécutives 4+★ avant la
-              prochaine proposition d'autonomie
+              {t("detail.streakRemaining", { count: agent.streakTarget - agent.streak })}
             </p>
           </div>
         </section>
@@ -289,7 +291,7 @@ export default function FicheAgent() {
         {(agent.handoffsOut.length > 0 || agent.handoffsIn.length > 0) && (
           <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
             <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">
-              Passations cette semaine
+              {t("detail.handoffsWeek")}
             </h2>
             <div className="flex flex-col gap-2">
               {agent.handoffsOut.map((h, i) => (
@@ -314,7 +316,7 @@ export default function FicheAgent() {
 
         {/* Tâches récentes */}
         <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
-          <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">Tâches récentes</h2>
+          <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">{t("detail.recentTasks")}</h2>
           <div className="divide-y divide-[#E8E4DC]">
             {agent.recentTasks.map((task, i) => (
               <TaskRow key={i} task={task} />

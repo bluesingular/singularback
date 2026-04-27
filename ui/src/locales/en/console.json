@@ -1,5 +1,6 @@
 {
   "title": "CEO Console",
+  "subtitle": "Powered by your AI team",
   "greeting": "Good morning. Here's what's waiting for you.",
   "queue": {
     "label": "Queue",
@@ -9,10 +10,16 @@
   },
   "intelligence": {
     "label": "Today's alerts",
-    "empty": "No alerts. Have a great day!"
+    "empty": "No alerts. Have a great day!",
+    "count": "{{count}} point to handle this morning",
+    "count_plural": "{{count}} points to handle this morning"
   },
   "actions": {
     "approveAll": "Approve all",
-    "reviewLater": "Review later"
-  }
+    "reviewLater": "Review later",
+    "processNow": "Handle now",
+    "later": "Later"
+  },
+  "placeholder": "Ask a question or give instructions to your team…",
+  "thinking": "Relaying your request to the team. I'll keep you posted as soon as there's a response."
 }

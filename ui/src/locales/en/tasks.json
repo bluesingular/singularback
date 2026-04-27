@@ -1,11 +1,19 @@
 {
   "title": "Task thread",
   "approval": {
+    "title": "Approve this selection",
+    "rate": "Rate {{agent}}'s work quality to help them improve.",
     "pending": "Waiting for your approval",
     "approved": "Approved — thank you!",
     "streak": "🎯 {{count}} approval in a row — you're on a roll!",
     "suggestion": "Based on {{count}} consecutive approvals, {{agent}} could work more autonomously. Interested?",
-    "schemaNote": "The output was automatically corrected to match the expected format."
+    "schemaNote": "The output was automatically corrected to match the expected format.",
+    "approve": "Approve"
+  },
+  "schema": {
+    "title": "Note:",
+    "missing": "{{agent}}'s response was missing the required \"{{field}}\" field. It was completed automatically.",
+    "viewFix": "View correction →"
   },
   "handoff": {
     "label": "Handoff",
@@ -16,11 +24,13 @@
     "started": "Started",
     "completed": "Completed",
     "blocked": "Waiting",
-    "failed": "Failed"
+    "failed": "Failed",
+    "awaitingApproval": "Awaiting approval"
   },
   "damage": {
     "title": "Incident reported",
     "recoveryPlan": "Recovery plan",
     "correction": "Correction draft"
-  }
+  },
+  "back": "Back"
 }

@@ -4,21 +4,32 @@
   "proposals": {
     "title": "Pending proposals",
     "empty": "No pending proposals",
-    "approve": "Grant autonomy",
-    "reject": "Not yet",
+    "approve": "Accept this proposal",
+    "reject": "Reject",
+    "edit": "Edit threshold",
     "evidence": "Evidence",
     "streak": "{{count}} approval without error",
     "streak_plural": "{{count}} approvals without errors",
     "quality": "Average quality",
     "gatePass": "Gate pass rate",
-    "schemaPass": "Schema pass rate"
+    "schemaPass": "Schema pass rate",
+    "currentLevel": "Current level",
+    "proposedLevel": "Proposed",
+    "changes": "What changes",
+    "remains": "What stays the same",
+    "accepted": "Proposal accepted. {{agent}} will now operate with more autonomy."
   },
   "levels": {
-    "title": "Current levels",
+    "title": "Active trust levels",
     "building": "Building trust",
     "supervised": "Supervised — every action approved",
     "trusted": "Trusted — spot checks",
     "highlyTrusted": "Highly autonomous — weekly summary"
+  },
+  "legend": {
+    "building": "Building (0–3)",
+    "supervised": "Supervised (3–4)",
+    "trusted": "Trusted (4+)"
   },
   "downgrade": {
     "notice": "{{agent}}'s trust level was reduced due to recent errors."

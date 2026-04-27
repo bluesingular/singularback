@@ -45,16 +45,17 @@ import { BoardClaimPage } from "./pages/BoardClaim";
 import { CliAuthPage } from "./pages/CliAuth";
 import { InviteLandingPage } from "./pages/InviteLanding";
 import { NotFoundPage } from "./pages/NotFound";
-import TableauDeBord from "./pages/singular/TableauDeBord";
-import MonEquipe from "./pages/singular/MonEquipe";
-import FicheAgent from "./pages/singular/FicheAgent";
-import CentreDeConfiance from "./pages/singular/CentreDeConfiance";
-import FilDeTache from "./pages/singular/FilDeTache";
-import { ConsoleCEO } from "./pages/singular/ConsoleCEO";
-import { Rapports } from "./pages/singular/Rapports";
-import { Contacts } from "./pages/singular/Contacts";
-import { Parametres } from "./pages/singular/Parametres";
-import { SingularPreview } from "./pages/singular/Preview";
+import { lazy, Suspense } from "react";
+const TableauDeBord  = lazy(() => import("./pages/singular/TableauDeBord"));
+const MonEquipe      = lazy(() => import("./pages/singular/MonEquipe"));
+const FicheAgent     = lazy(() => import("./pages/singular/FicheAgent"));
+const CentreDeConfiance = lazy(() => import("./pages/singular/CentreDeConfiance"));
+const FilDeTache     = lazy(() => import("./pages/singular/FilDeTache"));
+const ConsoleCEO     = lazy(() => import("./pages/singular/ConsoleCEO").then(m => ({ default: m.ConsoleCEO })));
+const Rapports       = lazy(() => import("./pages/singular/Rapports").then(m => ({ default: m.Rapports })));
+const Contacts       = lazy(() => import("./pages/singular/Contacts").then(m => ({ default: m.Contacts })));
+const Parametres     = lazy(() => import("./pages/singular/Parametres").then(m => ({ default: m.Parametres })));
+const SingularPreview = lazy(() => import("./pages/singular/Preview").then(m => ({ default: m.SingularPreview })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -132,15 +133,15 @@ function boardRoutes() {
   return (
     <>
       <Route index element={<Navigate to="tableau-de-bord" replace />} />
-      <Route path="tableau-de-bord" element={<TableauDeBord />} />
-      <Route path="mon-equipe" element={<MonEquipe />} />
-      <Route path="mon-equipe/:agentSlug" element={<FicheAgent />} />
-      <Route path="confiance" element={<CentreDeConfiance />} />
-      <Route path="taches/:taskId" element={<FilDeTache />} />
-      <Route path="console" element={<ConsoleCEO />} />
-      <Route path="rapports" element={<Rapports />} />
-      <Route path="contacts" element={<Contacts />} />
-      <Route path="parametres" element={<Parametres />} />
+      <Route path="tableau-de-bord" element={<Suspense fallback={null}><TableauDeBord /></Suspense>} />
+      <Route path="mon-equipe" element={<Suspense fallback={null}><MonEquipe /></Suspense>} />
+      <Route path="mon-equipe/:agentSlug" element={<Suspense fallback={null}><FicheAgent /></Suspense>} />
+      <Route path="confiance" element={<Suspense fallback={null}><CentreDeConfiance /></Suspense>} />
+      <Route path="taches/:taskId" element={<Suspense fallback={null}><FilDeTache /></Suspense>} />
+      <Route path="console" element={<Suspense fallback={null}><ConsoleCEO /></Suspense>} />
+      <Route path="rapports" element={<Suspense fallback={null}><Rapports /></Suspense>} />
+      <Route path="contacts" element={<Suspense fallback={null}><Contacts /></Suspense>} />
+      <Route path="parametres" element={<Suspense fallback={null}><Parametres /></Suspense>} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="onboarding" element={<OnboardingRoutePage />} />
       <Route path="companies" element={<Companies />} />

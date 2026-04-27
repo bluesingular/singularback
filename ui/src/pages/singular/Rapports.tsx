@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, Clock, Euro, Users, Share2, ChevronDown } from "lucide-react";
 
 const agentActivity = [
@@ -52,10 +53,10 @@ const agentColors: Record<string, string> = {
   market: "#7C3AED",
 };
 
-const periods = ["Ce mois", "Mois dernier", "3 derniers mois"];
-
 export function Rapports() {
-  const [period, setPeriod] = useState("Ce mois");
+  const { t } = useTranslation("reports");
+  const periods = [t("periods.thisMonth"), t("periods.lastMonth"), t("periods.last3Months")];
+  const [period, setPeriod] = useState(() => t("periods.thisMonth"));
   const [fteCount, setFteCount] = useState(1.2);
 
   const monthlyCostHuman = Math.round(fteCount * 2800 * 1.45);
@@ -73,7 +74,7 @@ export function Rapports() {
           className="text-2xl"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Rapports
+          {t("title")}
         </h1>
         <div className="relative">
           <select
@@ -117,7 +118,7 @@ export function Rapports() {
             847
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            tâches réalisées
+            {t("kpi.tasksCompleted")}
           </p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
             dont ≈ 121 sélections de CV
@@ -139,10 +140,10 @@ export function Rapports() {
             5 h
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            libérées par semaine
+            {t("kpi.hoursSaved")}
           </p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            temps estimé récupéré
+            {t("kpi.estimatedTime")}
           </p>
         </div>
 
@@ -161,10 +162,10 @@ export function Rapports() {
             ≈ 250 €
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            coût ce mois
+            {t("kpi.aiCost")}
           </p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            équipe IA complète
+            {t("kpi.fullTeam")}
           </p>
         </div>
 
@@ -183,10 +184,10 @@ export function Rapports() {
             ≈ 3 200 €
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            équivalent humain
+            {t("kpi.humanEquivalent")}
           </p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            coût mensuel estimé
+            {t("kpi.estimatedMonthly")}
           </p>
         </div>
       </div>
@@ -200,7 +201,7 @@ export function Rapports() {
           className="text-base font-semibold mb-1"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Simulateur d'embauche
+          {t("simulator.title")}
         </h2>
         <div
           className="w-full mb-4"
@@ -242,7 +243,7 @@ export function Rapports() {
             className="pt-2 mt-2 border-t font-semibold"
             style={{ borderColor: "#E8E4DC", color: "#1A9E68" }}
           >
-            Économie estimée : {savings.toLocaleString("fr-FR")} €/mois
+            {t("simulator.savings")} : {savings.toLocaleString("fr-FR")} €/mois
           </div>
         </div>
 
@@ -251,7 +252,7 @@ export function Rapports() {
             className="text-xs font-medium block mb-2"
             style={{ color: "#8A8680" }}
           >
-            Ajuster la comparaison — {fteCount.toFixed(1).replace(".", ",")} ETP
+            {t("simulator.adjustLabel", { count: fteCount.toFixed(1).replace(".", ",") })}
           </label>
           <input
             type="range"
@@ -280,7 +281,7 @@ export function Rapports() {
             className="text-base font-semibold mb-4"
             style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
           >
-            Activité par agent
+            {t("activityByAgent")}
           </h2>
           <div className="space-y-3">
             {agentActivity.map((agent) => {
@@ -320,7 +321,7 @@ export function Rapports() {
             className="text-base font-semibold mb-4"
             style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
           >
-            Répartition des tâches
+            {t("taskBreakdown")}
           </h2>
           <div className="space-y-3">
             {taskBreakdown.map((item) => (
@@ -342,7 +343,7 @@ export function Rapports() {
                     {item.tasks}
                   </p>
                   <p className="text-xs" style={{ color: "#8A8680" }}>
-                    tâches
+                    {t("tasks")}
                   </p>
                 </div>
               </div>
@@ -358,10 +359,10 @@ export function Rapports() {
       >
         <div>
           <p className="text-sm font-medium" style={{ color: "#0F0F0D" }}>
-            Première semaine accomplie
+            {t("share.title")}
           </p>
           <p className="text-xs mt-0.5" style={{ color: "#8A8680" }}>
-            Partagez vos résultats avec votre réseau
+            {t("share.subtitle")}
           </p>
         </div>
         <button
@@ -369,7 +370,7 @@ export function Rapports() {
           style={{ backgroundColor: "#1A9E68", color: "#FFFFFF" }}
         >
           <Share2 size={14} />
-          Partager votre première semaine
+          {t("share.cta")}
         </button>
       </div>
     </div>

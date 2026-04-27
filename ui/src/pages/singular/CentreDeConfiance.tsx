@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { CheckCircle2, SlidersHorizontal, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TrustBar } from "@/components/singular"
@@ -81,6 +82,7 @@ interface ProposalCardProps {
 }
 
 function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProps) {
+  const { t } = useTranslation("trust")
   return (
     <div className="bg-[#EFF3FA] border border-[#1A4E8C]/20 border-l-4 border-l-[#1A4E8C] rounded-2xl p-5 flex flex-col gap-4">
       {/* Agent header */}
@@ -101,19 +103,19 @@ function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProp
       {/* Details */}
       <div className="flex flex-col gap-3 text-sm">
         <div className="grid grid-cols-[120px_1fr] gap-x-3 gap-y-2">
-          <span className="text-[#8A8680] font-medium">Niveau actuel</span>
+          <span className="text-[#8A8680] font-medium">{t("proposals.currentLevel")}</span>
           <span className="text-[#0F0F0D]">{proposal.currentLevel}</span>
 
-          <span className="text-[#8A8680] font-medium">Proposé</span>
+          <span className="text-[#8A8680] font-medium">{t("proposals.proposedLevel")}</span>
           <span className="text-[#0F0F0D] font-medium">{proposal.proposedLevel}</span>
 
-          <span className="text-[#8A8680] font-medium">Preuve</span>
+          <span className="text-[#8A8680] font-medium">{t("proposals.evidence")}</span>
           <span className="text-[#1A9E68] font-medium">{proposal.evidence}</span>
 
-          <span className="text-[#8A8680] font-medium">Ce qui change</span>
+          <span className="text-[#8A8680] font-medium">{t("proposals.changes")}</span>
           <span className="text-[#0F0F0D]">{proposal.changeDescription}</span>
 
-          <span className="text-[#8A8680] font-medium">Ce qui reste</span>
+          <span className="text-[#8A8680] font-medium">{t("proposals.remains")}</span>
           <span className="text-[#0F0F0D]">{proposal.remainsDescription}</span>
         </div>
       </div>
@@ -126,7 +128,7 @@ function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProp
           className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white gap-1.5 text-sm"
         >
           <CheckCircle2 size={14} />
-          Accepter cette proposition
+          {t("proposals.approve")}
         </Button>
         <Button
           onClick={onEdit}
@@ -135,7 +137,7 @@ function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProp
           className="gap-1.5 text-sm border-[#1A4E8C]/30 text-[#1A4E8C] hover:bg-[#EFF3FA]"
         >
           <SlidersHorizontal size={14} />
-          Modifier le seuil
+          {t("proposals.edit")}
         </Button>
         <Button
           onClick={onReject}
@@ -144,7 +146,7 @@ function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProp
           className="gap-1.5 text-sm text-[#8A8680] hover:text-[#B91C1C] hover:bg-[#FEF2F2]"
         >
           <X size={14} />
-          Refuser
+          {t("proposals.reject")}
         </Button>
       </div>
     </div>
@@ -187,6 +189,7 @@ function TrustTableRow({ row }: { row: TrustRow }) {
 // ---------------------------------------------------------------------------
 
 export default function CentreDeConfiance() {
+  const { t } = useTranslation("trust")
   const [acceptedIds, setAcceptedIds] = React.useState<string[]>([])
   const [rejectedIds, setRejectedIds] = React.useState<string[]>([])
 
@@ -200,17 +203,15 @@ export default function CentreDeConfiance() {
 
         {/* Page header */}
         <div>
-          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Centre de confiance</h1>
-          <p className="text-sm text-[#8A8680] mt-1">
-            Gérez l'autonomie de vos agents et suivez leur progression.
-          </p>
+          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("title")}</h1>
+          <p className="text-sm text-[#8A8680] mt-1">{t("subtitle")}</p>
         </div>
 
         {/* Section 1 — Propositions */}
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-              Propositions en attente
+              {t("proposals.title")}
             </h2>
             {visibleProposals.length > 0 && (
               <span className="text-xs font-semibold bg-[#1A4E8C] text-white px-2 py-0.5 rounded-full">
@@ -222,7 +223,7 @@ export default function CentreDeConfiance() {
           {visibleProposals.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-6 text-center">
               <CheckCircle2 size={24} className="mx-auto text-[#1A9E68] mb-2" />
-              <p className="text-sm text-[#8A8680]">Aucune proposition en attente pour le moment.</p>
+              <p className="text-sm text-[#8A8680]">{t("proposals.empty")}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -241,7 +242,7 @@ export default function CentreDeConfiance() {
           {acceptedIds.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-[#1A9E68] bg-[#ECFBF4] border border-[#1A9E68]/20 rounded-xl px-4 py-2.5">
               <CheckCircle2 size={14} />
-              Proposition acceptée. Sophie va opérer avec plus d'autonomie dès maintenant.
+              {t("proposals.accepted", { agent: "Sophie" })}
             </div>
           )}
         </section>
@@ -249,19 +250,19 @@ export default function CentreDeConfiance() {
         {/* Section 2 — Niveaux actifs */}
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-            Niveaux de confiance actifs
+            {t("levels.title")}
           </h2>
 
           {/* Legend */}
           <div className="flex flex-wrap gap-4 text-xs text-[#8A8680]">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> En construction (0–3)
+              <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> {t("legend.building")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#C97C0A]" /> Supervisée (3–4)
+              <span className="w-2 h-2 rounded-sm bg-[#C97C0A]" /> {t("legend.supervised")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#1A9E68]" /> De confiance (4+)
+              <span className="w-2 h-2 rounded-sm bg-[#1A9E68]" /> {t("legend.trusted")}
             </span>
           </div>
 

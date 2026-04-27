@@ -1,28 +1,56 @@
 {
   "team": {
     "title": "My team",
+    "titleAI": "My AI team",
     "subtitle": "{{count}} active agent",
-    "subtitle_plural": "{{count}} active agents"
+    "subtitle_plural": "{{count}} active agents",
+    "activeCount": "{{count}} active member · {{tasks}} tasks completed this month",
+    "activeCount_plural": "{{count}} active members · {{tasks}} tasks completed this month"
   },
   "card": {
     "lastActive": "Last active: {{time}}",
     "currentTask": "Right now: {{task}}",
-    "trustLevel": "Trust level"
+    "trustLevel": "Trust level",
+    "viewProfile": "View profile",
+    "tasksDone": "{{count}} task this month",
+    "tasksDone_plural": "{{count}} tasks this month",
+    "handoff": "{{count}} handoff → {{target}}",
+    "handoff_plural": "{{count}} handoffs → {{target}}"
   },
   "detail": {
     "about": "About",
     "skills": "Skills",
+    "capacites": "Skills",
     "trustTrack": "Trust track record",
+    "trustSummary": "Trust track record",
+    "trustAndAutonomy": "Trust & Autonomy",
     "recentTasks": "Recent tasks",
     "autonomyLevel": "Autonomy level",
+    "currentLevel": "Current level",
     "approvalStreak": "{{count}} approval in a row",
     "approvalStreak_plural": "{{count}} approvals in a row",
-    "handoffs": "Recent handoffs"
+    "handoffs": "Recent handoffs",
+    "handoffsWeek": "This week's handoffs",
+    "handoffsOut": "Handed off by this agent",
+    "handoffsIn": "Received by this agent",
+    "streakProgress": "{{count}} / {{target}} 4+★ approvals",
+    "streakRemaining": "{{count}} consecutive 4+★ approval until next autonomy proposal",
+    "streakRemaining_plural": "{{count}} consecutive 4+★ approvals until next autonomy proposal",
+    "upgradeReady": "Ready for a higher autonomy level",
+    "viewProposal": "View proposal",
+    "pause": "Pause",
+    "resume": "Resume",
+    "back": "Back"
   },
   "autonomy": {
     "building": "Building trust",
     "supervised": "Supervised",
     "trusted": "Trusted",
     "highlyTrusted": "Highly autonomous"
+  },
+  "status": {
+    "done": "Completed",
+    "inProgress": "In progress",
+    "waiting": "Waiting"
   }
 }

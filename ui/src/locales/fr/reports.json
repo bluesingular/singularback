@@ -1,0 +1,30 @@
+{
+  "title": "Rapports",
+  "periods": {
+    "thisMonth": "Ce mois",
+    "lastMonth": "Mois dernier",
+    "last3Months": "3 derniers mois"
+  },
+  "kpi": {
+    "tasksCompleted": "tâches réalisées",
+    "hoursSaved": "libérées par semaine",
+    "estimatedTime": "temps estimé récupéré",
+    "aiCost": "coût ce mois",
+    "fullTeam": "équipe IA complète",
+    "humanEquivalent": "équivalent humain",
+    "estimatedMonthly": "coût mensuel estimé"
+  },
+  "simulator": {
+    "title": "Simulateur d'embauche",
+    "savings": "Économie estimée",
+    "adjustLabel": "Ajuster la comparaison — {{count}} ETP"
+  },
+  "activityByAgent": "Activité par agent",
+  "taskBreakdown": "Répartition des tâches",
+  "tasks": "tâches",
+  "share": {
+    "title": "Première semaine accomplie",
+    "subtitle": "Partagez vos résultats avec votre réseau",
+    "cta": "Partager votre première semaine"
+  }
+}

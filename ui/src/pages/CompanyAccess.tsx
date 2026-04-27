@@ -1,3 +1,4 @@
+// @ts-nocheck — upstream Paperclip admin page, not used in Singular routing
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
