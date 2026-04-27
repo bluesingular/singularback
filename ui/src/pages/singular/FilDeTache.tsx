@@ -180,7 +180,7 @@ function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
 
       <Button
         onClick={() => onApprove(selected || 5)}
-        className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white w-fit"
+        className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white w-full sm:w-fit"
         disabled={selected === 0}
         size="sm"
       >

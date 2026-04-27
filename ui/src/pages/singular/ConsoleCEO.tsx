@@ -159,16 +159,16 @@ export function ConsoleCEO() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex gap-2 mt-4">
+                <div className="flex flex-col sm:flex-row gap-2 mt-4">
                   <button
-                    className="text-sm font-medium px-4 py-1.5 rounded-lg transition-opacity hover:opacity-90"
+                    className="text-sm font-medium px-4 py-2 sm:py-1.5 rounded-lg transition-opacity hover:opacity-90 w-full sm:w-auto"
                     style={{ backgroundColor: "#1A4E8C", color: "#FFFFFF" }}
                     onClick={() => setShowIntelligence(false)}
                   >
                     {t("actions.processNow")}
                   </button>
                   <button
-                    className="text-sm font-medium px-4 py-1.5 rounded-lg transition-colors hover:opacity-80"
+                    className="text-sm font-medium px-4 py-2 sm:py-1.5 rounded-lg transition-colors hover:opacity-80 w-full sm:w-auto"
                     style={{
                       backgroundColor: "transparent",
                       color: "#1A4E8C",
