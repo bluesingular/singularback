@@ -74,21 +74,22 @@ async function installAgents(
   const ids: string[] = [];
   for (const def of agentDefs) {
     // Use upsert to avoid duplicate agent errors
+    const agentMeta = {
+      packDescription: def.description,
+      skillsAssigned:  def.skills ?? [],
+      handoffs:        def.handoffs ?? [],
+    };
     const rows = await (tx as any)
       .insert(agents)
       .values({
         companyId,
         name: def.name,
-        metadata: {
-          packDescription: def.description,
-        },
+        metadata: agentMeta,
       })
       .onConflictDoUpdate({
         target: [agents.companyId, agents.name],
         set: {
-          metadata: {
-            packDescription: def.description,
-          },
+          metadata: agentMeta,
         },
       })
       .returning({ id: agents.id });

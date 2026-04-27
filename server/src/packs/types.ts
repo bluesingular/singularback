@@ -10,6 +10,15 @@
 
 // ── Pack manifest ─────────────────────────────────────────────────────────────
 
+export interface PackAgentHandoff {
+  /** Condition key, e.g. "cv_score_gte_4" */
+  condition:     string;
+  /** Slug of the target agent that receives the follow-on task */
+  targetAgent:   string;
+  /** Task title template for the new issue (may use {{candidate_name}} etc.) */
+  taskTemplate:  string;
+}
+
 export interface PackAgent {
   slug:        string;
   name:        string;
@@ -18,6 +27,8 @@ export interface PackAgent {
   modelTier:   string;
   /** Skill slugs this agent is assigned to */
   skills:      string[];
+  /** Handoff rules — follow-on tasks to create when conditions are met */
+  handoffs?:   PackAgentHandoff[];
 }
 
 export interface PackSkill {

@@ -65,6 +65,7 @@ import {
   normalizeIssueExecutionPolicy,
   parseIssueExecutionState,
 } from "../services/issue-execution-policy.js";
+import { evaluateHandoffs } from "../handoff/service.js";
 
 const MAX_ISSUE_COMMENT_LIMIT = 500;
 const updateIssueRouteSchema = updateIssueSchema.extend({
@@ -2908,6 +2909,61 @@ export function issueRoutes(
     });
 
     res.json(result);
+  });
+
+  // POST /issues/:id/rate
+  // Board operator rates a completed task (1–5 stars). Triggers handoff evaluation:
+  // if the completing agent has a handoff condition that matches the rating, a
+  // follow-on task is created for the target agent automatically.
+  router.post("/issues/:id/rate", async (req, res) => {
+    if (req.actor.type !== "board") {
+      res.status(403).json({ error: "Board access required" });
+      return;
+    }
+
+    const id = req.params.id as string;
+    const issue = await svc.getById(id);
+    if (!issue) {
+      res.status(404).json({ error: "Issue not found" });
+      return;
+    }
+    assertCompanyAccess(req, issue.companyId);
+
+    const rating = Number(req.body.rating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      res.status(400).json({ error: "rating must be an integer between 1 and 5" });
+      return;
+    }
+
+    const variables: Record<string, string> = typeof req.body.variables === "object"
+      ? req.body.variables
+      : {};
+
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId:  issue.companyId,
+      actorType:  actor.actorType,
+      actorId:    actor.actorId,
+      agentId:    actor.agentId,
+      runId:      actor.runId,
+      action:     "issue.rated",
+      entityType: "issue",
+      entityId:   issue.id,
+      details:    { rating, issueId: issue.id, agentId: issue.assigneeAgentId },
+    });
+
+    let handoffResult = { triggered: false, handoffCount: 0, issueIds: [] as string[] };
+    if (issue.assigneeAgentId) {
+      handoffResult = await evaluateHandoffs(db, {
+        companyId: issue.companyId,
+        issueId:   issue.id,
+        agentId:   issue.assigneeAgentId,
+        rating,
+        variables,
+      });
+    }
+
+    res.json({ ok: true, rating, handoff: handoffResult });
   });
 
   return router;
