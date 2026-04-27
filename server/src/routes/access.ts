@@ -35,7 +35,7 @@ import {
   updateUserCompanyAccessSchema,
   PERMISSION_KEYS
 } from "@paperclipai/shared";
-import type { DeploymentExposure, DeploymentMode } from "@paperclipai/shared";
+import type { DeploymentExposure, DeploymentMode, PermissionKey } from "@paperclipai/shared";
 import {
   forbidden,
   conflict,
