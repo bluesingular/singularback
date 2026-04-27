@@ -136,7 +136,7 @@ export declare const companySkillListItemSchema: z.ZodObject<{
     editable: boolean;
     editableReason: string | null;
     sourceLabel: string | null;
-    sourceBadge: "github" | "url" | "catalog" | "skills_sh" | "paperclip" | "local";
+    sourceBadge: "local" | "github" | "url" | "catalog" | "skills_sh" | "paperclip";
 }, {
     markdown: string;
     id: string;
@@ -157,7 +157,7 @@ export declare const companySkillListItemSchema: z.ZodObject<{
     editable: boolean;
     editableReason: string | null;
     sourceLabel: string | null;
-    sourceBadge: "github" | "url" | "catalog" | "skills_sh" | "paperclip" | "local";
+    sourceBadge: "local" | "github" | "url" | "catalog" | "skills_sh" | "paperclip";
     fileInventory?: {
         kind: "skill" | "markdown" | "reference" | "script" | "asset" | "other";
         path: string;
@@ -263,7 +263,7 @@ export declare const companySkillDetailSchema: z.ZodObject<{
     editable: boolean;
     editableReason: string | null;
     sourceLabel: string | null;
-    sourceBadge: "github" | "url" | "catalog" | "skills_sh" | "paperclip" | "local";
+    sourceBadge: "local" | "github" | "url" | "catalog" | "skills_sh" | "paperclip";
     usedByAgents: {
         id: string;
         name: string;
@@ -292,7 +292,7 @@ export declare const companySkillDetailSchema: z.ZodObject<{
     editable: boolean;
     editableReason: string | null;
     sourceLabel: string | null;
-    sourceBadge: "github" | "url" | "catalog" | "skills_sh" | "paperclip" | "local";
+    sourceBadge: "local" | "github" | "url" | "catalog" | "skills_sh" | "paperclip";
     fileInventory?: {
         kind: "skill" | "markdown" | "reference" | "script" | "asset" | "other";
         path: string;

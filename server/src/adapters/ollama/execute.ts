@@ -47,7 +47,12 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const { config, onLog } = ctx;
 
   const host = asString(config.host, "http://localhost:11434").replace(/\/$/, "");
-  const model = asString(config.model, "llama3.2");
+  const model = asString(config.model, "");
+  if (!model) {
+    throw new Error(
+      'Ollama adapter requires a "model" field in the agent configuration (e.g. model: gemma4:latest). No default is set — choose the model you have pulled locally.'
+    );
+  }
   const rawTimeoutSec = asNumber(config.timeoutSec, 300);
   const timeoutSec = rawTimeoutSec > 0 ? rawTimeoutSec : 300;
   const extraOptions = parseObject(config.options);

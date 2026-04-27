@@ -495,22 +495,8 @@
     {
       "idx": 70,
       "version": "7",
-      "when": 1745490060000,
-      "tag": "0070_trust",
-      "breakpoints": true
-    },
-    {
-      "idx": 71,
-      "version": "7",
-      "when": 1745490120000,
-      "tag": "0071_skill_improvement",
-      "breakpoints": true
-    },
-    {
-      "idx": 72,
-      "version": "7",
-      "when": 1745490180000,
-      "tag": "0072_intelligence",
+      "when": 1745576400000,
+      "tag": "0070_audit_immutable_triggers",
       "breakpoints": true
     }
   ]

@@ -3,10 +3,8 @@
  *
  * Worker registry — importing this module starts all BullMQ workers.
  * Import order does not matter; BullMQ routes jobs by queue name + job name.
- *
- * Workers for later modules (memory, skill improvement) will be added
- * here as those modules are implemented.
  */
 
 export { emailWorker } from "./emailReceived.worker.js";
 export { taskApprovedWorker } from "./taskApproved.worker.js";
+export { initActivationCheckWorker } from "./activationCheck.worker.js";

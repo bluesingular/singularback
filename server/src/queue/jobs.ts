@@ -63,6 +63,18 @@ export const CostResetJobSchema = z.object({
   companyId: z.string().uuid(),
 });
 
+export const ActivationCheckJobSchema = z.object({
+  companyId:  z.string().uuid(),
+  packSlug:   z.string(),
+  triggerKey: z.enum([
+    "day_0_seed",
+    "day_2_first_task",
+    "day_4_milestone",
+    "day_6_relationship",
+    "day_7_summary",
+  ]),
+});
+
 // ── Inferred types ────────────────────────────────────────────────────────────
 
 export type HeartbeatJob = z.infer<typeof HeartbeatJobSchema>;
@@ -72,3 +84,4 @@ export type WebhookReceivedJob = z.infer<typeof WebhookReceivedJobSchema>;
 export type MemoryExtractionJob = z.infer<typeof MemoryExtractionJobSchema>;
 export type SkillImprovementJob = z.infer<typeof SkillImprovementJobSchema>;
 export type CostResetJob = z.infer<typeof CostResetJobSchema>;
+export type ActivationCheckJob = z.infer<typeof ActivationCheckJobSchema>;

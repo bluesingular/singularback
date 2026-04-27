@@ -43,6 +43,7 @@ import { maybePersistWorktreeRuntimePorts } from "./worktree-config.js";
 import { initTelemetry, getTelemetryClient } from "./telemetry.js";
 import { bootstrapScheduler, shutdownScheduler } from "./queue/scheduler.js";
 import "./workers/index.js"; // Start BullMQ workers
+import { initActivationCheckWorker } from "./workers/activationCheck.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -610,6 +611,9 @@ export async function startServer(): Promise<StartedServer> {
     void bootstrapScheduler(db as any).catch((err) => {
       logger.error({ err }, "BullMQ scheduler bootstrap failed");
     });
+
+    // M12/M11: Start activation sequence worker (needs db instance)
+    initActivationCheckWorker(db as any);
 
     // Routine scheduler still uses setInterval for now — will be migrated
     // to BullMQ cron jobs in a future module.

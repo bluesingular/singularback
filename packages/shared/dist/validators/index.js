@@ -1,6 +1,7 @@
 export { instanceGeneralSettingsSchema, patchInstanceGeneralSettingsSchema, instanceExperimentalSettingsSchema, patchInstanceExperimentalSettingsSchema, } from "./instance.js";
 export { upsertBudgetPolicySchema, resolveBudgetIncidentSchema, } from "./budget.js";
 export { createCompanySchema, updateCompanySchema, updateCompanyBrandingSchema, } from "./company.js";
+export { environmentDriverSchema, environmentStatusSchema, environmentLeaseStatusSchema, environmentLeaseCleanupStatusSchema, createEnvironmentSchema, updateEnvironmentSchema, } from "./environment.js";
 export { feedbackDataSharingPreferenceSchema, feedbackTargetTypeSchema, feedbackTraceStatusSchema, feedbackVoteValueSchema, upsertIssueFeedbackVoteSchema, } from "./feedback.js";
 export { sidebarOrderPreferenceSchema, upsertSidebarOrderPreferenceSchema, } from "./sidebar-preferences.js";
 export { companySkillSourceTypeSchema, companySkillTrustLevelSchema, companySkillCompatibilitySchema, companySkillSourceBadgeSchema, companySkillFileInventoryEntrySchema, companySkillSchema, companySkillListItemSchema, companySkillUsageAgentSchema, companySkillDetailSchema, companySkillUpdateStatusSchema, companySkillImportSchema, companySkillProjectScanRequestSchema, companySkillProjectScanSkippedSchema, companySkillProjectScanConflictSchema, companySkillProjectScanResultSchema, companySkillCreateSchema, companySkillFileDetailSchema, companySkillFileUpdateSchema, } from "./company-skill.js";

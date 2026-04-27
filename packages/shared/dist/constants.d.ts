@@ -41,6 +41,16 @@ export declare const GOAL_STATUSES: readonly ["planned", "active", "achieved", "
 export type GoalStatus = (typeof GOAL_STATUSES)[number];
 export declare const PROJECT_STATUSES: readonly ["backlog", "planned", "in_progress", "completed", "cancelled"];
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+export declare const ENVIRONMENT_DRIVERS: readonly ["local"];
+export type EnvironmentDriver = (typeof ENVIRONMENT_DRIVERS)[number];
+export declare const ENVIRONMENT_STATUSES: readonly ["active", "archived"];
+export type EnvironmentStatus = (typeof ENVIRONMENT_STATUSES)[number];
+export declare const ENVIRONMENT_LEASE_STATUSES: readonly ["active", "released", "expired", "failed"];
+export type EnvironmentLeaseStatus = (typeof ENVIRONMENT_LEASE_STATUSES)[number];
+export declare const ENVIRONMENT_LEASE_POLICIES: readonly ["ephemeral"];
+export type EnvironmentLeasePolicy = (typeof ENVIRONMENT_LEASE_POLICIES)[number];
+export declare const ENVIRONMENT_LEASE_CLEANUP_STATUSES: readonly ["pending", "success", "failed"];
+export type EnvironmentLeaseCleanupStatus = (typeof ENVIRONMENT_LEASE_CLEANUP_STATUSES)[number];
 export declare const ROUTINE_STATUSES: readonly ["active", "paused", "archived"];
 export type RoutineStatus = (typeof ROUTINE_STATUSES)[number];
 export declare const ROUTINE_CONCURRENCY_POLICIES: readonly ["coalesce_if_active", "always_enqueue", "skip_if_active"];
@@ -112,7 +122,7 @@ export declare const JOIN_REQUEST_TYPES: readonly ["human", "agent"];
 export type JoinRequestType = (typeof JOIN_REQUEST_TYPES)[number];
 export declare const JOIN_REQUEST_STATUSES: readonly ["pending_approval", "approved", "rejected"];
 export type JoinRequestStatus = (typeof JOIN_REQUEST_STATUSES)[number];
-export declare const PERMISSION_KEYS: readonly ["agents:create", "users:invite", "users:manage_permissions", "tasks:assign", "tasks:assign_scope", "joins:approve"];
+export declare const PERMISSION_KEYS: readonly ["agents:create", "users:invite", "users:manage_permissions", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts", "joins:approve"];
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
 /**
  * The current version of the Plugin API contract.
@@ -237,4 +247,8 @@ export type PluginEventType = (typeof PLUGIN_EVENT_TYPES)[number];
  */
 export declare const PLUGIN_BRIDGE_ERROR_CODES: readonly ["WORKER_UNAVAILABLE", "CAPABILITY_DENIED", "WORKER_ERROR", "TIMEOUT", "UNKNOWN"];
 export type PluginBridgeErrorCode = (typeof PLUGIN_BRIDGE_ERROR_CODES)[number];
+export declare const AGENT_DEFAULT_MAX_CONCURRENT_RUNS = 5;
+export declare const ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY: "continuation-summary";
+export declare const RUN_LIVENESS_STATES: readonly ["completed", "advanced", "plan_only", "empty_response", "blocked", "failed", "needs_followup"];
+export type RunLivenessState = (typeof RUN_LIVENESS_STATES)[number];
 //# sourceMappingURL=constants.d.ts.map

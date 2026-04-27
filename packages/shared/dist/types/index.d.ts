@@ -1,4 +1,5 @@
 export type { Company } from "./company.js";
+export type { Environment, EnvironmentLease, LocalEnvironmentConfig } from "./environment.js";
 export type { FeedbackVote, FeedbackDataSharingPreference, FeedbackTargetType, FeedbackVoteValue, FeedbackTrace, FeedbackTraceStatus, FeedbackTraceTargetSummary, FeedbackTraceBundleCaptureStatus, FeedbackTraceBundleFile, FeedbackTraceBundle, } from "./feedback.js";
 export type { InstanceExperimentalSettings, InstanceGeneralSettings, InstanceSettings, BackupRetentionPolicy } from "./instance.js";
 export { DAILY_RETENTION_PRESETS, WEEKLY_RETENTION_PRESETS, MONTHLY_RETENTION_PRESETS, DEFAULT_BACKUP_RETENTION } from "./instance.js";

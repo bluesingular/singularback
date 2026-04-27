@@ -126,6 +126,11 @@ export const PROJECT_STATUSES = [
     "completed",
     "cancelled",
 ];
+export const ENVIRONMENT_DRIVERS = ["local"];
+export const ENVIRONMENT_STATUSES = ["active", "archived"];
+export const ENVIRONMENT_LEASE_STATUSES = ["active", "released", "expired", "failed"];
+export const ENVIRONMENT_LEASE_POLICIES = ["ephemeral"];
+export const ENVIRONMENT_LEASE_CLEANUP_STATUSES = ["pending", "success", "failed"];
 export const ROUTINE_STATUSES = ["active", "paused", "archived"];
 export const ROUTINE_CONCURRENCY_POLICIES = ["coalesce_if_active", "always_enqueue", "skip_if_active"];
 export const ROUTINE_CATCH_UP_POLICIES = ["skip_missed", "enqueue_missed_with_cap"];
@@ -270,6 +275,7 @@ export const PERMISSION_KEYS = [
     "users:manage_permissions",
     "tasks:assign",
     "tasks:assign_scope",
+    "tasks:manage_active_checkouts",
     "joins:approve",
 ];
 // ---------------------------------------------------------------------------
@@ -571,5 +577,16 @@ export const PLUGIN_BRIDGE_ERROR_CODES = [
     "WORKER_ERROR",
     "TIMEOUT",
     "UNKNOWN",
+];
+export const AGENT_DEFAULT_MAX_CONCURRENT_RUNS = 5;
+export const ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY = "continuation-summary";
+export const RUN_LIVENESS_STATES = [
+    "completed",
+    "advanced",
+    "plan_only",
+    "empty_response",
+    "blocked",
+    "failed",
+    "needs_followup",
 ];
 //# sourceMappingURL=constants.js.map
