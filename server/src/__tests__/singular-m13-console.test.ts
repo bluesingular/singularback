@@ -300,14 +300,23 @@ describe("getConsoleContext", () => {
 describe("approveConsoleCard", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  function makeApproveDb(returning: { id: string }[] = [{ id: "card-1" }]) {
+  function makeApproveDb(
+    returning: { id: string }[] = [{ id: "card-1" }],
+    taskAgentId = "agent-abc",
+  ) {
     const returningFn = vi.fn().mockResolvedValue(returning);
     const whereFn     = vi.fn().mockReturnValue({ returning: returningFn });
     const setFn       = vi.fn().mockReturnValue({ where: whereFn });
     const updateFn    = vi.fn().mockReturnValue({ set: setFn });
 
-    const db = { update: updateFn } as any;
-    return { db, updateFn, setFn, whereFn, returningFn };
+    // select().from().where().limit() for task lookup
+    const limitFn  = vi.fn().mockResolvedValue([{ agentId: taskAgentId }]);
+    const swhereFn = vi.fn().mockReturnValue({ limit: limitFn });
+    const fromFn   = vi.fn().mockReturnValue({ where: swhereFn });
+    const selectFn = vi.fn().mockReturnValue({ from: fromFn });
+
+    const db = { update: updateFn, select: selectFn } as any;
+    return { db, updateFn, setFn, whereFn, returningFn, selectFn };
   }
 
   it("8. marks card as 'read' in DB", async () => {
@@ -318,26 +327,28 @@ describe("approveConsoleCard", () => {
       cardId:    "card-1",
       taskId:    "task-42",
       companyId: "company-1",
+      userId:    "user-1",
     });
 
     expect(setFn).toHaveBeenCalledWith({ status: "read" });
   });
 
   it("9. fires emit.taskApproved with correct taskId + companyId", async () => {
-    const { db } = makeApproveDb([{ id: "card-1" }]);
+    const { db } = makeApproveDb([{ id: "card-1" }], "agent-abc");
     const emitTaskApproved = vi.fn().mockResolvedValue(undefined);
 
     await approveConsoleCard(db, emitTaskApproved, {
       cardId:    "card-1",
       taskId:    "task-42",
       companyId: "company-1",
+      userId:    "user-1",
     });
 
     expect(emitTaskApproved).toHaveBeenCalledOnce();
-    expect(emitTaskApproved).toHaveBeenCalledWith({
-      taskId:    "task-42",
-      companyId: "company-1",
-    });
+    const emitArg = emitTaskApproved.mock.calls[0][0] as any;
+    expect(emitArg.taskId).toBe("task-42");
+    expect(emitArg.companyId).toBe("company-1");
+    expect(emitArg.agentId).toBe("agent-abc");
   });
 
   it("10. throws ConsoleApprovalError when card not found (empty returning)", async () => {
@@ -349,6 +360,7 @@ describe("approveConsoleCard", () => {
         cardId:    "card-missing",
         taskId:    "task-99",
         companyId: "company-1",
+        userId:    "user-1",
       }),
     ).rejects.toThrow(ConsoleApprovalError);
 
@@ -371,6 +383,7 @@ describe("approveConsoleCard", () => {
         cardId:    "card-1",
         taskId:    "task-99",
         companyId: "company-1",
+        userId:    "user-1",
       }),
     ).rejects.toThrow();
 

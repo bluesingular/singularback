@@ -24,6 +24,11 @@
 
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
+// Stub embedText so retrieveMemory tests don't require OPENROUTER_API_KEY
+vi.mock("../memory/embed.js", () => ({
+  embedText: vi.fn().mockResolvedValue(Array(1024).fill(0)),
+}));
+
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
 const companyId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -149,6 +154,8 @@ describe("getDna / getDnaCompressed / getDnaFull", () => {
 
 function makeMemoryDb(entries: unknown[]) {
   return {
+    // searchMemory uses db.execute(sql`...`) for pgvector raw query
+    execute: vi.fn().mockResolvedValue(entries),
     select: vi.fn().mockReturnValue({
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),

@@ -91,11 +91,12 @@ function makeInstallDb(opts: {
       throw new Error(`Simulated failure at step ${stepCount}`);
     }
     const rowId = `agent-${stepCount}`;
-    // Return plain object (not thenable) so `await values()` resolves immediately.
-    // Callers that chain .returning() get a proper Promise from that method.
+    // .returning() may be called either directly on values() OR on onConflictDoUpdate(),
+    // so both need to expose it.
+    const returning = vi.fn().mockResolvedValue([{ id: rowId }]);
     return {
-      returning:          vi.fn().mockResolvedValue([{ id: rowId }]),
-      onConflictDoUpdate: vi.fn().mockResolvedValue(undefined),
+      returning,
+      onConflictDoUpdate: vi.fn().mockReturnValue({ returning }),
     };
   });
 
