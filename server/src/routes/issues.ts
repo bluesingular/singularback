@@ -3,7 +3,8 @@ import { Router, type Request, type Response } from "express";
 import multer from "multer";
 import { z } from "zod";
 import type { Db } from "@paperclipai/db";
-import { issueExecutionDecisions } from "@paperclipai/db";
+import { issueExecutionDecisions, trustScores } from "@paperclipai/db";
+import { eq, and } from "drizzle-orm";
 import {
   addIssueCommentSchema,
   createIssueAttachmentMetadataSchema,
@@ -66,6 +67,8 @@ import {
   parseIssueExecutionState,
 } from "../services/issue-execution-policy.js";
 import { evaluateHandoffs } from "../handoff/service.js";
+import { recordApproval } from "../trust/service.js";
+import type { AutonomyLevel } from "../trust/calculator.js";
 
 const MAX_ISSUE_COMMENT_LIMIT = 500;
 const updateIssueRouteSchema = updateIssueSchema.extend({
@@ -2963,7 +2966,65 @@ export function issueRoutes(
       });
     }
 
-    res.json({ ok: true, rating, handoff: handoffResult });
+    // ── Trust calibration (M9) ─────────────────────────────────────────────
+    // Record this rating in the trust streak counter.  skillType comes from
+    // issue metadata when available; falls back to "general" so the score row
+    // always exists.  skillAutonomyTier defaults to "A" (safe: always requires
+    // human approval to upgrade) unless the issue carries explicit metadata.
+    let trustResult: { newStreak: number; proposalCreated: boolean; autoActivated: boolean } | null = null;
+    if (issue.assigneeAgentId) {
+      const agentId  = issue.assigneeAgentId;
+      const skillType: string =
+        (issue as any).metadata?.skillType ??
+        (issue as any).skillType ??
+        "general";
+      const skillAutonomyTier: "A" | "B" =
+        (issue as any).metadata?.skillAutonomyTier === "B" ? "B" : "A";
+
+      // Load existing trust_scores row (if any) for streak / level continuity
+      const [existing] = await db
+        .select()
+        .from(trustScores)
+        .where(
+          and(
+            eq(trustScores.agentId,   agentId),
+            eq(trustScores.skillType, skillType),
+          ),
+        )
+        .limit(1);
+
+      const currentStreak    = existing?.approvalStreak   ?? 0;
+      const currentLevel     = (existing?.autonomyLevel   ?? "building") as AutonomyLevel;
+      const taskCountWindow  = (existing?.taskCountWindow ?? 0) + 1;
+
+      // Compute a simple rolling average: blend previous avg with new rating
+      const prevAvg       = parseFloat(existing?.qualityRatingAvg ?? "0") || 0;
+      const prevCount     = existing?.taskCountWindow ?? 0;
+      const qualityRatingAvg = prevCount > 0
+        ? (prevAvg * prevCount + rating) / taskCountWindow
+        : rating;
+
+      const gatePassRate   = parseFloat(existing?.gatePassRate   ?? "1") || 1;
+      const schemaPassRate = parseFloat(existing?.schemaPassRate ?? "1") || 1;
+
+      trustResult = await recordApproval(db, {
+        companyId: issue.companyId,
+        agentId,
+        skillType,
+        skillAutonomyTier,
+        rating,
+        gatePassed:       true, // gate state not tracked per-issue yet; assume pass
+        schemaPassed:     true,
+        qualityRatingAvg,
+        gatePassRate,
+        schemaPassRate,
+        taskCountWindow,
+        currentStreak,
+        currentLevel,
+      });
+    }
+
+    res.json({ ok: true, rating, handoff: handoffResult, trust: trustResult });
   });
 
   return router;

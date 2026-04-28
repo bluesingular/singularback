@@ -9,9 +9,10 @@ import {
   TrustDot,
   AgentStatusBadge,
 } from "@/components/singular"
+import { useCompanyEvents } from "@/hooks/useCompanyEvents"
 
 // ---------------------------------------------------------------------------
-// Mock data
+// Static seed data (shown before any live events arrive)
 // ---------------------------------------------------------------------------
 
 const agents = [
@@ -22,8 +23,7 @@ const agents = [
   { name: "Iris", role: "Veille marché", status: "actif" as const, trust: "building" as const, action: "Analyse le marché" },
 ]
 
-const activities = [
-  { isLive: true, agentName: "Sophie", action: "lit le CV de Martin Dupont...", time: "maintenant", outcome: undefined },
+const SEED_ACTIVITIES = [
   { isLive: false, agentName: "Sophie", action: "a qualifié Julia Mercier", outcome: "approved" as const, time: "il y a 2 min", detail: "★★★★★" },
   { isLive: false, agentName: "Sophie", action: "a passé le dossier à Marc", outcome: "sent" as const, time: "il y a 14 min" },
   { isLive: false, agentName: "Marc", action: "a envoyé le rapport Innotec", outcome: "sent" as const, time: "il y a 2h" },
@@ -42,12 +42,31 @@ const agentSlugMap: Record<string, string> = {
 // Dashboard
 // ---------------------------------------------------------------------------
 
+// Translate SSE event data into ActivityItem-compatible shape
+function sseToActivity(event: { type: string; data: Record<string, unknown> }) {
+  const agentName = (event.data.agentName ?? event.data.agent ?? "Agent") as string
+  const action    = (event.data.action ?? event.data.title ?? "") as string
+  const isLive    = event.type.startsWith("agent.")
+  const outcome   = event.type === "task.completed" ? "approved" as const
+                  : event.type === "task.blocked"   ? "pending" as const
+                  : undefined
+  return { isLive, agentName, action, time: "maintenant", outcome }
+}
+
 export default function TableauDeBord() {
   const { t, i18n } = useTranslation("dashboard")
   const { t: tc } = useTranslation("common")
   const navigate = useNavigate()
 
   const [dismissedCards, setDismissedCards] = React.useState<number[]>([])
+
+  // Live SSE feed — prepends real events to the seed list
+  const { connected, events: sseEvents, liveEvents } = useCompanyEvents()
+  const liveActivity = liveEvents[0] ? sseToActivity(liveEvents[0]) : null
+  const activities = React.useMemo(() => {
+    const live = sseEvents.map(sseToActivity)
+    return [...live, ...SEED_ACTIVITIES].slice(0, 10)
+  }, [sseEvents])
 
   function dismiss(idx: number) {
     setDismissedCards((prev) => [...prev, idx])
@@ -163,18 +182,30 @@ export default function TableauDeBord() {
               <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
                 {t("activity.title")}
               </h2>
-              <span className="flex items-center gap-1 text-xs font-semibold text-[#B91C1C] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C] animate-pulse" />
-                {tc("status.live")}
-              </span>
+              {connected && (
+                <span className="flex items-center gap-1 text-xs font-semibold text-[#B91C1C] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C] animate-pulse" />
+                  {tc("status.live")}
+                </span>
+              )}
             </div>
             <div className="bg-white rounded-xl border border-[#E8E4DC] shadow-sm divide-y divide-[#E8E4DC]">
+              {liveActivity && (
+                <ActivityItem
+                  key="live"
+                  agentName={liveActivity.agentName}
+                  action={liveActivity.action}
+                  time="maintenant"
+                  isLive={true}
+                  className="px-4"
+                />
+              )}
               {activities.map((item, i) => (
                 <ActivityItem
                   key={i}
                   agentName={item.agentName}
                   action={item.action}
-                  detail={item.detail}
+                  detail={(item as any).detail}
                   time={item.time}
                   isLive={item.isLive}
                   outcome={item.outcome}
