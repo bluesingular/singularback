@@ -1,73 +1,66 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { CheckCircle2, SlidersHorizontal, X } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 import { TrustBar } from "@/components/singular"
 import { Button } from "@/components/ui/button"
+import { useCompany } from "../../context/CompanyContext"
+import { trustApi, type TrustProposal, type TrustScore } from "@/api/trust"
 
 // ---------------------------------------------------------------------------
-// Mock data
+// Seed fallback data — shown before any real scores exist
 // ---------------------------------------------------------------------------
 
-interface Proposal {
-  id: string
-  agentName: string
-  agentInitial: string
-  skill: string
-  currentLevel: string
-  proposedLevel: string
-  evidence: string
-  changeDescription: string
-  remainsDescription: string
-}
-
-const proposals: Proposal[] = [
-  {
-    id: "prop-1",
-    agentName: "Sophie",
-    agentInitial: "S",
-    skill: "Qualification de CV",
-    currentLevel: "vous validez chaque lot",
-    proposedLevel: "les lots de moins de 15 CV tournent automatiquement",
-    evidence: "4,8/5 de moyenne · 47 lots · 6 semaines",
-    changeDescription: "Vous recevrez un résumé hebdomadaire de toutes les sélections.",
-    remainsDescription: "Vous pouvez demander à voir n'importe quel lot à tout moment.",
-  },
-]
-
-interface TrustRow {
-  agentName: string
-  skill: string
-  score: number
-  autonomyLabel: string
-  autonomyLevel: "building" | "supervised" | "trusted" | "highly"
-}
-
-const trustRows: TrustRow[] = [
-  { agentName: "Sophie", skill: "Qualification de CV", score: 4.8, autonomyLabel: "Supervisée", autonomyLevel: "supervised" },
-  { agentName: "Sophie", skill: "Rédaction d'offres", score: 5.0, autonomyLabel: "Autonome", autonomyLevel: "highly" },
-  { agentName: "Marc", skill: "Emails clients", score: 2.8, autonomyLabel: "En construction", autonomyLevel: "building" },
-  { agentName: "Clara", skill: "Posts LinkedIn", score: 3.5, autonomyLabel: "Supervisée", autonomyLevel: "supervised" },
-  { agentName: "Julien", skill: "Suivi candidats", score: 2.5, autonomyLabel: "En construction", autonomyLevel: "building" },
-  { agentName: "Iris", skill: "Veille marché", score: 4.0, autonomyLabel: "Supervisée", autonomyLevel: "supervised" },
+const SEED_SCORES: TrustScore[] = [
+  { agentId: "sophie", skillType: "Qualification de CV",  score: 4.8, autonomyLevel: "supervised",    approvalStreak: 7, taskCountWindow: 47, qualityRatingAvg: 4.8, updatedAt: "" },
+  { agentId: "sophie", skillType: "Rédaction d'offres",   score: 5.0, autonomyLevel: "highlyTrusted", approvalStreak: 0, taskCountWindow: 12, qualityRatingAvg: 5.0, updatedAt: "" },
+  { agentId: "marc",   skillType: "Emails clients",       score: 2.8, autonomyLevel: "building",      approvalStreak: 2, taskCountWindow: 8,  qualityRatingAvg: 2.8, updatedAt: "" },
+  { agentId: "clara",  skillType: "Posts LinkedIn",       score: 3.5, autonomyLevel: "supervised",    approvalStreak: 3, taskCountWindow: 10, qualityRatingAvg: 3.5, updatedAt: "" },
+  { agentId: "julien", skillType: "Suivi candidats",      score: 2.5, autonomyLevel: "building",      approvalStreak: 1, taskCountWindow: 5,  qualityRatingAvg: 2.5, updatedAt: "" },
+  { agentId: "iris",   skillType: "Veille marché",        score: 4.0, autonomyLevel: "supervised",    approvalStreak: 4, taskCountWindow: 15, qualityRatingAvg: 4.0, updatedAt: "" },
 ]
 
 // ---------------------------------------------------------------------------
-// Autonomy label colour
+// Helpers
 // ---------------------------------------------------------------------------
 
-function autonomyColour(level: TrustRow["autonomyLevel"]) {
+type AutonomyTier = "building" | "supervised" | "trusted" | "highlyTrusted"
+
+function autonomyLabel(level: string): string {
   switch (level) {
-    case "highly":
-      return "text-[#1A9E68] font-semibold"
-    case "trusted":
-      return "text-[#1A9E68]"
-    case "supervised":
-      return "text-[#C97C0A]"
-    case "building":
-    default:
-      return "text-[#8A8680]"
+    case "highlyTrusted": return "Très autonome"
+    case "trusted":       return "De confiance"
+    case "supervised":    return "Supervisée"
+    default:              return "En construction"
   }
+}
+
+function autonomyColour(level: string) {
+  switch (level) {
+    case "highlyTrusted": return "text-[#1A9E68] font-semibold"
+    case "trusted":       return "text-[#1A9E68]"
+    case "supervised":    return "text-[#C97C0A]"
+    default:              return "text-[#8A8680]"
+  }
+}
+
+function evidenceLine(p: TrustProposal) {
+  const { avgRating, taskCount } = p.evidence
+  return `${avgRating?.toFixed(1).replace(".", ",") ?? "–"}/5 de moyenne · ${taskCount ?? "–"} tâches`
+}
+
+function levelToHuman(level: string) {
+  switch (level) {
+    case "highlyTrusted": return "très autonome — résumés uniquement"
+    case "trusted":       return "de confiance — contrôle aléatoire"
+    case "supervised":    return "supervisée — vous validez chaque lot"
+    default:              return "en construction"
+  }
+}
+
+function agentInitial(name?: string) {
+  return (name ?? "?").charAt(0).toUpperCase()
 }
 
 // ---------------------------------------------------------------------------
@@ -75,66 +68,64 @@ function autonomyColour(level: TrustRow["autonomyLevel"]) {
 // ---------------------------------------------------------------------------
 
 interface ProposalCardProps {
-  proposal: Proposal
-  onAccept: () => void
-  onEdit: () => void
+  proposal: TrustProposal
+  onApprove: () => void
   onReject: () => void
+  busy: boolean
 }
 
-function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProps) {
+function ProposalCard({ proposal, onApprove, onReject, busy }: ProposalCardProps) {
   const { t } = useTranslation("trust")
+  const agentName = proposal.agentName ?? proposal.agentId
   return (
     <div className="bg-[#EFF3FA] border border-[#1A4E8C]/20 border-l-4 border-l-[#1A4E8C] rounded-2xl p-5 flex flex-col gap-4">
-      {/* Agent header */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-[#1A4E8C] flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-          {proposal.agentInitial}
+          {agentInitial(agentName)}
         </div>
         <div>
           <p className="text-sm font-semibold text-[#0F0F0D]">
-            {proposal.agentName} — {proposal.skill}
+            {agentName} — {proposal.skillType}
           </p>
         </div>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-[#1A4E8C]/15" />
 
-      {/* Details */}
       <div className="flex flex-col gap-3 text-sm">
         <div className="grid grid-cols-[120px_1fr] gap-x-3 gap-y-2">
           <span className="text-[#8A8680] font-medium">{t("proposals.currentLevel")}</span>
-          <span className="text-[#0F0F0D]">{proposal.currentLevel}</span>
+          <span className="text-[#0F0F0D]">{levelToHuman(proposal.currentLevel)}</span>
 
           <span className="text-[#8A8680] font-medium">{t("proposals.proposedLevel")}</span>
-          <span className="text-[#0F0F0D] font-medium">{proposal.proposedLevel}</span>
+          <span className="text-[#0F0F0D] font-medium">{levelToHuman(proposal.proposedLevel)}</span>
 
           <span className="text-[#8A8680] font-medium">{t("proposals.evidence")}</span>
-          <span className="text-[#1A9E68] font-medium">{proposal.evidence}</span>
+          <span className="text-[#1A9E68] font-medium">{evidenceLine(proposal)}</span>
 
           <span className="text-[#8A8680] font-medium">{t("proposals.changes")}</span>
-          <span className="text-[#0F0F0D]">{proposal.changeDescription}</span>
+          <span className="text-[#0F0F0D]">Vous recevrez un résumé hebdomadaire des sélections.</span>
 
           <span className="text-[#8A8680] font-medium">{t("proposals.remains")}</span>
-          <span className="text-[#0F0F0D]">{proposal.remainsDescription}</span>
+          <span className="text-[#0F0F0D]">Vous pouvez demander à voir n'importe quelle tâche à tout moment.</span>
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex flex-wrap items-center gap-2 pt-1">
         <Button
-          onClick={onAccept}
+          onClick={onApprove}
+          disabled={busy}
           size="sm"
           className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white gap-1.5 text-sm"
         >
           <CheckCircle2 size={14} />
-          {t("proposals.approve")}
+          {busy ? "…" : t("proposals.approve")}
         </Button>
         <Button
-          onClick={onEdit}
           variant="outline"
           size="sm"
           className="gap-1.5 text-sm border-[#1A4E8C]/30 text-[#1A4E8C] hover:bg-[#EFF3FA]"
+          disabled={busy}
         >
           <SlidersHorizontal size={14} />
           {t("proposals.edit")}
@@ -143,6 +134,7 @@ function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProp
           onClick={onReject}
           variant="ghost"
           size="sm"
+          disabled={busy}
           className="gap-1.5 text-sm text-[#8A8680] hover:text-[#B91C1C] hover:bg-[#FEF2F2]"
         >
           <X size={14} />
@@ -157,27 +149,28 @@ function ProposalCard({ proposal, onAccept, onEdit, onReject }: ProposalCardProp
 // TrustTableRow
 // ---------------------------------------------------------------------------
 
-function TrustTableRow({ row }: { row: TrustRow }) {
+function TrustTableRow({ score }: { score: TrustScore }) {
+  const label = autonomyLabel(score.autonomyLevel)
+  const colour = autonomyColour(score.autonomyLevel)
+  const agentName = score.agentName ?? score.agentId
   return (
     <div className="flex items-center gap-4 py-3">
-      {/* Agent + skill */}
       <div className="w-44 flex-shrink-0">
-        <span className="text-sm font-medium text-[#0F0F0D]">{row.agentName}</span>
-        <span className="text-sm text-[#8A8680]"> · {row.skill}</span>
+        <span className="text-sm font-medium text-[#0F0F0D]">{agentName}</span>
+        <span className="text-sm text-[#8A8680]"> · {score.skillType}</span>
       </div>
-
-      {/* Bar */}
       <div className="flex-1">
-        <TrustBar score={row.score} label={`${row.score.toFixed(1).replace(".", ",")} / 5`} />
+        <TrustBar
+          score={score.score}
+          label={`${Number(score.score).toFixed(1).replace(".", ",")} / 5`}
+        />
       </div>
-
-      {/* Label */}
       <div className="w-28 flex-shrink-0 text-right">
-        <span className={cn("text-sm", autonomyColour(row.autonomyLevel))}>
-          {row.autonomyLevel === "highly" && (
+        <span className={cn("text-sm", colour)}>
+          {score.autonomyLevel === "highlyTrusted" && (
             <CheckCircle2 size={13} className="inline mr-1 mb-0.5" />
           )}
-          {row.autonomyLabel}
+          {label}
         </span>
       </div>
     </div>
@@ -190,12 +183,46 @@ function TrustTableRow({ row }: { row: TrustRow }) {
 
 export default function CentreDeConfiance() {
   const { t } = useTranslation("trust")
-  const [acceptedIds, setAcceptedIds] = React.useState<string[]>([])
-  const [rejectedIds, setRejectedIds] = React.useState<string[]>([])
+  const { selectedCompanyId } = useCompany()
+  const queryClient = useQueryClient()
+  const [dismissedIds, setDismissedIds] = React.useState<Set<string>>(new Set())
+  const [busyId, setBusyId] = React.useState<string | null>(null)
 
-  const visibleProposals = proposals.filter(
-    (p) => !acceptedIds.includes(p.id) && !rejectedIds.includes(p.id)
+  const { data } = useQuery({
+    queryKey: ["trust", selectedCompanyId],
+    queryFn: () => trustApi.getCompanyTrust(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    staleTime: 30_000,
+  })
+
+  const approveMutation = useMutation({
+    mutationFn: (proposalId: string) =>
+      trustApi.approveProposal(selectedCompanyId!, proposalId),
+    onSuccess: (_, proposalId) => {
+      setDismissedIds((prev) => new Set([...prev, proposalId]))
+      setBusyId(null)
+      queryClient.invalidateQueries({ queryKey: ["trust"] })
+    },
+    onError: () => setBusyId(null),
+  })
+
+  const rejectMutation = useMutation({
+    mutationFn: (proposalId: string) =>
+      trustApi.rejectProposal(selectedCompanyId!, proposalId),
+    onSuccess: (_, proposalId) => {
+      setDismissedIds((prev) => new Set([...prev, proposalId]))
+      setBusyId(null)
+      queryClient.invalidateQueries({ queryKey: ["trust"] })
+    },
+    onError: () => setBusyId(null),
+  })
+
+  // Use live data if available, fall back to seeds
+  const scores: TrustScore[] = data?.scores?.length ? data.scores : SEED_SCORES
+  const proposals: TrustProposal[] = (data?.proposals ?? []).filter(
+    (p) => p.status === "pending" && !dismissedIds.has(p.id)
   )
+  const approvedCount = dismissedIds.size
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -213,36 +240,42 @@ export default function CentreDeConfiance() {
             <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
               {t("proposals.title")}
             </h2>
-            {visibleProposals.length > 0 && (
+            {proposals.length > 0 && (
               <span className="text-xs font-semibold bg-[#1A4E8C] text-white px-2 py-0.5 rounded-full">
-                {visibleProposals.length}
+                {proposals.length}
               </span>
             )}
           </div>
 
-          {visibleProposals.length === 0 ? (
+          {proposals.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-6 text-center">
               <CheckCircle2 size={24} className="mx-auto text-[#1A9E68] mb-2" />
               <p className="text-sm text-[#8A8680]">{t("proposals.empty")}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {visibleProposals.map((proposal) => (
+              {proposals.map((proposal) => (
                 <ProposalCard
                   key={proposal.id}
                   proposal={proposal}
-                  onAccept={() => setAcceptedIds((prev) => [...prev, proposal.id])}
-                  onEdit={() => {}}
-                  onReject={() => setRejectedIds((prev) => [...prev, proposal.id])}
+                  busy={busyId === proposal.id}
+                  onApprove={() => {
+                    setBusyId(proposal.id)
+                    approveMutation.mutate(proposal.id)
+                  }}
+                  onReject={() => {
+                    setBusyId(proposal.id)
+                    rejectMutation.mutate(proposal.id)
+                  }}
                 />
               ))}
             </div>
           )}
 
-          {acceptedIds.length > 0 && (
+          {approvedCount > 0 && (
             <div className="flex items-center gap-2 text-sm text-[#1A9E68] bg-[#ECFBF4] border border-[#1A9E68]/20 rounded-xl px-4 py-2.5">
               <CheckCircle2 size={14} />
-              {t("proposals.accepted", { agent: "Sophie" })}
+              {t("proposals.accepted", { agent: "votre agent" })}
             </div>
           )}
         </section>
@@ -253,7 +286,6 @@ export default function CentreDeConfiance() {
             {t("levels.title")}
           </h2>
 
-          {/* Legend */}
           <div className="flex flex-wrap gap-4 text-xs text-[#8A8680]">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> {t("legend.building")}
@@ -267,8 +299,8 @@ export default function CentreDeConfiance() {
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm px-5 divide-y divide-[#E8E4DC]">
-            {trustRows.map((row, i) => (
-              <TrustTableRow key={i} row={row} />
+            {scores.map((score, i) => (
+              <TrustTableRow key={i} score={score} />
             ))}
           </div>
         </section>

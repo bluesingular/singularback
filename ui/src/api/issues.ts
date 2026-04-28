@@ -166,4 +166,11 @@ export const issuesApi = {
   updateWorkProduct: (id: string, data: Record<string, unknown>) =>
     api.patch<IssueWorkProduct>(`/work-products/${id}`, data),
   deleteWorkProduct: (id: string) => api.delete<IssueWorkProduct>(`/work-products/${id}`),
+  rate: (id: string, rating: number, variables?: Record<string, string>) =>
+    api.post<{
+      ok: boolean;
+      rating: number;
+      handoff: { triggered: boolean; handoffCount: number; issueIds: string[] };
+      trust: { newStreak: number; proposalCreated: boolean; autoActivated: boolean } | null;
+    }>(`/issues/${id}/rate`, { rating, variables }),
 };

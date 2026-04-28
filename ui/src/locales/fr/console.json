@@ -18,8 +18,10 @@
     "approveAll": "Tout approuver",
     "reviewLater": "Revoir plus tard",
     "processNow": "Traiter maintenant",
-    "later": "Plus tard"
+    "later": "Plus tard",
+    "approve": "Approuver"
   },
   "placeholder": "Posez une question ou donnez une instruction à votre équipe…",
-  "thinking": "Je transmets votre demande à l'équipe. Je vous tiens informé dès qu'une réponse est disponible."
+  "thinking": "Je transmets votre demande à l'équipe. Je vous tiens informé dès qu'une réponse est disponible.",
+  "cardApproved": "C'est parti. Votre équipe s'en occupe maintenant."
 }

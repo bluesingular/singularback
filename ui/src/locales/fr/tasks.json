@@ -8,7 +8,9 @@
     "streak": "🎯 {{count}} validation d'affilée — vous êtes en rythme !",
     "suggestion": "Sur la base de vos {{count}} validations consécutives, {{agent}} pourrait travailler de manière plus autonome. Intéressé ?",
     "schemaNote": "La réponse a été corrigée automatiquement pour respecter le format attendu.",
-    "approve": "Approuver"
+    "approve": "Approuver",
+    "proposalCreated": "Sophie a atteint le seuil de confiance. Une proposition d'autonomie vous attend dans le Centre de confiance.",
+    "streakProgress": "{{streak}} validations consécutives 4★ ou plus — continuez comme ça !"
   },
   "schema": {
     "title": "Note :",

@@ -1,10 +1,11 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { ArrowLeft, AlertTriangle, Star } from "lucide-react"
-import { useNavigate } from "@/lib/router"
+import { useNavigate, useParams } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import { MicroReward, HandoffIndicator } from "@/components/singular"
 import { Button } from "@/components/ui/button"
+import { issuesApi } from "@/api/issues"
 
 // ---------------------------------------------------------------------------
 // Mock data
@@ -197,7 +198,26 @@ function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
 export default function FilDeTache() {
   const { t } = useTranslation("tasks")
   const navigate = useNavigate()
+  const { id: issueId } = useParams<{ id?: string }>()
   const [approved, setApproved] = React.useState(false)
+  const [microRewardMsg, setMicroRewardMsg] = React.useState<string | null>(null)
+
+  async function handleApprove(rating: number) {
+    if (issueId) {
+      try {
+        const result = await issuesApi.rate(issueId, rating)
+        // Show micro-reward from activation sequence if streak hit threshold
+        if (result.trust?.proposalCreated) {
+          setMicroRewardMsg(t("approval.proposalCreated"))
+        } else if (result.trust && result.trust.newStreak > 0 && result.trust.newStreak % 5 === 0) {
+          setMicroRewardMsg(t("approval.streakProgress", { streak: result.trust.newStreak }))
+        }
+      } catch {
+        // Graceful degradation — still show micro-reward locally
+      }
+    }
+    setApproved(true)
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -269,12 +289,12 @@ export default function FilDeTache() {
 
         {/* Approval widget or micro-reward */}
         {approved ? (
-          <MicroReward message="Merci. Sophie a enregistré vos critères — elle s'en souviendra pour toutes vos prochaines missions." />
+          <MicroReward message={microRewardMsg ?? "Merci. Sophie a enregistré vos critères — elle s'en souviendra pour toutes vos prochaines missions."} />
         ) : (
           <div className="flex items-start gap-3">
             <div className="hidden sm:block w-8 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <ApprovalWidget onApprove={() => setApproved(true)} />
+              <ApprovalWidget onApprove={handleApprove} />
             </div>
           </div>
         )}

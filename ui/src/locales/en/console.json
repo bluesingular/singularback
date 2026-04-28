@@ -18,8 +18,10 @@
     "approveAll": "Approve all",
     "reviewLater": "Review later",
     "processNow": "Handle now",
-    "later": "Later"
+    "later": "Later",
+    "approve": "Approve"
   },
   "placeholder": "Ask a question or give instructions to your team…",
-  "thinking": "Relaying your request to the team. I'll keep you posted as soon as there's a response."
+  "thinking": "Relaying your request to the team. I'll keep you posted as soon as there's a response.",
+  "cardApproved": "Done. Your team is on it."
 }
