@@ -14,6 +14,7 @@ import { Rapports } from "./Rapports";
 import { Contacts } from "./Contacts";
 import { Parametres } from "./Parametres";
 import { cn } from "@/lib/utils";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const NAV = [
   { path: "/preview/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
@@ -68,7 +69,8 @@ function PreviewNav({ onClose }: { onClose?: () => void }) {
         })}
       </nav>
 
-      <div className="border-t border-[#E8E4DC] px-4 py-3">
+      <div className="border-t border-[#E8E4DC] px-4 py-3 flex flex-col gap-2">
+        <LanguageSwitcher />
         <div className="flex items-center gap-2 text-xs text-[#8A8680]">
           <Zap className="h-3 w-3 text-[#1A9E68]" />
           <span>Aperçu — singular.blue</span>
@@ -108,9 +110,10 @@ export function SingularPreview() {
           <button onClick={() => setMobileNavOpen(true)} className="text-[#8A8680]">
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-sm font-semibold text-[#0F0F0D]" style={{ fontFamily: "Georgia, serif" }}>
+          <span className="flex-1 text-sm font-semibold text-[#0F0F0D]" style={{ fontFamily: "Georgia, serif" }}>
             singular.blue
           </span>
+          <LanguageSwitcher />
         </div>
 
         <main className="flex-1 overflow-auto">

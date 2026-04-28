@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singular.blue — Build Kanban</title>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --border: #E5E3DC;
+    --text: #1A1A18;
+    --muted: #6B6B5F;
+    --green: #1A9E68;
+    --green-light: #E8F7F0;
+    --amber: #C97C0A;
+    --amber-light: #FEF3E0;
+    --blue: #1A4E8C;
+    --blue-light: #E6EEF8;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --purple: #7B4FBF;
+    --purple-light: #F3EDFC;
+    --todo: #F4F4F0;
+    --progress: #FEF9E6;
+    --done-col: #EDFAF4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { font-family: Georgia, serif; font-size: 18px; font-weight: 600; }
+  header h1 span { color: var(--green); }
+
+  .stats { display: flex; gap: 24px; font-size: 13px; color: var(--muted); }
+  .stats strong { color: var(--text); }
+
+  .view-toggle {
+    display: flex; gap: 4px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 3px;
+  }
+  .view-toggle button {
+    padding: 5px 12px; border: none; background: transparent;
+    border-radius: 6px; font-size: 13px; cursor: pointer;
+    color: var(--muted); transition: all 0.15s;
+  }
+  .view-toggle button.active {
+    background: var(--surface); color: var(--text);
+    font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .last-updated {
+    font-size: 11px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 99px;
+  }
+
+  main { padding: 24px 32px; max-width: 1600px; margin: 0 auto; }
+
+  #view-kanban {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .column { border-radius: 12px; overflow: hidden; }
+
+  .column-header {
+    padding: 12px 16px; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between;
+    letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .column-header .count { font-weight: 500; opacity: 0.7; font-size: 12px; }
+
+  .col-todo .column-header     { background: #ECEAE4; color: #5A5A50; }
+  .col-progress .column-header { background: #FEF3CC; color: #7A4E00; }
+  .col-done .column-header     { background: #D4F0E5; color: #0E6644; }
+
+  .column-body {
+    padding: 12px; display: flex; flex-direction: column;
+    gap: 10px; min-height: 80px;
+  }
+  .col-todo .column-body     { background: var(--todo); }
+  .col-progress .column-body { background: var(--progress); }
+  .col-done .column-body     { background: var(--done-col); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.1s; position: relative;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .card.done { opacity: 0.65; }
+
+  .card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .card-checkbox {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 2px solid var(--border); flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .card.in-progress .card-checkbox { border-color: var(--amber); background: var(--amber-light); }
+  .card.done .card-checkbox { border-color: var(--green); background: var(--green); }
+  .card.done .card-checkbox::after { content: '✓'; color: white; font-size: 10px; font-weight: 700; }
+
+  .card-title { font-size: 13px; font-weight: 500; line-height: 1.4; flex: 1; }
+  .card.done .card-title { text-decoration: line-through; color: var(--muted); }
+
+  .card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  .tag { font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 99px; }
+  .tag-infra   { background: var(--blue-light);   color: var(--blue); }
+  .tag-ui      { background: var(--amber-light);  color: var(--amber); }
+  .tag-test    { background: var(--purple-light); color: var(--purple); }
+  .tag-ops     { background: var(--green-light);  color: var(--green); }
+  .tag-blocker { background: var(--red-light);    color: var(--red); }
+  .tag-human   { background: #F3EDFC; color: #7B4FBF; }
+
+  .sprint-badge {
+    font-size: 11px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 99px;
+  }
+
+  #view-sprint { display: none; }
+
+  .sprint-block { margin-bottom: 32px; }
+
+  .sprint-block-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .sprint-label { font-family: Georgia, serif; font-size: 16px; font-weight: 600; }
+  .sprint-status { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 99px; }
+  .sprint-status.done    { background: var(--green-light); color: var(--green); }
+  .sprint-status.partial { background: var(--amber-light); color: var(--amber); }
+  .sprint-status.todo    { background: var(--todo); color: var(--muted); }
+
+  .sprint-progress {
+    flex: 1; max-width: 200px; height: 6px;
+    background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .sprint-progress-fill {
+    height: 100%; border-radius: 99px;
+    background: var(--green); transition: width 0.4s;
+  }
+
+  .sprint-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  .status-cycle {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 11px; color: var(--muted); opacity: 0; transition: opacity 0.15s;
+  }
+  .card:hover .status-cycle { opacity: 1; }
+
+  .empty { color: var(--muted); font-size: 13px; padding: 16px; text-align: center; }
+
+  .mvp-banner {
+    background: var(--green-light); border: 1px solid var(--green);
+    border-radius: 10px; padding: 10px 18px; margin-bottom: 20px;
+    font-size: 13px; color: var(--green); font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  @media (max-width: 900px) {
+    #view-kanban { grid-template-columns: 1fr; }
+    main { padding: 16px; }
+    header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Singular<span>.blue</span> — Build Kanban</h1>
+  <div class="stats">
+    <span id="stat-todo"><strong>—</strong> à faire</span>
+    <span id="stat-progress"><strong>—</strong> en cours</span>
+    <span id="stat-done"><strong>—</strong> terminé</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="last-updated">Mis à jour : 28 avr. 2026 — 18h</span>
+    <div class="view-toggle">
+      <button class="active" onclick="setView('kanban')">Kanban</button>
+      <button onclick="setView('sprint')">Sprints</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="view-kanban">
+    <div class="column col-todo">
+      <div class="column-header">À faire <span class="count" id="col-todo-count"></span></div>
+      <div class="column-body" id="col-todo"></div>
+    </div>
+    <div class="column col-progress">
+      <div class="column-header">En cours <span class="count" id="col-progress-count"></span></div>
+      <div class="column-body" id="col-progress"></div>
+    </div>
+    <div class="column col-done">
+      <div class="column-header">Terminé <span class="count" id="col-done-count"></span></div>
+      <div class="column-body" id="col-done"></div>
+    </div>
+  </div>
+
+  <div id="view-sprint"></div>
+</main>
+
+<script>
+const TASKS = [
+
+  // ════════════════════════════════════════════════════════════
+  // TO DO  (genuinely remaining work)
+  // ════════════════════════════════════════════════════════════
+
+  // Ops / infra
+  { id: 1,  title: "pnpm db:migrate — appliquer migrations 0057–0070 sur la base de production", tag: "ops", sprint: "ops", blocker: true, status: "todo",
+    note: "La base de test embarquée est à jour. La base de production doit recevoir les migrations M0–M15." },
+
+  // UI polish
+  { id: 2,  title: "Monter <LanguageSwitcher /> dans le layout Preview (nav Singular)", tag: "ui", sprint: "w10", status: "done",
+    note: "Importé dans Preview.tsx — sidebar desktop (pied) + barre mobile (droite)." },
+  { id: 3,  title: "Vérifier les approbations mobiles pleine largeur à 390 px (iPhone 14)", tag: "ui", sprint: "w10", status: "todo",
+    note: "FilDeTache ApprovalWidget et ConsoleCEO doivent être utilisables sans scroll horizontal sur 390 px." },
+
+  // E2E / QA (nécessitent une base de production)
+  { id: 4,  title: "E2E : les seed tasks se déclenchent en < 10 min après installation du Pack P1", tag: "test", sprint: "ops", blocker: true, status: "todo" },
+  { id: 5,  title: "E2E : séquence d'activation — les 5 moments se déclenchent dans l'ordre (jours 0–7)", tag: "test", sprint: "ops", status: "todo" },
+  { id: 6,  title: "E2E : passation qualification-cv → client-email se déclenche quand score ≥ 4", tag: "test", sprint: "ops", status: "todo" },
+  { id: 7,  title: "E2E : changement de plan Stripe met à jour les limites en < 60 s", tag: "test", sprint: "ops", status: "todo" },
+  { id: 8,  title: "Audit copy : vérifier les chaînes françaises vs EMOTIONAL_LAYER.md (toutes les pages)", tag: "test", sprint: "w10", status: "todo" },
+
+  // Human-gated
+  { id: 9,  title: "Onboarder 10 comptes design partners", tag: "human", sprint: "ops", status: "todo",
+    note: "Humain uniquement — aucun code requis." },
+
+  // ════════════════════════════════════════════════════════════
+  // DONE  (tout le code est commité et les tests passent)
+  // ════════════════════════════════════════════════════════════
+
+  // Week 1
+  { id: 10, title: "M0 — Multi-tenancy (companies, auth middleware, company isolation)", tag: "infra", sprint: "w1", status: "done" },
+  { id: 11, title: "M1 — BullMQ EDA (remplace setInterval, workers idempotents)", tag: "infra", sprint: "w1", status: "done" },
+
+  // Week 2
+  { id: 12, title: "M2 — Context assembly pipeline (6 couches + budgets tokens)", tag: "infra", sprint: "w2", status: "done" },
+  { id: 13, title: "M3 — LLM router avec règle RGPD stricte (jamais DeepSeek sur données perso)", tag: "infra", sprint: "w2", status: "done" },
+
+  // Week 3
+  { id: 14, title: "M4 — Integration Hub (coffre-fort AES-256, routeur MCP, webhooks)", tag: "infra", sprint: "w3", status: "done" },
+  { id: 15, title: "M5 — Navigation web (Firecrawl + fallback Jina, vérif. permissions)", tag: "infra", sprint: "w3", status: "done" },
+
+  // Week 4
+  { id: 16, title: "M6 — Portes qualité + validation schéma de sortie + damage control", tag: "infra", sprint: "w4", status: "done" },
+  { id: 17, title: "M7 — Suivi des coûts + traduction des tâches (ex. ~95 lots de CV restants)", tag: "infra", sprint: "w4", status: "done" },
+
+  // Week 5
+  { id: 18, title: "M8 — Mémoire organisationnelle + pgvector (recherche sémantique ≥ 0,72)", tag: "infra", sprint: "w5", status: "done" },
+  { id: 19, title: "M9 — Système de calibration de confiance (Trust Score, propositions, autonomie)", tag: "infra", sprint: "w5", status: "done" },
+
+  // Week 6
+  { id: 20, title: "M10 — Versionnement des skills + auto-amélioration + benchmark golden dataset", tag: "infra", sprint: "w6", status: "done" },
+  { id: 21, title: "M11 — Intelligence du matin (max 3 cartes/jour, cooldown 14 j)", tag: "infra", sprint: "w6", status: "done" },
+
+  // Week 7
+  { id: 22, title: "M12 — Pack installer (transaction atomique 7 étapes + seed tasks)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 23, title: "M13 — Console CEO (contexte + approbation → déclenchement immédiat)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 24, title: "M14 — Facturation Stripe (idempotent, mise à jour des limites)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 25, title: "M15 — Couche SSE temps réel (événements granulaires, keepalive 30 s)", tag: "infra", sprint: "w7", status: "done" },
+
+  // Gap fixes (dans la session précédente)
+  { id: 26, title: "Gap 1 — Route SSE montée dans app.ts (server/src/routes/sse.ts)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 27, title: "Gap 2 — Hook useCompanyEvents (ui/src/hooks/useCompanyEvents.ts)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 28, title: "Gap 4 — POST /issues/:id/rate câblé sur recordApproval() (compteur de série de confiance)", tag: "infra", sprint: "w5", status: "done" },
+
+  // Weeks 8–9 Pack P1
+  { id: 29, title: "Pack P1 — 5 agents, 8 skills, 160 exemples golden, 3 seed tasks production-quality", tag: "ops", sprint: "p1", status: "done" },
+  { id: 30, title: "Pack P1 — Séquence d'activation (5 moments, jours 0–7, copy fr EMOTIONAL_LAYER)", tag: "ops", sprint: "p1", status: "done" },
+  { id: 31, title: "Pack P1 — Portes qualité (droit du travail, limite lots, ton email)", tag: "ops", sprint: "p1", status: "done" },
+
+  // Week 10 UI
+  { id: 32, title: "UI — 9 écrans (Tableau de bord, Équipe, Fiche agent, Confiance, Fil de tâche, Console, Rapports, Contacts, Paramètres)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 33, title: "UI — Flux en direct câblé sur SSE (🔴 En direct, événements granulaires)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 34, title: "UI — FilDeTache câblé sur POST /issues/:id/rate + micro-récompenses", tag: "ui", sprint: "w10", status: "done" },
+  { id: 35, title: "UI — ConsoleCEO câblé sur GET /console + POST /console/approve", tag: "ui", sprint: "w10", status: "done" },
+  { id: 36, title: "UI — CentreDeConfiance câblé sur GET /trust + approve/reject proposals", tag: "ui", sprint: "w10", status: "done" },
+  { id: 37, title: "UI — Infrastructure i18n (react-i18next, fichiers fr/en, 9 namespaces)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 38, title: "DB — Règle immuable audit_entries (trigger PostgreSQL, RULE 4)", tag: "infra", sprint: "w4", status: "done" },
+  { id: 39, title: "Tests — 284/284 tests Singular passent (M0–M15)", tag: "test", sprint: "all", status: "done" },
+];
+
+const SPRINTS = [
+  { id: "w1",  label: "Semaine 1 — Fondations",              modules: "M0, M1" },
+  { id: "w2",  label: "Semaine 2 — Intelligence",            modules: "M2, M3" },
+  { id: "w3",  label: "Semaine 3 — Intégrations",            modules: "M4, M5" },
+  { id: "w4",  label: "Semaine 4 — Couche sécurité",         modules: "M6, M7" },
+  { id: "w5",  label: "Semaine 5 — Mémoire + Confiance",     modules: "M8, M9" },
+  { id: "w6",  label: "Semaine 6 — Auto-apprentissage",      modules: "M10, M11" },
+  { id: "w7",  label: "Semaine 7 — Infrastructure",          modules: "M12–M15" },
+  { id: "p1",  label: "Semaines 8–9 — Pack P1",              modules: "Pack P1" },
+  { id: "w10", label: "Semaine 10 — Interface React",        modules: "UI" },
+  { id: "ops", label: "Post-code — Ops & QA",                modules: "Prod + E2E" },
+  { id: "all", label: "Transverse",                          modules: "Tests" },
+];
+
+const TAG_CLASS = { infra: "tag-infra", ui: "tag-ui", test: "tag-test", ops: "tag-ops", human: "tag-human" };
+const TAG_LABEL = { infra: "Backend", ui: "UI / i18n", test: "Test / QA", ops: "Ops / Pack", human: "Humain" };
+const STATUS_CYCLE = { todo: "progress", progress: "done", done: "todo" };
+
+function save() {
+  localStorage.setItem("singular_kanban_v2", JSON.stringify(TASKS.map(t => ({ id: t.id, status: t.status }))));
+}
+
+function load() {
+  const saved = JSON.parse(localStorage.getItem("singular_kanban_v2") || "[]");
+  saved.forEach(s => {
+    const t = TASKS.find(t => t.id === s.id);
+    if (t) t.status = s.status;
+  });
+}
+
+function cycleStatus(id) {
+  const task = TASKS.find(t => t.id === id);
+  if (!task) return;
+  task.status = STATUS_CYCLE[task.status];
+  save(); render();
+}
+
+function makeCard(task) {
+  const div = document.createElement("div");
+  div.className = `card ${task.status === "done" ? "done" : task.status === "progress" ? "in-progress" : ""}`;
+  div.onclick = () => cycleStatus(task.id);
+
+  const blocker = task.blocker ? `<span class="tag tag-blocker">Bloquant</span>` : "";
+  const note = task.note ? `<div style="margin-top:6px;font-size:11px;color:var(--muted);line-height:1.4">${task.note}</div>` : "";
+
+  div.innerHTML = `
+    <div class="card-top">
+      <div class="card-checkbox"></div>
+      <div class="card-title">${task.title}</div>
+    </div>
+    <div class="card-meta">
+      <span class="tag ${TAG_CLASS[task.tag]}">${TAG_LABEL[task.tag]}</span>
+      ${blocker}
+    </div>
+    ${note}
+    <div class="status-cycle">clic pour avancer →</div>
+  `;
+  return div;
+}
+
+function render() {
+  const todo     = TASKS.filter(t => t.status === "todo");
+  const progress = TASKS.filter(t => t.status === "progress");
+  const done     = TASKS.filter(t => t.status === "done");
+
+  ["col-todo", "col-progress", "col-done"].forEach(id => {
+    document.getElementById(id).innerHTML = "";
+  });
+
+  const append = (id, tasks) => {
+    const el = document.getElementById(id);
+    if (tasks.length === 0) { el.innerHTML = `<div class="empty">Rien ici</div>`; return; }
+    tasks.forEach(t => el.appendChild(makeCard(t)));
+  };
+
+  append("col-todo", todo);
+  append("col-progress", progress);
+  append("col-done", done);
+
+  document.getElementById("col-todo-count").textContent = todo.length;
+  document.getElementById("col-progress-count").textContent = progress.length;
+  document.getElementById("col-done-count").textContent = done.length;
+
+  document.getElementById("stat-todo").innerHTML = `<strong>${todo.length}</strong> à faire`;
+  document.getElementById("stat-progress").innerHTML = `<strong>${progress.length}</strong> en cours`;
+  document.getElementById("stat-done").innerHTML = `<strong>${done.length}</strong> terminé`;
+
+  // Sprint view
+  const sprintEl = document.getElementById("view-sprint");
+  sprintEl.innerHTML = "";
+
+  SPRINTS.forEach(sprint => {
+    const tasks = TASKS.filter(t => t.sprint === sprint.id);
+    const doneCount = tasks.filter(t => t.status === "done").length;
+    const pct = tasks.length ? Math.round(doneCount / tasks.length * 100) : 0;
+    const sprintStatus = pct === 100 ? "done" : pct > 0 ? "partial" : "todo";
+    const statusLabel  = pct === 100 ? "Terminé" : pct > 0 ? "En cours" : "Non démarré";
+
+    const block = document.createElement("div");
+    block.className = "sprint-block";
+    block.innerHTML = `
+      <div class="sprint-block-header">
+        <div class="sprint-label">${sprint.label}</div>
+        <span class="sprint-status ${sprintStatus}">${statusLabel}</span>
+        <div class="sprint-progress"><div class="sprint-progress-fill" style="width:${pct}%"></div></div>
+        <span style="font-size:12px;color:var(--muted)">${doneCount}/${tasks.length}</span>
+        <span style="font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:99px">${sprint.modules}</span>
+      </div>
+      <div class="sprint-cards" id="sprint-${sprint.id}"></div>
+    `;
+    sprintEl.appendChild(block);
+
+    const cardsEl = document.getElementById(`sprint-${sprint.id}`);
+    if (tasks.length === 0) {
+      cardsEl.innerHTML = `<div class="empty">Aucune tâche dans ce sprint</div>`;
+    } else {
+      tasks.forEach(t => cardsEl.appendChild(makeCard(t)));
+    }
+  });
+}
+
+function setView(view) {
+  document.getElementById("view-kanban").style.display = view === "kanban" ? "grid" : "none";
+  document.getElementById("view-sprint").style.display  = view === "sprint" ? "block" : "none";
+  document.querySelectorAll(".view-toggle button").forEach((b, i) => {
+    b.classList.toggle("active", (i === 0 && view === "kanban") || (i === 1 && view === "sprint"));
+  });
+}
+
+load();
+render();
+</script>
+</body>
+</html>
