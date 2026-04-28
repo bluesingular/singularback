@@ -38,6 +38,10 @@ const mockFeedbackService = vi.hoisted(() => ({
   getFeedbackTraceById: vi.fn(),
   saveIssueVote: vi.fn(),
 }));
+const mockPackInstallService = vi.hoisted(() => ({
+  listAvailablePacks: vi.fn(),
+  install: vi.fn(),
+}));
 
 vi.mock("../services/index.js", () => ({
   accessService: () => mockAccessService,
@@ -46,6 +50,7 @@ vi.mock("../services/index.js", () => ({
   companyPortabilityService: () => mockCompanyPortabilityService,
   companyService: () => mockCompanyService,
   feedbackService: () => mockFeedbackService,
+  packInstallService: () => mockPackInstallService,
   logActivity: mockLogActivity,
 }));
 
@@ -57,6 +62,7 @@ function registerModuleMocks() {
     companyPortabilityService: () => mockCompanyPortabilityService,
     companyService: () => mockCompanyService,
     feedbackService: () => mockFeedbackService,
+    packInstallService: () => mockPackInstallService,
     logActivity: mockLogActivity,
   }));
 }
