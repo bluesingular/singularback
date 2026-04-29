@@ -203,7 +203,7 @@
     <span id="stat-done"><strong>—</strong> terminé</span>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
-    <span class="last-updated">Mis à jour : 29 avr. 2026</span>
+    <span class="last-updated">Mis à jour : 29 avr. 2026 — gaps G1–G15 + A–H ajoutés</span>
     <div class="view-toggle">
       <button class="active" onclick="setView('kanban')">Kanban</button>
       <button onclick="setView('sprint')">Sprints</button>
@@ -234,86 +234,124 @@
 const TASKS = [
 
   // ════════════════════════════════════════════════════════════
-  // TO DO  (genuinely remaining work)
+  // BLOCKING — must ship before first paying customer
   // ════════════════════════════════════════════════════════════
 
-  // Ops / infra
+  { id: "G1", title: "G1 — Architecture i18n : company.locale + company.timezone sur toutes les chaînes et notifications", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Décision : si on hardcode le français maintenant, l'internationalisation coûte 3× plus cher plus tard." },
+  { id: "G2", title: "G2 — Agent capability declaration : frontmatter SKILL.md lisible par la machine (inputs/outputs/gdpr/ai_act/autonomy_default)", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Permet à la plateforme de valider les intégrations, router le LLM et afficher les capacités sans code par agent." },
+  { id: "G3", title: "G3 — RBAC : rôles Owner/Admin/Operator/Viewer/API sur company_members", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Sans ça, impossible de servir une entreprise avec plus d'une personne." },
+  { id: "G4", title: "G4 — Webhooks entrants : POST /webhooks/{company_id}/{id} → règles de routage → BullMQ", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Différence entre une plateforme réactive (humains déclenchent les agents) et une vraie plateforme autonome (le monde déclenche les agents)." },
+  { id: "G5", title: "G5 — Flux de clarification humaine : état awaiting_clarification, timeout 48h, canal de réponse vers le worker BullMQ", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Un agent en cours de tâche doit pouvoir poser une question, attendre la réponse, et reprendre — sans abandonner la tâche." },
+
+  // ════════════════════════════════════════════════════════════
+  // PRODUCT GAPS — before first paying customer
+  // ════════════════════════════════════════════════════════════
+
+  { id: "GA", title: "Gap A — Self-service onboarding client : inscription, vérification email, assistant (7 questions → Company DNA complet), sélection de pack, Stripe checkout, première connexion", tag: "ui", sprint: "product", status: "todo",
+    note: "Le parcours complet n'existe pas. M12 suppose que l'assistant a déjà fourni les réponses. L'assistant lui-même n'a jamais été construit." },
+  { id: "GB", title: "Gap B — Portail multi-tenant : tous les 9 écrans lisent company_id exclusivement depuis useAuth().companyId — aucune référence tenant codée en dur", tag: "ui", sprint: "product", status: "todo",
+    note: "Architecture correcte : app.swwarm.com (portail client) séparé de admin.swwarm.com (interne Swwarm)." },
+  { id: "GC", title: "Gap C — Portail admin Swwarm (admin.swwarm.com) : liste des tenants + métriques, Bull Board (interne uniquement), supervision facturation, impersonnification lecture seule", tag: "ui", sprint: "product", status: "todo",
+    note: "Sans ça, impossible de gérer la plateforme dès 50 tenants." },
+  { id: "GD", title: "Gap D — Système de gestion des skills (admin.swwarm.com) : éditeur structuré, versioning sémantique + diff + rollback, gestionnaire golden dataset, test runner, flux de publication, notifications de mise à jour opt-in pour les tenants", tag: "infra", sprint: "product", status: "todo",
+    note: "C'est avec cet outil que les packs sont créés — pas en codant des fichiers .md à la main. Aussi : boucle de contribution (amélioration tenant → promotion plateforme)." },
+  { id: "GE", title: "Gap E — Système de notifications : table notifications + notification_preferences, centre de notifications in-app, canal email (transactionnel), canal push (PWA WebPush)", tag: "infra", sprint: "product", status: "todo",
+    note: "Règles de livraison : approbation → tous les canaux ; intelligence → email + in-app ; lot terminé → in-app uniquement." },
+  { id: "GF", title: "Gap F — UI de configuration des agents : formulaire rendu automatiquement depuis le frontmatter capability declaration, sans édition brute de SKILL.md", tag: "ui", sprint: "product", status: "todo",
+    note: "Ton, paramètres, contacts bloqués, plage horaire — configurables par le client sans accès aux instructions brutes." },
+  { id: "GH", title: "Gap H — PWA : manifeste web app + service worker + auth biométrique WebAuthn pour les approbations, invite d'installation écran d'accueil", tag: "ui", sprint: "product", status: "todo",
+    note: "Donne 80% de la fidélité mobile avec 1% de l'effort. Application native iOS/Android à 500 clients." },
+
+  // ════════════════════════════════════════════════════════════
+  // DEPTH — ship alongside first packs
+  // ════════════════════════════════════════════════════════════
+
+  { id: "G6", title: "G6 — Streaming LLM : mode stream dans routeModel() → chunks SSE agent.writing en temps réel", tag: "infra", sprint: "depth", status: "todo",
+    note: "L'infra SSE (M15) existe. Le streaming LLM est le chaînon manquant entre M3 et M15." },
+  { id: "G7", title: "G7 — Versionnement des agents : task.skill_version pin — les mises à jour de skills ne s'appliquent qu'aux nouvelles tâches", tag: "infra", sprint: "depth", status: "todo",
+    note: "Rend M10 (auto-amélioration) sûr : une mise à jour de skill en cours de journée ne produit pas des résultats incohérents." },
+  { id: "G8", title: "G8 — DAG des tâches : dépendances de jobs BullMQ — Tâche B attend l'approbation de Tâche A", tag: "infra", sprint: "depth", status: "todo",
+    note: "BullMQ supporte les dépendances nativement. Nécessite une couche de configuration + UI." },
+  { id: "G9", title: "G9 — Traitement par lot : fan-out N éléments, workers parallèles, porte d'approbation unique pour le résultat du lot", tag: "infra", sprint: "depth", status: "todo",
+    note: "200 CV en parallèle, 500 emails personnalisés, 50 pages concurrentes analysées." },
+  { id: "G10", title: "G10 — Export conformité RGPD : Article 17 (effacement), Article 20 (portabilité), export CSV de la piste d'audit", tag: "infra", sprint: "depth", status: "todo",
+    note: "La piste immuable nécessite une anonymisation (pas une suppression). Fonction anonymise_contact(id) remplace les PII par des identifiants hashés dans toute la piste." },
+  { id: "G11", title: "G11 — Entrée multimodale : extraction PDF, images (natif avec modèles multimodaux), voix (Whisper), tableurs (parsing structuré)", tag: "infra", sprint: "depth", status: "todo",
+    note: "Construire G10 avant G11 : le texte extrait des PDF crée immédiatement de nouvelles obligations RGPD." },
+
+  // ════════════════════════════════════════════════════════════
+  // ECOSYSTEM — Year 2 / after 50 paying customers
+  // ════════════════════════════════════════════════════════════
+
+  { id: "G12", title: "G12 — Serveur MCP : les agents Swwarm appelables comme outils MCP par des systèmes IA externes", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "Actuellement Swwarm est un client MCP. Devenir serveur MCP = les agents Dust, Claude, GPT peuvent déléguer à Sophie." },
+  { id: "G13", title: "G13 — API publique + SDK : CRUD REST, abonnements webhooks, SDK TypeScript/Python, clés API par entreprise, rate limiting, docs OpenAPI auto-générées", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "Sans ça, chaque nouveau type d'agent nécessite un changement de code plateforme. Avec ça, la communauté construit les verticaux." },
+  { id: "G14", title: "G14 — Protocole A2A (Google) : interopérabilité enterprise avec toutes les plateformes IA majeures", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "Google, Salesforce, SAP convergent sur A2A. Non optionnel dans 18 mois pour les clients enterprise." },
+  { id: "G15", title: "G15 — Système de plugins/extensions : enregistrement de nouveaux types d'actions par des développeurs tiers", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "La composabilité qui rend Swwarm extensible sans modifier le code plateforme." },
+
+  // ════════════════════════════════════════════════════════════
+  // OPS — production deployment (needs DATABASE_URL)
+  // ════════════════════════════════════════════════════════════
+
   { id: 1,  title: "pnpm db:migrate — appliquer migrations 0057–0070 sur la base de production", tag: "ops", sprint: "ops", blocker: true, status: "todo",
-    note: "La base de test embarquée est à jour. La base de production doit recevoir les migrations M0–M15." },
-
-  // UI polish
-  { id: 2,  title: "Monter <LanguageSwitcher /> dans le layout Preview (nav Singular)", tag: "ui", sprint: "w10", status: "done",
-    note: "Importé dans Preview.tsx — sidebar desktop (pied) + barre mobile (droite)." },
-  { id: 3,  title: "Vérifier les approbations mobiles pleine largeur à 390 px (iPhone 14)", tag: "ui", sprint: "w10", status: "done",
-    note: "TrustTableRow corrigé : flex-col sur mobile (name+skill en haut, bar+label sur la même ligne en dessous). ApprovalWidget déjà w-full. ConsoleCEO OK." },
-
-  // E2E / QA (nécessitent une base de production)
+    note: "Commande : DATABASE_URL=postgres://... pnpm --filter @paperclipai/db migrate. La base embarquée est à jour." },
   { id: 4,  title: "E2E : les seed tasks se déclenchent en < 10 min après installation du Pack P1", tag: "test", sprint: "ops", blocker: true, status: "todo" },
   { id: 5,  title: "E2E : séquence d'activation — les 5 moments se déclenchent dans l'ordre (jours 0–7)", tag: "test", sprint: "ops", status: "todo" },
   { id: 6,  title: "E2E : passation qualification-cv → client-email se déclenche quand score ≥ 4", tag: "test", sprint: "ops", status: "todo" },
   { id: 7,  title: "E2E : changement de plan Stripe met à jour les limites en < 60 s", tag: "test", sprint: "ops", status: "todo" },
-  { id: 8,  title: "Audit copy : vérifier les chaînes françaises vs EMOTIONAL_LAYER.md (toutes les pages)", tag: "test", sprint: "w10", status: "todo" },
-
-  // Human-gated
   { id: 9,  title: "Onboarder 10 comptes design partners", tag: "human", sprint: "ops", status: "todo",
     note: "Humain uniquement — aucun code requis." },
 
   // ════════════════════════════════════════════════════════════
-  // DONE  (tout le code est commité et les tests passent)
+  // DONE — code committed, tests pass
   // ════════════════════════════════════════════════════════════
 
-  // Week 1
   { id: 10, title: "M0 — Multi-tenancy (companies, auth middleware, company isolation)", tag: "infra", sprint: "w1", status: "done" },
   { id: 11, title: "M1 — BullMQ EDA (remplace setInterval, workers idempotents)", tag: "infra", sprint: "w1", status: "done" },
-
-  // Week 2
   { id: 12, title: "M2 — Context assembly pipeline (6 couches + budgets tokens)", tag: "infra", sprint: "w2", status: "done" },
   { id: 13, title: "M3 — LLM router avec règle RGPD stricte (jamais DeepSeek sur données perso)", tag: "infra", sprint: "w2", status: "done" },
-
-  // Week 3
   { id: 14, title: "M4 — Integration Hub (coffre-fort AES-256, routeur MCP, webhooks)", tag: "infra", sprint: "w3", status: "done" },
   { id: 15, title: "M5 — Navigation web (Firecrawl + fallback Jina, vérif. permissions)", tag: "infra", sprint: "w3", status: "done" },
-
-  // Week 4
   { id: 16, title: "M6 — Portes qualité + validation schéma de sortie + damage control", tag: "infra", sprint: "w4", status: "done" },
   { id: 17, title: "M7 — Suivi des coûts + traduction des tâches (ex. ~95 lots de CV restants)", tag: "infra", sprint: "w4", status: "done" },
-
-  // Week 5
   { id: 18, title: "M8 — Mémoire organisationnelle + pgvector (recherche sémantique ≥ 0,72)", tag: "infra", sprint: "w5", status: "done" },
   { id: 19, title: "M9 — Système de calibration de confiance (Trust Score, propositions, autonomie)", tag: "infra", sprint: "w5", status: "done" },
-
-  // Week 6
   { id: 20, title: "M10 — Versionnement des skills + auto-amélioration + benchmark golden dataset", tag: "infra", sprint: "w6", status: "done" },
   { id: 21, title: "M11 — Intelligence du matin (max 3 cartes/jour, cooldown 14 j)", tag: "infra", sprint: "w6", status: "done" },
-
-  // Week 7
   { id: 22, title: "M12 — Pack installer (transaction atomique 7 étapes + seed tasks)", tag: "infra", sprint: "w7", status: "done" },
   { id: 23, title: "M13 — Console CEO (contexte + approbation → déclenchement immédiat)", tag: "infra", sprint: "w7", status: "done" },
   { id: 24, title: "M14 — Facturation Stripe (idempotent, mise à jour des limites)", tag: "infra", sprint: "w7", status: "done" },
   { id: 25, title: "M15 — Couche SSE temps réel (événements granulaires, keepalive 30 s)", tag: "infra", sprint: "w7", status: "done" },
-
-  // Gap fixes (dans la session précédente)
-  { id: 26, title: "Gap 1 — Route SSE montée dans app.ts (server/src/routes/sse.ts)", tag: "infra", sprint: "w7", status: "done" },
-  { id: 27, title: "Gap 2 — Hook useCompanyEvents (ui/src/hooks/useCompanyEvents.ts)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 28, title: "Gap 4 — POST /issues/:id/rate câblé sur recordApproval() (compteur de série de confiance)", tag: "infra", sprint: "w5", status: "done" },
-
-  // Weeks 8–9 Pack P1
+  { id: 26, title: "Gap — Route SSE montée dans app.ts", tag: "infra", sprint: "w7", status: "done" },
+  { id: 27, title: "Gap — Hook useCompanyEvents (ring buffers tâches + live events)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 28, title: "Gap — POST /issues/:id/rate câblé sur recordApproval() (Trust streak)", tag: "infra", sprint: "w5", status: "done" },
   { id: 29, title: "Pack P1 — 5 agents, 8 skills, 160 exemples golden, 3 seed tasks production-quality", tag: "ops", sprint: "p1", status: "done" },
-  { id: 30, title: "Pack P1 — Séquence d'activation (5 moments, jours 0–7, copy fr EMOTIONAL_LAYER)", tag: "ops", sprint: "p1", status: "done" },
+  { id: 30, title: "Pack P1 — Séquence d'activation (5 moments, jours 0–7, copy EMOTIONAL_LAYER)", tag: "ops", sprint: "p1", status: "done" },
   { id: 31, title: "Pack P1 — Portes qualité (droit du travail, limite lots, ton email)", tag: "ops", sprint: "p1", status: "done" },
-
-  // Week 10 UI
-  { id: 32, title: "UI — 9 écrans (Tableau de bord, Équipe, Fiche agent, Confiance, Fil de tâche, Console, Rapports, Contacts, Paramètres)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 33, title: "UI — Flux en direct câblé sur SSE (🔴 En direct, événements granulaires)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 34, title: "UI — FilDeTache câblé sur POST /issues/:id/rate + micro-récompenses", tag: "ui", sprint: "w10", status: "done" },
-  { id: 35, title: "UI — ConsoleCEO câblé sur GET /console + POST /console/approve", tag: "ui", sprint: "w10", status: "done" },
-  { id: 36, title: "UI — CentreDeConfiance câblé sur GET /trust + approve/reject proposals", tag: "ui", sprint: "w10", status: "done" },
-  { id: 37, title: "UI — Infrastructure i18n (react-i18next, fichiers fr/en, 9 namespaces)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 38, title: "DB — Règle immuable audit_entries (trigger PostgreSQL, RULE 4)", tag: "infra", sprint: "w4", status: "done" },
+  { id: 32, title: "UI — 9 écrans câblés sur APIs réelles (TableauDeBord, Équipe, Fiche, Confiance, Fil, Console, Rapports, Contacts, Paramètres)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 33, title: "UI — Flux en direct SSE (🔴 En direct, événements granulaires)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 34, title: "UI — FilDeTache : micro-récompenses Trust + API rate", tag: "ui", sprint: "w10", status: "done" },
+  { id: 35, title: "UI — ConsoleCEO + CentreDeConfiance câblés sur APIs réelles", tag: "ui", sprint: "w10", status: "done" },
+  { id: 36, title: "UI — i18n (react-i18next, fr/en, 9 namespaces, LanguageSwitcher monté)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 37, title: "UI — Mobile 390px : TrustTableRow responsive, ApprovalWidget w-full", tag: "ui", sprint: "w10", status: "done" },
+  { id: 38, title: "DB — Trigger immuable audit_entries (PostgreSQL, RULE 4)", tag: "infra", sprint: "w4", status: "done" },
   { id: 39, title: "Tests — 284/284 tests Singular passent (M0–M15)", tag: "test", sprint: "all", status: "done" },
 ];
 
 const SPRINTS = [
+  { id: "blocking",   label: "Bloquants — avant le 1er client payant",   modules: "G1–G5" },
+  { id: "product",    label: "Gaps produit — avant le 1er client payant", modules: "GA–GH" },
+  { id: "depth",      label: "Profondeur — avec les premiers packs",      modules: "G6–G11" },
+  { id: "ecosystem",  label: "Écosystème — après 50 clients payants",     modules: "G12–G15" },
+  { id: "ops",        label: "Ops & QA — déploiement production",         modules: "Prod + E2E" },
   { id: "w1",  label: "Semaine 1 — Fondations",              modules: "M0, M1" },
   { id: "w2",  label: "Semaine 2 — Intelligence",            modules: "M2, M3" },
   { id: "w3",  label: "Semaine 3 — Intégrations",            modules: "M4, M5" },
@@ -323,7 +361,6 @@ const SPRINTS = [
   { id: "w7",  label: "Semaine 7 — Infrastructure",          modules: "M12–M15" },
   { id: "p1",  label: "Semaines 8–9 — Pack P1",              modules: "Pack P1" },
   { id: "w10", label: "Semaine 10 — Interface React",        modules: "UI" },
-  { id: "ops", label: "Post-code — Ops & QA",                modules: "Prod + E2E" },
   { id: "all", label: "Transverse",                          modules: "Tests" },
 ];
 

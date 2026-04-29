@@ -434,3 +434,149 @@ const PLAN_LIMITS = {
 ---
 
 *Start by reading TECHNICAL_SPEC_v2.md fully. Then begin M0.*
+
+---
+
+## Current build state — updated 29 April 2026
+
+### What is shipped and tested (do not rebuild)
+M0 Multi-tenancy · M1 BullMQ · M2 Context assembly · M3 LLM router + GDPR invariant ·
+M4 Integration Hub · M5 Firecrawl · M6 Quality gates · M7 Cost intelligence ·
+M8 Org memory + pgvector · M9 Trust calibration · M10 Self-improvement ·
+M11 Morning intelligence · M12 Pack installer · M13 CEO Console · M14 Stripe ·
+M15 SSE granular events
+
+Pack P1 (recruitment) — 5 agents, 8 skills, 160 golden examples, 3 seed tasks
+UI — 9 screens, all wired to real APIs, mobile 390px, FR/EN i18n mounted
+284/284 Singular tests pass
+
+### Production blockers (code is ready, ops is not)
+- `pnpm --filter @paperclipai/db migrate` needs a real DATABASE_URL (production Postgres)
+- REDIS_URL, VAULT_MASTER_KEY, OPENROUTER_API_KEY must be set in server/.env
+- Pack P1 installs via POST /api/companies/:id/packs/p1-recruitment/install
+
+---
+
+## Platform architecture decisions — locked
+
+### Three-tier skill system
+```
+Tier 1 — Platform skills    Generic, domain-agnostic. Swwarm-managed.
+Tier 2 — Pack library       Domain-specific packs (Recruitment, ESN, Real estate…).
+                            Built by Swwarm team USING the skill manager (Gap D).
+                            NOT vibe-coded as raw .md files.
+Tier 3 — Tenant layer       Per-customer Company DNA injected at pack install time.
+                            Brand voice, services, clients, competitors, SLA.
+```
+Pack installer merges Tier 2 + Tier 3 via template interpolation at install time.
+Pack content is authored in the skill manager UI — never hand-written.
+
+### Extended Company DNA schema (Tier 3)
+```typescript
+company_dna {
+  // existing
+  company_name, sector, zone_geo,
+  // brand layer — NEW
+  brand_voice: { tone, signature_phrases, forbidden_words, email_sign_off },
+  // offering layer — NEW
+  services: [{ name, description, typical_fee, key_selling_points }],
+  // market intelligence — NEW
+  key_clients: [{ name, sector, relationship_notes }],
+  target_profiles: string[],
+  competitors_to_avoid: string[],
+  // operational — NEW
+  business_hours, response_sla, escalation_contact,
+}
+```
+
+### Channel strategy
+```
+Now:        Web dashboard (app.swwarm.com) + PWA (home screen install)
+50 users:   WhatsApp Business API (approval notifications only, not full UI)
+200 users:  Swwarm native messaging (conversational approval flow)
+500 users:  Native iOS + Android (widgets, push, biometric)
+```
+
+### Portal separation
+```
+app.swwarm.com    Customer portal — 9 screens, emotional, French-first
+admin.swwarm.com  Swwarm internal — tenant list, Bull Board, skill manager,
+                  billing oversight, impersonation (read-only)
+```
+
+---
+
+## Next build sequence — strict order
+
+### Blocking (must ship before first paying customer)
+```
+G1  i18n architecture         company.locale + company.timezone on all strings/notifications
+G2  Agent capability declaration  machine-readable SKILL.md frontmatter (inputs/outputs/gdpr/ai_act)
+G3  RBAC                      Owner/Admin/Operator/Viewer/API — company_members table
+G4  Inbound webhooks          POST /webhooks/{company_id}/{id} → routing rules → BullMQ
+G5  Human clarification flow  awaiting_clarification state + 48h timeout + response channel
+```
+
+### Depth (ship alongside first packs)
+```
+G6  Streaming LLM responses   routeModel() stream mode → SSE agent.writing chunks
+G7  Agent versioning          task.skill_version pin — skill updates only apply to new tasks
+G8  Task DAG                  BullMQ job dependencies — Task B waits for Task A approval
+G9  Batch processing          Fan-out N items, parallel workers, single approval gate
+G10 GDPR compliance export    Article 17 erasure + Article 20 portability + audit CSV
+G11 Multi-modal input         PDF extraction, image (native), voice (Whisper), spreadsheets
+```
+
+### Ecosystem (Year 2 — after 50 paying customers)
+```
+G12 MCP server                Swwarm agents callable as MCP tools by external AI systems
+G13 Public API + SDK          REST CRUD, webhook subscriptions, TypeScript/Python SDK
+G14 A2A protocol              Google A2A standard — enterprise interop
+G15 Plugin/extension system   Third-party action type registration
+```
+
+### Product gaps (in order after G1–G5)
+```
+Gap A  Customer self-service onboarding
+         sign-up + email verification
+         onboarding wizard (7 questions → full Company DNA schema)
+         pack selection screen (browse catalogue)
+         Stripe checkout flow
+         first login → CEO Console with seed tasks already running
+
+Gap B  Multi-tenant portal hardening
+         all 9 screens read company_id exclusively from useAuth().companyId
+         zero hardcoded tenant references anywhere in frontend
+
+Gap C  Swwarm admin portal (admin.swwarm.com)
+         tenant list with health metrics (MRR, DAU, task count, last active)
+         Bull Board (internal only)
+         billing oversight
+         tenant impersonation (read-only, audited)
+
+Gap D  Skill management system (admin.swwarm.com)
+         platform skill editor (structured form, not raw markdown)
+         semantic versioning + diff view + rollback
+         golden dataset manager + test runner
+         publish flow: Draft → Review → Staging → Production
+         tenant update notifications (opt-in, with diff preview)
+         contribution review flow (tenant improvement → platform promotion)
+
+Gap E  Notification system
+         notifications table + notification_preferences table
+         in-app notification centre (persistent, dismissible)
+         email channel (transactional — Resend or Postmark)
+         push channel (PWA WebPush)
+         delivery rules: approval → all channels; intelligence → email+inapp
+
+Gap F  Agent configuration UI
+         per-agent settings screen (tone, parameters, blocked contacts, schedule)
+         form rendered automatically from capability declaration frontmatter
+         customers can configure, never edit raw SKILL.md
+
+Gap H  PWA
+         web app manifest + service worker
+         WebAuthn biometric auth for approvals
+         home screen install prompt
+         (native iOS/Android at 500 customers)
+```
