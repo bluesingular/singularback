@@ -154,24 +154,28 @@ function TrustTableRow({ score }: { score: TrustScore }) {
   const colour = autonomyColour(score.autonomyLevel)
   const agentName = score.agentName ?? score.agentId
   return (
-    <div className="flex items-center gap-4 py-3">
-      <div className="w-44 flex-shrink-0">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 py-3">
+      {/* Agent + skill — full width on mobile, fixed width on desktop */}
+      <div className="sm:w-44 sm:flex-shrink-0 min-w-0">
         <span className="text-sm font-medium text-[#0F0F0D]">{agentName}</span>
         <span className="text-sm text-[#8A8680]"> · {score.skillType}</span>
       </div>
-      <div className="flex-1">
-        <TrustBar
-          score={score.score}
-          label={`${Number(score.score).toFixed(1).replace(".", ",")} / 5`}
-        />
-      </div>
-      <div className="w-28 flex-shrink-0 text-right">
-        <span className={cn("text-sm", colour)}>
-          {score.autonomyLevel === "highlyTrusted" && (
-            <CheckCircle2 size={13} className="inline mr-1 mb-0.5" />
-          )}
-          {label}
-        </span>
+      {/* Bar + level on the same row (even on mobile) */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex-1 min-w-0">
+          <TrustBar
+            score={score.score}
+            label={`${Number(score.score).toFixed(1).replace(".", ",")} / 5`}
+          />
+        </div>
+        <div className="w-28 flex-shrink-0 text-right">
+          <span className={cn("text-sm", colour)}>
+            {score.autonomyLevel === "highlyTrusted" && (
+              <CheckCircle2 size={13} className="inline mr-1 mb-0.5" />
+            )}
+            {label}
+          </span>
+        </div>
       </div>
     </div>
   )

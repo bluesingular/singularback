@@ -203,7 +203,7 @@
     <span id="stat-done"><strong>—</strong> terminé</span>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
-    <span class="last-updated">Mis à jour : 28 avr. 2026 — 18h</span>
+    <span class="last-updated">Mis à jour : 29 avr. 2026</span>
     <div class="view-toggle">
       <button class="active" onclick="setView('kanban')">Kanban</button>
       <button onclick="setView('sprint')">Sprints</button>
@@ -244,8 +244,8 @@ const TASKS = [
   // UI polish
   { id: 2,  title: "Monter <LanguageSwitcher /> dans le layout Preview (nav Singular)", tag: "ui", sprint: "w10", status: "done",
     note: "Importé dans Preview.tsx — sidebar desktop (pied) + barre mobile (droite)." },
-  { id: 3,  title: "Vérifier les approbations mobiles pleine largeur à 390 px (iPhone 14)", tag: "ui", sprint: "w10", status: "todo",
-    note: "FilDeTache ApprovalWidget et ConsoleCEO doivent être utilisables sans scroll horizontal sur 390 px." },
+  { id: 3,  title: "Vérifier les approbations mobiles pleine largeur à 390 px (iPhone 14)", tag: "ui", sprint: "w10", status: "done",
+    note: "TrustTableRow corrigé : flex-col sur mobile (name+skill en haut, bar+label sur la même ligne en dessous). ApprovalWidget déjà w-full. ConsoleCEO OK." },
 
   // E2E / QA (nécessitent une base de production)
   { id: 4,  title: "E2E : les seed tasks se déclenchent en < 10 min après installation du Pack P1", tag: "test", sprint: "ops", blocker: true, status: "todo" },
