@@ -198,12 +198,12 @@
 <header>
   <h1>Singular<span>.blue</span> — Build Kanban</h1>
   <div class="stats">
-    <span id="stat-todo"><strong>—</strong> à faire</span>
-    <span id="stat-progress"><strong>—</strong> en cours</span>
-    <span id="stat-done"><strong>—</strong> terminé</span>
+    <span id="stat-todo"><strong>—</strong> to do</span>
+    <span id="stat-progress"><strong>—</strong> in progress</span>
+    <span id="stat-done"><strong>—</strong> done</span>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
-    <span class="last-updated">Mis à jour : 29 avr. 2026 — gaps G1–G15 + A–H ajoutés</span>
+    <span class="last-updated">Updated: 29 Apr 2026 — gaps G1–G15 + A–H added</span>
     <div class="view-toggle">
       <button class="active" onclick="setView('kanban')">Kanban</button>
       <button onclick="setView('sprint')">Sprints</button>
@@ -214,15 +214,15 @@
 <main>
   <div id="view-kanban">
     <div class="column col-todo">
-      <div class="column-header">À faire <span class="count" id="col-todo-count"></span></div>
+      <div class="column-header">To Do <span class="count" id="col-todo-count"></span></div>
       <div class="column-body" id="col-todo"></div>
     </div>
     <div class="column col-progress">
-      <div class="column-header">En cours <span class="count" id="col-progress-count"></span></div>
+      <div class="column-header">In Progress <span class="count" id="col-progress-count"></span></div>
       <div class="column-body" id="col-progress"></div>
     </div>
     <div class="column col-done">
-      <div class="column-header">Terminé <span class="count" id="col-done-count"></span></div>
+      <div class="column-header">Done <span class="count" id="col-done-count"></span></div>
       <div class="column-body" id="col-done"></div>
     </div>
   </div>
@@ -237,135 +237,135 @@ const TASKS = [
   // BLOCKING — must ship before first paying customer
   // ════════════════════════════════════════════════════════════
 
-  { id: "G1", title: "G1 — Architecture i18n : company.locale + company.timezone sur toutes les chaînes et notifications", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Décision : si on hardcode le français maintenant, l'internationalisation coûte 3× plus cher plus tard." },
-  { id: "G2", title: "G2 — Agent capability declaration : frontmatter SKILL.md lisible par la machine (inputs/outputs/gdpr/ai_act/autonomy_default)", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Permet à la plateforme de valider les intégrations, router le LLM et afficher les capacités sans code par agent." },
-  { id: "G3", title: "G3 — RBAC : rôles Owner/Admin/Operator/Viewer/API sur company_members", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Sans ça, impossible de servir une entreprise avec plus d'une personne." },
-  { id: "G4", title: "G4 — Webhooks entrants : POST /webhooks/{company_id}/{id} → règles de routage → BullMQ", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Différence entre une plateforme réactive (humains déclenchent les agents) et une vraie plateforme autonome (le monde déclenche les agents)." },
-  { id: "G5", title: "G5 — Flux de clarification humaine : état awaiting_clarification, timeout 48h, canal de réponse vers le worker BullMQ", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Un agent en cours de tâche doit pouvoir poser une question, attendre la réponse, et reprendre — sans abandonner la tâche." },
+  { id: "G1", title: "G1 — i18n architecture: company.locale + company.timezone on all strings and notifications", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Decision point: hardcoding French now makes internationalisation 3× more expensive later." },
+  { id: "G2", title: "G2 — Agent capability declaration: machine-readable SKILL.md frontmatter (inputs/outputs/gdpr/ai_act/autonomy_default)", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Lets the platform validate required integrations, auto-route LLM tier, and surface capabilities in plain language — without per-agent code." },
+  { id: "G3", title: "G3 — RBAC: Owner/Admin/Operator/Viewer/API roles on company_members", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Without this, the platform cannot serve any business with more than one person." },
+  { id: "G4", title: "G4 — Inbound webhooks: POST /webhooks/{company_id}/{id} → routing rules → BullMQ", tag: "infra", sprint: "blocking", status: "todo",
+    note: "Difference between a reactive platform (humans trigger agents) and a truly autonomous one (the world triggers agents)." },
+  { id: "G5", title: "G5 — Human clarification flow: awaiting_clarification task state, 48h timeout, response channel back into BullMQ worker", tag: "infra", sprint: "blocking", status: "todo",
+    note: "An agent mid-task must be able to pause, ask a specific question, receive an answer, and resume — without abandoning the task." },
 
   // ════════════════════════════════════════════════════════════
   // PRODUCT GAPS — before first paying customer
   // ════════════════════════════════════════════════════════════
 
-  { id: "GA", title: "Gap A — Self-service onboarding client : inscription, vérification email, assistant (7 questions → Company DNA complet), sélection de pack, Stripe checkout, première connexion", tag: "ui", sprint: "product", status: "todo",
-    note: "Le parcours complet n'existe pas. M12 suppose que l'assistant a déjà fourni les réponses. L'assistant lui-même n'a jamais été construit." },
-  { id: "GB", title: "Gap B — Portail multi-tenant : tous les 9 écrans lisent company_id exclusivement depuis useAuth().companyId — aucune référence tenant codée en dur", tag: "ui", sprint: "product", status: "todo",
-    note: "Architecture correcte : app.swwarm.com (portail client) séparé de admin.swwarm.com (interne Swwarm)." },
-  { id: "GC", title: "Gap C — Portail admin Swwarm (admin.swwarm.com) : liste des tenants + métriques, Bull Board (interne uniquement), supervision facturation, impersonnification lecture seule", tag: "ui", sprint: "product", status: "todo",
-    note: "Sans ça, impossible de gérer la plateforme dès 50 tenants." },
-  { id: "GD", title: "Gap D — Système de gestion des skills (admin.swwarm.com) : éditeur structuré, versioning sémantique + diff + rollback, gestionnaire golden dataset, test runner, flux de publication, notifications de mise à jour opt-in pour les tenants", tag: "infra", sprint: "product", status: "todo",
-    note: "C'est avec cet outil que les packs sont créés — pas en codant des fichiers .md à la main. Aussi : boucle de contribution (amélioration tenant → promotion plateforme)." },
-  { id: "GE", title: "Gap E — Système de notifications : table notifications + notification_preferences, centre de notifications in-app, canal email (transactionnel), canal push (PWA WebPush)", tag: "infra", sprint: "product", status: "todo",
-    note: "Règles de livraison : approbation → tous les canaux ; intelligence → email + in-app ; lot terminé → in-app uniquement." },
-  { id: "GF", title: "Gap F — UI de configuration des agents : formulaire rendu automatiquement depuis le frontmatter capability declaration, sans édition brute de SKILL.md", tag: "ui", sprint: "product", status: "todo",
-    note: "Ton, paramètres, contacts bloqués, plage horaire — configurables par le client sans accès aux instructions brutes." },
-  { id: "GH", title: "Gap H — PWA : manifeste web app + service worker + auth biométrique WebAuthn pour les approbations, invite d'installation écran d'accueil", tag: "ui", sprint: "product", status: "todo",
-    note: "Donne 80% de la fidélité mobile avec 1% de l'effort. Application native iOS/Android à 500 clients." },
+  { id: "GA", title: "Gap A — Customer self-service onboarding: sign-up, email verification, wizard (7 questions → full Company DNA), pack selection, Stripe checkout, first login", tag: "ui", sprint: "product", status: "todo",
+    note: "The complete journey does not exist. M12 assumed the wizard had already delivered answers. The wizard itself was never built." },
+  { id: "GB", title: "Gap B — Multi-tenant portal: all 9 screens read company_id exclusively from useAuth().companyId — zero hardcoded tenant references", tag: "ui", sprint: "product", status: "todo",
+    note: "Correct architecture: app.swwarm.com (customer portal) separate from admin.swwarm.com (Swwarm internal)." },
+  { id: "GC", title: "Gap C — Swwarm admin portal (admin.swwarm.com): tenant list + health metrics, Bull Board (internal only), billing oversight, read-only impersonation", tag: "ui", sprint: "product", status: "todo",
+    note: "Without this, the platform is unmanageable at 50+ tenants." },
+  { id: "GD", title: "Gap D — Skill management system (admin.swwarm.com): structured editor, semantic versioning + diff + rollback, golden dataset manager, test runner, publish flow, opt-in update notifications for tenants", tag: "infra", sprint: "product", status: "todo",
+    note: "This is the tool used to build packs — not hand-writing .md files. Also includes contribution review loop (tenant improvement → platform promotion)." },
+  { id: "GE", title: "Gap E — Notification system: notifications + notification_preferences tables, in-app notification centre, email channel (transactional), push channel (PWA WebPush)", tag: "infra", sprint: "product", status: "todo",
+    note: "Delivery rules: approval → all channels; intelligence → email + in-app; batch complete → in-app only." },
+  { id: "GF", title: "Gap F — Agent configuration UI: form auto-rendered from capability declaration frontmatter, no raw SKILL.md editing exposed to customers", tag: "ui", sprint: "product", status: "todo",
+    note: "Tone, parameters, blocked contacts, schedule — configurable by the customer without touching raw instructions." },
+  { id: "GH", title: "Gap H — PWA: web app manifest + service worker + WebAuthn biometric auth for approvals, home screen install prompt", tag: "ui", sprint: "product", status: "todo",
+    note: "Gives 80% of mobile stickiness with 1% of the effort. Native iOS/Android at 500 customers." },
 
   // ════════════════════════════════════════════════════════════
   // DEPTH — ship alongside first packs
   // ════════════════════════════════════════════════════════════
 
-  { id: "G6", title: "G6 — Streaming LLM : mode stream dans routeModel() → chunks SSE agent.writing en temps réel", tag: "infra", sprint: "depth", status: "todo",
-    note: "L'infra SSE (M15) existe. Le streaming LLM est le chaînon manquant entre M3 et M15." },
-  { id: "G7", title: "G7 — Versionnement des agents : task.skill_version pin — les mises à jour de skills ne s'appliquent qu'aux nouvelles tâches", tag: "infra", sprint: "depth", status: "todo",
-    note: "Rend M10 (auto-amélioration) sûr : une mise à jour de skill en cours de journée ne produit pas des résultats incohérents." },
-  { id: "G8", title: "G8 — DAG des tâches : dépendances de jobs BullMQ — Tâche B attend l'approbation de Tâche A", tag: "infra", sprint: "depth", status: "todo",
-    note: "BullMQ supporte les dépendances nativement. Nécessite une couche de configuration + UI." },
-  { id: "G9", title: "G9 — Traitement par lot : fan-out N éléments, workers parallèles, porte d'approbation unique pour le résultat du lot", tag: "infra", sprint: "depth", status: "todo",
-    note: "200 CV en parallèle, 500 emails personnalisés, 50 pages concurrentes analysées." },
-  { id: "G10", title: "G10 — Export conformité RGPD : Article 17 (effacement), Article 20 (portabilité), export CSV de la piste d'audit", tag: "infra", sprint: "depth", status: "todo",
-    note: "La piste immuable nécessite une anonymisation (pas une suppression). Fonction anonymise_contact(id) remplace les PII par des identifiants hashés dans toute la piste." },
-  { id: "G11", title: "G11 — Entrée multimodale : extraction PDF, images (natif avec modèles multimodaux), voix (Whisper), tableurs (parsing structuré)", tag: "infra", sprint: "depth", status: "todo",
-    note: "Construire G10 avant G11 : le texte extrait des PDF crée immédiatement de nouvelles obligations RGPD." },
+  { id: "G6", title: "G6 — Streaming LLM: stream mode in routeModel() → real-time SSE agent.writing chunks", tag: "infra", sprint: "depth", status: "todo",
+    note: "SSE infrastructure (M15) already exists. Streaming LLM is the missing link between M3 and M15." },
+  { id: "G7", title: "G7 — Agent versioning: task.skill_version pin — skill updates only apply to new tasks", tag: "infra", sprint: "depth", status: "todo",
+    note: "Makes M10 (self-improvement) safe: a mid-day skill update no longer produces inconsistent outputs across tasks." },
+  { id: "G8", title: "G8 — Task DAG: BullMQ job dependencies — Task B waits for Task A approval", tag: "infra", sprint: "depth", status: "todo",
+    note: "BullMQ supports dependencies natively. Requires a configuration layer + UI on top." },
+  { id: "G9", title: "G9 — Batch processing: fan-out N items, parallel workers, single approval gate for batch outcome", tag: "infra", sprint: "depth", status: "todo",
+    note: "200 CVs in parallel, 500 personalised emails, 50 competitor pages analysed simultaneously." },
+  { id: "G10", title: "G10 — GDPR compliance export: Article 17 (erasure), Article 20 (portability), audit trail CSV export", tag: "infra", sprint: "depth", status: "todo",
+    note: "Immutable audit trail requires anonymisation (not deletion). anonymise_contact(id) replaces PII with hashed identifiers throughout the audit trail." },
+  { id: "G11", title: "G11 — Multi-modal input: PDF extraction, images (native multimodal), voice (Whisper), spreadsheets (structured parsing)", tag: "infra", sprint: "depth", status: "todo",
+    note: "Build G10 before G11: text extracted from PDFs immediately creates new GDPR obligations." },
 
   // ════════════════════════════════════════════════════════════
   // ECOSYSTEM — Year 2 / after 50 paying customers
   // ════════════════════════════════════════════════════════════
 
-  { id: "G12", title: "G12 — Serveur MCP : les agents Swwarm appelables comme outils MCP par des systèmes IA externes", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "Actuellement Swwarm est un client MCP. Devenir serveur MCP = les agents Dust, Claude, GPT peuvent déléguer à Sophie." },
-  { id: "G13", title: "G13 — API publique + SDK : CRUD REST, abonnements webhooks, SDK TypeScript/Python, clés API par entreprise, rate limiting, docs OpenAPI auto-générées", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "Sans ça, chaque nouveau type d'agent nécessite un changement de code plateforme. Avec ça, la communauté construit les verticaux." },
-  { id: "G14", title: "G14 — Protocole A2A (Google) : interopérabilité enterprise avec toutes les plateformes IA majeures", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "Google, Salesforce, SAP convergent sur A2A. Non optionnel dans 18 mois pour les clients enterprise." },
-  { id: "G15", title: "G15 — Système de plugins/extensions : enregistrement de nouveaux types d'actions par des développeurs tiers", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "La composabilité qui rend Swwarm extensible sans modifier le code plateforme." },
+  { id: "G12", title: "G12 — MCP server: Swwarm agents callable as MCP tools by external AI systems", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "Currently Swwarm is an MCP client. Becoming an MCP server means Dust, Claude, GPT agents can delegate to Sophie." },
+  { id: "G13", title: "G13 — Public API + SDK: REST CRUD, webhook subscriptions, TypeScript/Python SDK, per-company API keys, rate limiting, auto-generated OpenAPI docs", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "Without this, every new agent type requires a platform code change. With this, the community builds the verticals." },
+  { id: "G14", title: "G14 — A2A protocol (Google): enterprise interoperability with all major AI platforms", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "Google, Salesforce, SAP are converging on A2A. Not optional within 18 months for enterprise customers." },
+  { id: "G15", title: "G15 — Plugin/extension system: third-party developers register new action types", tag: "infra", sprint: "ecosystem", status: "todo",
+    note: "The composability that makes Swwarm extensible without touching platform code." },
 
   // ════════════════════════════════════════════════════════════
   // OPS — production deployment (needs DATABASE_URL)
   // ════════════════════════════════════════════════════════════
 
-  { id: 1,  title: "pnpm db:migrate — appliquer migrations 0057–0070 sur la base de production", tag: "ops", sprint: "ops", blocker: true, status: "todo",
-    note: "Commande : DATABASE_URL=postgres://... pnpm --filter @paperclipai/db migrate. La base embarquée est à jour." },
-  { id: 4,  title: "E2E : les seed tasks se déclenchent en < 10 min après installation du Pack P1", tag: "test", sprint: "ops", blocker: true, status: "todo" },
-  { id: 5,  title: "E2E : séquence d'activation — les 5 moments se déclenchent dans l'ordre (jours 0–7)", tag: "test", sprint: "ops", status: "todo" },
-  { id: 6,  title: "E2E : passation qualification-cv → client-email se déclenche quand score ≥ 4", tag: "test", sprint: "ops", status: "todo" },
-  { id: 7,  title: "E2E : changement de plan Stripe met à jour les limites en < 60 s", tag: "test", sprint: "ops", status: "todo" },
-  { id: 9,  title: "Onboarder 10 comptes design partners", tag: "human", sprint: "ops", status: "todo",
-    note: "Humain uniquement — aucun code requis." },
+  { id: 1,  title: "pnpm db:migrate — apply migrations 0057–0070 to production database", tag: "ops", sprint: "ops", blocker: true, status: "todo",
+    note: "Command: DATABASE_URL=postgres://... pnpm --filter @paperclipai/db migrate. Embedded test DB is already up to date." },
+  { id: 4,  title: "E2E: seed tasks fire in < 10 min after Pack P1 installation", tag: "test", sprint: "ops", blocker: true, status: "todo" },
+  { id: 5,  title: "E2E: activation sequence — all 5 moments fire in order (days 0–7)", tag: "test", sprint: "ops", status: "todo" },
+  { id: 6,  title: "E2E: handoff qualification-cv → client-email fires when score ≥ 4", tag: "test", sprint: "ops", status: "todo" },
+  { id: 7,  title: "E2E: Stripe plan change updates limits in < 60s", tag: "test", sprint: "ops", status: "todo" },
+  { id: 9,  title: "Onboard 10 design partner accounts", tag: "human", sprint: "ops", status: "todo",
+    note: "Human only — no code required." },
 
   // ════════════════════════════════════════════════════════════
   // DONE — code committed, tests pass
   // ════════════════════════════════════════════════════════════
 
   { id: 10, title: "M0 — Multi-tenancy (companies, auth middleware, company isolation)", tag: "infra", sprint: "w1", status: "done" },
-  { id: 11, title: "M1 — BullMQ EDA (remplace setInterval, workers idempotents)", tag: "infra", sprint: "w1", status: "done" },
-  { id: 12, title: "M2 — Context assembly pipeline (6 couches + budgets tokens)", tag: "infra", sprint: "w2", status: "done" },
-  { id: 13, title: "M3 — LLM router avec règle RGPD stricte (jamais DeepSeek sur données perso)", tag: "infra", sprint: "w2", status: "done" },
-  { id: 14, title: "M4 — Integration Hub (coffre-fort AES-256, routeur MCP, webhooks)", tag: "infra", sprint: "w3", status: "done" },
-  { id: 15, title: "M5 — Navigation web (Firecrawl + fallback Jina, vérif. permissions)", tag: "infra", sprint: "w3", status: "done" },
-  { id: 16, title: "M6 — Portes qualité + validation schéma de sortie + damage control", tag: "infra", sprint: "w4", status: "done" },
-  { id: 17, title: "M7 — Suivi des coûts + traduction des tâches (ex. ~95 lots de CV restants)", tag: "infra", sprint: "w4", status: "done" },
-  { id: 18, title: "M8 — Mémoire organisationnelle + pgvector (recherche sémantique ≥ 0,72)", tag: "infra", sprint: "w5", status: "done" },
-  { id: 19, title: "M9 — Système de calibration de confiance (Trust Score, propositions, autonomie)", tag: "infra", sprint: "w5", status: "done" },
-  { id: 20, title: "M10 — Versionnement des skills + auto-amélioration + benchmark golden dataset", tag: "infra", sprint: "w6", status: "done" },
-  { id: 21, title: "M11 — Intelligence du matin (max 3 cartes/jour, cooldown 14 j)", tag: "infra", sprint: "w6", status: "done" },
-  { id: 22, title: "M12 — Pack installer (transaction atomique 7 étapes + seed tasks)", tag: "infra", sprint: "w7", status: "done" },
-  { id: 23, title: "M13 — Console CEO (contexte + approbation → déclenchement immédiat)", tag: "infra", sprint: "w7", status: "done" },
-  { id: 24, title: "M14 — Facturation Stripe (idempotent, mise à jour des limites)", tag: "infra", sprint: "w7", status: "done" },
-  { id: 25, title: "M15 — Couche SSE temps réel (événements granulaires, keepalive 30 s)", tag: "infra", sprint: "w7", status: "done" },
-  { id: 26, title: "Gap — Route SSE montée dans app.ts", tag: "infra", sprint: "w7", status: "done" },
-  { id: 27, title: "Gap — Hook useCompanyEvents (ring buffers tâches + live events)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 28, title: "Gap — POST /issues/:id/rate câblé sur recordApproval() (Trust streak)", tag: "infra", sprint: "w5", status: "done" },
-  { id: 29, title: "Pack P1 — 5 agents, 8 skills, 160 exemples golden, 3 seed tasks production-quality", tag: "ops", sprint: "p1", status: "done" },
-  { id: 30, title: "Pack P1 — Séquence d'activation (5 moments, jours 0–7, copy EMOTIONAL_LAYER)", tag: "ops", sprint: "p1", status: "done" },
-  { id: 31, title: "Pack P1 — Portes qualité (droit du travail, limite lots, ton email)", tag: "ops", sprint: "p1", status: "done" },
-  { id: 32, title: "UI — 9 écrans câblés sur APIs réelles (TableauDeBord, Équipe, Fiche, Confiance, Fil, Console, Rapports, Contacts, Paramètres)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 33, title: "UI — Flux en direct SSE (🔴 En direct, événements granulaires)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 34, title: "UI — FilDeTache : micro-récompenses Trust + API rate", tag: "ui", sprint: "w10", status: "done" },
-  { id: 35, title: "UI — ConsoleCEO + CentreDeConfiance câblés sur APIs réelles", tag: "ui", sprint: "w10", status: "done" },
-  { id: 36, title: "UI — i18n (react-i18next, fr/en, 9 namespaces, LanguageSwitcher monté)", tag: "ui", sprint: "w10", status: "done" },
-  { id: 37, title: "UI — Mobile 390px : TrustTableRow responsive, ApprovalWidget w-full", tag: "ui", sprint: "w10", status: "done" },
-  { id: 38, title: "DB — Trigger immuable audit_entries (PostgreSQL, RULE 4)", tag: "infra", sprint: "w4", status: "done" },
-  { id: 39, title: "Tests — 284/284 tests Singular passent (M0–M15)", tag: "test", sprint: "all", status: "done" },
+  { id: 11, title: "M1 — BullMQ EDA (replaces setInterval polling, idempotent workers)", tag: "infra", sprint: "w1", status: "done" },
+  { id: 12, title: "M2 — Context assembly pipeline (6 layers + token budgets)", tag: "infra", sprint: "w2", status: "done" },
+  { id: 13, title: "M3 — LLM router with strict GDPR rule (never DeepSeek on personal data)", tag: "infra", sprint: "w2", status: "done" },
+  { id: 14, title: "M4 — Integration Hub (AES-256 vault, MCP router, inbound webhooks)", tag: "infra", sprint: "w3", status: "done" },
+  { id: 15, title: "M5 — Web browsing (Firecrawl + Jina fallback, permission check)", tag: "infra", sprint: "w3", status: "done" },
+  { id: 16, title: "M6 — Quality gates + output schema validation + damage control", tag: "infra", sprint: "w4", status: "done" },
+  { id: 17, title: "M7 — Cost intelligence + task translation (e.g. ~95 CV batches remaining)", tag: "infra", sprint: "w4", status: "done" },
+  { id: 18, title: "M8 — Org memory + pgvector (semantic search ≥ 0.72 threshold)", tag: "infra", sprint: "w5", status: "done" },
+  { id: 19, title: "M9 — Trust calibration system (Trust Score, proposals, autonomy levels)", tag: "infra", sprint: "w5", status: "done" },
+  { id: 20, title: "M10 — Skill versioning + self-improvement + golden dataset benchmark", tag: "infra", sprint: "w6", status: "done" },
+  { id: 21, title: "M11 — Morning intelligence (max 3 cards/day, 14-day cooldown)", tag: "infra", sprint: "w6", status: "done" },
+  { id: 22, title: "M12 — Pack installer (7-step atomic transaction + seed tasks)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 23, title: "M13 — CEO Console (context + approval → immediate execution)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 24, title: "M14 — Stripe billing (idempotent webhooks, plan limit enforcement)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 25, title: "M15 — SSE real-time layer (granular events, 30s keepalive)", tag: "infra", sprint: "w7", status: "done" },
+  { id: 26, title: "Fix — SSE route mounted in app.ts", tag: "infra", sprint: "w7", status: "done" },
+  { id: 27, title: "Fix — useCompanyEvents hook (task + live event ring buffers)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 28, title: "Fix — POST /issues/:id/rate wired to recordApproval() (Trust streak counter)", tag: "infra", sprint: "w5", status: "done" },
+  { id: 29, title: "Pack P1 — 5 agents, 8 skills, 160 golden examples, 3 production-quality seed tasks", tag: "ops", sprint: "p1", status: "done" },
+  { id: 30, title: "Pack P1 — Activation sequence (5 moments, days 0–7, copy from EMOTIONAL_LAYER)", tag: "ops", sprint: "p1", status: "done" },
+  { id: 31, title: "Pack P1 — Quality gates (employment law, batch limit, email tone)", tag: "ops", sprint: "p1", status: "done" },
+  { id: 32, title: "UI — 9 screens wired to real APIs (Dashboard, Team, Agent, Trust, Task, Console, Reports, Contacts, Settings)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 33, title: "UI — Live feed wired to SSE (🔴 Live, granular events)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 34, title: "UI — Task thread: Trust micro-rewards + rate API", tag: "ui", sprint: "w10", status: "done" },
+  { id: 35, title: "UI — CEO Console + Trust Centre wired to real APIs", tag: "ui", sprint: "w10", status: "done" },
+  { id: 36, title: "UI — i18n (react-i18next, fr/en, 9 namespaces, LanguageSwitcher mounted)", tag: "ui", sprint: "w10", status: "done" },
+  { id: 37, title: "UI — Mobile 390px: TrustTableRow responsive, ApprovalWidget w-full", tag: "ui", sprint: "w10", status: "done" },
+  { id: 38, title: "DB — Immutable audit_entries trigger (PostgreSQL, RULE 4)", tag: "infra", sprint: "w4", status: "done" },
+  { id: 39, title: "Tests — 284/284 Singular tests pass (M0–M15)", tag: "test", sprint: "all", status: "done" },
 ];
 
 const SPRINTS = [
-  { id: "blocking",   label: "Bloquants — avant le 1er client payant",   modules: "G1–G5" },
-  { id: "product",    label: "Gaps produit — avant le 1er client payant", modules: "GA–GH" },
-  { id: "depth",      label: "Profondeur — avec les premiers packs",      modules: "G6–G11" },
-  { id: "ecosystem",  label: "Écosystème — après 50 clients payants",     modules: "G12–G15" },
-  { id: "ops",        label: "Ops & QA — déploiement production",         modules: "Prod + E2E" },
-  { id: "w1",  label: "Semaine 1 — Fondations",              modules: "M0, M1" },
-  { id: "w2",  label: "Semaine 2 — Intelligence",            modules: "M2, M3" },
-  { id: "w3",  label: "Semaine 3 — Intégrations",            modules: "M4, M5" },
-  { id: "w4",  label: "Semaine 4 — Couche sécurité",         modules: "M6, M7" },
-  { id: "w5",  label: "Semaine 5 — Mémoire + Confiance",     modules: "M8, M9" },
-  { id: "w6",  label: "Semaine 6 — Auto-apprentissage",      modules: "M10, M11" },
-  { id: "w7",  label: "Semaine 7 — Infrastructure",          modules: "M12–M15" },
-  { id: "p1",  label: "Semaines 8–9 — Pack P1",              modules: "Pack P1" },
-  { id: "w10", label: "Semaine 10 — Interface React",        modules: "UI" },
-  { id: "all", label: "Transverse",                          modules: "Tests" },
+  { id: "blocking",   label: "Blocking — before first paying customer",   modules: "G1–G5" },
+  { id: "product",    label: "Product gaps — before first paying customer", modules: "GA–GH" },
+  { id: "depth",      label: "Depth — alongside first packs",             modules: "G6–G11" },
+  { id: "ecosystem",  label: "Ecosystem — after 50 paying customers",     modules: "G12–G15" },
+  { id: "ops",        label: "Ops & QA — production deployment",          modules: "Prod + E2E" },
+  { id: "w1",  label: "Week 1 — Foundations",              modules: "M0, M1" },
+  { id: "w2",  label: "Week 2 — Intelligence",             modules: "M2, M3" },
+  { id: "w3",  label: "Week 3 — Integrations",             modules: "M4, M5" },
+  { id: "w4",  label: "Week 4 — Safety layer",             modules: "M6, M7" },
+  { id: "w5",  label: "Week 5 — Memory + Trust",           modules: "M8, M9" },
+  { id: "w6",  label: "Week 6 — Self-learning",            modules: "M10, M11" },
+  { id: "w7",  label: "Week 7 — Infrastructure",           modules: "M12–M15" },
+  { id: "p1",  label: "Weeks 8–9 — Pack P1",               modules: "Pack P1" },
+  { id: "w10", label: "Week 10 — React UI",                modules: "UI" },
+  { id: "all", label: "Cross-cutting",                     modules: "Tests" },
 ];
 
 const TAG_CLASS = { infra: "tag-infra", ui: "tag-ui", test: "tag-test", ops: "tag-ops", human: "tag-human" };
-const TAG_LABEL = { infra: "Backend", ui: "UI / i18n", test: "Test / QA", ops: "Ops / Pack", human: "Humain" };
+const TAG_LABEL = { infra: "Backend", ui: "UI / i18n", test: "Test / QA", ops: "Ops / Pack", human: "Human" };
 const STATUS_CYCLE = { todo: "progress", progress: "done", done: "todo" };
 
 function save() {
@@ -392,7 +392,7 @@ function makeCard(task) {
   div.className = `card ${task.status === "done" ? "done" : task.status === "progress" ? "in-progress" : ""}`;
   div.onclick = () => cycleStatus(task.id);
 
-  const blocker = task.blocker ? `<span class="tag tag-blocker">Bloquant</span>` : "";
+  const blocker = task.blocker ? `<span class="tag tag-blocker">Blocker</span>` : "";
   const note = task.note ? `<div style="margin-top:6px;font-size:11px;color:var(--muted);line-height:1.4">${task.note}</div>` : "";
 
   div.innerHTML = `
@@ -405,7 +405,7 @@ function makeCard(task) {
       ${blocker}
     </div>
     ${note}
-    <div class="status-cycle">clic pour avancer →</div>
+    <div class="status-cycle">click to advance →</div>
   `;
   return div;
 }
@@ -421,7 +421,7 @@ function render() {
 
   const append = (id, tasks) => {
     const el = document.getElementById(id);
-    if (tasks.length === 0) { el.innerHTML = `<div class="empty">Rien ici</div>`; return; }
+    if (tasks.length === 0) { el.innerHTML = `<div class="empty">Nothing here</div>`; return; }
     tasks.forEach(t => el.appendChild(makeCard(t)));
   };
 
@@ -433,9 +433,9 @@ function render() {
   document.getElementById("col-progress-count").textContent = progress.length;
   document.getElementById("col-done-count").textContent = done.length;
 
-  document.getElementById("stat-todo").innerHTML = `<strong>${todo.length}</strong> à faire`;
-  document.getElementById("stat-progress").innerHTML = `<strong>${progress.length}</strong> en cours`;
-  document.getElementById("stat-done").innerHTML = `<strong>${done.length}</strong> terminé`;
+  document.getElementById("stat-todo").innerHTML = `<strong>${todo.length}</strong> to do`;
+  document.getElementById("stat-progress").innerHTML = `<strong>${progress.length}</strong> in progress`;
+  document.getElementById("stat-done").innerHTML = `<strong>${done.length}</strong> done`;
 
   // Sprint view
   const sprintEl = document.getElementById("view-sprint");
@@ -446,7 +446,7 @@ function render() {
     const doneCount = tasks.filter(t => t.status === "done").length;
     const pct = tasks.length ? Math.round(doneCount / tasks.length * 100) : 0;
     const sprintStatus = pct === 100 ? "done" : pct > 0 ? "partial" : "todo";
-    const statusLabel  = pct === 100 ? "Terminé" : pct > 0 ? "En cours" : "Non démarré";
+    const statusLabel  = pct === 100 ? "Done" : pct > 0 ? "In Progress" : "Not started";
 
     const block = document.createElement("div");
     block.className = "sprint-block";
@@ -464,7 +464,7 @@ function render() {
 
     const cardsEl = document.getElementById(`sprint-${sprint.id}`);
     if (tasks.length === 0) {
-      cardsEl.innerHTML = `<div class="empty">Aucune tâche dans ce sprint</div>`;
+      cardsEl.innerHTML = `<div class="empty">No tasks in this sprint</div>`;
     } else {
       tasks.forEach(t => cardsEl.appendChild(makeCard(t)));
     }
