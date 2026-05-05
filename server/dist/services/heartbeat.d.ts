@@ -1,5 +1,5 @@
 import type { Db } from "@paperclipai/db";
-import type { ExecutionWorkspace, ExecutionWorkspaceConfig } from "@paperclipai/shared";
+import { type ExecutionWorkspace, type ExecutionWorkspaceConfig } from "@paperclipai/shared";
 import { agents } from "@paperclipai/db";
 import type { AdapterSessionCodec } from "../adapters/index.js";
 import { type BudgetEnforcementScope } from "./budgets.js";

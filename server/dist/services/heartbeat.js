@@ -3,6 +3,7 @@ import path from "node:path";
 import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
 import { and, asc, desc, eq, getTableColumns, gt, inArray, isNull, or, sql } from "drizzle-orm";
+import { ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY, } from "@paperclipai/shared";
 import { agents, agentRuntimeState, agentTaskSessions, agentWakeupRequests, companySkills as companySkillsTable, heartbeatRunEvents, heartbeatRuns, issueComments, issues, projects, projectWorkspaces, } from "@paperclipai/db";
 import { conflict, HttpError, notFound } from "../errors.js";
 import { logger } from "../middleware/logger.js";
@@ -23,6 +24,7 @@ import { logActivity } from "./activity-log.js";
 import { buildWorkspaceReadyComment, cleanupExecutionWorkspaceArtifacts, ensureRuntimeServicesForRun, persistAdapterManagedRuntimeServices, realizeExecutionWorkspace, releaseRuntimeServicesForRun, sanitizeRuntimeServiceBaseEnv, } from "./workspace-runtime.js";
 import { issueService } from "./issues.js";
 import { executionWorkspaceService, mergeExecutionWorkspaceConfig } from "./execution-workspaces.js";
+import { environmentService } from "./environments.js";
 import { workspaceOperationService } from "./workspace-operations.js";
 import { isProcessGroupAlive, terminateLocalService } from "./local-service-supervisor.js";
 import { buildExecutionWorkspaceAdapterConfig, gateProjectExecutionWorkspacePolicy, issueExecutionWorkspaceModeForPersistedWorkspace, parseIssueExecutionWorkspaceSettings, parseProjectExecutionWorkspacePolicy, resolveExecutionWorkspaceMode, } from "./execution-workspace-policy.js";
@@ -35,6 +37,10 @@ const MAX_LIVE_LOG_CHUNK_BYTES = 8 * 1024;
 const MAX_PERSISTED_LOG_CHUNK_CHARS = 64 * 1024;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT = 1;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_MAX = 10;
+const LIVENESS_BOOKKEEPING_ACTIVITY_ACTIONS = [
+    "environment.lease_acquired",
+    "environment.lease_released",
+];
 const DEFERRED_WAKE_CONTEXT_KEY = "_paperclipWakeContext";
 const WAKE_COMMENT_IDS_KEY = "wakeCommentIds";
 const PAPERCLIP_WAKE_PAYLOAD_KEY = "paperclipWake";
@@ -132,6 +138,9 @@ async function resolveRunScopedMentionedSkillKeys(input) {
     return mentionedSkillIds
         .map((skillId) => skillKeyById.get(skillId) ?? null)
         .filter((skillKey) => Boolean(skillKey));
+}
+function leaseReleaseStatusForRunStatus(status) {
+    return status === "failed" || status === "timed_out" ? "failed" : "released";
 }
 export function applyPersistedExecutionWorkspaceConfig(input) {
     const nextConfig = { ...input.config };
@@ -1148,6 +1157,7 @@ export function heartbeatService(db) {
     const companySkills = companySkillService(db);
     const issuesSvc = issueService(db);
     const executionWorkspacesSvc = executionWorkspaceService(db);
+    const environmentsSvc = environmentService(db);
     const workspaceOperationsSvc = workspaceOperationService(db);
     const activeRunExecutions = new Set();
     const budgetHooks = {
@@ -1875,6 +1885,17 @@ export function heartbeatService(db) {
         });
         return retryRun;
     }
+    async function hasDeferredIssueCommentWake(companyId, issueId, agentId) {
+        const deferredPayloads = await db
+            .select({ payload: agentWakeupRequests.payload })
+            .from(agentWakeupRequests)
+            .where(and(eq(agentWakeupRequests.companyId, companyId), eq(agentWakeupRequests.agentId, agentId), eq(agentWakeupRequests.status, "deferred_issue_execution"), sql `${agentWakeupRequests.payload} ->> 'issueId' = ${issueId}`));
+        return deferredPayloads.some(({ payload }) => {
+            const parsedPayload = parseObject(payload);
+            const deferredContext = parseObject(parsedPayload[DEFERRED_WAKE_CONTEXT_KEY]);
+            return Boolean(deriveCommentId(deferredContext, parsedPayload));
+        });
+    }
     async function finalizeIssueCommentPolicy(run, agent) {
         const contextSnapshot = parseObject(run.contextSnapshot);
         const issueId = readNonEmptyString(contextSnapshot.issueId);
@@ -1918,6 +1939,20 @@ export function heartbeatService(db) {
                     issueCommentRetryQueuedAt: null,
                 });
             }
+            return { outcome: "not_applicable", queuedRun: null };
+        }
+        if (await hasDeferredIssueCommentWake(run.companyId, issueId, run.agentId)) {
+            await patchRunIssueCommentStatus(run.id, {
+                issueCommentStatus: "not_applicable",
+                issueCommentSatisfiedByCommentId: null,
+                issueCommentRetryQueuedAt: null,
+            });
+            await appendRunEvent(run, await nextRunEventSeq(run.id), {
+                eventType: "lifecycle",
+                stream: "system",
+                level: "info",
+                message: "Run ended without an issue comment; a deferred comment wake already exists for this issue",
+            });
             return { outcome: "not_applicable", queuedRun: null };
         }
         const queuedRun = await enqueueMissingIssueCommentRetry(run, agent, issueId);
@@ -2153,6 +2188,142 @@ export function heartbeatService(db) {
                 },
             });
         }
+    }
+    function mergeRunStopMetadataForAgent(agent, outcome, options) {
+        const stopMetadata = buildHeartbeatRunStopMetadata({
+            adapterType: agent.adapterType,
+            adapterConfig: parseObject(agent.adapterConfig),
+            outcome,
+            errorCode: options?.errorCode ?? null,
+            errorMessage: options?.errorMessage ?? null,
+        });
+        return mergeHeartbeatRunStopMetadata(options?.resultJson ?? null, stopMetadata);
+    }
+    function countValue(value) {
+        const parsed = Number(value ?? 0);
+        return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+    }
+    function dateValue(value) {
+        if (value instanceof Date)
+            return Number.isNaN(value.getTime()) ? null : value;
+        if (typeof value === "string" || typeof value === "number") {
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+        return null;
+    }
+    function latestDate(...values) {
+        let latest = null;
+        for (const value of values) {
+            const parsed = dateValue(value);
+            if (!parsed)
+                continue;
+            if (!latest || parsed.getTime() > latest.getTime())
+                latest = parsed;
+        }
+        return latest;
+    }
+    async function buildRunLivenessInput(run, resultJson) {
+        const context = parseObject(run.contextSnapshot);
+        const contextIssueId = readNonEmptyString(context.issueId);
+        const continuationAttempt = asNumber(context.continuationAttempt, run.continuationAttempt ?? 0);
+        const issue = contextIssueId
+            ? await db
+                .select({
+                status: issues.status,
+                title: issues.title,
+                description: issues.description,
+            })
+                .from(issues)
+                .where(and(eq(issues.companyId, run.companyId), eq(issues.id, contextIssueId)))
+                .then((rows) => rows[0] ?? null)
+            : null;
+        const [commentStats] = contextIssueId
+            ? await db
+                .select({
+                count: sql `count(*)::int`,
+                latestAt: sql `max(${issueComments.createdAt})`,
+            })
+                .from(issueComments)
+                .where(and(eq(issueComments.companyId, run.companyId), eq(issueComments.issueId, contextIssueId), eq(issueComments.createdByRunId, run.id)))
+            : [{ count: 0, latestAt: null }];
+        const [documentStats] = contextIssueId
+            ? await db
+                .select({
+                count: sql `count(*)::int`,
+                planCount: sql `count(*) filter (where ${issueDocuments.key} = 'plan')::int`,
+                latestAt: sql `max(${documentRevisions.createdAt})`,
+            })
+                .from(documentRevisions)
+                .innerJoin(issueDocuments, eq(documentRevisions.documentId, issueDocuments.documentId))
+                .where(and(eq(documentRevisions.companyId, run.companyId), eq(documentRevisions.createdByRunId, run.id), eq(issueDocuments.companyId, run.companyId), eq(issueDocuments.issueId, contextIssueId), sql `${issueDocuments.key} != ${ISSUE_CONTINUATION_SUMMARY_DOCUMENT_KEY}`))
+            : [{ count: 0, planCount: 0, latestAt: null }];
+        const [workProductStats] = contextIssueId
+            ? await db
+                .select({
+                count: sql `count(*)::int`,
+                latestAt: sql `max(${issueWorkProducts.createdAt})`,
+            })
+                .from(issueWorkProducts)
+                .where(and(eq(issueWorkProducts.companyId, run.companyId), eq(issueWorkProducts.issueId, contextIssueId), eq(issueWorkProducts.createdByRunId, run.id)))
+            : [{ count: 0, latestAt: null }];
+        const [workspaceOperationStats] = await db
+            .select({
+            count: sql `count(*)::int`,
+            latestAt: sql `max(${workspaceOperations.startedAt})`,
+        })
+            .from(workspaceOperations)
+            .where(and(eq(workspaceOperations.companyId, run.companyId), eq(workspaceOperations.heartbeatRunId, run.id)));
+        const [activityStats] = await db
+            .select({
+            count: sql `count(*)::int`,
+            latestAt: sql `max(${activityLog.createdAt})`,
+        })
+            .from(activityLog)
+            .where(and(eq(activityLog.companyId, run.companyId), eq(activityLog.runId, run.id), notInArray(activityLog.action, LIVENESS_BOOKKEEPING_ACTIVITY_ACTIONS)));
+        const [eventStats] = await db
+            .select({
+            count: sql `count(*) filter (where ${heartbeatRunEvents.eventType} not in ('lifecycle', 'adapter.invoke', 'error'))::int`,
+            latestAt: sql `max(${heartbeatRunEvents.createdAt}) filter (where ${heartbeatRunEvents.eventType} not in ('lifecycle', 'adapter.invoke', 'error'))`,
+        })
+            .from(heartbeatRunEvents)
+            .where(and(eq(heartbeatRunEvents.companyId, run.companyId), eq(heartbeatRunEvents.runId, run.id)));
+        return {
+            runStatus: run.status,
+            issue,
+            resultJson: resultJson ?? run.resultJson ?? null,
+            stdoutExcerpt: run.stdoutExcerpt ?? null,
+            stderrExcerpt: run.stderrExcerpt ?? null,
+            error: run.error ?? null,
+            errorCode: run.errorCode ?? null,
+            continuationAttempt,
+            evidence: {
+                issueCommentsCreated: countValue(commentStats?.count),
+                documentRevisionsCreated: countValue(documentStats?.count),
+                planDocumentRevisionsCreated: countValue(documentStats?.planCount),
+                workProductsCreated: countValue(workProductStats?.count),
+                workspaceOperationsCreated: countValue(workspaceOperationStats?.count),
+                activityEventsCreated: countValue(activityStats?.count),
+                toolOrActionEventsCreated: countValue(eventStats?.count),
+                latestEvidenceAt: latestDate(commentStats?.latestAt, documentStats?.latestAt, workProductStats?.latestAt, workspaceOperationStats?.latestAt, activityStats?.latestAt, eventStats?.latestAt),
+            },
+        };
+    }
+    async function classifyAndPersistRunLiveness(run, resultJson) {
+        const classification = classifyRunLiveness(await buildRunLivenessInput(run, resultJson));
+        return db
+            .update(heartbeatRuns)
+            .set({
+            livenessState: classification.livenessState,
+            livenessReason: classification.livenessReason,
+            continuationAttempt: classification.continuationAttempt,
+            lastUsefulActionAt: classification.lastUsefulActionAt,
+            nextAction: classification.nextAction,
+            updatedAt: new Date(),
+        })
+            .where(eq(heartbeatRuns.id, run.id))
+            .returning()
+            .then((rows) => rows[0] ?? null);
     }
     async function reapOrphanedRuns(opts) {
         const staleThresholdMs = opts?.staleThresholdMs ?? 0;
@@ -2939,6 +3110,47 @@ export function heartbeatService(db) {
                 })(),
             };
             context.paperclipWorkspaces = resolvedWorkspace.workspaceHints;
+            const localEnvironment = await environmentsSvc.ensureLocalEnvironment(agent.companyId);
+            const environmentLease = await environmentsSvc.acquireLease({
+                companyId: agent.companyId,
+                environmentId: localEnvironment.id,
+                executionWorkspaceId: persistedExecutionWorkspace?.id ?? null,
+                issueId: issueId ?? null,
+                heartbeatRunId: run.id,
+                leasePolicy: "ephemeral",
+                provider: "local",
+                metadata: {
+                    driver: "local",
+                    executionWorkspaceMode: persistedExecutionWorkspace?.mode ?? effectiveExecutionWorkspaceMode,
+                    cwd: executionWorkspace.cwd,
+                },
+            });
+            context.paperclipEnvironment = {
+                id: localEnvironment.id,
+                name: localEnvironment.name,
+                driver: localEnvironment.driver,
+                leaseId: environmentLease.id,
+            };
+            await logActivity(db, {
+                companyId: agent.companyId,
+                actorType: "agent",
+                actorId: agent.id,
+                agentId: agent.id,
+                runId: run.id,
+                action: "environment.lease_acquired",
+                entityType: "environment_lease",
+                entityId: environmentLease.id,
+                details: {
+                    environmentId: localEnvironment.id,
+                    driver: localEnvironment.driver,
+                    leasePolicy: environmentLease.leasePolicy,
+                    provider: environmentLease.provider,
+                    executionWorkspaceId: environmentLease.executionWorkspaceId,
+                    issueId,
+                },
+            }).catch((err) => {
+                logger.warn({ err, runId: run.id }, "failed to log environment lease acquisition");
+            });
             const runtimeServiceIntents = (() => {
                 const runtimeConfig = parseObject(resolvedConfig.workspaceRuntime);
                 return Array.isArray(runtimeConfig.services)
@@ -2954,6 +3166,13 @@ export function heartbeatService(db) {
             if (executionWorkspace.projectId && !readNonEmptyString(context.projectId)) {
                 context.projectId = executionWorkspace.projectId;
             }
+            await db
+                .update(heartbeatRuns)
+                .set({
+                contextSnapshot: context,
+                updatedAt: new Date(),
+            })
+                .where(eq(heartbeatRuns.id, run.id));
             const runtimeSessionFallback = taskKey || resetTaskSession ? null : runtime.sessionId;
             let previousSessionDisplayId = truncateDisplayId(explicitResumeSessionDisplayId ??
                 taskSessionForRun?.sessionDisplayId ??
@@ -3452,6 +3671,34 @@ export function heartbeatService(db) {
             await finalizeAgentStatus(run.agentId, "failed").catch(() => undefined);
         }
         finally {
+            const latestRun = await getRun(run.id).catch(() => null);
+            const releasedLeases = await environmentsSvc
+                .releaseLeasesForRun(run.id, leaseReleaseStatusForRunStatus(latestRun?.status))
+                .catch((err) => {
+                logger.warn({ err, runId: run.id }, "failed to release environment leases for heartbeat run");
+                return [];
+            });
+            for (const lease of releasedLeases) {
+                await logActivity(db, {
+                    companyId: run.companyId,
+                    actorType: "agent",
+                    actorId: run.agentId,
+                    agentId: run.agentId,
+                    runId: run.id,
+                    action: "environment.lease_released",
+                    entityType: "environment_lease",
+                    entityId: lease.id,
+                    details: {
+                        environmentId: lease.environmentId,
+                        driver: lease.metadata?.driver ?? "local",
+                        leasePolicy: lease.leasePolicy,
+                        provider: lease.provider,
+                        executionWorkspaceId: lease.executionWorkspaceId,
+                        issueId: lease.issueId,
+                        status: lease.status,
+                    },
+                }).catch(() => undefined);
+            }
             await releaseRuntimeServicesForRun(run.id).catch(() => undefined);
             activeRunExecutions.delete(run.id);
             await startNextQueuedRunForAgent(run.agentId);

@@ -56,7 +56,7 @@ export declare function findMissingLocalSkillIds(skills: Array<Pick<CompanySkill
 export declare function companySkillService(db: Db): {
     list: (companyId: string) => Promise<CompanySkillListItem[]>;
     listFull: (companyId: string) => Promise<CompanySkill[]>;
-    getById: (id: string) => Promise<CompanySkill | null>;
+    getById: (companyId: string, id: string) => Promise<CompanySkill | null>;
     getByKey: (companyId: string, key: string) => Promise<CompanySkill | null>;
     resolveRequestedSkillKeys: (companyId: string, requestedReferences: string[]) => Promise<string[]>;
     detail: (companyId: string, id: string) => Promise<CompanySkillDetail | null>;

@@ -1,6 +1,8 @@
 import type { Request } from "express";
 export declare function assertAuthenticated(req: Request): void;
 export declare function assertBoard(req: Request): void;
+export declare function hasBoardOrgAccess(req: Request): boolean;
+export declare function assertBoardOrgAccess(req: Request): void;
 export declare function assertInstanceAdmin(req: Request): void;
 export declare function assertCompanyAccess(req: Request, companyId: string): void;
 export declare function getActorInfo(req: Request): {

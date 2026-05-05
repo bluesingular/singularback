@@ -1,5 +1,9 @@
 import { createHash, generateKeyPairSync, randomBytes, timingSafeEqual } from "node:crypto";
+import { lookup as dnsLookup } from "node:dns/promises";
 import fs from "node:fs";
+import { request as httpRequest } from "node:http";
+import { request as httpsRequest } from "node:https";
+import { isIP } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Router } from "express";
@@ -19,7 +23,8 @@ const INVITE_TOKEN_PREFIX = "pcp_invite_";
 const INVITE_TOKEN_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
 const INVITE_TOKEN_SUFFIX_LENGTH = 8;
 const INVITE_TOKEN_MAX_RETRIES = 5;
-const COMPANY_INVITE_TTL_MS = 10 * 60 * 1000;
+const COMPANY_INVITE_TTL_MS = 72 * 60 * 60 * 1000;
+const INVITE_RESOLUTION_DNS_TIMEOUT_MS = 3_000;
 function createInviteToken() {
     const bytes = randomBytes(INVITE_TOKEN_SUFFIX_LENGTH);
     let suffix = "";
@@ -1169,39 +1174,230 @@ function isInviteTokenHashCollisionError(error) {
 function isAbortError(error) {
     return error instanceof Error && error.name === "AbortError";
 }
-async function probeInviteResolutionTarget(url, timeoutMs) {
-    const startedAt = Date.now();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const response = await fetch(url, {
+function parseIpv4Address(address) {
+    const parts = address.split(".");
+    if (parts.length !== 4)
+        return null;
+    const parsed = parts.map((part) => {
+        if (!/^\d+$/.test(part))
+            return NaN;
+        return Number(part);
+    });
+    if (parsed.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+        return null;
+    }
+    return parsed;
+}
+function isPrivateOrReservedIpv4(address) {
+    const octets = parseIpv4Address(address);
+    if (!octets)
+        return true;
+    const [a, b, c] = octets;
+    if (a === 0)
+        return true;
+    if (a === 10)
+        return true;
+    if (a === 100 && b >= 64 && b <= 127)
+        return true;
+    if (a === 127)
+        return true;
+    if (a === 169 && b === 254)
+        return true;
+    if (a === 172 && b >= 16 && b <= 31)
+        return true;
+    if (a === 192 && b === 0 && c === 0)
+        return true;
+    if (a === 192 && b === 168)
+        return true;
+    if (a === 192 && b === 0 && c === 2)
+        return true;
+    if (a === 192 && b === 88 && c === 99)
+        return true;
+    if (a === 198 && (b === 18 || b === 19))
+        return true;
+    if (a === 198 && b === 51 && c === 100)
+        return true;
+    if (a === 203 && b === 0 && c === 113)
+        return true;
+    if (a >= 224)
+        return true;
+    return false;
+}
+function parseMappedIpv4Hex(address) {
+    const match = address.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+    if (!match)
+        return null;
+    const hi = Number.parseInt(match[1], 16);
+    const lo = Number.parseInt(match[2], 16);
+    if (!Number.isInteger(hi) || !Number.isInteger(lo))
+        return null;
+    return `${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`;
+}
+function isPrivateOrReservedIpv6(address) {
+    const lower = address.toLowerCase();
+    if (lower.startsWith("::ffff:")) {
+        const mappedIpv4 = lower.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
+        if (mappedIpv4?.[1])
+            return isPrivateOrReservedIpv4(mappedIpv4[1]);
+        const mappedIpv4Hex = parseMappedIpv4Hex(lower);
+        if (mappedIpv4Hex)
+            return isPrivateOrReservedIpv4(mappedIpv4Hex);
+        return true;
+    }
+    if (lower === "::" || lower === "::1")
+        return true;
+    if (lower.startsWith("fc") || lower.startsWith("fd"))
+        return true;
+    if (/^fe[89ab]/.test(lower))
+        return true;
+    if (lower.startsWith("ff"))
+        return true;
+    if (lower === "100::" || lower.startsWith("100:"))
+        return true;
+    if (lower.startsWith("2001:db8:") || lower === "2001:db8::")
+        return true;
+    if (lower.startsWith("2001:2:") || lower === "2001:2::")
+        return true;
+    if (lower.startsWith("2002:"))
+        return true;
+    if (lower.startsWith("64:ff9b:"))
+        return true;
+    return false;
+}
+function isPublicIpAddress(address) {
+    const ipVersion = isIP(address);
+    if (ipVersion === 4)
+        return !isPrivateOrReservedIpv4(address);
+    if (ipVersion === 6)
+        return !isPrivateOrReservedIpv6(address);
+    return false;
+}
+function hostnameForResolution(url) {
+    return url.hostname.replace(/^\[|\]$/g, "");
+}
+async function defaultInviteResolutionLookup(hostname) {
+    return dnsLookup(hostname, { all: true, verbatim: true });
+}
+async function defaultInviteResolutionHeadRequest(target, timeoutMs) {
+    return new Promise((resolve, reject) => {
+        const url = target.url;
+        const request = url.protocol === "https:" ? httpsRequest : httpRequest;
+        const options = {
+            protocol: url.protocol,
+            hostname: target.resolvedAddress,
+            port: url.port || undefined,
             method: "HEAD",
-            redirect: "manual",
-            signal: controller.signal
+            path: `${url.pathname}${url.search}`,
+            headers: {
+                Host: target.hostHeader
+            }
+        };
+        if (target.tlsServername) {
+            options.servername = target.tlsServername;
+        }
+        let settled = false;
+        const req = request(options, (response) => {
+            settled = true;
+            response.resume();
+            resolve({ httpStatus: response.statusCode ?? null });
         });
+        req.setTimeout(timeoutMs, () => {
+            if (settled)
+                return;
+            const error = new Error("Invite resolution probe timed out");
+            error.name = "AbortError";
+            req.destroy(error);
+        });
+        req.on("error", (error) => {
+            if (settled)
+                return;
+            settled = true;
+            reject(error);
+        });
+        req.end();
+    });
+}
+const defaultInviteResolutionNetwork = {
+    lookup: defaultInviteResolutionLookup,
+    requestHead: defaultInviteResolutionHeadRequest
+};
+let inviteResolutionNetwork = defaultInviteResolutionNetwork;
+export function setInviteResolutionNetworkForTest(network) {
+    inviteResolutionNetwork = network
+        ? { ...defaultInviteResolutionNetwork, ...network }
+        : defaultInviteResolutionNetwork;
+}
+async function lookupInviteResolutionHostname(hostname) {
+    let timeout = null;
+    try {
+        return await Promise.race([
+            inviteResolutionNetwork.lookup(hostname),
+            new Promise((_, reject) => {
+                timeout = setTimeout(() => reject(badRequest(`url hostname DNS lookup timed out after ${INVITE_RESOLUTION_DNS_TIMEOUT_MS}ms`)), INVITE_RESOLUTION_DNS_TIMEOUT_MS);
+            })
+        ]);
+    }
+    catch (error) {
+        if (error instanceof Error && "status" in error)
+            throw error;
+        throw badRequest("url hostname could not be resolved");
+    }
+    finally {
+        if (timeout)
+            clearTimeout(timeout);
+    }
+}
+async function resolveInviteResolutionTarget(url) {
+    const hostname = hostnameForResolution(url);
+    const results = await lookupInviteResolutionHostname(hostname);
+    if (results.length === 0) {
+        throw badRequest("url hostname did not resolve to any addresses");
+    }
+    const resolvedAddresses = results.map((result) => result.address);
+    const unsafeAddress = resolvedAddresses.find((address) => !isPublicIpAddress(address));
+    if (unsafeAddress) {
+        throw badRequest("url resolves to a private, local, multicast, or reserved address");
+    }
+    return {
+        url,
+        resolvedAddress: resolvedAddresses[0],
+        resolvedAddresses,
+        hostHeader: url.host,
+        tlsServername: url.protocol === "https:" && isIP(hostname) === 0
+            ? hostname
+            : undefined
+    };
+}
+async function probeInviteResolutionTarget(target, timeoutMs) {
+    const startedAt = Date.now();
+    try {
+        const response = await inviteResolutionNetwork.requestHead(target, timeoutMs);
         const durationMs = Date.now() - startedAt;
-        if (response.ok ||
-            response.status === 401 ||
-            response.status === 403 ||
-            response.status === 404 ||
-            response.status === 405 ||
-            response.status === 422 ||
-            response.status === 500 ||
-            response.status === 501) {
+        if (response.httpStatus !== null &&
+            ((response.httpStatus >= 200 && response.httpStatus < 300) ||
+                response.httpStatus === 401 ||
+                response.httpStatus === 403 ||
+                response.httpStatus === 404 ||
+                response.httpStatus === 405 ||
+                response.httpStatus === 422 ||
+                response.httpStatus === 500 ||
+                response.httpStatus === 501)) {
             return {
                 status: "reachable",
                 method: "HEAD",
                 durationMs,
-                httpStatus: response.status,
-                message: `Webhook endpoint responded to HEAD with HTTP ${response.status}.`
+                httpStatus: response.httpStatus,
+                message: `Webhook endpoint responded to HEAD with HTTP ${response.httpStatus}.`
             };
         }
         return {
             status: "unreachable",
             method: "HEAD",
             durationMs,
-            httpStatus: response.status,
-            message: `Webhook endpoint probe returned HTTP ${response.status}.`
+            httpStatus: response.httpStatus,
+            message: response.httpStatus === null
+                ? "Webhook endpoint probe did not return an HTTP status."
+                : `Webhook endpoint probe returned HTTP ${response.httpStatus}.`
         };
     }
     catch (error) {
@@ -1224,9 +1420,6 @@ async function probeInviteResolutionTarget(url, timeoutMs) {
                 ? error.message
                 : "Webhook endpoint probe failed."
         };
-    }
-    finally {
-        clearTimeout(timeout);
     }
 }
 export function accessRoutes(db, opts) {
@@ -1729,7 +1922,8 @@ export function accessRoutes(db, opts) {
         const timeoutMs = Number.isFinite(parsedTimeoutMs)
             ? Math.max(1000, Math.min(15000, Math.floor(parsedTimeoutMs)))
             : 5000;
-        const probe = await probeInviteResolutionTarget(target, timeoutMs);
+        const resolvedTarget = await resolveInviteResolutionTarget(target);
+        const probe = await probeInviteResolutionTarget(resolvedTarget, timeoutMs);
         res.json({
             inviteId: invite.id,
             testResolutionPath: `/api/invites/${token}/test-resolution`,

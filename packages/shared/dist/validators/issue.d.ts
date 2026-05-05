@@ -338,7 +338,7 @@ export declare const createIssueSchema: z.ZodObject<{
     inheritExecutionWorkspaceFromIssueId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     title: z.ZodString;
     description: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    status: z.ZodDefault<z.ZodOptional<z.ZodEnum<["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled"]>>>;
+    status: z.ZodDefault<z.ZodOptional<z.ZodEnum<["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled", "awaiting_clarification"]>>>;
     priority: z.ZodDefault<z.ZodOptional<z.ZodEnum<["critical", "high", "medium", "low"]>>>;
     assigneeAgentId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     assigneeUserId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
@@ -490,7 +490,7 @@ export declare const createIssueSchema: z.ZodObject<{
     }>>>;
     labelIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    status: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled";
+    status: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification";
     title: string;
     priority: "critical" | "high" | "medium" | "low";
     requestDepth: number;
@@ -540,7 +540,7 @@ export declare const createIssueSchema: z.ZodObject<{
     labelIds?: string[] | undefined;
 }, {
     title: string;
-    status?: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | undefined;
+    status?: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification" | undefined;
     description?: string | null | undefined;
     projectId?: string | null | undefined;
     projectWorkspaceId?: string | null | undefined;
@@ -609,7 +609,7 @@ export declare const updateIssueSchema: z.ZodObject<{
     inheritExecutionWorkspaceFromIssueId: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
     title: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
-    status: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodEnum<["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled"]>>>>;
+    status: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodEnum<["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled", "awaiting_clarification"]>>>>;
     priority: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodEnum<["critical", "high", "medium", "low"]>>>>;
     assigneeUserId: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
     requestDepth: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodNumber>>>;
@@ -767,7 +767,7 @@ export declare const updateIssueSchema: z.ZodObject<{
     hiddenAt: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
     comment?: string | undefined;
-    status?: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | undefined;
+    status?: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification" | undefined;
     description?: string | null | undefined;
     title?: string | undefined;
     projectId?: string | null | undefined;
@@ -820,7 +820,7 @@ export declare const updateIssueSchema: z.ZodObject<{
     hiddenAt?: string | null | undefined;
 }, {
     comment?: string | undefined;
-    status?: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | undefined;
+    status?: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification" | undefined;
     description?: string | null | undefined;
     title?: string | undefined;
     projectId?: string | null | undefined;
@@ -876,13 +876,13 @@ export type UpdateIssue = z.infer<typeof updateIssueSchema>;
 export type IssueExecutionWorkspaceSettings = z.infer<typeof issueExecutionWorkspaceSettingsSchema>;
 export declare const checkoutIssueSchema: z.ZodObject<{
     agentId: z.ZodString;
-    expectedStatuses: z.ZodArray<z.ZodEnum<["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled"]>, "atleastone">;
+    expectedStatuses: z.ZodArray<z.ZodEnum<["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled", "awaiting_clarification"]>, "atleastone">;
 }, "strip", z.ZodTypeAny, {
     agentId: string;
-    expectedStatuses: ["backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled", ...("backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled")[]];
+    expectedStatuses: ["backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification", ...("backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification")[]];
 }, {
     agentId: string;
-    expectedStatuses: ["backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled", ...("backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled")[]];
+    expectedStatuses: ["backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification", ...("backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification")[]];
 }>;
 export type CheckoutIssue = z.infer<typeof checkoutIssueSchema>;
 export declare const addIssueCommentSchema: z.ZodObject<{

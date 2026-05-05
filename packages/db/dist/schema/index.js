@@ -22,6 +22,8 @@ export { agentWakeupRequests } from "./agent_wakeup_requests.js";
 export { projects } from "./projects.js";
 export { projectWorkspaces } from "./project_workspaces.js";
 export { executionWorkspaces } from "./execution_workspaces.js";
+export { environments } from "./environments.js";
+export { environmentLeases } from "./environment_leases.js";
 export { workspaceOperations } from "./workspace_operations.js";
 export { workspaceRuntimeServices } from "./workspace_runtime_services.js";
 export { projectGoals } from "./project_goals.js";
@@ -66,8 +68,8 @@ export { pluginLogs } from "./plugin_logs.js";
 // Singular.blue M2: context assembly
 export { companyDna } from "./company_dna.js";
 export { memoryEntries } from "./memory_entries.js";
-// Singular.blue M4: integration hub
-export { integrations, agentIntegrationPermissions, webhookEvents, toolCallLog, } from "./integrations.js";
+// Singular.blue M4: integration hub + G4: inbound webhooks
+export { integrations, agentIntegrationPermissions, webhookEndpoints, webhookEvents, toolCallLog, } from "./integrations.js";
 export { qualityGates, gateViolations, auditEntries, damageControlEvents, } from "./gates.js";
 export { costRecords } from "./cost_records.js";
 // Singular.blue M8: org memory (pgvector) + contact entity foundation

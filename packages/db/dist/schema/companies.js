@@ -33,6 +33,9 @@ export const companies = pgTable("companies", {
     // Singular.blue: Stripe identifiers
     stripeCustomerId: text("stripe_customer_id"),
     stripeSubId: text("stripe_sub_id"),
+    // Singular.blue: i18n — BCP-47 locale tag + IANA timezone
+    locale: text("locale").notNull().default("fr"),
+    timezone: text("timezone").notNull().default("Europe/Paris"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({

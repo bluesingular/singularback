@@ -6,7 +6,9 @@
  * - Installing external adapters from npm packages or local paths
  * - Unregistering external adapters
  *
- * All routes require board-level authentication (assertBoard middleware).
+ * Read-only routes require board org access. Mutating adapter management
+ * routes require instance-admin access because they can install, reload, or
+ * toggle server-side adapter code for the whole Paperclip instance.
  *
  * @module server/routes/adapters
  */

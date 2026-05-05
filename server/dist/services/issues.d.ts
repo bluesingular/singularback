@@ -66,6 +66,7 @@ export declare function deriveIssueUserContext(issue: IssueUserContextInput, use
     isUnreadForMe: boolean;
 };
 export declare function issueService(db: Db): {
+    clearExecutionRunIfTerminal: (issueId: string) => Promise<boolean>;
     list: (companyId: string, filters?: IssueFilters) => Promise<IssueWithLabelsAndRun[]>;
     countUnreadTouchedByUser: (companyId: string, userId: string, status?: string) => Promise<number>;
     markRead: (companyId: string, issueId: string, userId: string, readAt?: Date) => Promise<{
@@ -162,15 +163,18 @@ export declare function issueService(db: Db): {
         status: string;
         assigneeAgentId: string | null;
         checkoutRunId: string | null;
-    } | {
-        adoptedFromRunId: string;
-        id: string;
-        status: string;
-        assigneeAgentId: string | null;
-        checkoutRunId: string | null;
         executionRunId: string | null;
     }>;
     release: (id: string, actorAgentId?: string, actorRunId?: string | null) => Promise<IssueWithLabels | null>;
+    adminForceRelease: (id: string, options?: {
+        clearAssignee?: boolean;
+    }) => Promise<{
+        issue: IssueWithLabels;
+        previous: {
+            checkoutRunId: string | null;
+            executionRunId: string | null;
+        };
+    } | null>;
     listLabels: (companyId: string) => Omit<import("drizzle-orm/pg-core").PgSelectBase<"labels", {
         id: import("drizzle-orm/pg-core").PgColumn<{
             name: "id";

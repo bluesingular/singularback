@@ -100,6 +100,7 @@ export const ISSUE_STATUSES = [
     "done",
     "blocked",
     "cancelled",
+    "awaiting_clarification",
 ];
 export const INBOX_MINE_ISSUE_STATUSES = [
     "backlog",
@@ -270,14 +271,59 @@ export const INVITE_JOIN_TYPES = ["human", "agent", "both"];
 export const JOIN_REQUEST_TYPES = ["human", "agent"];
 export const JOIN_REQUEST_STATUSES = ["pending_approval", "approved", "rejected"];
 export const PERMISSION_KEYS = [
-    "agents:create",
-    "users:invite",
-    "users:manage_permissions",
+    // Task actions
+    "tasks:approve",
     "tasks:assign",
     "tasks:assign_scope",
     "tasks:manage_active_checkouts",
+    // Agent management
+    "agents:create",
+    // Pack management
+    "packs:install",
+    // User management
+    "users:invite",
+    "users:manage_permissions",
     "joins:approve",
+    // Trust & intelligence
+    "trust:manage",
+    "intelligence:dismiss",
+    // Company-level (owner only)
+    "billing:manage",
+    "company:delete",
 ];
+// ── G3: Company roles ─────────────────────────────────────────────────────────
+export const COMPANY_ROLES = ["owner", "admin", "operator", "viewer", "api"];
+/**
+ * Default permissions granted by role.
+ * Individual grants in principal_permission_grants can extend these.
+ * Owner inherits all. Hierarchy: owner > admin > operator > viewer; api ≈ operator.
+ */
+export const ROLE_PERMISSIONS = {
+    owner: [
+        "tasks:approve", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts",
+        "agents:create", "packs:install",
+        "users:invite", "users:manage_permissions", "joins:approve",
+        "trust:manage", "intelligence:dismiss",
+        "billing:manage", "company:delete",
+    ],
+    admin: [
+        "tasks:approve", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts",
+        "agents:create", "packs:install",
+        "users:invite", "users:manage_permissions", "joins:approve",
+        "trust:manage", "intelligence:dismiss",
+    ],
+    operator: [
+        "tasks:approve", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts",
+        "trust:manage", "intelligence:dismiss",
+    ],
+    viewer: [
+        "intelligence:dismiss",
+    ],
+    api: [
+        "tasks:approve", "tasks:assign", "tasks:manage_active_checkouts",
+        "intelligence:dismiss",
+    ],
+};
 // ---------------------------------------------------------------------------
 // Plugin System — see doc/plugins/PLUGIN_SPEC.md for the full specification
 // ---------------------------------------------------------------------------

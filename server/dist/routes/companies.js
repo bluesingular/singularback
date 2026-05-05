@@ -131,7 +131,7 @@ export function companyRoutes(db, storage) {
     });
     router.post("/:companyId/export", validate(companyPortabilityExportSchema), async (req, res) => {
         const companyId = req.params.companyId;
-        assertCompanyAccess(req, companyId);
+        await assertCanManagePortability(req, companyId, "exports");
         const result = await portability.exportBundle(companyId, req.body);
         res.json(result);
     });

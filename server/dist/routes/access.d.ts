@@ -52,6 +52,25 @@ type JoinRequestManagerCandidate = {
     reportsTo: string | null;
 };
 export declare function resolveJoinRequestAgentManagerId(candidates: JoinRequestManagerCandidate[]): string | null;
+type InviteResolutionLookupResult = {
+    address: string;
+    family?: number;
+};
+type ResolvedInviteResolutionTarget = {
+    url: URL;
+    resolvedAddress: string;
+    resolvedAddresses: string[];
+    hostHeader: string;
+    tlsServername?: string;
+};
+type InviteResolutionHeadResponse = {
+    httpStatus: number | null;
+};
+type InviteResolutionNetwork = {
+    lookup(hostname: string): Promise<InviteResolutionLookupResult[]>;
+    requestHead(target: ResolvedInviteResolutionTarget, timeoutMs: number): Promise<InviteResolutionHeadResponse>;
+};
+export declare function setInviteResolutionNetworkForTest(network: Partial<InviteResolutionNetwork> | null): void;
 export declare function accessRoutes(db: Db, opts: {
     deploymentMode: DeploymentMode;
     deploymentExposure: DeploymentExposure;

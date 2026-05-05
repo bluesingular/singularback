@@ -21,6 +21,7 @@ import { maybePersistWorktreeRuntimePorts } from "./worktree-config.js";
 import { initTelemetry, getTelemetryClient } from "./telemetry.js";
 import { bootstrapScheduler, shutdownScheduler } from "./queue/scheduler.js";
 import "./workers/index.js"; // Start BullMQ workers
+import { initActivationCheckWorker } from "./workers/activationCheck.worker.js";
 export async function startServer() {
     let config = loadConfig();
     initTelemetry({ enabled: config.telemetryEnabled });
@@ -467,10 +468,12 @@ export async function startServer() {
         });
         // M1: BullMQ replaces setInterval polling. bootstrapScheduler seeds
         // per-agent heartbeat jobs and monthly cost reset schedules.
-        // Workers (heartbeat.worker.ts) re-schedule after each execution.
+        // BullMQ workers re-schedule after each execution.
         void bootstrapScheduler(db).catch((err) => {
             logger.error({ err }, "BullMQ scheduler bootstrap failed");
         });
+        // M12/M11: Start activation sequence worker (needs db instance)
+        initActivationCheckWorker(db);
         // Routine scheduler still uses setInterval for now — will be migrated
         // to BullMQ cron jobs in a future module.
         setInterval(() => {

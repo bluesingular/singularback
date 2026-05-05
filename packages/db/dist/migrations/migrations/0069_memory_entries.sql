@@ -1,0 +1,40 @@
+DO $$ BEGIN
+  CREATE EXTENSION IF NOT EXISTS vector;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'pgvector not available (embedded-postgres?); skipping. Semantic search will be disabled.';
+END $$;
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "memory_entries" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"company_id" uuid NOT NULL,
+	"agent_id" uuid,
+	"title" text NOT NULL,
+	"content" text NOT NULL,
+	"importance" integer DEFAULT 3 NOT NULL,
+	"archived" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "memory_entries" ADD COLUMN "embedding" vector(1024);
+EXCEPTION WHEN duplicate_column THEN
+  NULL;
+WHEN OTHERS THEN
+  RAISE NOTICE 'vector type not available; embedding column skipped.';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "memory_entries" ADD CONSTRAINT "memory_entries_company_id_companies_id_fk" FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "memory_entries" ADD CONSTRAINT "memory_entries_agent_id_agents_id_fk" FOREIGN KEY ("agent_id") REFERENCES "public"."agents"("id") ON DELETE set null ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "memory_entries_company_idx" ON "memory_entries" USING btree ("company_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "memory_entries_agent_idx" ON "memory_entries" USING btree ("agent_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "memory_entries_company_archived_idx" ON "memory_entries" USING btree ("company_id","archived");--> statement-breakpoint
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS "memory_entries_embedding_idx" ON "memory_entries" USING ivfflat ("embedding" vector_cosine_ops) WITH (lists = 100);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'ivfflat index skipped (no pgvector).';
+END $$;

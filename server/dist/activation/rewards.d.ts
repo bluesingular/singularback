@@ -7,10 +7,9 @@
  * into the task thread. The message varies by:
  *   - Current approval streak (milestone messages at multiples of 10)
  *   - Rating quality (5★ = enthusiastic, 4★ = positive, 3★ = neutral)
+ *   - Company locale (fr | en)
  *
- * Messages are in French (RULE 9 — EMOTIONAL_LAYER.md section 7).
- * This file contains the message selection logic; actual delivery is via
- * the SSE layer (M15) or task thread endpoint.
+ * Messages are sourced from EMOTIONAL_LAYER.md §7.
  */
 export interface MicroRewardContext {
     /** Star rating just submitted: 1–5 */
@@ -19,6 +18,8 @@ export interface MicroRewardContext {
     approvalStreak: number;
     /** Agent display name */
     agentName: string;
+    /** Company locale — defaults to 'fr' */
+    locale?: string;
 }
 export interface MicroReward {
     message: string;

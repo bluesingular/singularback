@@ -104,23 +104,23 @@ export declare const resolveCliAuthChallengeSchema: z.ZodObject<{
 export type ResolveCliAuthChallenge = z.infer<typeof resolveCliAuthChallengeSchema>;
 export declare const updateMemberPermissionsSchema: z.ZodObject<{
     grants: z.ZodArray<z.ZodObject<{
-        permissionKey: z.ZodEnum<["agents:create", "users:invite", "users:manage_permissions", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts", "joins:approve"]>;
+        permissionKey: z.ZodEnum<["tasks:approve", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts", "agents:create", "packs:install", "users:invite", "users:manage_permissions", "joins:approve", "trust:manage", "intelligence:dismiss", "billing:manage", "company:delete"]>;
         scope: z.ZodNullable<z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
     }, "strip", z.ZodTypeAny, {
-        permissionKey: "agents:create" | "users:invite" | "users:manage_permissions" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "joins:approve";
+        permissionKey: "tasks:approve" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "agents:create" | "packs:install" | "users:invite" | "users:manage_permissions" | "joins:approve" | "trust:manage" | "intelligence:dismiss" | "billing:manage" | "company:delete";
         scope?: Record<string, unknown> | null | undefined;
     }, {
-        permissionKey: "agents:create" | "users:invite" | "users:manage_permissions" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "joins:approve";
+        permissionKey: "tasks:approve" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "agents:create" | "packs:install" | "users:invite" | "users:manage_permissions" | "joins:approve" | "trust:manage" | "intelligence:dismiss" | "billing:manage" | "company:delete";
         scope?: Record<string, unknown> | null | undefined;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     grants: {
-        permissionKey: "agents:create" | "users:invite" | "users:manage_permissions" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "joins:approve";
+        permissionKey: "tasks:approve" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "agents:create" | "packs:install" | "users:invite" | "users:manage_permissions" | "joins:approve" | "trust:manage" | "intelligence:dismiss" | "billing:manage" | "company:delete";
         scope?: Record<string, unknown> | null | undefined;
     }[];
 }, {
     grants: {
-        permissionKey: "agents:create" | "users:invite" | "users:manage_permissions" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "joins:approve";
+        permissionKey: "tasks:approve" | "tasks:assign" | "tasks:assign_scope" | "tasks:manage_active_checkouts" | "agents:create" | "packs:install" | "users:invite" | "users:manage_permissions" | "joins:approve" | "trust:manage" | "intelligence:dismiss" | "billing:manage" | "company:delete";
         scope?: Record<string, unknown> | null | undefined;
     }[];
 }>;

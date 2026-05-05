@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import multer from "multer";
 import { z } from "zod";
-import { issueExecutionDecisions } from "@paperclipai/db";
+import { issueExecutionDecisions, trustScores } from "@paperclipai/db";
+import { eq, and } from "drizzle-orm";
 import { addIssueCommentSchema, createIssueAttachmentMetadataSchema, createIssueWorkProductSchema, createIssueLabelSchema, checkoutIssueSchema, createIssueSchema, feedbackTargetTypeSchema, feedbackTraceStatusSchema, feedbackVoteValueSchema, upsertIssueFeedbackVoteSchema, linkIssueApprovalSchema, issueDocumentKeySchema, restoreIssueDocumentRevisionSchema, updateIssueWorkProductSchema, upsertIssueDocumentSchema, updateIssueSchema, getClosedIsolatedExecutionWorkspaceMessage, isClosedIsolatedExecutionWorkspace, } from "@paperclipai/shared";
 import { trackAgentTaskCompleted } from "@paperclipai/shared/telemetry";
 import { getTelemetryClient } from "../telemetry.js";
@@ -16,6 +17,8 @@ import { shouldWakeAssigneeOnCheckout } from "./issues-checkout-wakeup.js";
 import { isInlineAttachmentContentType, MAX_ATTACHMENT_BYTES, normalizeContentType, SVG_CONTENT_TYPE, } from "../attachment-types.js";
 import { queueIssueAssignmentWakeup } from "../services/issue-assignment-wakeup.js";
 import { applyIssueExecutionPolicyTransition, normalizeIssueExecutionPolicy, parseIssueExecutionState, } from "../services/issue-execution-policy.js";
+import { evaluateHandoffs } from "../handoff/service.js";
+import { recordApproval } from "../trust/service.js";
 const MAX_ISSUE_COMMENT_LIMIT = 500;
 const updateIssueRouteSchema = updateIssueSchema.extend({
     interrupt: z.boolean().optional(),
@@ -278,7 +281,31 @@ export function issueRoutes(db, storage, opts) {
         res.status(401).json({ error: "Agent run id required" });
         return null;
     }
-    async function assertAgentRunCheckoutOwnership(req, res, issue) {
+    async function hasActiveCheckoutManagementOverride(actorAgentId, companyId, assigneeAgentId) {
+        const allowedByGrant = await access.hasPermission(companyId, "agent", actorAgentId, "tasks:manage_active_checkouts");
+        if (allowedByGrant)
+            return true;
+        const companyAgents = await agentsSvc.list(companyId);
+        const agentsById = new Map(companyAgents.map((agent) => [agent.id, agent]));
+        const actorAgent = agentsById.get(actorAgentId);
+        if (!actorAgent)
+            return false;
+        if (canCreateAgentsLegacy(actorAgent))
+            return true;
+        // Reporting-chain managers may intervene in an agent's active checkout
+        // without taking the task over. Peers must own the checkout/run first.
+        let cursor = assigneeAgentId;
+        for (let depth = 0; cursor && depth < 50; depth += 1) {
+            const assignee = agentsById.get(cursor);
+            if (!assignee)
+                return false;
+            if (assignee.reportsTo === actorAgentId)
+                return true;
+            cursor = assignee.reportsTo;
+        }
+        return false;
+    }
+    async function assertAgentIssueMutationAllowed(req, res, issue) {
         if (req.actor.type !== "agent")
             return true;
         const actorAgentId = req.actor.agentId;
@@ -286,8 +313,22 @@ export function issueRoutes(db, storage, opts) {
             res.status(403).json({ error: "Agent authentication required" });
             return false;
         }
-        if (issue.status !== "in_progress" || issue.assigneeAgentId !== actorAgentId) {
+        if (issue.status !== "in_progress" || issue.assigneeAgentId === null) {
             return true;
+        }
+        if (issue.assigneeAgentId !== actorAgentId) {
+            if (await hasActiveCheckoutManagementOverride(actorAgentId, issue.companyId, issue.assigneeAgentId)) {
+                return true;
+            }
+            res.status(409).json({
+                error: "Issue is checked out by another agent",
+                details: {
+                    issueId: issue.id,
+                    assigneeAgentId: issue.assigneeAgentId,
+                    actorAgentId,
+                },
+            });
+            return false;
         }
         const runId = requireAgentRunId(req, res);
         if (!runId)
@@ -542,42 +583,6 @@ export function issueRoutes(db, storage, opts) {
         });
         res.json(removed);
     });
-    router.get("/issues/:id", async (req, res) => {
-        const id = req.params.id;
-        const issue = await svc.getById(id);
-        if (!issue) {
-            res.status(404).json({ error: "Issue not found" });
-            return;
-        }
-        assertCompanyAccess(req, issue.companyId);
-        const [{ project, goal }, ancestors, mentionedProjectIds, documentPayload, relations] = await Promise.all([
-            resolveIssueProjectAndGoal(issue),
-            svc.getAncestors(issue.id),
-            svc.findMentionedProjectIds(issue.id, { includeCommentBodies: false }),
-            documentsSvc.getIssueDocumentPayload(issue),
-            svc.getRelationSummaries(issue.id),
-        ]);
-        const mentionedProjects = mentionedProjectIds.length > 0
-            ? await projectsSvc.listByIds(issue.companyId, mentionedProjectIds)
-            : [];
-        const currentExecutionWorkspace = issue.executionWorkspaceId
-            ? await executionWorkspacesSvc.getById(issue.executionWorkspaceId)
-            : null;
-        const workProducts = await workProductsSvc.listForIssue(issue.id);
-        res.json({
-            ...issue,
-            goalId: goal?.id ?? issue.goalId,
-            ancestors,
-            blockedBy: relations.blockedBy,
-            blocks: relations.blocks,
-            ...documentPayload,
-            project: project ?? null,
-            goal: goal ?? null,
-            mentionedProjects,
-            currentExecutionWorkspace,
-            workProducts,
-        });
-    });
     router.get("/issues/:id/heartbeat-context", async (req, res) => {
         const id = req.params.id;
         const issue = await svc.getById(id);
@@ -652,6 +657,42 @@ export function issueRoutes(db, storage, opts) {
             })),
         });
     });
+    router.get("/issues/:id", async (req, res) => {
+        const id = req.params.id;
+        const issue = await svc.getById(id);
+        if (!issue) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        assertCompanyAccess(req, issue.companyId);
+        const [{ project, goal }, ancestors, mentionedProjectIds, documentPayload, relations] = await Promise.all([
+            resolveIssueProjectAndGoal(issue),
+            svc.getAncestors(issue.id),
+            svc.findMentionedProjectIds(issue.id, { includeCommentBodies: false }),
+            documentsSvc.getIssueDocumentPayload(issue),
+            svc.getRelationSummaries(issue.id),
+        ]);
+        const mentionedProjects = mentionedProjectIds.length > 0
+            ? await projectsSvc.listByIds(issue.companyId, mentionedProjectIds)
+            : [];
+        const currentExecutionWorkspace = issue.executionWorkspaceId
+            ? await executionWorkspacesSvc.getById(issue.executionWorkspaceId)
+            : null;
+        const workProducts = await workProductsSvc.listForIssue(issue.id);
+        res.json({
+            ...issue,
+            goalId: goal?.id ?? issue.goalId,
+            ancestors,
+            blockedBy: relations.blockedBy,
+            blocks: relations.blocks,
+            ...documentPayload,
+            project: project ?? null,
+            goal: goal ?? null,
+            mentionedProjects,
+            currentExecutionWorkspace,
+            workProducts,
+        });
+    });
     router.get("/issues/:id/work-products", async (req, res) => {
         const id = req.params.id;
         const issue = await svc.getById(id);
@@ -702,6 +743,8 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, issue.companyId);
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         const keyParsed = issueDocumentKeySchema.safeParse(String(req.params.key ?? "").trim().toLowerCase());
         if (!keyParsed.success) {
             res.status(400).json({ error: "Invalid document key", details: keyParsed.error.issues });
@@ -765,6 +808,8 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, issue.companyId);
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         const keyParsed = issueDocumentKeySchema.safeParse(String(req.params.key ?? "").trim().toLowerCase());
         if (!keyParsed.success) {
             res.status(400).json({ error: "Invalid document key", details: keyParsed.error.issues });
@@ -847,6 +892,8 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, issue.companyId);
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         const product = await workProductsSvc.createForIssue(issue.id, issue.companyId, {
             ...req.body,
             projectId: req.body.projectId ?? issue.projectId ?? null,
@@ -877,6 +924,13 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, existing.companyId);
+        const issue = await svc.getById(existing.issueId);
+        if (!issue) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         const product = await workProductsSvc.update(id, req.body);
         if (!product) {
             res.status(404).json({ error: "Work product not found" });
@@ -904,6 +958,13 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, existing.companyId);
+        const issue = await svc.getById(existing.issueId);
+        if (!issue) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         const removed = await workProductsSvc.remove(id);
         if (!removed) {
             res.status(404).json({ error: "Work product not found" });
@@ -1065,6 +1126,9 @@ export function issueRoutes(db, storage, opts) {
             res.status(404).json({ error: "Issue not found" });
             return;
         }
+        assertCompanyAccess(req, issue.companyId);
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         if (!(await assertCanManageIssueApprovalLinks(req, res, issue.companyId)))
             return;
         const actor = getActorInfo(req);
@@ -1094,6 +1158,9 @@ export function issueRoutes(db, storage, opts) {
             res.status(404).json({ error: "Issue not found" });
             return;
         }
+        assertCompanyAccess(req, issue.companyId);
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         if (!(await assertCanManageIssueApprovalLinks(req, res, issue.companyId)))
             return;
         await issueApprovalsSvc.unlink(id, approvalId);
@@ -1161,7 +1228,7 @@ export function issueRoutes(db, storage, opts) {
         }
         assertCompanyAccess(req, existing.companyId);
         assertNoAgentHostWorkspaceCommandMutation(req, collectIssueWorkspaceCommandPaths(req.body));
-        if (!(await assertAgentRunCheckoutOwnership(req, res, existing)))
+        if (!(await assertAgentIssueMutationAllowed(req, res, existing)))
             return;
         const actor = getActorInfo(req);
         const isClosed = isClosedIssueStatus(existing.status);
@@ -1693,6 +1760,8 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, existing.companyId);
+        if (!(await assertAgentIssueMutationAllowed(req, res, existing)))
+            return;
         const attachments = await svc.listAttachments(id);
         const issue = await svc.remove(id);
         if (!issue) {
@@ -1792,7 +1861,7 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, existing.companyId);
-        if (!(await assertAgentRunCheckoutOwnership(req, res, existing)))
+        if (!(await assertAgentIssueMutationAllowed(req, res, existing)))
             return;
         const actorRunId = requireAgentRunId(req, res);
         if (req.actor.type === "agent" && !actorRunId)
@@ -1869,7 +1938,7 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, issue.companyId);
-        if (!(await assertAgentRunCheckoutOwnership(req, res, issue)))
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
             return;
         const comment = await svc.getComment(commentId);
         if (!comment || comment.issueId !== id) {
@@ -1999,7 +2068,7 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, issue.companyId);
-        if (!(await assertAgentRunCheckoutOwnership(req, res, issue)))
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
             return;
         const closedExecutionWorkspace = await getClosedIssueExecutionWorkspace(issue);
         if (closedExecutionWorkspace) {
@@ -2307,6 +2376,8 @@ export function issueRoutes(db, storage, opts) {
             res.status(422).json({ error: "Issue does not belong to company" });
             return;
         }
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         try {
             await runSingleFileUpload(req, res);
         }
@@ -2407,6 +2478,13 @@ export function issueRoutes(db, storage, opts) {
             return;
         }
         assertCompanyAccess(req, attachment.companyId);
+        const issue = await svc.getById(attachment.issueId);
+        if (!issue) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        if (!(await assertAgentIssueMutationAllowed(req, res, issue)))
+            return;
         try {
             await storage.deleteObject(attachment.companyId, attachment.objectKey);
         }
@@ -2433,6 +2511,140 @@ export function issueRoutes(db, storage, opts) {
             },
         });
         res.json({ ok: true });
+    });
+    router.post("/issues/:id/admin/force-release", async (req, res) => {
+        if (req.actor.type !== "board") {
+            res.status(403).json({ error: "Board access required" });
+            return;
+        }
+        if (!req.actor.userId) {
+            throw forbidden("Board user context required");
+        }
+        const id = req.params.id;
+        const existing = await svc.getById(id);
+        if (!existing) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        assertCompanyAccess(req, existing.companyId);
+        const clearAssignee = req.query.clearAssignee === "true";
+        const result = await svc.adminForceRelease(id, { clearAssignee });
+        if (!result) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        const actor = getActorInfo(req);
+        await logActivity(db, {
+            companyId: result.issue.companyId,
+            actorType: actor.actorType,
+            actorId: actor.actorId,
+            agentId: actor.agentId,
+            runId: actor.runId,
+            action: "issue.admin_force_release",
+            entityType: "issue",
+            entityId: result.issue.id,
+            details: {
+                issueId: result.issue.id,
+                actorUserId: req.actor.userId,
+                prevCheckoutRunId: result.previous.checkoutRunId,
+                prevExecutionRunId: result.previous.executionRunId,
+                clearAssignee,
+            },
+        });
+        res.json(result);
+    });
+    // POST /issues/:id/rate
+    // Board operator rates a completed task (1–5 stars). Triggers handoff evaluation:
+    // if the completing agent has a handoff condition that matches the rating, a
+    // follow-on task is created for the target agent automatically.
+    router.post("/issues/:id/rate", async (req, res) => {
+        if (req.actor.type !== "board") {
+            res.status(403).json({ error: "Board access required" });
+            return;
+        }
+        const id = req.params.id;
+        const issue = await svc.getById(id);
+        if (!issue) {
+            res.status(404).json({ error: "Issue not found" });
+            return;
+        }
+        assertCompanyAccess(req, issue.companyId);
+        const rating = Number(req.body.rating);
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            res.status(400).json({ error: "rating must be an integer between 1 and 5" });
+            return;
+        }
+        const variables = typeof req.body.variables === "object"
+            ? req.body.variables
+            : {};
+        const actor = getActorInfo(req);
+        await logActivity(db, {
+            companyId: issue.companyId,
+            actorType: actor.actorType,
+            actorId: actor.actorId,
+            agentId: actor.agentId,
+            runId: actor.runId,
+            action: "issue.rated",
+            entityType: "issue",
+            entityId: issue.id,
+            details: { rating, issueId: issue.id, agentId: issue.assigneeAgentId },
+        });
+        let handoffResult = { triggered: false, handoffCount: 0, issueIds: [] };
+        if (issue.assigneeAgentId) {
+            handoffResult = await evaluateHandoffs(db, {
+                companyId: issue.companyId,
+                issueId: issue.id,
+                agentId: issue.assigneeAgentId,
+                rating,
+                variables,
+            });
+        }
+        // ── Trust calibration (M9) ─────────────────────────────────────────────
+        // Record this rating in the trust streak counter.  skillType comes from
+        // issue metadata when available; falls back to "general" so the score row
+        // always exists.  skillAutonomyTier defaults to "A" (safe: always requires
+        // human approval to upgrade) unless the issue carries explicit metadata.
+        let trustResult = null;
+        if (issue.assigneeAgentId) {
+            const agentId = issue.assigneeAgentId;
+            const skillType = issue.metadata?.skillType ??
+                issue.skillType ??
+                "general";
+            const skillAutonomyTier = issue.metadata?.skillAutonomyTier === "B" ? "B" : "A";
+            // Load existing trust_scores row (if any) for streak / level continuity
+            const [existing] = await db
+                .select()
+                .from(trustScores)
+                .where(and(eq(trustScores.agentId, agentId), eq(trustScores.skillType, skillType)))
+                .limit(1);
+            const currentStreak = existing?.approvalStreak ?? 0;
+            const currentLevel = (existing?.autonomyLevel ?? "building");
+            const taskCountWindow = (existing?.taskCountWindow ?? 0) + 1;
+            // Compute a simple rolling average: blend previous avg with new rating
+            const prevAvg = parseFloat(existing?.qualityRatingAvg ?? "0") || 0;
+            const prevCount = existing?.taskCountWindow ?? 0;
+            const qualityRatingAvg = prevCount > 0
+                ? (prevAvg * prevCount + rating) / taskCountWindow
+                : rating;
+            const gatePassRate = parseFloat(existing?.gatePassRate ?? "1") || 1;
+            const schemaPassRate = parseFloat(existing?.schemaPassRate ?? "1") || 1;
+            trustResult = await recordApproval(db, {
+                companyId: issue.companyId,
+                agentId,
+                skillType,
+                skillAutonomyTier,
+                rating,
+                gatePassed: true, // gate state not tracked per-issue yet; assume pass
+                schemaPassed: true,
+                qualityRatingAvg,
+                gatePassRate,
+                schemaPassRate,
+                taskCountWindow,
+                currentStreak,
+                currentLevel,
+            });
+        }
+        res.json({ ok: true, rating, handoff: handoffResult, trust: trustResult });
     });
     return router;
 }

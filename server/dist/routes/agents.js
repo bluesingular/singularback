@@ -1215,12 +1215,23 @@ export function agentRoutes(db) {
     });
     router.post("/companies/:companyId/agents", validate(createAgentSchema), async (req, res) => {
         const companyId = req.params.companyId;
-        assertCompanyAccess(req, companyId);
-        if (req.actor.type === "agent") {
-            assertBoard(req);
+        await assertCanCreateAgentsForCompany(req, companyId);
+        const company = await db
+            .select()
+            .from(companies)
+            .where(eq(companies.id, companyId))
+            .then((rows) => rows[0] ?? null);
+        if (!company) {
+            res.status(404).json({ error: "Company not found" });
+            return;
+        }
+        if (company.requireBoardApprovalForNewAgents) {
+            throw conflict("Direct agent creation requires board approval. Use POST /api/companies/:companyId/agent-hires to create a pending hire approval.");
         }
         const { desiredSkills: requestedDesiredSkills, ...createInput } = req.body;
         createInput.adapterType = assertKnownAdapterType(createInput.adapterType);
+        assertNoAgentHostWorkspaceCommandMutation(req, collectAgentAdapterWorkspaceCommandPaths(createInput.adapterConfig));
+        assertNoAgentInstructionsConfigMutation(req, (createInput.adapterConfig ?? {}));
         const requestedAdapterConfig = applyCreateDefaultsByAdapterType(createInput.adapterType, (createInput.adapterConfig ?? {}));
         const desiredSkillAssignment = await resolveDesiredSkillAssignment(companyId, createInput.adapterType, requestedAdapterConfig, Array.isArray(requestedDesiredSkills) ? requestedDesiredSkills : undefined);
         const normalizedAdapterConfig = await secretsSvc.normalizeAdapterConfigForPersistence(companyId, desiredSkillAssignment.adapterConfig, { strictMode: strictSecretsMode });

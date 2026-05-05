@@ -43,6 +43,8 @@ export function companyContextMiddleware(db) {
                     companyId,
                     role: "manager", // agents act with manager-level scope
                     plan: normalisePlan(company.plan),
+                    locale: company.locale ?? "fr",
+                    timezone: company.timezone ?? "Europe/Paris",
                 };
                 next();
                 return;
@@ -88,6 +90,8 @@ export function companyContextMiddleware(db) {
                 companyId: membership.companyId,
                 role: normaliseRole(membership.role),
                 plan: normalisePlan(company.plan),
+                locale: company.locale ?? "fr",
+                timezone: company.timezone ?? "Europe/Paris",
             };
             next();
         }
@@ -148,7 +152,13 @@ export function normalisePlan(raw) {
 }
 async function fetchCompany(db, companyId) {
     return db
-        .select({ id: companies.id, plan: companies.plan, status: companies.status })
+        .select({
+        id: companies.id,
+        plan: companies.plan,
+        status: companies.status,
+        locale: companies.locale,
+        timezone: companies.timezone,
+    })
         .from(companies)
         .where(eq(companies.id, companyId))
         .then((rows) => rows[0] ?? null);

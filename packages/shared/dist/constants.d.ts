@@ -17,7 +17,7 @@ export type AgentRole = (typeof AGENT_ROLES)[number];
 export declare const AGENT_ROLE_LABELS: Record<AgentRole, string>;
 export declare const AGENT_ICON_NAMES: readonly ["bot", "cpu", "brain", "zap", "rocket", "code", "terminal", "shield", "eye", "search", "wrench", "hammer", "lightbulb", "sparkles", "star", "heart", "flame", "bug", "cog", "database", "globe", "lock", "mail", "message-square", "file-code", "git-branch", "package", "puzzle", "target", "wand", "atom", "circuit-board", "radar", "swords", "telescope", "microscope", "crown", "gem", "hexagon", "pentagon", "fingerprint"];
 export type AgentIconName = (typeof AGENT_ICON_NAMES)[number];
-export declare const ISSUE_STATUSES: readonly ["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled"];
+export declare const ISSUE_STATUSES: readonly ["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled", "awaiting_clarification"];
 export type IssueStatus = (typeof ISSUE_STATUSES)[number];
 export declare const INBOX_MINE_ISSUE_STATUSES: readonly ["backlog", "todo", "in_progress", "in_review", "blocked", "done"];
 export declare const INBOX_MINE_ISSUE_STATUS_FILTER: string;
@@ -122,8 +122,16 @@ export declare const JOIN_REQUEST_TYPES: readonly ["human", "agent"];
 export type JoinRequestType = (typeof JOIN_REQUEST_TYPES)[number];
 export declare const JOIN_REQUEST_STATUSES: readonly ["pending_approval", "approved", "rejected"];
 export type JoinRequestStatus = (typeof JOIN_REQUEST_STATUSES)[number];
-export declare const PERMISSION_KEYS: readonly ["agents:create", "users:invite", "users:manage_permissions", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts", "joins:approve"];
+export declare const PERMISSION_KEYS: readonly ["tasks:approve", "tasks:assign", "tasks:assign_scope", "tasks:manage_active_checkouts", "agents:create", "packs:install", "users:invite", "users:manage_permissions", "joins:approve", "trust:manage", "intelligence:dismiss", "billing:manage", "company:delete"];
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
+export declare const COMPANY_ROLES: readonly ["owner", "admin", "operator", "viewer", "api"];
+export type CompanyRole = (typeof COMPANY_ROLES)[number];
+/**
+ * Default permissions granted by role.
+ * Individual grants in principal_permission_grants can extend these.
+ * Owner inherits all. Hierarchy: owner > admin > operator > viewer; api ≈ operator.
+ */
+export declare const ROLE_PERMISSIONS: Record<CompanyRole, readonly PermissionKey[]>;
 /**
  * The current version of the Plugin API contract.
  *

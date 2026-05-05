@@ -102,7 +102,21 @@
       "Bash(pnpm test *)",
       "Bash(pnpm -w run test)",
       "Bash(rm /Users/luc/projects/singular/.git/index.lock)",
-      "Bash(pnpm --filter @paperclipai/db migrate)"
+      "Bash(pnpm --filter @paperclipai/db migrate)",
+      "Bash(pnpm --filter @paperclipai/db build)",
+      "Bash(pnpm --filter @paperclipai/shared build)",
+      "Bash(pnpm --filter @paperclipai/server build)",
+      "Bash(pnpm --filter @paperclipai/server exec tsc --noEmit)",
+      "Bash(pnpm --filter singular-ui exec tsc --noEmit)",
+      "Bash(git -C /Users/luc/projects/singular log --oneline -3 -- server/src/__tests__/company-skills-detail.test.ts)",
+      "Bash(pnpm --filter @paperclipai/server test --reporter=verbose singular-g4-webhooks)",
+      "Bash(pnpm --filter @paperclipai/server exec vitest run --reporter=verbose src/__tests__/singular-g4-webhooks.test.ts)",
+      "Bash(pnpm --filter @paperclipai/server exec vitest run --reporter=verbose)",
+      "Bash(pnpm --filter @paperclipai/server exec vitest run --reporter=verbose src/__tests__/singular-g4-webhooks.test.ts src/__tests__/singular-g3-rbac.test.ts src/__tests__/singular-m3-llm-router.test.ts)",
+      "Bash(pnpm --filter @paperclipai/server exec vitest run --reporter=verbose src/__tests__/singular-g5-clarification.test.ts)",
+      "Bash(pnpm --filter @paperclipai/ui exec tsc --noEmit)",
+      "Bash(pnpm --filter @paperclipai/server test --reporter=verbose)",
+      "Bash(pnpm --filter @paperclipai/server test)"
     ]
   }
 }

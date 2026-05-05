@@ -20,6 +20,8 @@ export interface RequestContext {
     companyId: string;
     role: "owner" | "admin" | "manager" | "viewer";
     plan: "solo" | "growth" | "pro" | "enterprise";
+    locale: string;
+    timezone: string;
 }
 export declare function companyContextMiddleware(db: Db): RequestHandler;
 /**

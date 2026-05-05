@@ -51,4 +51,15 @@ export const SkillImprovementJobSchema = z.object({
 export const CostResetJobSchema = z.object({
     companyId: z.string().uuid(),
 });
+export const ActivationCheckJobSchema = z.object({
+    companyId: z.string().uuid(),
+    packSlug: z.string(),
+    triggerKey: z.enum([
+        "day_0_seed",
+        "day_2_first_task",
+        "day_4_milestone",
+        "day_6_relationship",
+        "day_7_summary",
+    ]),
+});
 //# sourceMappingURL=jobs.js.map

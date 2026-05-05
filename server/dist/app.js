@@ -27,6 +27,11 @@ import { sidebarBadgeRoutes } from "./routes/sidebar-badges.js";
 import { sidebarPreferenceRoutes } from "./routes/sidebar-preferences.js";
 import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
+import { consoleRoutes } from "./routes/console.js";
+import { trustRoutes } from "./routes/trust.js";
+import { intelligenceRoutes } from "./routes/intelligence.js";
+import { sseRoutes } from "./routes/sse.js";
+import { stripeWebhookRoutes } from "./routes/stripe-webhook.js";
 import { llmRoutes } from "./routes/llms.js";
 import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
@@ -172,6 +177,10 @@ export async function createApp(db, opts) {
     api.use(sidebarPreferenceRoutes(db));
     api.use(inboxDismissalRoutes(db));
     api.use(instanceSettingsRoutes(db));
+    api.use(consoleRoutes(db));
+    api.use(trustRoutes(db));
+    api.use(intelligenceRoutes(db));
+    api.use(sseRoutes(db));
     const hostServicesDisposers = new Map();
     const workerManager = createPluginWorkerManager();
     const pluginRegistry = pluginRegistryService(db);
@@ -237,6 +246,8 @@ export async function createApp(db, opts) {
     });
     // Inbound webhooks — unauthenticated (HMAC-verified per-event)
     app.use("/webhooks", webhookRoutes(db));
+    // Stripe billing webhook — HMAC-verified, raw body required
+    app.use("/billing/stripe", stripeWebhookRoutes(db));
     // Internal queue monitoring — protected by INTERNAL_AUTH_TOKEN
     app.use("/internal/queues", internalAuthMiddleware, bullBoardRouter);
     app.use(pluginUiStaticRoutes(db, {

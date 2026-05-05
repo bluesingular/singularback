@@ -27,7 +27,11 @@ export declare const updateCompanySchema: z.ZodObject<{
     feedbackDataSharingTermsVersion: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     brandColor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     logoAssetId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    locale: z.ZodOptional<z.ZodEnum<["fr", "en"]>>;
+    timezone: z.ZodOptional<z.ZodString>;
+    clarificationTimeoutHours: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
+    timezone?: string | undefined;
     status?: "active" | "paused" | "archived" | undefined;
     description?: string | null | undefined;
     name?: string | undefined;
@@ -40,7 +44,10 @@ export declare const updateCompanySchema: z.ZodObject<{
     feedbackDataSharingTermsVersion?: string | null | undefined;
     brandColor?: string | null | undefined;
     logoAssetId?: string | null | undefined;
+    locale?: "fr" | "en" | undefined;
+    clarificationTimeoutHours?: number | undefined;
 }, {
+    timezone?: string | undefined;
     status?: "active" | "paused" | "archived" | undefined;
     description?: string | null | undefined;
     name?: string | undefined;
@@ -53,6 +60,8 @@ export declare const updateCompanySchema: z.ZodObject<{
     feedbackDataSharingTermsVersion?: string | null | undefined;
     brandColor?: string | null | undefined;
     logoAssetId?: string | null | undefined;
+    locale?: "fr" | "en" | undefined;
+    clarificationTimeoutHours?: number | undefined;
 }>;
 export type UpdateCompany = z.infer<typeof updateCompanySchema>;
 export declare const updateCompanyBrandingSchema: z.ZodEffects<z.ZodObject<{

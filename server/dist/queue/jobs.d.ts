@@ -118,6 +118,19 @@ export declare const CostResetJobSchema: z.ZodObject<{
 }, {
     companyId: string;
 }>;
+export declare const ActivationCheckJobSchema: z.ZodObject<{
+    companyId: z.ZodString;
+    packSlug: z.ZodString;
+    triggerKey: z.ZodEnum<["day_0_seed", "day_2_first_task", "day_4_milestone", "day_6_relationship", "day_7_summary"]>;
+}, "strip", z.ZodTypeAny, {
+    companyId: string;
+    packSlug: string;
+    triggerKey: "day_0_seed" | "day_2_first_task" | "day_4_milestone" | "day_6_relationship" | "day_7_summary";
+}, {
+    companyId: string;
+    packSlug: string;
+    triggerKey: "day_0_seed" | "day_2_first_task" | "day_4_milestone" | "day_6_relationship" | "day_7_summary";
+}>;
 export type HeartbeatJob = z.infer<typeof HeartbeatJobSchema>;
 export type EmailReceivedJob = z.infer<typeof EmailReceivedJobSchema>;
 export type TaskApprovedJob = z.infer<typeof TaskApprovedJobSchema>;
@@ -125,4 +138,5 @@ export type WebhookReceivedJob = z.infer<typeof WebhookReceivedJobSchema>;
 export type MemoryExtractionJob = z.infer<typeof MemoryExtractionJobSchema>;
 export type SkillImprovementJob = z.infer<typeof SkillImprovementJobSchema>;
 export type CostResetJob = z.infer<typeof CostResetJobSchema>;
+export type ActivationCheckJob = z.infer<typeof ActivationCheckJobSchema>;
 //# sourceMappingURL=jobs.d.ts.map

@@ -1,5 +1,19 @@
 import type { ServerAdapterModule } from "./types.js";
 /**
+ * Merge an external adapter module with host-provided session management.
+ *
+ * Module-provided `sessionManagement` takes precedence. When absent, fall
+ * back to the hardcoded registry keyed by adapter type (so externals that
+ * override a built-in — same `type` — inherit the builtin's policy). If
+ * neither is available, `sessionManagement` remains `undefined`.
+ *
+ * Used by both the init-time IIFE below (external-adapter load pass on
+ * server start) and the hot-install path in `routes/adapters.ts`
+ * (`registerWithSessionManagement`), so the two load paths resolve
+ * `sessionManagement` identically.
+ */
+export declare function resolveExternalAdapterRegistration(externalAdapter: ServerAdapterModule): ServerAdapterModule;
+/**
  * Await this before validating adapter types to avoid race conditions
  * during server startup. External adapters are loaded asynchronously;
  * calling assertKnownAdapterType before this resolves will reject

@@ -33,6 +33,7 @@ export declare function routineService(db: Db, deps?: {
     }>;
     getTrigger: (id: string) => Promise<{
         id: string;
+        timezone: string | null;
         createdAt: Date;
         updatedAt: Date;
         companyId: string;
@@ -44,7 +45,6 @@ export declare function routineService(db: Db, deps?: {
         routineId: string;
         enabled: boolean;
         cronExpression: string | null;
-        timezone: string | null;
         nextRunAt: Date | null;
         lastFiredAt: Date | null;
         publicId: string | null;

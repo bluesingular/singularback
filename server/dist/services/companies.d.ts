@@ -99,6 +99,8 @@ export declare function companyService(db: Db): {
         billingPeriodStart: Date;
         stripeCustomerId: string | null;
         stripeSubId: string | null;
+        locale: string;
+        timezone: string;
         createdAt: Date;
         updatedAt: Date;
     } & {
@@ -155,6 +157,8 @@ export declare function companyService(db: Db): {
         billingPeriodStart: Date;
         stripeCustomerId: string | null;
         stripeSubId: string | null;
+        locale: string;
+        timezone: string;
         createdAt: Date;
         updatedAt: Date;
     }>;
