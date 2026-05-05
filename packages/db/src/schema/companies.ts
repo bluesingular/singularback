@@ -36,6 +36,11 @@ export const companies = pgTable(
     // Singular.blue: Stripe identifiers
     stripeCustomerId: text("stripe_customer_id"),
     stripeSubId: text("stripe_sub_id"),
+    // Singular.blue: i18n — BCP-47 locale tag + IANA timezone
+    locale: text("locale").notNull().default("fr"),
+    timezone: text("timezone").notNull().default("Europe/Paris"),
+    // Singular.blue: G5 — how long before an unanswered clarification request times out
+    clarificationTimeoutHours: integer("clarification_timeout_hours").notNull().default(48),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

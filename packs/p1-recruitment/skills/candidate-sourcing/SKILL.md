@@ -7,6 +7,29 @@ description: >
 tier: 2
 gdpr_required: false
 web_access: true
+purpose: "Recherche et identifie des profils candidats pertinents pour une mission ouverte via LinkedIn, job boards et base interne."
+data_categories: [contact_info, professional_history]
+inputs:
+  - name: job_posting_id
+    type: string
+    required: true
+    description: "Identifiant de la mission pour laquelle sourcer"
+    personal_data: false
+  - name: search_criteria
+    type: string
+    required: true
+    description: "Critères de recherche : compétences, expérience, localisation"
+    personal_data: false
+  - name: max_profiles
+    type: number
+    required: false
+    description: "Nombre maximum de profils à retourner (défaut : 10, max : 20)"
+    personal_data: false
+ai_act:
+  risk_level: low
+  automated_decision: false
+  profiling: false
+  article_22_applicable: false
 output_schema:
   type: object
   required: [mission_title, search_strategy, profiles_found, recommended_count]

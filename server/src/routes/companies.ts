@@ -412,6 +412,18 @@ export function companyRoutes(db: Db, storage?: StorageService) {
     res.json({ ok: true });
   });
 
+  // ── Onboarding state ─────────────────────────────────────────────────────────
+
+  router.get("/:companyId/onboarding-state", async (req, res) => {
+    assertCompanyAccess(req, req.params.companyId as string);
+    const companyId = req.params.companyId as string;
+
+    const agentList = await agents.list(companyId);
+    const hasAgents = agentList.length > 0;
+
+    res.json({ hasAgents, packInstalled: hasAgents });
+  });
+
   // ── Pack installation routes ──────────────────────────────────────────────────
 
   router.get("/:companyId/packs", async (req, res) => {
@@ -430,7 +442,8 @@ export function companyRoutes(db: Db, storage?: StorageService) {
     const packSlug = req.params.packSlug as string;
 
     try {
-      const result = await packs.install(companyId, packSlug);
+      const variables = (req.body as { variables?: Record<string, string> }).variables ?? {};
+      const result = await packs.install(companyId, packSlug, variables);
       const actor = getActorInfo(req);
       await logActivity(db, {
         companyId,

@@ -25,6 +25,7 @@
 import { agents, companySkills, qualityGates, companyDna } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { interpolateTemplate } from "./template.js";
+import { parseSkill } from "../skills/parser.js";
 import {
   PackValidationError,
   PackInstallError,
@@ -106,6 +107,26 @@ async function installSkills(
 ): Promise<void> {
   for (const def of skillDefs) {
     const markdown = interpolateTemplate(def.markdown, variables);
+
+    // G2: parse capability declarations and store in metadata
+    let capabilityMetadata: Record<string, unknown> = {};
+    try {
+      const parsed = parseSkill(markdown);
+      capabilityMetadata = {
+        tier:           parsed.tier,
+        gdprRequired:   parsed.gdprRequired,
+        webAccess:      parsed.webAccess,
+        autonomyTier:   parsed.autonomyTier,
+        purpose:        parsed.purpose,
+        dataCategories: parsed.dataCategories,
+        inputs:         parsed.inputs,
+        outputSchema:   parsed.outputSchema,
+        aiAct:          parsed.aiAct,
+      };
+    } catch {
+      // Non-fatal: skill installs even if parsing fails; metadata stays empty
+    }
+
     await (tx as any)
       .insert(companySkills)
       .values({
@@ -115,13 +136,15 @@ async function installSkills(
         name:        def.name,
         markdown,
         sourceType:  "pack",
+        metadata:    capabilityMetadata,
       })
       .onConflictDoUpdate({
         target: [companySkills.companyId, companySkills.key],
         set: {
           markdown,
-          name: def.name,
+          name:      def.name,
           sourceType: "pack",
+          metadata:  capabilityMetadata,
         },
       });
   }

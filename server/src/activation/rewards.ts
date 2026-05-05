@@ -7,10 +7,9 @@
  * into the task thread. The message varies by:
  *   - Current approval streak (milestone messages at multiples of 10)
  *   - Rating quality (5★ = enthusiastic, 4★ = positive, 3★ = neutral)
+ *   - Company locale (fr | en)
  *
- * Messages are in French (RULE 9 — EMOTIONAL_LAYER.md section 7).
- * This file contains the message selection logic; actual delivery is via
- * the SSE layer (M15) or task thread endpoint.
+ * Messages are sourced from EMOTIONAL_LAYER.md §7.
  */
 
 export interface MicroRewardContext {
@@ -20,6 +19,8 @@ export interface MicroRewardContext {
   approvalStreak:  number;
   /** Agent display name */
   agentName:       string;
+  /** Company locale — defaults to 'fr' */
+  locale?:         string;
 }
 
 export interface MicroReward {
@@ -27,34 +28,75 @@ export interface MicroReward {
   isMilestone: boolean;
 }
 
-// Milestone fires at every multiple of STREAK_MILESTONE
 const STREAK_MILESTONE = 10;
 
-// ── Message banks (French — EMOTIONAL_LAYER.md §7) ────────────────────────────
+// ── French message banks (EMOTIONAL_LAYER.md §7) ──────────────────────────────
 
-const MESSAGES_5_STAR = [
+const FR_5_STAR = [
   (name: string) => `Excellent travail de ${name} ! Continuez sur cette lancée.`,
   (name: string) => `${name} excelle. Votre équipe IA fonctionne parfaitement.`,
   (name: string) => `Résultat parfait de ${name}. C'est exactement ce qu'on attend.`,
 ];
 
-const MESSAGES_4_STAR = [
+const FR_4_STAR = [
   (name: string) => `Bon travail de ${name}. Chaque approbation renforce sa confiance.`,
   (name: string) => `${name} progresse bien. Merci pour votre retour.`,
   (name: string) => `${name} a bien géré ça. Votre validation compte.`,
 ];
 
-const MESSAGES_3_STAR = [
+const FR_3_STAR = [
   (name: string) => `Retour noté pour ${name}. Elle va s'améliorer.`,
   (name: string) => `${name} prend note de votre évaluation.`,
 ];
 
-const MILESTONE_MESSAGES = [
+const FR_MILESTONE = [
   (name: string, streak: number) =>
     `🎯 ${streak} approbations consécutives pour ${name} ! Elle mérite peut-être plus d'autonomie.`,
   (name: string, streak: number) =>
     `🏆 Incroyable — ${streak} validations d'affilée pour ${name}. Voulez-vous lui faire davantage confiance ?`,
 ];
+
+// ── English message banks ─────────────────────────────────────────────────────
+
+const EN_5_STAR = [
+  (name: string) => `Excellent work from ${name}! Keep it up.`,
+  (name: string) => `${name} is excelling. Your AI team is running perfectly.`,
+  (name: string) => `Perfect result from ${name}. Exactly what we expect.`,
+];
+
+const EN_4_STAR = [
+  (name: string) => `Good work from ${name}. Every approval builds their confidence.`,
+  (name: string) => `${name} is progressing well. Thanks for your feedback.`,
+  (name: string) => `${name} handled that well. Your validation matters.`,
+];
+
+const EN_3_STAR = [
+  (name: string) => `Feedback noted for ${name}. They will improve.`,
+  (name: string) => `${name} has taken note of your rating.`,
+];
+
+const EN_MILESTONE = [
+  (name: string, streak: number) =>
+    `🎯 ${streak} consecutive approvals for ${name}! They may deserve more autonomy.`,
+  (name: string, streak: number) =>
+    `🏆 Incredible — ${streak} approvals in a row for ${name}. Ready to trust them more?`,
+];
+
+// ── Locale resolution ─────────────────────────────────────────────────────────
+
+interface MessageBank {
+  fiveStar:  ((name: string) => string)[];
+  fourStar:  ((name: string) => string)[];
+  threeStar: ((name: string) => string)[];
+  milestone: ((name: string, streak: number) => string)[];
+}
+
+function getBankForLocale(locale: string): MessageBank {
+  if (locale.startsWith("en")) {
+    return { fiveStar: EN_5_STAR, fourStar: EN_4_STAR, threeStar: EN_3_STAR, milestone: EN_MILESTONE };
+  }
+  return { fiveStar: FR_5_STAR, fourStar: FR_4_STAR, threeStar: FR_3_STAR, milestone: FR_MILESTONE };
+}
 
 // ── Selector ──────────────────────────────────────────────────────────────────
 
@@ -71,8 +113,9 @@ function pick<T>(arr: T[], seed: number): T {
  * - ≤ 3★                                           → neutral message
  */
 export function buildMicroRewardMessage(ctx: MicroRewardContext): MicroReward {
-  const { rating, approvalStreak, agentName } = ctx;
-  const seed = approvalStreak; // deterministic selection
+  const { rating, approvalStreak, agentName, locale = "fr" } = ctx;
+  const bank = getBankForLocale(locale);
+  const seed = approvalStreak;
 
   const isMilestone =
     approvalStreak > 0 &&
@@ -81,27 +124,18 @@ export function buildMicroRewardMessage(ctx: MicroRewardContext): MicroReward {
 
   if (isMilestone) {
     return {
-      message:     pick(MILESTONE_MESSAGES, seed)(agentName, approvalStreak),
+      message:     pick(bank.milestone, seed)(agentName, approvalStreak),
       isMilestone: true,
     };
   }
 
   if (rating === 5) {
-    return {
-      message:     pick(MESSAGES_5_STAR, seed)(agentName),
-      isMilestone: false,
-    };
+    return { message: pick(bank.fiveStar, seed)(agentName), isMilestone: false };
   }
 
   if (rating >= 4) {
-    return {
-      message:     pick(MESSAGES_4_STAR, seed)(agentName),
-      isMilestone: false,
-    };
+    return { message: pick(bank.fourStar, seed)(agentName), isMilestone: false };
   }
 
-  return {
-    message:     pick(MESSAGES_3_STAR, seed)(agentName),
-    isMilestone: false,
-  };
+  return { message: pick(bank.threeStar, seed)(agentName), isMilestone: false };
 }

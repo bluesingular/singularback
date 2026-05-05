@@ -6,6 +6,29 @@ description: >
   Ne pas utiliser pour : premier contact (utiliser candidate-sourcing), relance sans réponse (utiliser candidate-re-engagement).
 tier: 1
 gdpr_required: true
+purpose: "Rédige des emails de suivi personnalisés pour les candidats en cours de process de recrutement."
+data_categories: [contact_info, recruitment_status]
+inputs:
+  - name: candidate_id
+    type: string
+    required: true
+    description: "Identifiant du candidat dans le système"
+    personal_data: true
+  - name: follow_up_type
+    type: string
+    required: true
+    description: "Type de suivi : interview_confirmation | status_update | positive_outcome | rejection | on_hold"
+    personal_data: false
+  - name: context
+    type: string
+    required: false
+    description: "Contexte supplémentaire : date d'entretien, décision client, etc."
+    personal_data: false
+ai_act:
+  risk_level: low
+  automated_decision: false
+  profiling: false
+  article_22_applicable: false
 output_schema:
   type: object
   required: [recipient_name, recipient_email, subject, body, follow_up_type]

@@ -5,6 +5,7 @@ import { Layout } from "./components/Layout";
 import { OnboardingWizard } from "./components/OnboardingWizard";
 import { authApi } from "./api/auth";
 import { healthApi } from "./api/health";
+import { companiesApi } from "./api/companies";
 import { Dashboard } from "./pages/Dashboard";
 import { Companies } from "./pages/Companies";
 import { Agents } from "./pages/Agents";
@@ -56,6 +57,9 @@ const Rapports       = lazy(() => import("./pages/singular/Rapports").then(m => 
 const Contacts       = lazy(() => import("./pages/singular/Contacts").then(m => ({ default: m.Contacts })));
 const Parametres     = lazy(() => import("./pages/singular/Parametres").then(m => ({ default: m.Parametres })));
 const SingularPreview = lazy(() => import("./pages/singular/Preview").then(m => ({ default: m.SingularPreview })));
+const AssistantInstallation = lazy(() => import("./pages/singular/AssistantInstallation").then(m => ({ default: m.AssistantInstallation })));
+const Inscription = lazy(() => import("./pages/singular/Inscription").then(m => ({ default: m.Inscription })));
+const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then(m => ({ default: m.CataloguePacks })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -132,7 +136,9 @@ function CloudAccessGate() {
 function boardRoutes() {
   return (
     <>
-      <Route index element={<Navigate to="tableau-de-bord" replace />} />
+      <Route index element={<SingularIndexRedirect />} />
+      <Route path="catalogue" element={<Suspense fallback={null}><CataloguePacks /></Suspense>} />
+      <Route path="installation" element={<Suspense fallback={null}><AssistantInstallation /></Suspense>} />
       <Route path="tableau-de-bord" element={<Suspense fallback={null}><TableauDeBord /></Suspense>} />
       <Route path="mon-equipe" element={<Suspense fallback={null}><MonEquipe /></Suspense>} />
       <Route path="mon-equipe/:agentSlug" element={<Suspense fallback={null}><FicheAgent /></Suspense>} />
@@ -257,6 +263,26 @@ function OnboardingRoutePage() {
   );
 }
 
+function SingularIndexRedirect() {
+  const { selectedCompanyId } = useCompany();
+  const { data, isLoading } = useQuery({
+    queryKey: ["onboarding-state", selectedCompanyId],
+    queryFn: () => companiesApi.getOnboardingState(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    staleTime: 30_000,
+  });
+
+  if (isLoading || !data) {
+    return null;
+  }
+
+  if (!data.packInstalled) {
+    return <Navigate to="installation" replace />;
+  }
+
+  return <Navigate to="tableau-de-bord" replace />;
+}
+
 function CompanyRootRedirect() {
   const { companies, selectedCompany, loading } = useCompany();
   const location = useLocation();
@@ -334,6 +360,7 @@ export function App() {
       <Routes>
         <Route path="preview/*" element={<SingularPreview />} />
         <Route path="auth" element={<AuthPage />} />
+        <Route path="inscription" element={<Suspense fallback={null}><Inscription /></Suspense>} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />

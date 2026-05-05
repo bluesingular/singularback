@@ -18,6 +18,7 @@ import { sql, eq, and } from "drizzle-orm";
 import type { RequestHandler } from "express";
 import type { Db } from "@paperclipai/db";
 import { companies, companyMemberships } from "@paperclipai/db";
+import { ROLE_PERMISSIONS, type CompanyRole, type PermissionKey } from "@paperclipai/shared";
 import { logger } from "./logger.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -25,8 +26,19 @@ import { logger } from "./logger.js";
 export interface RequestContext {
   userId: string;
   companyId: string;
-  role: "owner" | "admin" | "manager" | "viewer";
+  /** G3 canonical roles: owner > admin > operator > viewer; api ≈ operator for service accounts */
+  role: CompanyRole;
   plan: "solo" | "growth" | "pro" | "enterprise";
+  locale: string;
+  timezone: string;
+}
+
+/**
+ * Check if a role grants a permission by default (without DB lookup).
+ * Used by the access service as the first layer before checking explicit grants.
+ */
+export function roleHasPermission(role: CompanyRole, permission: PermissionKey): boolean {
+  return (ROLE_PERMISSIONS[role] as readonly string[]).includes(permission);
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -57,8 +69,10 @@ export function companyContextMiddleware(db: Db): RequestHandler {
         req.ctx = {
           userId: actor.agentId ?? "agent",
           companyId,
-          role: "manager", // agents act with manager-level scope
+          role: "api", // agent service accounts use the 'api' role
           plan: normalisePlan(company.plan),
+          locale: company.locale ?? "fr",
+          timezone: company.timezone ?? "Europe/Paris",
         };
         next();
         return;
@@ -118,6 +132,8 @@ export function companyContextMiddleware(db: Db): RequestHandler {
         companyId: membership.companyId,
         role: normaliseRole(membership.role),
         plan: normalisePlan(company.plan),
+        locale: company.locale ?? "fr",
+        timezone: company.timezone ?? "Europe/Paris",
       };
 
       next();
@@ -179,8 +195,10 @@ export function requireCtx(
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-export function normaliseRole(raw: string | null | undefined): RequestContext["role"] {
-  if (raw === "owner" || raw === "admin" || raw === "manager" || raw === "viewer") return raw;
+export function normaliseRole(raw: string | null | undefined): CompanyRole {
+  if (raw === "owner" || raw === "admin" || raw === "operator" || raw === "viewer" || raw === "api") return raw;
+  // Legacy: 'manager' stored before G3 migration → treat as operator
+  if (raw === "manager") return "operator";
   return "viewer";
 }
 
@@ -191,7 +209,13 @@ export function normalisePlan(raw: string | null | undefined): RequestContext["p
 
 async function fetchCompany(db: Db, companyId: string) {
   return db
-    .select({ id: companies.id, plan: companies.plan, status: companies.status })
+    .select({
+      id: companies.id,
+      plan: companies.plan,
+      status: companies.status,
+      locale: companies.locale,
+      timezone: companies.timezone,
+    })
     .from(companies)
     .where(eq(companies.id, companyId))
     .then((rows) => rows[0] ?? null);

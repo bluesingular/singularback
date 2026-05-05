@@ -6,6 +6,29 @@ description: >
   Ne pas utiliser pour : suivi candidat actif (utiliser candidate-follow-up).
 tier: 1
 gdpr_required: true
+purpose: "Relance les candidats silencieux avec un message adapté au délai écoulé depuis le dernier contact."
+data_categories: [contact_info, engagement_history]
+inputs:
+  - name: candidate_id
+    type: string
+    required: true
+    description: "Identifiant du candidat à relancer"
+    personal_data: true
+  - name: days_since_last_contact
+    type: number
+    required: true
+    description: "Nombre de jours depuis le dernier contact (détermine le ton)"
+    personal_data: false
+  - name: last_interaction_context
+    type: string
+    required: false
+    description: "Résumé du dernier échange pour personnaliser la relance"
+    personal_data: false
+ai_act:
+  risk_level: low
+  automated_decision: false
+  profiling: true
+  article_22_applicable: false
 output_schema:
   type: object
   required: [recipient_name, recipient_email, subject, body, days_since_last_contact]

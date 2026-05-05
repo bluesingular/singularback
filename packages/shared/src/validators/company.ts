@@ -4,6 +4,9 @@ import { COMPANY_STATUSES } from "../constants.js";
 const logoAssetIdSchema = z.string().uuid().nullable().optional();
 const brandColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().optional();
 const feedbackDataSharingTermsVersionSchema = z.string().min(1).nullable().optional();
+const localeSchema = z.enum(["fr", "en"]).optional();
+const timezoneSchema = z.string().min(1).optional();
+const clarificationTimeoutHoursSchema = z.number().int().min(1).max(720).optional();
 
 export const createCompanySchema = z.object({
   name: z.string().min(1),
@@ -25,6 +28,9 @@ export const updateCompanySchema = createCompanySchema
     feedbackDataSharingTermsVersion: feedbackDataSharingTermsVersionSchema,
     brandColor: brandColorSchema,
     logoAssetId: logoAssetIdSchema,
+    locale: localeSchema,
+    timezone: timezoneSchema,
+    clarificationTimeoutHours: clarificationTimeoutHoursSchema,
   });
 
 export type UpdateCompany = z.infer<typeof updateCompanySchema>;

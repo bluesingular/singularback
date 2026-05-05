@@ -6,6 +6,7 @@ import {
   principalPermissionGrants,
 } from "@paperclipai/db";
 import type { PermissionKey, PrincipalType } from "@paperclipai/shared";
+import { roleHasPermission, normaliseRole } from "../middleware/company-context.js";
 
 type MembershipRow = typeof companyMemberships.$inferSelect;
 type GrantInput = {
@@ -50,6 +51,12 @@ export function accessService(db: Db) {
   ): Promise<boolean> {
     const membership = await getMembership(companyId, principalType, principalId);
     if (!membership || membership.status !== "active") return false;
+
+    // G3: role-level defaults — no DB lookup needed for role-granted permissions
+    const role = normaliseRole(membership.membershipRole);
+    if (roleHasPermission(role, permissionKey)) return true;
+
+    // Individual grants can extend role permissions
     const grant = await db
       .select({ id: principalPermissionGrants.id })
       .from(principalPermissionGrants)

@@ -9,19 +9,6 @@ import { useCompany } from "../../context/CompanyContext"
 import { trustApi, type TrustProposal, type TrustScore } from "@/api/trust"
 
 // ---------------------------------------------------------------------------
-// Seed fallback data — shown before any real scores exist
-// ---------------------------------------------------------------------------
-
-const SEED_SCORES: TrustScore[] = [
-  { agentId: "sophie", skillType: "Qualification de CV",  score: 4.8, autonomyLevel: "supervised",    approvalStreak: 7, taskCountWindow: 47, qualityRatingAvg: 4.8, updatedAt: "" },
-  { agentId: "sophie", skillType: "Rédaction d'offres",   score: 5.0, autonomyLevel: "highlyTrusted", approvalStreak: 0, taskCountWindow: 12, qualityRatingAvg: 5.0, updatedAt: "" },
-  { agentId: "marc",   skillType: "Emails clients",       score: 2.8, autonomyLevel: "building",      approvalStreak: 2, taskCountWindow: 8,  qualityRatingAvg: 2.8, updatedAt: "" },
-  { agentId: "clara",  skillType: "Posts LinkedIn",       score: 3.5, autonomyLevel: "supervised",    approvalStreak: 3, taskCountWindow: 10, qualityRatingAvg: 3.5, updatedAt: "" },
-  { agentId: "julien", skillType: "Suivi candidats",      score: 2.5, autonomyLevel: "building",      approvalStreak: 1, taskCountWindow: 5,  qualityRatingAvg: 2.5, updatedAt: "" },
-  { agentId: "iris",   skillType: "Veille marché",        score: 4.0, autonomyLevel: "supervised",    approvalStreak: 4, taskCountWindow: 15, qualityRatingAvg: 4.0, updatedAt: "" },
-]
-
-// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -205,7 +192,7 @@ export default function CentreDeConfiance() {
     onSuccess: (_, proposalId) => {
       setDismissedIds((prev) => new Set([...prev, proposalId]))
       setBusyId(null)
-      queryClient.invalidateQueries({ queryKey: ["trust"] })
+      queryClient.invalidateQueries({ queryKey: ["trust", selectedCompanyId] })
     },
     onError: () => setBusyId(null),
   })
@@ -216,13 +203,12 @@ export default function CentreDeConfiance() {
     onSuccess: (_, proposalId) => {
       setDismissedIds((prev) => new Set([...prev, proposalId]))
       setBusyId(null)
-      queryClient.invalidateQueries({ queryKey: ["trust"] })
+      queryClient.invalidateQueries({ queryKey: ["trust", selectedCompanyId] })
     },
     onError: () => setBusyId(null),
   })
 
-  // Use live data if available, fall back to seeds
-  const scores: TrustScore[] = data?.scores?.length ? data.scores : SEED_SCORES
+  const scores: TrustScore[] = data?.scores ?? []
   const proposals: TrustProposal[] = (data?.proposals ?? []).filter(
     (p) => p.status === "pending" && !dismissedIds.has(p.id)
   )

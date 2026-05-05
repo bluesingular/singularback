@@ -38,6 +38,8 @@ import { stripeWebhookRoutes } from "./routes/stripe-webhook.js";
 import { llmRoutes } from "./routes/llms.js";
 import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
+import { webhookEndpointRoutes } from "./routes/webhook-endpoints.js";
+import { clarificationRoutes } from "./routes/clarifications.js";
 import { pluginRoutes } from "./routes/plugins.js";
 import { adapterRoutes } from "./routes/adapters.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
@@ -237,6 +239,8 @@ export async function createApp(
   api.use(instanceSettingsRoutes(db));
   api.use(consoleRoutes(db));
   api.use(trustRoutes(db));
+  api.use(webhookEndpointRoutes(db));
+  api.use(clarificationRoutes(db));
   api.use(intelligenceRoutes(db));
   api.use(sseRoutes(db));
   const hostServicesDisposers = new Map<string, () => void>();

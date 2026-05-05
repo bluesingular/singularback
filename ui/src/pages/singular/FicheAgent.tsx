@@ -3,145 +3,44 @@ import { useTranslation } from "react-i18next"
 import { ArrowLeft, Pause, Play, ArrowRight } from "lucide-react"
 import { useParams, useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   TrustDot,
   TrustBar,
   AgentStatusBadge,
-  HandoffIndicator,
 } from "@/components/singular"
 import { Button } from "@/components/ui/button"
+import { useCompany } from "../../context/CompanyContext"
+import { agentsApi } from "@/api/agents"
+import { trustApi, type TrustScore } from "@/api/trust"
+import { queryKeys } from "@/lib/queryKeys"
 
 // ---------------------------------------------------------------------------
-// Mock data
+// Helpers
 // ---------------------------------------------------------------------------
 
-interface AgentData {
-  slug: string
-  name: string
-  role: string
-  status: "actif" | "pause"
-  trust: "trusted" | "upgrade" | "building"
-  trustScore: number
-  trustLabel: string
-  autonomyLevel: "Supervisée" | "De confiance" | "Très autonome" | "En construction"
-  autonomyDescription: string
-  streak: number // consecutive 4+ star approvals
-  streakTarget: number
-  skills: string[]
-  handoffsOut: { to: string; summary: string }[]
-  handoffsIn: { from: string; summary: string }[]
-  recentTasks: {
-    title: string
-    status: "terminé" | "en cours" | "en attente"
-    rating?: number
-    time: string
-  }[]
-  streakNote: string
-  trustNote: string
-}
-
-const SOPHIE: AgentData = {
-  slug: "sophie",
-  name: "Sophie",
-  role: "Chargée de sourcing",
-  status: "actif",
-  trust: "upgrade",
-  trustScore: 4.8,
-  trustLabel: "4,8 / 5",
-  autonomyLevel: "Supervisée",
-  autonomyDescription: "Vous validez chaque sélection avant qu'elle soit transmise.",
-  streak: 7,
-  streakTarget: 10,
-  skills: ["Qualification CV", "Sourcing de candidats", "Relance candidats"],
-  handoffsOut: [
-    { to: "Marc", summary: "3 candidats qualifiés passés à Marc pour présentation client" },
-  ],
-  handoffsIn: [
-    { from: "Marc", summary: "Relancer la shortlist React Senior reçue de Marc" },
-  ],
-  recentTasks: [
-    { title: "Sélection de CV — Mission React Senior", status: "terminé", rating: 5, time: "il y a 2h" },
-    { title: "Relance de candidats — Mission Data Analyst", status: "terminé", rating: 4, time: "hier" },
-    { title: "Sourcing LinkedIn — Mission DevOps", status: "en cours", time: "en cours" },
-    { title: "Qualification CV — Mission Product Manager", status: "terminé", rating: 5, time: "il y a 3j" },
-    { title: "Sélection de CV — Mission UX Designer", status: "terminé", rating: 4, time: "il y a 5j" },
-  ],
-  streakNote: "7 validations consécutives 4+★ → proposition d'autonomie à 10",
-  trustNote: "★★★★★  6 semaines consécutives au-dessus de 4,5/5",
-}
-
-function genericAgent(slug: string): AgentData {
-  const nameMap: Record<string, { name: string; role: string; skills: string[] }> = {
-    marc: { name: "Marc", role: "Responsable relation client", skills: ["Email client", "Rapport hebdo"] },
-    clara: { name: "Clara", role: "Chargée de contenu", skills: ["Rédaction offres", "Posts LinkedIn"] },
-    julien: { name: "Julien", role: "Assistant administratif", skills: ["Suivi candidats"] },
-    iris: { name: "Iris", role: "Analyste marché", skills: ["Veille marché"] },
-  }
-  const info = nameMap[slug] ?? { name: slug, role: "Agent IA", skills: [] }
-  return {
-    slug,
-    ...info,
-    status: "actif",
-    trust: "building",
-    trustScore: 3.2,
-    trustLabel: "3,2 / 5",
-    autonomyLevel: "Supervisée",
-    autonomyDescription: "Vous validez chaque action avant exécution.",
-    streak: 2,
-    streakTarget: 10,
-    handoffsOut: [],
-    handoffsIn: [],
-    recentTasks: [
-      { title: "Tâche récente", status: "terminé", rating: 4, time: "hier" },
-      { title: "Tâche en cours", status: "en cours", time: "maintenant" },
-    ],
-    streakNote: "2 validations consécutives 4+★",
-    trustNote: "Historique en cours de construction",
+function autonomyLabel(level: string): string {
+  switch (level) {
+    case "highlyTrusted": return "Très autonome"
+    case "trusted":       return "De confiance"
+    case "supervised":    return "Supervisée"
+    default:              return "En construction"
   }
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <span className="text-[#C97C0A] text-sm">
-      {"★".repeat(Math.round(rating))}{"☆".repeat(5 - Math.round(rating))}
-    </span>
-  )
+function autonomyDescription(level: string): string {
+  switch (level) {
+    case "highlyTrusted": return "Résumés hebdomadaires uniquement."
+    case "trusted":       return "Contrôle aléatoire — vous voyez l'essentiel."
+    case "supervised":    return "Vous validez chaque lot avant transmission."
+    default:              return "Historique en cours de construction."
+  }
 }
 
-function TaskRow({
-  task,
-}: {
-  task: AgentData["recentTasks"][number]
-}) {
-  const { t } = useTranslation("agents")
-  const statusConfig: Record<
-    AgentData["recentTasks"][number]["status"],
-    { label: string; classes: string }
-  > = {
-    terminé: { label: t("status.done"), classes: "text-[#1A9E68] bg-[#ECFBF4]" },
-    "en cours": { label: t("status.inProgress"), classes: "text-[#1A4E8C] bg-[#EFF3FA]" },
-    "en attente": { label: t("status.waiting"), classes: "text-[#C97C0A] bg-[#FFF8EC]" },
-  }
-  const cfg = statusConfig[task.status]
-
-  return (
-    <div className="flex items-center justify-between gap-3 py-2.5">
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[#0F0F0D] truncate">{task.title}</p>
-        <p className="text-xs text-[#8A8680] mt-0.5">{task.time}</p>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {task.rating !== undefined && <StarRating rating={task.rating} />}
-        <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", cfg.classes)}>
-          {cfg.label}
-        </span>
-      </div>
-    </div>
-  )
+function trustDotLevel(level: string): "trusted" | "upgrade" | "building" {
+  if (level === "highlyTrusted") return "trusted"
+  if (level === "trusted")       return "upgrade"
+  return "building"
 }
 
 // ---------------------------------------------------------------------------
@@ -149,12 +48,95 @@ function TaskRow({
 // ---------------------------------------------------------------------------
 
 export default function FicheAgent() {
-  const { t } = useTranslation("agents")
+  const { t, i18n } = useTranslation("agents")
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
-  const [paused, setPaused] = React.useState(false)
+  const queryClient = useQueryClient()
+  const { selectedCompanyId } = useCompany()
 
-  const agent = slug === "sophie" ? SOPHIE : genericAgent(slug ?? "inconnu")
+  // ── Fetch agent ────────────────────────────────────────────────────────────
+
+  const { data: agent, isLoading: agentLoading, error: agentError } = useQuery({
+    queryKey: [...queryKeys.agents.list(selectedCompanyId!), slug],
+    queryFn: () => agentsApi.get(slug!, selectedCompanyId!),
+    enabled: !!selectedCompanyId && !!slug,
+    staleTime: 30_000,
+  })
+
+  // ── Fetch trust for this company, filter by agentId ───────────────────────
+
+  const { data: trustData } = useQuery({
+    queryKey: ["trust", selectedCompanyId],
+    queryFn: () => trustApi.getCompanyTrust(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    staleTime: 30_000,
+  })
+
+  const agentScores: TrustScore[] = React.useMemo(
+    () => (trustData?.scores ?? []).filter((s) => s.agentId === agent?.id),
+    [trustData, agent?.id],
+  )
+
+  const hasTrustProposal = (trustData?.proposals ?? []).some(
+    (p) => p.agentId === agent?.id && p.status === "pending",
+  )
+
+  const topScore = agentScores.length > 0
+    ? agentScores.reduce((best, s) => (s.score > best.score ? s : best))
+    : null
+
+  // ── Pause / Resume ─────────────────────────────────────────────────────────
+
+  const pauseMutation = useMutation({
+    mutationFn: () => agentsApi.pause(agent!.id, selectedCompanyId ?? undefined),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.agents.list(selectedCompanyId!) }),
+  })
+
+  const resumeMutation = useMutation({
+    mutationFn: () => agentsApi.resume(agent!.id, selectedCompanyId ?? undefined),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.agents.list(selectedCompanyId!) }),
+  })
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+
+  const isActive = agent?.status === "active"
+  const isPending = pauseMutation.isPending || resumeMutation.isPending
+
+  const autonomyLevel = topScore?.autonomyLevel ?? "building"
+  const streak        = topScore?.approvalStreak ?? 0
+  const streakTarget  = 10
+  const scoreVal      = topScore?.score ?? 0
+  const scoreLabel    = `${Number(scoreVal).toFixed(1).replace(".", ",")} / 5`
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  if (agentLoading) {
+    return (
+      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
+        <p className="text-sm text-[#8A8680]">Chargement…</p>
+      </div>
+    )
+  }
+
+  if (agentError || !agent) {
+    return (
+      <div className="min-h-screen bg-[#FAFAF8]">
+        <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6">
+          <button
+            onClick={() => navigate("/equipe")}
+            className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
+          >
+            <ArrowLeft size={14} /> {t("team.title")}
+          </button>
+          <div className="bg-white rounded-2xl border border-[#E8E4DC] p-10 text-center">
+            <p className="text-sm text-[#8A8680]">
+              {i18n.language === "en" ? "Agent not found." : "Agent introuvable."}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -173,46 +155,40 @@ export default function FicheAgent() {
           <div
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-semibold flex-shrink-0",
-              paused || agent.status === "pause" ? "bg-[#8A8680]" : "bg-[#1A9E68]"
+              isActive ? "bg-[#1A9E68]" : "bg-[#8A8680]",
             )}
           >
-            {agent.name.charAt(0)}
+            {agent.name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-[Georgia,serif] text-[#0F0F0D]">{agent.name}</h1>
-              <TrustDot level={agent.trust} />
+              <TrustDot level={trustDotLevel(autonomyLevel)} />
             </div>
-            <p className="text-sm text-[#8A8680]">{agent.role}</p>
+            {agent.title && <p className="text-sm text-[#8A8680]">{agent.title}</p>}
             <div className="mt-2">
-              <AgentStatusBadge status={paused ? "pause" : agent.status} />
+              <AgentStatusBadge status={isActive ? "actif" : "pause"} />
             </div>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPaused((p) => !p)}
+            disabled={isPending}
+            onClick={() => isActive ? pauseMutation.mutate() : resumeMutation.mutate()}
             className="flex-shrink-0 text-xs gap-1.5 border-[#E8E4DC]"
           >
-            {paused ? <Play size={12} /> : <Pause size={12} />}
-            {paused ? t("detail.resume") : t("detail.pause")}
+            {isActive ? <Pause size={12} /> : <Play size={12} />}
+            {isActive ? t("detail.pause") : t("detail.resume")}
           </Button>
         </section>
 
         {/* Capacités */}
-        <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
-          <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">{t("detail.capacites")}</h2>
-          <div className="flex flex-wrap gap-2">
-            {agent.skills.map((skill) => (
-              <span
-                key={skill}
-                className="text-sm px-3 py-1 rounded-full bg-[#EFF3FA] text-[#1A4E8C] border border-[#1A4E8C]/15 font-medium"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </section>
+        {agent.capabilities && (
+          <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
+            <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">{t("detail.capacites")}</h2>
+            <p className="text-sm text-[#8A8680] whitespace-pre-line">{agent.capabilities}</p>
+          </section>
+        )}
 
         {/* Confiance & Autonomie */}
         <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-4">
@@ -220,108 +196,89 @@ export default function FicheAgent() {
             {t("detail.trustAndAutonomy")}
           </h2>
 
-          {/* Trust summary */}
-          <div className="bg-[#FAFAF8] rounded-xl p-4 flex flex-col gap-2 border border-[#E8E4DC]">
-            <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wide">
-              {t("detail.trustSummary")}
-            </p>
-            <p className="text-sm font-semibold text-[#0F0F0D]">
-              {agent.name} · {agent.skills[0]}
-            </p>
-            <p className="text-sm text-[#0F0F0D]">{agent.trustNote}</p>
+          {agentScores.length === 0 ? (
             <p className="text-sm text-[#8A8680]">
-              ★★★★½&nbsp;&nbsp;{agent.recentTasks.filter((t) => t.rating).length * 10} lots
-              validés par vous
+              {i18n.language === "en"
+                ? "Trust score will appear after the first completed tasks."
+                : "Le score de confiance apparaîtra après les premières tâches."}
             </p>
-            {agent.trust === "upgrade" && (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#1A4E8C] flex-shrink-0" />
-                <span className="text-sm text-[#1A4E8C] font-medium">
-                  {t("detail.upgradeReady")}
-                </span>
+          ) : (
+            <>
+              {/* Trust score per skill */}
+              <div className="flex flex-col gap-3">
+                {agentScores.map((score, i) => (
+                  <div key={i} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between text-xs text-[#8A8680]">
+                      <span className="font-medium">{score.skillType}</span>
+                      <span>{Number(score.score).toFixed(1).replace(".", ",")} / 5</span>
+                    </div>
+                    <TrustBar
+                      score={score.score}
+                      label={`${Number(score.score).toFixed(1).replace(".", ",")} / 5`}
+                    />
+                  </div>
+                ))}
               </div>
-            )}
-            {agent.trust === "upgrade" && (
-              <button
-                onClick={() => navigate("/confiance")}
-                className="flex items-center gap-1 text-sm font-medium text-[#1A4E8C] hover:underline mt-1 w-fit"
-              >
-                {t("detail.viewProposal")} <ArrowRight size={13} />
-              </button>
-            )}
-          </div>
 
-          {/* Trust bar */}
-          <TrustBar score={agent.trustScore} label={agent.trustLabel} />
+              {/* Top score summary */}
+              {topScore && (
+                <TrustBar score={scoreVal} label={scoreLabel} />
+              )}
 
-          {/* Autonomy level */}
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-[#0F0F0D]">
-                {t("detail.currentLevel")} :
-              </span>
-              <span className="text-sm font-medium text-[#C97C0A]">
-                {agent.autonomyLevel}
-              </span>
-            </div>
-            <p className="text-sm text-[#8A8680]">{agent.autonomyDescription}</p>
-          </div>
+              {hasTrustProposal && (
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#1A4E8C] flex-shrink-0" />
+                  <span className="text-sm text-[#1A4E8C] font-medium">
+                    {t("detail.upgradeReady")}
+                  </span>
+                </div>
+              )}
+              {hasTrustProposal && (
+                <button
+                  onClick={() => navigate("/confiance")}
+                  className="flex items-center gap-1 text-sm font-medium text-[#1A4E8C] hover:underline w-fit"
+                >
+                  {t("detail.viewProposal")} <ArrowRight size={13} />
+                </button>
+              )}
 
-          {/* Streak progress */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-xs text-[#8A8680]">
-              <span>{agent.streakNote}</span>
-              <span className="font-semibold text-[#0F0F0D]">
-                {agent.streak}/{agent.streakTarget}
-              </span>
-            </div>
-            <div className="h-2 bg-[#E8E4DC] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#1A4E8C] rounded-full transition-all"
-                style={{ width: `${(agent.streak / agent.streakTarget) * 100}%` }}
-              />
-            </div>
-            <p className="text-xs text-[#8A8680]">
-              {t("detail.streakRemaining", { count: agent.streakTarget - agent.streak })}
-            </p>
-          </div>
-        </section>
+              {/* Autonomy level */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-[#0F0F0D]">
+                    {t("detail.currentLevel")} :
+                  </span>
+                  <span className="text-sm font-medium text-[#C97C0A]">
+                    {autonomyLabel(autonomyLevel)}
+                  </span>
+                </div>
+                <p className="text-sm text-[#8A8680]">{autonomyDescription(autonomyLevel)}</p>
+              </div>
 
-        {/* Passations cette semaine */}
-        {(agent.handoffsOut.length > 0 || agent.handoffsIn.length > 0) && (
-          <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
-            <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">
-              {t("detail.handoffsWeek")}
-            </h2>
-            <div className="flex flex-col gap-2">
-              {agent.handoffsOut.map((h, i) => (
-                <HandoffIndicator
-                  key={`out-${i}`}
-                  from={agent.name}
-                  to={h.to}
-                  summary={h.summary}
-                />
-              ))}
-              {agent.handoffsIn.map((h, i) => (
-                <HandoffIndicator
-                  key={`in-${i}`}
-                  from={h.from}
-                  to={agent.name}
-                  summary={h.summary}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Tâches récentes */}
-        <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5 flex flex-col gap-3">
-          <h2 className="text-base font-[Georgia,serif] text-[#0F0F0D]">{t("detail.recentTasks")}</h2>
-          <div className="divide-y divide-[#E8E4DC]">
-            {agent.recentTasks.map((task, i) => (
-              <TaskRow key={i} task={task} />
-            ))}
-          </div>
+              {/* Streak progress */}
+              {streak > 0 && (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between text-xs text-[#8A8680]">
+                    <span>
+                      {i18n.language === "en"
+                        ? `${streak} consecutive 4+★ approvals`
+                        : `${streak} validations consécutives 4+★`}
+                    </span>
+                    <span className="font-semibold text-[#0F0F0D]">{streak}/{streakTarget}</span>
+                  </div>
+                  <div className="h-2 bg-[#E8E4DC] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#1A4E8C] rounded-full transition-all"
+                      style={{ width: `${Math.min(100, (streak / streakTarget) * 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-[#8A8680]">
+                    {t("detail.streakRemaining", { count: Math.max(0, streakTarget - streak) })}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
         </section>
 
       </div>

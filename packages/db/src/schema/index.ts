@@ -68,10 +68,11 @@ export { pluginLogs } from "./plugin_logs.js";
 // Singular.blue M2: context assembly
 export { companyDna } from "./company_dna.js";
 export { memoryEntries } from "./memory_entries.js";
-// Singular.blue M4: integration hub
+// Singular.blue M4: integration hub + G4: inbound webhooks
 export {
   integrations,
   agentIntegrationPermissions,
+  webhookEndpoints,
   webhookEvents,
   toolCallLog,
 } from "./integrations.js";
@@ -92,3 +93,5 @@ export { skillVersions, goldenDatasets } from "./skill_improvement.js";
 export { intelligenceCards, activationMoments } from "./intelligence.js";
 // Singular.blue M14: Stripe billing
 export { stripeEvents } from "./billing.js";
+// Singular.blue G5: human clarification flow
+export { clarificationRequests } from "./clarification_requests.js";

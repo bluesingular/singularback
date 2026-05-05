@@ -209,7 +209,7 @@ describe("companyContextMiddleware", () => {
     expect(res.status).toBe(200);
     expect(res.body.ctx).toMatchObject({
       companyId: companyId1,
-      role: "manager",
+      role: "api",
       plan: "growth",
     });
   });

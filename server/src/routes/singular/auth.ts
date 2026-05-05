@@ -6,6 +6,7 @@
  * These sit alongside better-auth's own /api/auth/* endpoints and add:
  *   - /me         — current user + full company list + active company context
  *   - /switch     — validate and activate a different company (client-side state)
+ *   - /signup     — Gap A: create user + company in one request (self-service onboarding)
  *   - /login      — thin wrapper around better-auth sign-in; returns me payload
  *   - /logout     — delegates to better-auth signOut
  *   - /google     — initiates Google OAuth via better-auth
@@ -37,10 +38,23 @@ const switchSchema = z.object({
   companyId: z.string().uuid(),
 });
 
+const signupSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  password: z.string().min(8),
+  companyName: z.string().min(1).max(100),
+  locale: z.enum(["fr", "en"]).optional().default("fr"),
+  timezone: z.string().optional().default("Europe/Paris"),
+});
+
 // ── Better-auth interface (minimal surface we need) ───────────────────────────
 
 interface BetterAuthApi {
   api: {
+    signUpEmail: (opts: {
+      body: { name: string; email: string; password: string };
+      asResponse: true;
+    }) => Promise<Response>;
     signInEmail: (opts: {
       body: { email: string; password: string };
       asResponse: true;
@@ -141,6 +155,8 @@ export function singularAuthRoutes(
             companyPlan: companies.plan,
             companyName: companies.name,
             companySlug: companies.slug,
+            companyLocale: companies.locale,
+            companyTimezone: companies.timezone,
           })
           .from(companyMemberships)
           .innerJoin(companies, eq(companies.id, companyMemberships.companyId))
@@ -163,6 +179,8 @@ export function singularAuthRoutes(
           companyId,
           role: normaliseRole(membership.role),
           plan: normalisePlan(membership.companyPlan),
+          locale: membership.companyLocale ?? "fr",
+          timezone: membership.companyTimezone ?? "Europe/Paris",
         };
 
         res.json({
@@ -171,6 +189,137 @@ export function singularAuthRoutes(
             id: companyId,
             name: membership.companyName,
             slug: membership.companySlug,
+          },
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+
+  // ── POST /api/v1/auth/signup ─────────────────────────────────────────────
+  // Gap A: Self-service onboarding — creates user + company in one atomic step.
+  //
+  // Flow:
+  //   1. better-auth creates the user account (email + hashed password)
+  //   2. We look up the new user row by email
+  //   3. We create a company with locale/timezone from the request
+  //   4. We create an owner membership
+  //   5. We forward the Set-Cookie from better-auth so the session is established
+  //   6. We return { company: { id, slug, issuePrefix } } so the client can redirect
+
+  router.post(
+    "/signup",
+    validate(signupSchema),
+    async (req, res, next) => {
+      try {
+        if (!opts.betterAuth) {
+          throw badRequest("Authentication not configured on this instance.");
+        }
+
+        const { name, email, password, companyName, locale, timezone } =
+          req.body as z.infer<typeof signupSchema>;
+
+        // 1. Create the user via better-auth
+        const authResponse = await opts.betterAuth.api.signUpEmail({
+          body: { name, email, password },
+          asResponse: true,
+        });
+
+        // Forward Set-Cookie so the session is established on the client
+        const setCookieHeader = authResponse.headers.get("set-cookie");
+        if (setCookieHeader) {
+          const cookies = setCookieHeader.split(/,(?=[^;]+=[^;]+;)/);
+          for (const cookie of cookies) {
+            res.append("Set-Cookie", cookie.trim());
+          }
+        }
+
+        if (!authResponse.ok) {
+          const body = (await authResponse.json().catch(() => ({}))) as { message?: string };
+          throw badRequest(body.message ?? "Impossible de créer le compte. Cet e-mail est peut-être déjà utilisé.");
+        }
+
+        // 2. Resolve the new user row — better-auth returns { user: { id } } on success
+        const authBody = (await authResponse.json().catch(() => null)) as
+          | { user?: { id?: string } }
+          | null;
+        let userId = authBody?.user?.id;
+
+        if (!userId) {
+          // Fallback: look up by email
+          const row = await db
+            .select({ id: authUsers.id })
+            .from(authUsers)
+            .where(eq(authUsers.email, email.toLowerCase().trim()))
+            .then((rows) => rows[0] ?? null);
+          userId = row?.id;
+        }
+
+        if (!userId) {
+          throw badRequest("Compte créé mais introuvable — veuillez vous connecter manuellement.");
+        }
+
+        // 3. Generate company slug from name (mirror of services/companies.ts logic)
+        const base = companyName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[̀-ͯ]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        const slug = `${base}-${Math.random().toString(36).slice(2, 8)}`;
+
+        // 4. Create company + owner membership in a transaction
+        const newCompany = await db.transaction(async (tx) => {
+          // Derive a unique 2–4 letter issue prefix from the company name
+          const words = companyName.trim().split(/\s+/);
+          const rawPrefix = words.length >= 2
+            ? (words[0][0] + words[1][0]).toUpperCase()
+            : companyName.slice(0, 3).toUpperCase().replace(/[^A-Z]/g, "");
+          const prefix = rawPrefix || "CIE";
+
+          // Ensure prefix uniqueness with a counter suffix
+          const existingPrefixes = await tx
+            .select({ issuePrefix: companies.issuePrefix })
+            .from(companies)
+            .then((rows) => new Set(rows.map((r) => r.issuePrefix)));
+
+          let finalPrefix = prefix;
+          let attempt = 1;
+          while (existingPrefixes.has(finalPrefix)) {
+            finalPrefix = `${prefix}${attempt}`;
+            attempt++;
+          }
+
+          const [created] = await tx
+            .insert(companies)
+            .values({
+              name: companyName,
+              slug,
+              issuePrefix: finalPrefix,
+              plan: "growth",
+              locale,
+              timezone,
+            })
+            .returning();
+
+          await tx.insert(companyMemberships).values({
+            principalType: "user",
+            principalId: userId!,
+            companyId: created.id,
+            membershipRole: "owner",
+            status: "active",
+          });
+
+          return created;
+        });
+
+        res.status(201).json({
+          success: true,
+          company: {
+            id: newCompany.id,
+            slug: newCompany.slug,
+            issuePrefix: newCompany.issuePrefix,
           },
         });
       } catch (err) {

@@ -131,6 +131,11 @@ function makeSkill(overrides: {
     tools: [],
     description: "",
     body: "",
+    purpose: "",
+    dataCategories: [],
+    inputs: [],
+    outputSchema: null,
+    aiAct: { riskLevel: "none" as const, automatedDecision: false, profiling: false, article22Applicable: false },
   };
 }
 
@@ -286,5 +291,98 @@ describe("callLLM", () => {
     // fetch must NOT have been called — guard fires first
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
+  });
+});
+
+// ── G2: Capability declarations ───────────────────────────────────────────────
+
+const capabilitySkillMd = `---
+name: qualification-cv
+tier: 1
+gdpr_required: true
+purpose: "Évalue et score les CVs entrants pour une mission ouverte."
+data_categories: [cv_data, contact_info]
+inputs:
+  - name: cv_document
+    type: file
+    required: true
+    description: "CV du candidat"
+    personal_data: true
+  - name: job_posting_id
+    type: string
+    required: true
+    description: "Identifiant de la mission"
+    personal_data: false
+ai_act:
+  risk_level: limited
+  automated_decision: false
+  profiling: true
+  article_22_applicable: false
+output_schema:
+  type: object
+  required: [score]
+  properties:
+    score: { type: number }
+description: Qualifies CVs
+---
+
+Body text.
+`;
+
+describe("G2 — capability declarations", () => {
+  it("25. parses purpose and data_categories", async () => {
+    const { parseSkill } = await import("../skills/parser.js");
+    const skill = parseSkill(capabilitySkillMd);
+    expect(skill.purpose).toBe("Évalue et score les CVs entrants pour une mission ouverte.");
+    expect(skill.dataCategories).toEqual(["cv_data", "contact_info"]);
+  });
+
+  it("26. parses inputs with personalData flag", async () => {
+    const { parseSkill } = await import("../skills/parser.js");
+    const skill = parseSkill(capabilitySkillMd);
+    expect(skill.inputs).toHaveLength(2);
+    expect(skill.inputs[0]).toMatchObject({
+      name: "cv_document",
+      type: "file",
+      required: true,
+      personalData: true,
+    });
+    expect(skill.inputs[1]).toMatchObject({
+      name: "job_posting_id",
+      type: "string",
+      required: true,
+      personalData: false,
+    });
+  });
+
+  it("27. parses ai_act block", async () => {
+    const { parseSkill } = await import("../skills/parser.js");
+    const skill = parseSkill(capabilitySkillMd);
+    expect(skill.aiAct).toMatchObject({
+      riskLevel: "limited",
+      automatedDecision: false,
+      profiling: true,
+      article22Applicable: false,
+    });
+  });
+
+  it("28. parses output_schema into outputSchema", async () => {
+    const { parseSkill } = await import("../skills/parser.js");
+    const skill = parseSkill(capabilitySkillMd);
+    expect(skill.outputSchema).not.toBeNull();
+    expect(skill.outputSchema?.type).toBe("object");
+    expect(Array.isArray(skill.outputSchema?.required)).toBe(true);
+  });
+
+  it("29. defaults: empty arrays and 'none' risk when fields absent", async () => {
+    const { parseSkill } = await import("../skills/parser.js");
+    const skill = parseSkill("---\nname: minimal\n---\nBody.");
+    expect(skill.purpose).toBe("");
+    expect(skill.dataCategories).toEqual([]);
+    expect(skill.inputs).toEqual([]);
+    expect(skill.outputSchema).toBeNull();
+    expect(skill.aiAct.riskLevel).toBe("none");
+    expect(skill.aiAct.automatedDecision).toBe(false);
+    expect(skill.aiAct.profiling).toBe(false);
   });
 });

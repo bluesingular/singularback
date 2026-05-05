@@ -1,5 +1,15 @@
 import type { Request } from "express";
 import { forbidden, unauthorized } from "../errors.js";
+import type { CompanyRole } from "@paperclipai/shared";
+
+// Role hierarchy score — higher = more access
+const ROLE_LEVEL: Record<CompanyRole, number> = {
+  owner:    5,
+  admin:    4,
+  operator: 3,
+  api:      3, // service accounts, same level as operator
+  viewer:   1,
+};
 
 export function assertAuthenticated(req: Request) {
   if (req.actor.type === "none") {
@@ -56,10 +66,27 @@ export function assertCompanyAccess(req: Request, companyId: string) {
       if (!membership || membership.status !== "active") {
         throw forbidden("User does not have active company access");
       }
-      if (membership.membershipRole === "viewer") {
+      if (membership.membershipRole === "viewer" || ROLE_LEVEL[membership.membershipRole as CompanyRole] === 1) {
         throw forbidden("Viewer access is read-only");
       }
     }
+  }
+}
+
+/**
+ * Require the authenticated user to have at least `minRole` in the active company.
+ * Throws 403 if the role is insufficient or ctx is not set.
+ *
+ * Usage: requireRole(req, "admin")
+ */
+export function requireRole(req: Request, minRole: CompanyRole): void {
+  if (!req.ctx) {
+    throw forbidden("Aucune entreprise active pour ce compte.");
+  }
+  const actual = ROLE_LEVEL[req.ctx.role] ?? 0;
+  const required = ROLE_LEVEL[minRole] ?? 0;
+  if (actual < required) {
+    throw forbidden(`Rôle insuffisant — ${minRole} requis.`);
   }
 }
 

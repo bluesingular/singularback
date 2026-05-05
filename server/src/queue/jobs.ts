@@ -33,12 +33,46 @@ export const TaskApprovedJobSchema = z.object({
   approvedBy: z.string().uuid(),
 });
 
+const RoutingRuleSchema = z.object({
+  condition: z.object({
+    field: z.string(),
+    op: z.enum(["eq", "contains", "exists"]),
+    value: z.string().optional(),
+  }).optional(),
+  action: z.object({
+    type: z.enum(["heartbeat", "log_only"]),
+    agentId: z.string().uuid().optional(),
+  }),
+});
+
 export const WebhookReceivedJobSchema = z.object({
-  agentId: z.string().uuid(),
+  /** UUID of the webhook_endpoints row (null for legacy agentSlug-based routes) */
+  endpointId: z.string().uuid().nullable(),
   companyId: z.string().uuid(),
   source: z.string(), // 'indeed' | 'calendly' | 'custom' | etc.
   payload: z.record(z.unknown()),
   receivedAt: z.string().datetime(),
+  routingRules: z.array(RoutingRuleSchema).default([]),
+});
+
+export type RoutingRule = z.infer<typeof RoutingRuleSchema>;
+
+// ── G5: Human clarification jobs ─────────────────────────────────────────────
+
+export const ClarificationRequestedJobSchema = z.object({
+  clarificationId: z.string().uuid(),
+  companyId:       z.string().uuid(),
+  issueId:         z.string().uuid(),
+  agentId:         z.string().uuid().nullable(),
+  question:        z.string().min(1),
+  timeoutHours:    z.number().int().min(1),
+});
+
+export const ClarificationTimedOutJobSchema = z.object({
+  clarificationId: z.string().uuid(),
+  companyId:       z.string().uuid(),
+  issueId:         z.string().uuid(),
+  agentId:         z.string().uuid().nullable(),
 });
 
 // ── Background processing jobs ────────────────────────────────────────────────
@@ -85,3 +119,5 @@ export type MemoryExtractionJob = z.infer<typeof MemoryExtractionJobSchema>;
 export type SkillImprovementJob = z.infer<typeof SkillImprovementJobSchema>;
 export type CostResetJob = z.infer<typeof CostResetJobSchema>;
 export type ActivationCheckJob = z.infer<typeof ActivationCheckJobSchema>;
+export type ClarificationRequestedJob = z.infer<typeof ClarificationRequestedJobSchema>;
+export type ClarificationTimedOutJob = z.infer<typeof ClarificationTimedOutJobSchema>;

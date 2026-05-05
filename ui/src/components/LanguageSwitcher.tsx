@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/lib/i18n";
+import { useCompany } from "@/context/CompanyContext";
+import { companiesApi } from "@/api/companies";
 
 const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
   fr: "🇫🇷",
@@ -8,10 +10,16 @@ const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation("common");
+  const { selectedCompanyId } = useCompany();
   const current = i18n.language as SupportedLanguage;
 
-  function switchTo(lang: SupportedLanguage) {
-    i18n.changeLanguage(lang);
+  async function switchTo(lang: SupportedLanguage) {
+    await i18n.changeLanguage(lang);
+    if (selectedCompanyId) {
+      companiesApi.update(selectedCompanyId, { locale: lang }).catch(() => {
+        // non-blocking — locale already applied locally
+      });
+    }
   }
 
   return (

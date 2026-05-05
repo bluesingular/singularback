@@ -6,6 +6,29 @@ description: >
   Ne pas utiliser pour : répondre à un candidat, rédiger un email client, sourcing.
 tier: 1
 gdpr_required: false
+purpose: "Rédige des offres d'emploi conformes au droit du travail français, adaptées au ton du cabinet et au format demandé."
+data_categories: []
+inputs:
+  - name: job_title
+    type: string
+    required: true
+    description: "Intitulé du poste à pourvoir"
+    personal_data: false
+  - name: requirements
+    type: string
+    required: true
+    description: "Compétences requises, expérience, localisation, salaire"
+    personal_data: false
+  - name: format
+    type: string
+    required: false
+    description: "Format de sortie : linkedin_post | job_board | internal_brief"
+    personal_data: false
+ai_act:
+  risk_level: none
+  automated_decision: false
+  profiling: false
+  article_22_applicable: false
 output_schema:
   type: object
   required: [job_title, format, content, word_count, compliance_check]

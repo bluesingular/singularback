@@ -1,79 +1,59 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, Clock, Euro, Users, Share2, ChevronDown } from "lucide-react";
+import { useCompany } from "../../context/CompanyContext";
+import { dashboardApi } from "@/api/dashboard";
+import { agentsApi } from "@/api/agents";
+import { queryKeys } from "@/lib/queryKeys";
 
-const agentActivity = [
-  { name: "Sophie", tasks: 23, agent: "sourcing" },
-  { name: "Marc", tasks: 8, agent: "client" },
-  { name: "Clara", tasks: 5, agent: "content" },
-  { name: "Julien", tasks: 12, agent: "admin" },
-  { name: "Iris", tasks: 4, agent: "market" },
+const AGENT_COLORS = [
+  "#1A9E68", "#1A4E8C", "#C97C0A", "#6B7280", "#7C3AED",
+  "#D97706", "#0EA5E9", "#EC4899",
 ];
-
-const maxTasks = Math.max(...agentActivity.map((a) => a.tasks));
-
-const taskBreakdown = [
-  {
-    label: "Qualification de CV",
-    tasks: 23,
-    translation: "≈ 3 lots de qualification complets",
-    agent: "Sophie",
-  },
-  {
-    label: "Emails clients",
-    tasks: 8,
-    translation: "≈ 8 emails envoyés",
-    agent: "Marc",
-  },
-  {
-    label: "Rapports hebdo",
-    tasks: 5,
-    translation: "≈ 1 rapport complet par semaine",
-    agent: "Clara",
-  },
-  {
-    label: "Suivi candidats",
-    tasks: 12,
-    translation: "≈ 12 emails de suivi",
-    agent: "Julien",
-  },
-  {
-    label: "Veille marché",
-    tasks: 4,
-    translation: "≈ 4 rapports de veille",
-    agent: "Iris",
-  },
-];
-
-const agentColors: Record<string, string> = {
-  sourcing: "#1A9E68",
-  client: "#1A4E8C",
-  content: "#C97C0A",
-  admin: "#6B7280",
-  market: "#7C3AED",
-};
 
 export function Rapports() {
-  const { t } = useTranslation("reports");
+  const { t, i18n } = useTranslation("reports");
+  const { selectedCompanyId } = useCompany();
+
   const periods = [t("periods.thisMonth"), t("periods.lastMonth"), t("periods.last3Months")];
   const [period, setPeriod] = useState(() => t("periods.thisMonth"));
   const [fteCount, setFteCount] = useState(1.2);
 
+  const { data: summary } = useQuery({
+    queryKey: queryKeys.dashboard(selectedCompanyId!),
+    queryFn: () => dashboardApi.summary(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    staleTime: 30_000,
+  });
+
+  const { data: agentList } = useQuery({
+    queryKey: queryKeys.agents.list(selectedCompanyId!),
+    queryFn: () => agentsApi.list(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    staleTime: 30_000,
+  });
+
+  const tasksDone   = summary?.tasks.done ?? 0;
+  const costCents   = summary?.costs.monthSpendCents ?? 0;
+  const budgetCents = summary?.costs.monthBudgetCents ?? 0;
+  const costEuros   = Math.round(costCents / 100);
+  const hoursSaved  = Math.round((tasksDone * 5) / 60); // ~5 min per task
+
   const monthlyCostHuman = Math.round(fteCount * 2800 * 1.45);
-  const monthlyCostAI = 250;
-  const savings = monthlyCostHuman - monthlyCostAI;
+  const monthlyCostAI    = Math.max(costEuros, 1);
+  const savings          = Math.max(0, monthlyCostHuman - monthlyCostAI);
+
+  const agents = (agentList ?? []).slice(0, 8);
+
+  const fr = i18n.language !== "en";
 
   return (
-    <div
-      className="min-h-screen px-6 py-6"
-      style={{ backgroundColor: "#FAFAF8" }}
-    >
+    <div className="min-h-screen px-6 py-6" style={{ backgroundColor: "#FAFAF8" }}>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1
-          className="text-2xl"
-          style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
-        >
+        <h1 className="text-2xl" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
           {t("title")}
         </h1>
         <div className="relative">
@@ -81,184 +61,98 @@ export function Rapports() {
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
             className="appearance-none text-sm pl-3 pr-8 py-2 rounded-lg border cursor-pointer outline-none"
-            style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#E8E4DC",
-              color: "#0F0F0D",
-            }}
+            style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC", color: "#0F0F0D" }}
           >
             {periods.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
+              <option key={p} value={p}>{p}</option>
             ))}
           </select>
-          <ChevronDown
-            size={14}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ color: "#8A8680" }}
-          />
+          <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#8A8680" }} />
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Tasks */}
-        <div
-          className="rounded-xl border p-4"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-        >
-          <div className="flex items-start justify-between mb-2">
-            <TrendingUp size={18} style={{ color: "#1A9E68" }} />
-          </div>
-          <p
-            className="text-2xl font-semibold"
-            style={{ color: "#0F0F0D" }}
-          >
-            847
-          </p>
-          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            {t("kpi.tasksCompleted")}
-          </p>
+
+        <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
+          <div className="mb-2"><TrendingUp size={18} style={{ color: "#1A9E68" }} /></div>
+          <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>{tasksDone}</p>
+          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.tasksCompleted")}</p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            dont ≈ 121 sélections de CV
+            {budgetCents > 0
+              ? `${summary?.costs.monthUtilizationPercent.toFixed(0)}% ${fr ? "du budget utilisé" : "of budget used"}`
+              : fr ? "ce mois" : "this month"}
           </p>
         </div>
 
-        {/* Time saved */}
-        <div
-          className="rounded-xl border p-4"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-        >
-          <div className="flex items-start justify-between mb-2">
-            <Clock size={18} style={{ color: "#1A4E8C" }} />
-          </div>
-          <p
-            className="text-2xl font-semibold"
-            style={{ color: "#0F0F0D" }}
-          >
-            5 h
+        <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
+          <div className="mb-2"><Clock size={18} style={{ color: "#1A4E8C" }} /></div>
+          <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
+            {hoursSaved > 0 ? `${hoursSaved} h` : "–"}
           </p>
-          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            {t("kpi.hoursSaved")}
-          </p>
-          <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            {t("kpi.estimatedTime")}
-          </p>
+          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.hoursSaved")}</p>
+          <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.estimatedTime")}</p>
         </div>
 
-        {/* AI cost */}
-        <div
-          className="rounded-xl border p-4"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-        >
-          <div className="flex items-start justify-between mb-2">
-            <Euro size={18} style={{ color: "#C97C0A" }} />
-          </div>
-          <p
-            className="text-2xl font-semibold"
-            style={{ color: "#0F0F0D" }}
-          >
-            ≈ 250 €
+        <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
+          <div className="mb-2"><Euro size={18} style={{ color: "#C97C0A" }} /></div>
+          <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
+            {costEuros > 0 ? `≈ ${costEuros} €` : "–"}
           </p>
-          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            {t("kpi.aiCost")}
-          </p>
-          <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            {t("kpi.fullTeam")}
-          </p>
+          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.aiCost")}</p>
+          <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.fullTeam")}</p>
         </div>
 
-        {/* Human equivalent */}
-        <div
-          className="rounded-xl border p-4"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-        >
-          <div className="flex items-start justify-between mb-2">
-            <Users size={18} style={{ color: "#8A8680" }} />
-          </div>
-          <p
-            className="text-2xl font-semibold"
-            style={{ color: "#0F0F0D" }}
-          >
-            ≈ 3 200 €
+        <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
+          <div className="mb-2"><Users size={18} style={{ color: "#8A8680" }} /></div>
+          <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
+            {monthlyCostHuman > 0 ? `≈ ${monthlyCostHuman.toLocaleString("fr-FR")} €` : "–"}
           </p>
-          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>
-            {t("kpi.humanEquivalent")}
-          </p>
-          <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
-            {t("kpi.estimatedMonthly")}
-          </p>
+          <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.humanEquivalent")}</p>
+          <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.estimatedMonthly")}</p>
         </div>
       </div>
 
       {/* Hire simulator */}
-      <div
-        className="rounded-xl border p-5 mb-6"
-        style={{ backgroundColor: "#1A9E6808", borderColor: "#1A9E6840" }}
-      >
-        <h2
-          className="text-base font-semibold mb-1"
-          style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
-        >
+      <div className="rounded-xl border p-5 mb-6" style={{ backgroundColor: "#1A9E6808", borderColor: "#1A9E6840" }}>
+        <h2 className="text-base font-semibold mb-1" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
           {t("simulator.title")}
         </h2>
-        <div
-          className="w-full mb-4"
-          style={{ height: "1px", backgroundColor: "#1A9E6830" }}
-        />
+        <div className="w-full mb-4" style={{ height: "1px", backgroundColor: "#1A9E6830" }} />
 
         <p className="text-sm mb-4" style={{ color: "#0F0F0D" }}>
-          Votre équipe IA fait le travail de{" "}
-          <span
-            className="font-semibold"
-            style={{ color: "#1A9E68" }}
-          >
+          {fr ? "Votre équipe IA fait le travail de" : "Your AI team handles the work of"}{" "}
+          <span className="font-semibold" style={{ color: "#1A9E68" }}>
             {fteCount.toFixed(1).replace(".", ",")} ETP
           </span>{" "}
-          à{" "}
+          {fr ? "à" : "at"}{" "}
           <span className="font-semibold" style={{ color: "#1A9E68" }}>
             {monthlyCostAI} €/mois
-          </span>
-          .
+          </span>.
         </p>
 
-        <div
-          className="rounded-lg p-4 mb-4 text-sm space-y-1"
-          style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E4DC" }}
-        >
+        <div className="rounded-lg p-4 mb-4 text-sm space-y-1" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E4DC" }}>
           <p style={{ color: "#0F0F0D" }}>
-            Si vous embauchiez un chargé de sourcing junior :{" "}
-            <span className="font-medium">
-              {(fteCount * 2800).toLocaleString("fr-FR")} €/mois brut
-            </span>
+            {fr ? "Si vous embauchiez un chargé de sourcing junior :" : "Equivalent junior hire cost:"}{" "}
+            <span className="font-medium">{(fteCount * 2800).toLocaleString("fr-FR")} €/mois brut</span>
           </p>
           <p style={{ color: "#8A8680" }}>
-            + charges (≈ ×1,45) :{" "}
+            + {fr ? "charges (≈ ×1,45)" : "employer charges (≈ ×1.45)"} :{" "}
             <span className="font-medium" style={{ color: "#0F0F0D" }}>
               {monthlyCostHuman.toLocaleString("fr-FR")} €/mois
             </span>
           </p>
-          <div
-            className="pt-2 mt-2 border-t font-semibold"
-            style={{ borderColor: "#E8E4DC", color: "#1A9E68" }}
-          >
+          <div className="pt-2 mt-2 border-t font-semibold" style={{ borderColor: "#E8E4DC", color: "#1A9E68" }}>
             {t("simulator.savings")} : {savings.toLocaleString("fr-FR")} €/mois
           </div>
         </div>
 
         <div>
-          <label
-            className="text-xs font-medium block mb-2"
-            style={{ color: "#8A8680" }}
-          >
+          <label className="text-xs font-medium block mb-2" style={{ color: "#8A8680" }}>
             {t("simulator.adjustLabel", { count: fteCount.toFixed(1).replace(".", ",") })}
           </label>
           <input
-            type="range"
-            min={0.5}
-            max={3}
-            step={0.1}
+            type="range" min={0.5} max={3} step={0.1}
             value={fteCount}
             onChange={(e) => setFteCount(parseFloat(e.target.value))}
             className="w-full accent-[#1A9E68]"
@@ -271,99 +165,42 @@ export function Rapports() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6 mb-6">
-        {/* Activity by agent */}
-        <div
-          className="rounded-xl border p-5"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-        >
-          <h2
-            className="text-base font-semibold mb-4"
-            style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
-          >
+      {/* Activity by agent */}
+      {agents.length > 0 && (
+        <div className="rounded-xl border p-5 mb-6" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
+          <h2 className="text-base font-semibold mb-4" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
             {t("activityByAgent")}
           </h2>
           <div className="space-y-3">
-            {agentActivity.map((agent) => {
-              const widthPct = Math.round((agent.tasks / maxTasks) * 100);
-              const color = agentColors[agent.agent];
+            {agents.map((agent, i) => {
+              const color = AGENT_COLORS[i % AGENT_COLORS.length]!;
+              const isActive = agent.status === "active";
               return (
-                <div key={agent.name}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm" style={{ color: "#0F0F0D" }}>
-                      {agent.name}
-                    </span>
-                    <span className="text-sm font-medium" style={{ color }}>
-                      {agent.tasks} tâches
-                    </span>
-                  </div>
+                <div key={agent.id} className="flex items-center gap-3">
                   <div
-                    className="w-full rounded-full h-2"
-                    style={{ backgroundColor: "#F3F4F6" }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                    style={{ backgroundColor: isActive ? color : "#8A8680" }}
                   >
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{ width: `${widthPct}%`, backgroundColor: color }}
-                    />
+                    {agent.name.charAt(0).toUpperCase()}
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm truncate" style={{ color: "#0F0F0D" }}>{agent.name}</p>
+                  </div>
+                  <span className="text-xs" style={{ color: isActive ? color : "#8A8680" }}>
+                    {isActive ? (fr ? "Actif" : "Active") : (fr ? "En pause" : "Paused")}
+                  </span>
                 </div>
               );
             })}
           </div>
         </div>
-
-        {/* Task breakdown */}
-        <div
-          className="rounded-xl border p-5"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-        >
-          <h2
-            className="text-base font-semibold mb-4"
-            style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
-          >
-            {t("taskBreakdown")}
-          </h2>
-          <div className="space-y-3">
-            {taskBreakdown.map((item) => (
-              <div
-                key={item.label}
-                className="flex items-start justify-between gap-3 pb-3 border-b last:border-0 last:pb-0"
-                style={{ borderColor: "#E8E4DC" }}
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate" style={{ color: "#0F0F0D" }}>
-                    {item.label}
-                  </p>
-                  <p className="text-xs mt-0.5" style={{ color: "#8A8680" }}>
-                    {item.translation}
-                  </p>
-                </div>
-                <div className="text-right flex-none">
-                  <p className="text-sm font-semibold" style={{ color: "#0F0F0D" }}>
-                    {item.tasks}
-                  </p>
-                  <p className="text-xs" style={{ color: "#8A8680" }}>
-                    {t("tasks")}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Share CTA */}
-      <div
-        className="rounded-xl border p-5 flex items-center justify-between"
-        style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
-      >
+      <div className="rounded-xl border p-5 flex items-center justify-between" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
         <div>
-          <p className="text-sm font-medium" style={{ color: "#0F0F0D" }}>
-            {t("share.title")}
-          </p>
-          <p className="text-xs mt-0.5" style={{ color: "#8A8680" }}>
-            {t("share.subtitle")}
-          </p>
+          <p className="text-sm font-medium" style={{ color: "#0F0F0D" }}>{t("share.title")}</p>
+          <p className="text-xs mt-0.5" style={{ color: "#8A8680" }}>{t("share.subtitle")}</p>
         </div>
         <button
           className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-opacity hover:opacity-90"

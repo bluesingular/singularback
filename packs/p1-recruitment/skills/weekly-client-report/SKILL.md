@@ -6,6 +6,29 @@ description: >
   Ne pas utiliser pour : email ponctuel au client (utiliser client-email).
 tier: 2
 gdpr_required: false
+purpose: "Génère le rapport hebdomadaire de suivi pour un client, synthétisant l'avancement de la mission et les prochaines étapes."
+data_categories: []
+inputs:
+  - name: client_id
+    type: string
+    required: true
+    description: "Identifiant du client pour lequel générer le rapport"
+    personal_data: false
+  - name: mission_id
+    type: string
+    required: true
+    description: "Identifiant de la mission à rapporter"
+    personal_data: false
+  - name: period
+    type: string
+    required: false
+    description: "Période couverte, ex : '28 avril – 4 mai 2026' (défaut : semaine en cours)"
+    personal_data: false
+ai_act:
+  risk_level: none
+  automated_decision: false
+  profiling: false
+  article_22_applicable: false
 output_schema:
   type: object
   required: [client_name, mission_title, period, sections, next_steps, status]

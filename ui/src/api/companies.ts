@@ -36,6 +36,8 @@ export const companiesApi = {
         | "feedbackDataSharingEnabled"
         | "brandColor"
         | "logoAssetId"
+        | "locale"
+        | "timezone"
       >
     >,
   ) => api.patch<Company>(`/companies/${companyId}`, data),
@@ -69,9 +71,13 @@ export const companiesApi = {
       estimated_setup_minutes: number;
       value_proposition: string[];
     }>>(`/companies/${companyId}/packs`),
-  installPack: (companyId: string, packSlug: string) =>
+  installPack: (companyId: string, packSlug: string, variables?: Record<string, string>) =>
     api.post<{ success: boolean; agentIds: string[]; packSlug: string }>(
       `/companies/${companyId}/packs/${packSlug}/install`,
-      {},
+      { variables: variables ?? {} },
+    ),
+  getOnboardingState: (companyId: string) =>
+    api.get<{ hasAgents: boolean; packInstalled: boolean }>(
+      `/companies/${companyId}/onboarding-state`,
     ),
 };

@@ -71,4 +71,29 @@ export const authApi = {
   signOut: async () => {
     await authPost("/sign-out", {});
   },
+
+  signupWithCompany: async (input: {
+    name: string;
+    email: string;
+    password: string;
+    companyName: string;
+    locale?: string;
+    timezone?: string;
+  }): Promise<{ company: { id: string; slug: string; issuePrefix: string } }> => {
+    const res = await fetch("/api/v1/auth/signup", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const payload = await res.json().catch(() => null);
+    if (!res.ok) {
+      const msg =
+        (payload as { message?: string; error?: string } | null)?.message ??
+        (payload as { message?: string; error?: string } | null)?.error ??
+        `Erreur ${res.status}`;
+      throw new Error(msg);
+    }
+    return payload as { company: { id: string; slug: string; issuePrefix: string } };
+  },
 };

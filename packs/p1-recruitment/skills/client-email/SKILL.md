@@ -6,6 +6,29 @@ description: >
   Ne pas utiliser pour : rapport hebdomadaire (utiliser weekly-client-report).
 tier: 1
 gdpr_required: false
+purpose: "Rédige des emails professionnels à destination des clients du cabinet, avec validation automatique du ton."
+data_categories: []
+inputs:
+  - name: client_id
+    type: string
+    required: true
+    description: "Identifiant du client destinataire"
+    personal_data: false
+  - name: email_type
+    type: string
+    required: true
+    description: "Type : candidate_presentation | mission_update | interview_followup | commercial | general"
+    personal_data: false
+  - name: context
+    type: string
+    required: false
+    description: "Contexte et informations à inclure dans l'email"
+    personal_data: false
+ai_act:
+  risk_level: none
+  automated_decision: false
+  profiling: false
+  article_22_applicable: false
 output_schema:
   type: object
   required: [recipient_name, recipient_email, subject, body, email_type]

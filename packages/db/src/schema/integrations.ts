@@ -1,5 +1,5 @@
 import {
-  pgTable, uuid, text, timestamp, jsonb, customType, uniqueIndex, index,
+  pgTable, uuid, text, timestamp, jsonb, boolean, customType, uniqueIndex, index,
 } from "drizzle-orm/pg-core";
 import { companies } from "./companies.js";
 import { agents } from "./agents.js";
@@ -58,6 +58,39 @@ export const agentIntegrationPermissions = pgTable(
   (table) => ({
     agentIntegUnique: uniqueIndex("agent_integration_perms_unique_idx").on(table.agentId, table.integrationId),
     agentIdx: index("agent_integration_perms_agent_idx").on(table.agentId),
+  }),
+);
+
+// ── webhook_endpoints ─────────────────────────────────────────────────────────
+//
+// G4: Per-company named webhook endpoints.
+// Each endpoint has a unique ID (shared with the external system as the URL
+// path segment), an optional HMAC secret for signature validation, a source
+// hint for header-based detection, and a list of routing rules that control
+// which agent is woken and what action is taken when a payload arrives.
+//
+// Routing rule shape (stored in routing_rules JSONB):
+//   { condition?: { field: string; op: "eq"|"contains"|"exists"; value?: string };
+//     action: { type: "heartbeat"|"log_only"; agentId?: string } }
+
+export const webhookEndpoints = pgTable(
+  "webhook_endpoints",
+  {
+    id:           uuid("id").primaryKey().defaultRandom(),
+    companyId:    uuid("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+    name:         text("name").notNull(),
+    // Plaintext HMAC secret — stored like integrations.webhook_secret
+    secret:       text("secret"),
+    // Source hint for header-based detection ("indeed"|"calendly"|"slack"|"custom")
+    sourceHint:   text("source_hint").notNull().default("custom"),
+    // Array of RoutingRule objects (see comment above)
+    routingRules: jsonb("routing_rules").$type<Record<string, unknown>[]>().notNull().default([]),
+    isActive:     boolean("is_active").notNull().default(true),
+    createdAt:    timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt:    timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    companyIdx: index("webhook_endpoints_company_idx").on(table.companyId),
   }),
 );
 

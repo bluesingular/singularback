@@ -7,6 +7,29 @@ description: >
 tier: 2
 gdpr_required: false
 web_access: true
+purpose: "Analyse les tendances du marché de l'emploi sur un secteur donné en agrégeant des sources publiques."
+data_categories: []
+inputs:
+  - name: sector
+    type: string
+    required: true
+    description: "Secteur à analyser, ex : 'IT & Tech Paris', 'Finance Lyon'"
+    personal_data: false
+  - name: zone_geo
+    type: string
+    required: false
+    description: "Zone géographique à cibler (défaut : zone du cabinet)"
+    personal_data: false
+  - name: focus_topics
+    type: string
+    required: false
+    description: "Sujets prioritaires : salaires, pénuries, tendances technologiques"
+    personal_data: false
+ai_act:
+  risk_level: none
+  automated_decision: false
+  profiling: false
+  article_22_applicable: false
 output_schema:
   type: object
   required: [sector, period, signals, summary, sources]

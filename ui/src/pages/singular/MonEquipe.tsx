@@ -2,83 +2,22 @@ import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { ArrowRight } from "lucide-react"
 import { useNavigate } from "@/lib/router"
+import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
-import { TrustDot, AgentStatusBadge, HandoffIndicator } from "@/components/singular"
-
-// ---------------------------------------------------------------------------
-// Mock data
-// ---------------------------------------------------------------------------
-
-const agents = [
-  {
-    slug: "sophie",
-    name: "Sophie",
-    role: "Chargée de sourcing",
-    status: "actif" as const,
-    trust: "trusted" as const,
-    tasksDone: 23,
-    handoffsOut: 3,
-    handoffTarget: "Marc",
-    skills: ["Qualification CV", "Sourcing", "Relance"],
-  },
-  {
-    slug: "marc",
-    name: "Marc",
-    role: "Responsable relation client",
-    status: "actif" as const,
-    trust: "building" as const,
-    tasksDone: 8,
-    handoffsOut: 0,
-    handoffTarget: undefined,
-    skills: ["Email client", "Rapport hebdo"],
-  },
-  {
-    slug: "clara",
-    name: "Clara",
-    role: "Chargée de contenu",
-    status: "pause" as const,
-    trust: "building" as const,
-    tasksDone: 5,
-    handoffsOut: 0,
-    handoffTarget: undefined,
-    skills: ["Rédaction offres", "Posts LinkedIn"],
-  },
-  {
-    slug: "julien",
-    name: "Julien",
-    role: "Assistant administratif",
-    status: "actif" as const,
-    trust: "building" as const,
-    tasksDone: 12,
-    handoffsOut: 0,
-    handoffTarget: undefined,
-    skills: ["Suivi candidats"],
-  },
-  {
-    slug: "iris",
-    name: "Iris",
-    role: "Analyste marché",
-    status: "actif" as const,
-    trust: "building" as const,
-    tasksDone: 4,
-    handoffsOut: 0,
-    handoffTarget: undefined,
-    skills: ["Veille marché"],
-  },
-]
+import { TrustDot, AgentStatusBadge } from "@/components/singular"
+import { useCompany } from "../../context/CompanyContext"
+import { agentsApi } from "@/api/agents"
+import { queryKeys } from "@/lib/queryKeys"
+import type { Agent } from "@paperclipai/shared"
 
 // ---------------------------------------------------------------------------
 // Agent card
 // ---------------------------------------------------------------------------
 
-interface AgentCardProps {
-  agent: (typeof agents)[number]
-  onClick: () => void
-}
-
-function AgentCard({ agent, onClick }: AgentCardProps) {
-  const { t } = useTranslation("agents")
-  const avatarBg = agent.status === "actif" ? "bg-[#1A9E68]" : "bg-[#8A8680]"
+function AgentCard({ agent, onClick }: { agent: Agent; onClick: () => void }) {
+  const { t, i18n } = useTranslation("agents")
+  const isActive = agent.status === "active"
+  const avatarBg = isActive ? "bg-[#1A9E68]" : "bg-[#8A8680]"
 
   return (
     <button
@@ -86,53 +25,28 @@ function AgentCard({ agent, onClick }: AgentCardProps) {
       className="bg-white border border-[#E8E4DC] rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md hover:border-[#1A9E68]/30 transition-all text-left relative group"
     >
       <div className="absolute top-4 right-4">
-        <TrustDot level={agent.trust} />
+        <TrustDot level="building" />
       </div>
 
       <div className="flex items-center gap-3">
         <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-semibold flex-shrink-0", avatarBg)}>
-          {agent.name.charAt(0)}
+          {agent.name.charAt(0).toUpperCase()}
         </div>
         <div>
           <p className="text-base font-[Georgia,serif] text-[#0F0F0D] font-semibold leading-tight">
             {agent.name}
           </p>
-          <p className="text-xs text-[#8A8680] mt-0.5">{agent.role}</p>
+          <p className="text-xs text-[#8A8680] mt-0.5">
+            {isActive
+              ? (i18n.language === "en" ? "Active" : "Actif")
+              : (i18n.language === "en" ? "Paused" : "En pause")}
+          </p>
         </div>
       </div>
 
-      <AgentStatusBadge status={agent.status} />
+      <AgentStatusBadge status={isActive ? "actif" : "pause"} />
 
-      <div className="flex flex-wrap gap-1.5">
-        {agent.skills.map((skill) => (
-          <span key={skill} className="text-xs px-2 py-0.5 rounded-full bg-[#F5F5F3] text-[#8A8680] border border-[#E8E4DC]">
-            {skill}
-          </span>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between text-xs text-[#8A8680] pt-1 border-t border-[#E8E4DC]">
-        <span>
-          <span className="font-semibold text-[#0F0F0D]">{agent.tasksDone}</span>{" "}
-          {t("card.tasksDone", { count: agent.tasksDone })}
-        </span>
-        {agent.handoffsOut > 0 && agent.handoffTarget && (
-          <span className="text-[#1A4E8C]">
-            {t("card.handoff", { count: agent.handoffsOut, target: agent.handoffTarget })}
-          </span>
-        )}
-      </div>
-
-      {agent.handoffsOut > 0 && agent.handoffTarget && (
-        <HandoffIndicator
-          from={agent.name}
-          to={agent.handoffTarget}
-          summary={`${agent.handoffsOut} candidats qualifiés passés à ${agent.handoffTarget} cette semaine`}
-          className="text-xs"
-        />
-      )}
-
-      <div className="flex items-center gap-1 text-xs font-medium text-[#1A4E8C] opacity-0 group-hover:opacity-100 transition-opacity -mt-1">
+      <div className="flex items-center gap-1 text-xs font-medium text-[#1A4E8C] opacity-0 group-hover:opacity-100 transition-opacity">
         {t("card.viewProfile")} <ArrowRight size={12} />
       </div>
     </button>
@@ -144,11 +58,19 @@ function AgentCard({ agent, onClick }: AgentCardProps) {
 // ---------------------------------------------------------------------------
 
 export default function MonEquipe() {
-  const { t } = useTranslation("agents")
+  const { t, i18n } = useTranslation("agents")
   const navigate = useNavigate()
+  const { selectedCompanyId } = useCompany()
 
-  const activeCount = agents.filter((a) => a.status === "actif").length
-  const totalTasks = agents.reduce((s, a) => s + a.tasksDone, 0)
+  const { data: agentList, isLoading } = useQuery({
+    queryKey: queryKeys.agents.list(selectedCompanyId!),
+    queryFn: () => agentsApi.list(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    staleTime: 30_000,
+  })
+
+  const agents = agentList ?? []
+  const activeCount = agents.filter((a) => a.status === "active").length
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -157,19 +79,37 @@ export default function MonEquipe() {
         <div>
           <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("team.titleAI")}</h1>
           <p className="text-sm text-[#8A8680] mt-1">
-            {t("team.activeCount", { count: activeCount, tasks: totalTasks })}
+            {isLoading
+              ? "…"
+              : t("team.activeCount", { count: activeCount, tasks: agents.length })}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {agents.map((agent) => (
-            <AgentCard
-              key={agent.slug}
-              agent={agent}
-              onClick={() => navigate(`/agents/${agent.slug}`)}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white border border-[#E8E4DC] rounded-2xl p-5 h-40 animate-pulse" />
+            ))}
+          </div>
+        ) : agents.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-[#E8E4DC] p-10 text-center">
+            <p className="text-sm text-[#8A8680]">
+              {i18n.language === "en"
+                ? "No agents yet. Install a pack to get started."
+                : "Aucun agent pour l'instant. Installez un pack pour commencer."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {agents.map((agent) => (
+              <AgentCard
+                key={agent.id}
+                agent={agent}
+                onClick={() => navigate(`/agents/${agent.urlKey}`)}
+              />
+            ))}
+          </div>
+        )}
 
       </div>
     </div>

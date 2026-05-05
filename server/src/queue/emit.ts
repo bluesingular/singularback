@@ -16,6 +16,8 @@ import type {
   WebhookReceivedJob,
   MemoryExtractionJob,
   SkillImprovementJob,
+  ClarificationRequestedJob,
+  ClarificationTimedOutJob,
 } from "./jobs.js";
 
 export const emit = {
@@ -63,6 +65,31 @@ export const emit = {
       // One active improvement job per agent-skill pair at a time
       jobId: `skill-improve:${data.agentId}:${data.skillSlug}`,
     }),
+
+  // ── G5: Clarification jobs ──────────────────────────────────────────────────
+
+  clarificationRequested: async (data: ClarificationRequestedJob) => {
+    const delayMs = data.timeoutHours * 60 * 60 * 1000;
+    const timeoutJob = await systemQueue.add(
+      "clarification.timeout",
+      {
+        clarificationId: data.clarificationId,
+        companyId: data.companyId,
+        issueId: data.issueId,
+        agentId: data.agentId,
+      } satisfies ClarificationTimedOutJob,
+      {
+        delay: delayMs,
+        jobId: `clarification-timeout:${data.clarificationId}`,
+      },
+    );
+    return timeoutJob;
+  },
+
+  cancelClarificationTimeout: async (clarificationId: string) => {
+    const job = await systemQueue.getJob(`clarification-timeout:${clarificationId}`);
+    if (job) await job.remove();
+  },
 
   // ── System jobs ─────────────────────────────────────────────────────────────
 

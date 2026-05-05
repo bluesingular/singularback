@@ -6,6 +6,29 @@ description: >
   Ne pas utiliser pour : rédiger une offre, contacter un candidat, faire une veille marché.
 tier: 1
 gdpr_required: true
+purpose: "Évalue et score les CVs entrants pour déterminer leur adéquation avec une mission ouverte."
+data_categories: [cv_data, contact_info, professional_history]
+inputs:
+  - name: cv_document
+    type: file
+    required: true
+    description: "CV du candidat (PDF, DOCX ou texte brut)"
+    personal_data: true
+  - name: job_posting_id
+    type: string
+    required: true
+    description: "Identifiant de la mission à qualifier"
+    personal_data: false
+  - name: client_preferences
+    type: string
+    required: false
+    description: "Préférences spécifiques du client pour cette mission"
+    personal_data: false
+ai_act:
+  risk_level: limited
+  automated_decision: false
+  profiling: true
+  article_22_applicable: false
 output_schema:
   type: object
   required: [cv_id, candidate_name, score, recommendation, strengths, concerns, summary]
