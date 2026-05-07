@@ -1,5 +1,25 @@
 ---
 name: candidate-sourcing
+config_params:
+  - name: max_profils_par_recherche
+    type: number
+    label: "Profils maximum par recherche"
+    description: "Nombre de candidats identifiés avant de s'arrêter et présenter les résultats"
+    min: 5
+    max: 100
+    default: 20
+  - name: sources_autorisees
+    type: text_list
+    label: "Sources de recherche autorisées"
+    description: "Plateformes que Sophie peut consulter (laisser vide = toutes)"
+    placeholder: "ex : linkedin.com, welcome.to.the.jungle.com"
+    default: []
+  - name: exclure_domaines
+    type: text_list
+    label: "Domaines à exclure"
+    description: "Ne pas contacter de candidats de ces entreprises"
+    placeholder: "ex : concurrent.fr, agence-rivale.com"
+    default: []
 description: >
   Utiliser pour rechercher activement des candidats pour une mission ouverte.
   Déclencher sur : "sourcez des candidats pour", "trouve des profils", nouvelle mission ouverte.

@@ -17,6 +17,7 @@
 import { eq, and } from "drizzle-orm";
 import { trustScores, trustProposals } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
+import { createNotification } from "../notifications/service.js";
 import {
   calculateTrustScore,
   getAutonomyLevel,
@@ -211,8 +212,14 @@ export async function checkTrustDowngrade(
       ),
     );
 
-  // Notify operator — full implementation in M15 (SSE) / M13 (console)
-  await notifyDowngradeStub({ companyId, agentId, skillType, from: currentLevel, to: newLevel });
+  await createNotification(db, {
+    companyId,
+    type: "trust_downgrade",
+    title: "Supervision augmentée",
+    body:  `La confiance envers cet agent a baissé (${currentLevel} → ${newLevel}). Je vais surveiller ses prochaines actions de plus près.`,
+    actionUrl: `/confiance`,
+    metadata: { agentId, skillType, from: currentLevel, to: newLevel },
+  });
 
   logger.warn(
     { agentId, skillType, from: currentLevel, to: newLevel, newScore },
@@ -222,15 +229,3 @@ export async function checkTrustDowngrade(
   return { downgraded: true, newLevel };
 }
 
-// ── Stub ──────────────────────────────────────────────────────────────────────
-
-async function notifyDowngradeStub(params: {
-  companyId: string;
-  agentId:   string;
-  skillType: string;
-  from:      AutonomyLevel;
-  to:        AutonomyLevel;
-}): Promise<void> {
-  void params;
-  // M15: emit.trustDowngraded({ companyId, agentId, skillType, from, to })
-}

@@ -116,12 +116,15 @@ async function installSkills(
         tier:           parsed.tier,
         gdprRequired:   parsed.gdprRequired,
         webAccess:      parsed.webAccess,
+        webScope:       parsed.webScope,
         autonomyTier:   parsed.autonomyTier,
         purpose:        parsed.purpose,
         dataCategories: parsed.dataCategories,
         inputs:         parsed.inputs,
         outputSchema:   parsed.outputSchema,
         aiAct:          parsed.aiAct,
+        tools:          parsed.tools,
+        configParams:   parsed.configParams,
       };
     } catch {
       // Non-fatal: skill installs even if parsing fails; metadata stays empty
@@ -169,23 +172,29 @@ async function installCompanyDna(
   tx: Db,
   companyId: string,
   dna: NonNullable<PackManifest["companyDna"]>,
+  variables: Record<string, string> = {},
 ): Promise<void> {
+  const desc       = interpolateTemplate(dna.description       ?? "", variables);
+  const profile    = interpolateTemplate(dna.customerProfile   ?? "", variables);
+  const tone       = interpolateTemplate(dna.tone              ?? "", variables);
+  const regulatory = interpolateTemplate(dna.regulatoryContext ?? "", variables);
+
   await (tx as any)
     .insert(companyDna)
     .values({
       companyId,
-      description:       dna.description       ?? "",
-      customerProfile:   dna.customerProfile   ?? "",
-      tone:              dna.tone              ?? "",
-      regulatoryContext: dna.regulatoryContext ?? "",
+      description:       desc,
+      customerProfile:   profile,
+      tone:              tone,
+      regulatoryContext: regulatory,
     })
     .onConflictDoUpdate({
       target: [companyDna.companyId],
       set: {
-        description:       dna.description       ?? "",
-        customerProfile:   dna.customerProfile   ?? "",
-        tone:              dna.tone              ?? "",
-        regulatoryContext: dna.regulatoryContext ?? "",
+        description:       desc,
+        customerProfile:   profile,
+        tone:              tone,
+        regulatoryContext: regulatory,
       },
     });
 }
@@ -289,9 +298,9 @@ export async function installPack(
       // Step 4: Install quality gates
       await installQualityGates(tx, companyId, pack.qualityGates);
 
-      // Step 5: Upsert company DNA
+      // Step 5: Upsert company DNA (template variables applied to each field)
       if (pack.companyDna) {
-        await installCompanyDna(tx, companyId, pack.companyDna);
+        await installCompanyDna(tx, companyId, pack.companyDna, variables);
       }
     });
   } catch (err) {

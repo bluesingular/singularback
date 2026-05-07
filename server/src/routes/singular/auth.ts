@@ -415,6 +415,41 @@ export function singularAuthRoutes(
     }
   });
 
+  // ── POST /api/v1/auth/resend-verification ─────────────────────────────────
+  // Asks better-auth to resend the email verification link.
+  // Fails silently if better-auth's sendVerificationEmail is not implemented —
+  // we never expose whether the user exists (prevents user enumeration).
+
+  router.post("/resend-verification", async (req, res, next) => {
+    try {
+      const userId = (req as any).ctx?.userId;
+      if (!userId) throw unauthorized();
+
+      // better-auth exposes sendVerificationEmail via api when emailVerification
+      // plugin is configured. We call it if available; otherwise silently succeed.
+      const ba = opts.betterAuth as any;
+      if (typeof ba?.api?.sendVerificationEmail === "function") {
+        const [userRow] = await db
+          .select({ email: authUsers.email })
+          .from(authUsers)
+          .where(eq(authUsers.id, userId));
+
+        if (userRow?.email) {
+          await ba.api.sendVerificationEmail({
+            body: { email: userRow.email },
+            asResponse: false,
+          }).catch(() => {
+            // swallow — don't leak auth errors
+          });
+        }
+      }
+
+      res.json({ ok: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // ── GET /api/v1/auth/google ───────────────────────────────────────────────
   // Initiates Google OAuth by redirecting to better-auth's social sign-in endpoint.
   // better-auth must be configured with the Google provider plugin for this to work.

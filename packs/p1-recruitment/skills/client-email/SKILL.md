@@ -1,5 +1,25 @@
 ---
 name: client-email
+config_params:
+  - name: ton_communication
+    type: select
+    label: "Ton de communication"
+    description: "Registre utilisé dans tous les emails clients"
+    options: ["professionnel", "chaleureux", "direct", "formel"]
+    default: "professionnel"
+  - name: signature
+    type: text
+    label: "Signature email"
+    description: "Texte ajouté en bas de chaque email (ex : coordonnées, titre)"
+    placeholder: "ex : Marie Dupont — Cabinet Martin Recrutement — 01 23 45 67 89"
+    default: ""
+  - name: delai_relance_jours
+    type: number
+    label: "Délai avant relance (jours)"
+    description: "Nombre de jours sans réponse avant de relancer automatiquement"
+    min: 1
+    max: 14
+    default: 3
 description: >
   Utiliser pour rédiger un email à un client (DRH, manager, dirigeant).
   Déclencher sur : présentation de candidats, mise à jour de mission, réponse à une question client.

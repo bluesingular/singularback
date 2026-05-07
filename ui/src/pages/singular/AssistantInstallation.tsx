@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useSearchParams } from "@/lib/router";
+import { useNavigate, useSearchParams, useParams } from "@/lib/router";
 import { useCompany } from "../../context/CompanyContext";
 import { companiesApi } from "../../api/companies";
 import { queryKeys } from "../../lib/queryKeys";
@@ -323,6 +323,7 @@ export function AssistantInstallation() {
   const queryClient = useQueryClient();
   const { selectedCompanyId } = useCompany();
   const [searchParams] = useSearchParams();
+  const { companyPrefix } = useParams<{ companyPrefix?: string }>();
   const packSlug = searchParams.get("pack") ?? "p1-recruitment";
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -353,6 +354,25 @@ export function AssistantInstallation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.companies.all });
       await queryClient.invalidateQueries({ queryKey: ["agents", selectedCompanyId ?? ""] });
+
+      // Attempt Stripe checkout — redirect if URL returned, otherwise stay in wizard
+      if (selectedCompanyId) {
+        try {
+          const res = await fetch(`/api/companies/${selectedCompanyId}/billing/checkout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: "growth" }),
+          });
+          const { url } = await res.json();
+          if (url) {
+            window.location.href = url;
+            return;
+          }
+        } catch {
+          // Stripe not configured or failed — fall through to completion screen
+        }
+      }
+
       setCurrentStep(STEPS.length - 1); // show completion
     },
     onError: (err) => {
@@ -451,13 +471,13 @@ export function AssistantInstallation() {
             ) : (
               <div className="w-full flex flex-col gap-3">
                 <Button
-                  onClick={() => navigate("/console")}
+                  onClick={() => navigate(`/${companyPrefix}/console`)}
                   className="w-full bg-[#1A9E68] hover:bg-[#158a5a] text-white"
                 >
                   {step.cta_primary ?? "Ouvrir la Console CEO"}
                 </Button>
                 <button
-                  onClick={() => navigate("/tableau-de-bord")}
+                  onClick={() => navigate(`/${companyPrefix}/tableau-de-bord`)}
                   className="w-full text-sm text-stone-500 hover:text-stone-700 py-2"
                 >
                   Voir le tableau de bord

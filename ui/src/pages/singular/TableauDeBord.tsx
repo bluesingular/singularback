@@ -18,6 +18,7 @@ import { authApi } from "@/api/auth"
 import { goalsApi } from "@/api/goals"
 import { intelligenceApi, type IntelligenceCard } from "@/api/intelligence"
 import { queryKeys } from "@/lib/queryKeys"
+import { useLocale } from "@/hooks/useLocale"
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -58,6 +59,7 @@ export default function TableauDeBord() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { selectedCompanyId, selectedCompany } = useCompany()
+  const { locale, timezone, formatNumber } = useLocale()
 
   const [dismissedIds, setDismissedIds] = React.useState<Set<string>>(new Set())
 
@@ -133,10 +135,9 @@ export default function TableauDeBord() {
   const agents = (agentList ?? []).slice(0, 6)
 
   const today = new Date()
-  const dateLabel = today.toLocaleDateString(
-    i18n.language === "en" ? "en-GB" : "fr-FR",
-    { weekday: "long", day: "numeric", month: "long" },
-  )
+  const dateLabel = today.toLocaleDateString(locale, {
+    weekday: "long", day: "numeric", month: "long", timeZone: timezone,
+  })
 
   const taskTranslation = i18n.language === "en"
     ? `~${Math.max(0, taskLimit - tasksDone)} tasks remaining`

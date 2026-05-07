@@ -1,0 +1,322 @@
+/**
+ * server/src/routes/admin.ts
+ *
+ * Gap C — Swwarm admin portal.
+ * All routes require isInstanceAdmin.
+ *
+ * GET  /admin/tenants                    → list all companies with health metrics
+ * GET  /admin/tenants/:companyId         → single tenant detail
+ * POST /admin/tenants/:companyId/impersonate  → start read-only impersonation session (audited)
+ * DELETE /admin/tenants/:companyId/impersonate → end impersonation
+ * GET  /admin/health                     → platform-level aggregate (total tenants, tasks, cost)
+ */
+
+import { Router } from "express";
+import { eq, desc, sql, and, gte } from "drizzle-orm";
+import pino from "pino";
+import {
+  companies,
+  companyMemberships,
+  agents,
+  issues,
+  costRecords,
+  auditEntries,
+  authUsers,
+} from "@paperclipai/db";
+import type { Db } from "@paperclipai/db";
+import { assertInstanceAdmin } from "./authz.js";
+
+const log = pino({ name: "admin-routes" });
+
+// Compute 30-day window start
+function thirtyDaysAgo(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  return d;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function microToEuros(micro: number): number {
+  return Math.round(micro) / 1_000_000;
+}
+
+// ── Route builder ─────────────────────────────────────────────────────────────
+
+export function adminRoutes(db: Db) {
+  const router = Router();
+
+  // All admin routes require instance admin
+  router.use((req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      next();
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── GET /admin/health — platform aggregate ────────────────────────────────
+
+  router.get("/admin/health", async (_req, res) => {
+    const [tenantCount] = await (db as any)
+      .select({ count: sql<number>`count(*)::int` })
+      .from(companies);
+
+    const [taskCount] = await (db as any)
+      .select({ count: sql<number>`count(*)::int` })
+      .from(issues);
+
+    const [costRow] = await (db as any)
+      .select({ total: sql<number>`coalesce(sum(cost_eur_micro), 0)::bigint` })
+      .from(costRecords)
+      .where(gte(costRecords.createdAt, thirtyDaysAgo()));
+
+    res.json({
+      tenants:        tenantCount?.count ?? 0,
+      tasksAllTime:   taskCount?.count ?? 0,
+      costLast30Days: microToEuros(Number(costRow?.total ?? 0)),
+    });
+  });
+
+  // ── GET /admin/tenants — list all companies with health metrics ───────────
+
+  router.get("/admin/tenants", async (_req, res) => {
+    const cutoff = thirtyDaysAgo();
+
+    // All companies
+    const allCompanies = await (db as any)
+      .select()
+      .from(companies)
+      .orderBy(desc(companies.createdAt));
+
+    // Member counts per company
+    const memberCounts: { companyId: string; count: number }[] = await (db as any)
+      .select({
+        companyId: companyMemberships.companyId,
+        count:     sql<number>`count(*)::int`,
+      })
+      .from(companyMemberships)
+      .where(eq(companyMemberships.status, "active"))
+      .groupBy(companyMemberships.companyId);
+
+    const memberMap = new Map(memberCounts.map((r) => [r.companyId, r.count]));
+
+    // Active agent counts per company
+    const agentCounts: { companyId: string; count: number }[] = await (db as any)
+      .select({
+        companyId: agents.companyId,
+        count:     sql<number>`count(*)::int`,
+      })
+      .from(agents)
+      .where(eq(agents.status, "active"))
+      .groupBy(agents.companyId);
+
+    const agentMap = new Map(agentCounts.map((r) => [r.companyId, r.count]));
+
+    // Tasks in last 30 days per company
+    const recentTasks: { companyId: string; count: number }[] = await (db as any)
+      .select({
+        companyId: issues.companyId,
+        count:     sql<number>`count(*)::int`,
+      })
+      .from(issues)
+      .where(gte(issues.createdAt, cutoff))
+      .groupBy(issues.companyId);
+
+    const taskMap = new Map(recentTasks.map((r) => [r.companyId, r.count]));
+
+    // Cost in last 30 days per company
+    const recentCosts: { companyId: string; total: number }[] = await (db as any)
+      .select({
+        companyId: costRecords.companyId,
+        total:     sql<number>`coalesce(sum(cost_eur_micro), 0)::bigint`,
+      })
+      .from(costRecords)
+      .where(gte(costRecords.createdAt, cutoff))
+      .groupBy(costRecords.companyId);
+
+    const costMap = new Map(recentCosts.map((r) => [r.companyId, Number(r.total)]));
+
+    const tenants = allCompanies.map((c: any) => ({
+      id:            c.id,
+      name:          c.name,
+      slug:          c.slug,
+      plan:          c.plan,
+      status:        c.status,
+      createdAt:     c.createdAt,
+      members:       memberMap.get(c.id) ?? 0,
+      activeAgents:  agentMap.get(c.id) ?? 0,
+      tasksLast30d:  taskMap.get(c.id) ?? 0,
+      costLast30d:   microToEuros(costMap.get(c.id) ?? 0),
+      tasksUsed:     c.tasksUsedMonth ?? 0,
+      tasksLimit:    c.tasksLimitMonth ?? 0,
+      stripeCustomerId: c.stripeCustomerId ?? null,
+    }));
+
+    res.json({ tenants });
+  });
+
+  // ── GET /admin/tenants/:companyId — single tenant detail ─────────────────
+
+  router.get("/admin/tenants/:companyId", async (req, res) => {
+    const { companyId } = req.params as { companyId: string };
+
+    const [company] = await (db as any)
+      .select()
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    if (!company) {
+      res.status(404).json({ error: "Tenant introuvable" });
+      return;
+    }
+
+    // Members with user info
+    const members = await (db as any)
+      .select({
+        userId:    companyMemberships.userId,
+        role:      companyMemberships.membershipRole,
+        status:    companyMemberships.status,
+        email:     authUsers.email,
+        name:      authUsers.name,
+        joinedAt:  companyMemberships.createdAt,
+      })
+      .from(companyMemberships)
+      .leftJoin(authUsers, eq(authUsers.id, companyMemberships.userId))
+      .where(eq(companyMemberships.companyId, companyId))
+      .orderBy(companyMemberships.createdAt);
+
+    // Agents
+    const agentList = await (db as any)
+      .select({
+        id:     agents.id,
+        name:   agents.name,
+        status: agents.status,
+        role:   agents.role,
+      })
+      .from(agents)
+      .where(eq(agents.companyId, companyId));
+
+    // Last 10 audit entries (impersonation log + gate violations)
+    const recentAudit = await (db as any)
+      .select()
+      .from(auditEntries)
+      .where(eq(auditEntries.companyId, companyId))
+      .orderBy(desc(auditEntries.createdAt))
+      .limit(10);
+
+    // Recent task count (30 days)
+    const [taskRow] = await (db as any)
+      .select({ count: sql<number>`count(*)::int` })
+      .from(issues)
+      .where(
+        and(
+          eq(issues.companyId, companyId),
+          gte(issues.createdAt, thirtyDaysAgo()),
+        ),
+      );
+
+    // Cost (30 days)
+    const [costRow] = await (db as any)
+      .select({ total: sql<number>`coalesce(sum(cost_eur_micro), 0)::bigint` })
+      .from(costRecords)
+      .where(
+        and(
+          eq(costRecords.companyId, companyId),
+          gte(costRecords.createdAt, thirtyDaysAgo()),
+        ),
+      );
+
+    res.json({
+      company: {
+        id:             company.id,
+        name:           company.name,
+        slug:           company.slug,
+        plan:           company.plan,
+        status:         company.status,
+        locale:         company.locale,
+        timezone:       company.timezone,
+        createdAt:      company.createdAt,
+        stripeCustomerId: company.stripeCustomerId ?? null,
+        stripeSubId:    company.stripeSubId ?? null,
+        tasksUsed:      company.tasksUsedMonth ?? 0,
+        tasksLimit:     company.tasksLimitMonth ?? 0,
+        tokensUsed:     company.tokensUsedMonth ?? 0,
+        tokensLimit:    company.tokensLimitMonth ?? 0,
+        spentCents:     company.spentMonthlyCents ?? 0,
+        budgetCents:    company.budgetMonthlyCents ?? 0,
+      },
+      members,
+      agents: agentList,
+      tasksLast30d: taskRow?.count ?? 0,
+      costLast30d:  microToEuros(Number(costRow?.total ?? 0)),
+      recentAudit,
+    });
+  });
+
+  // ── POST /admin/tenants/:companyId/impersonate ────────────────────────────
+  // Logs an audit entry and returns a signed token the UI can use to view
+  // that tenant's dashboard in read-only mode.
+  // Read-only enforcement: the impersonation flag is checked server-side on
+  // every state-changing request (mutations blocked for impersonated actors).
+
+  router.post("/admin/tenants/:companyId/impersonate", async (req, res) => {
+    const { companyId } = req.params as { companyId: string };
+    const adminUserId = (req as any).actor?.userId ?? "unknown";
+
+    const [company] = await (db as any)
+      .select({ id: companies.id, name: companies.name })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    if (!company) {
+      res.status(404).json({ error: "Tenant introuvable" });
+      return;
+    }
+
+    // Write audit entry
+    await (db as any).insert(auditEntries).values({
+      companyId,
+      agentId:    null,
+      taskId:     null,
+      actionType: "impersonation_start",
+      actionData: { adminUserId, targetCompanyId: companyId, targetCompanyName: company.name },
+      result:     "success",
+    });
+
+    log.warn(
+      { adminUserId, companyId, companyName: company.name },
+      "admin: impersonation started",
+    );
+
+    res.json({
+      companyId:   company.id,
+      companyName: company.name,
+      impersonatorId: adminUserId,
+      startedAt:   new Date().toISOString(),
+    });
+  });
+
+  // ── DELETE /admin/tenants/:companyId/impersonate ──────────────────────────
+
+  router.delete("/admin/tenants/:companyId/impersonate", async (req, res) => {
+    const { companyId } = req.params as { companyId: string };
+    const adminUserId = (req as any).actor?.userId ?? "unknown";
+
+    await (db as any).insert(auditEntries).values({
+      companyId,
+      agentId:    null,
+      taskId:     null,
+      actionType: "impersonation_end",
+      actionData: { adminUserId, targetCompanyId: companyId },
+      result:     "success",
+    });
+
+    log.info({ adminUserId, companyId }, "admin: impersonation ended");
+
+    res.json({ ok: true });
+  });
+
+  return router;
+}

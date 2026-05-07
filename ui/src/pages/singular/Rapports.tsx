@@ -6,6 +6,7 @@ import { useCompany } from "../../context/CompanyContext";
 import { dashboardApi } from "@/api/dashboard";
 import { agentsApi } from "@/api/agents";
 import { queryKeys } from "@/lib/queryKeys";
+import { useLocale } from "@/hooks/useLocale";
 
 const AGENT_COLORS = [
   "#1A9E68", "#1A4E8C", "#C97C0A", "#6B7280", "#7C3AED",
@@ -15,6 +16,7 @@ const AGENT_COLORS = [
 export function Rapports() {
   const { t, i18n } = useTranslation("reports");
   const { selectedCompanyId } = useCompany();
+  const { formatNumber, formatEuros } = useLocale();
 
   const periods = [t("periods.thisMonth"), t("periods.lastMonth"), t("periods.last3Months")];
   const [period, setPeriod] = useState(() => t("periods.thisMonth"));
@@ -106,7 +108,7 @@ export function Rapports() {
         <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
           <div className="mb-2"><Users size={18} style={{ color: "#8A8680" }} /></div>
           <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
-            {monthlyCostHuman > 0 ? `≈ ${monthlyCostHuman.toLocaleString("fr-FR")} €` : "–"}
+            {monthlyCostHuman > 0 ? `≈ ${formatNumber(monthlyCostHuman)} €` : "–"}
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.humanEquivalent")}</p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.estimatedMonthly")}</p>
@@ -134,16 +136,16 @@ export function Rapports() {
         <div className="rounded-lg p-4 mb-4 text-sm space-y-1" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E4DC" }}>
           <p style={{ color: "#0F0F0D" }}>
             {fr ? "Si vous embauchiez un chargé de sourcing junior :" : "Equivalent junior hire cost:"}{" "}
-            <span className="font-medium">{(fteCount * 2800).toLocaleString("fr-FR")} €/mois brut</span>
+            <span className="font-medium">{formatNumber(Math.round(fteCount * 2800))} €/mois brut</span>
           </p>
           <p style={{ color: "#8A8680" }}>
             + {fr ? "charges (≈ ×1,45)" : "employer charges (≈ ×1.45)"} :{" "}
             <span className="font-medium" style={{ color: "#0F0F0D" }}>
-              {monthlyCostHuman.toLocaleString("fr-FR")} €/mois
+              {formatNumber(monthlyCostHuman)} €/mois
             </span>
           </p>
           <div className="pt-2 mt-2 border-t font-semibold" style={{ borderColor: "#E8E4DC", color: "#1A9E68" }}>
-            {t("simulator.savings")} : {savings.toLocaleString("fr-FR")} €/mois
+            {t("simulator.savings")} : {formatNumber(savings)} €/mois
           </div>
         </div>
 

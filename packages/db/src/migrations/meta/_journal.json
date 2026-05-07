@@ -526,6 +526,20 @@
       "when": 1746662400000,
       "tag": "0074_singular_clarification",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1746748800000,
+      "tag": "0075_singular_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1746835200000,
+      "tag": "0076_gdpr_erasure_log",
+      "breakpoints": true
     }
   ]
 }

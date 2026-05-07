@@ -1,5 +1,17 @@
 ---
 name: job-posting-writer
+config_params:
+  - name: ton_offre
+    type: select
+    label: "Ton des offres"
+    description: "Style rédactionnel des offres d'emploi rédigées par Clara"
+    options: ["dynamique", "classique", "startup", "institutionnel"]
+    default: "dynamique"
+  - name: inclure_fourchette_salaire
+    type: toggle
+    label: "Inclure la fourchette de salaire"
+    description: "Afficher une fourchette salariale indicative dans les offres"
+    default: true
 description: >
   Utiliser quand il faut rédiger une offre d'emploi ou une fiche de poste.
   Déclencher sur : "rédige une offre pour", "fiche de poste", "annonce pour le poste de".

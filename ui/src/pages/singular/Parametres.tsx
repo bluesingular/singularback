@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { CheckCircle2, AlertTriangle, ChevronRight, Save, Package, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ChevronRight, Save, Package, Loader2, Trash2 } from "lucide-react";
 import { useCompany } from "../../context/CompanyContext";
 import { companiesApi } from "../../api/companies";
 import { useToastActions } from "../../context/ToastContext";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
+import { membersApi, type Member, type MemberRole } from "@/api/members";
+import { useLocale } from "@/hooks/useLocale";
+import { notificationsApi, type NotificationPreferences } from "@/api/notifications";
 
 const EU_TIMEZONES = [
   { value: "Europe/Paris",    label: "Paris (CET/CEST)" },
@@ -19,7 +22,7 @@ const EU_TIMEZONES = [
   { value: "Europe/Stockholm",label: "Stockholm (CET/CEST)" },
 ];
 
-type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue";
+type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue" | "notifications";
 
 const tabLabels: { key: Tab; label: string }[] = [
   { key: "adn", label: "ADN de l'entreprise" },
@@ -28,6 +31,7 @@ const tabLabels: { key: Tab; label: string }[] = [
   { key: "equipe", label: "Équipe" },
   { key: "packs", label: "Packs d'agents" },
   { key: "langue", label: "Langue" },
+  { key: "notifications", label: "Notifications" },
 ];
 
 const specialisations = [
@@ -376,36 +380,129 @@ function FacturationTab() {
   );
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  owner:    "Propriétaire",
+  admin:    "Administrateur",
+  operator: "Opérateur",
+  viewer:   "Lecteur",
+  api:      "API",
+};
+
+const ROLE_OPTIONS: MemberRole[] = ["owner", "admin", "operator", "viewer"];
+
 function EquipeTab() {
+  const { selectedCompanyId } = useCompany();
+  const { pushToast } = useToastActions();
+  const { formatDate } = useLocale();
+  const qc = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["singular-members", selectedCompanyId],
+    queryFn: () => membersApi.list(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+  });
+
+  const rolesMutation = useMutation({
+    mutationFn: ({ memberId, role }: { memberId: string; role: MemberRole }) =>
+      membersApi.updateRole(selectedCompanyId!, memberId, role),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["singular-members", selectedCompanyId] });
+      pushToast({ title: "Rôle mis à jour", tone: "success" });
+    },
+    onError: () => pushToast({ title: "Erreur lors de la mise à jour", tone: "error" }),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (memberId: string) => membersApi.remove(selectedCompanyId!, memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["singular-members", selectedCompanyId] });
+      pushToast({ title: "Membre retiré", tone: "success" });
+    },
+    onError: (err: any) =>
+      pushToast({ title: err?.message ?? "Erreur lors de la suppression", tone: "error" }),
+  });
+
+  const members: Member[] = data?.members ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="w-5 h-5 border-2 border-[#1A9E68] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <div
-        className="rounded-xl border px-5 py-4 mb-4 flex items-center justify-between"
+        className="rounded-xl border overflow-hidden"
         style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}
       >
-        <div>
-          <p className="text-sm font-medium" style={{ color: "#0F0F0D" }}>
-            Luc Boilly
-          </p>
-          <p className="text-xs" style={{ color: "#8A8680" }}>
-            Administrateur
-          </p>
-        </div>
-        <span
-          className="text-xs font-medium px-2.5 py-1 rounded-full"
-          style={{ backgroundColor: "#1A9E6815", color: "#1A9E68" }}
-        >
-          Vous
-        </span>
+        {members.length === 0 && (
+          <p className="text-sm text-[#8A8680] px-5 py-4">Aucun membre.</p>
+        )}
+        {members.map((m, i) => (
+          <div
+            key={m.id}
+            className="px-5 py-4 flex items-center gap-3"
+            style={{ borderBottom: i < members.length - 1 ? "1px solid #F0EDE6" : undefined }}
+          >
+            {/* Avatar initial */}
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
+              style={{ backgroundColor: "#E8F5EE", color: "#1A9E68" }}
+            >
+              {(m.name ?? m.email ?? "?")[0].toUpperCase()}
+            </div>
+
+            {/* Name + email */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate" style={{ color: "#0F0F0D" }}>
+                {m.name ?? m.email ?? m.userId}
+              </p>
+              {m.email && m.name && (
+                <p className="text-xs truncate" style={{ color: "#8A8680" }}>{m.email}</p>
+              )}
+              <p className="text-xs" style={{ color: "#CACAC8" }}>
+                Rejoint le {formatDate(m.joinedAt)}
+              </p>
+            </div>
+
+            {/* Role selector */}
+            <select
+              value={m.role ?? "viewer"}
+              onChange={(e) =>
+                rolesMutation.mutate({ memberId: m.id, role: e.target.value as MemberRole })
+              }
+              disabled={rolesMutation.isPending}
+              className="text-xs rounded-lg border px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30"
+              style={{ borderColor: "#E8E4DC", color: "#4B4846", backgroundColor: "#FAFAF8" }}
+            >
+              {ROLE_OPTIONS.map((r) => (
+                <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+              ))}
+            </select>
+
+            {/* Remove */}
+            <button
+              onClick={() => {
+                if (confirm(`Retirer ${m.name ?? m.email} de l'équipe ?`)) {
+                  removeMutation.mutate(m.id);
+                }
+              }}
+              disabled={removeMutation.isPending}
+              className="p-1.5 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
+              title="Retirer le membre"
+            >
+              <Trash2 size={13} style={{ color: "#CACAC8" }} />
+            </button>
+          </div>
+        ))}
       </div>
 
-      <button
-        className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl border transition-colors hover:opacity-80"
-        style={{ borderColor: "#E8E4DC", color: "#0F0F0D" }}
-      >
-        <Plus />
-        Inviter un membre
-      </button>
+      <p className="text-xs" style={{ color: "#8A8680" }}>
+        Pour inviter un nouveau membre, utilisez le flux d'inscription depuis le tableau de bord.
+      </p>
     </div>
   );
 }
@@ -597,6 +694,112 @@ function PacksTab() {
   );
 }
 
+// ── NotificationsTab ─────────────────────────────────────────────────────────
+
+const NOTIF_ROWS: { key: keyof NotificationPreferences; base: string; label: string; desc: string }[] = [
+  { key: "approvalInapp",     base: "approval",     label: "Approbations",         desc: "Tâches en attente de votre validation" },
+  { key: "trustInapp",        base: "trust",        label: "Confiance",            desc: "Propositions d'autonomie et ajustements" },
+  { key: "intelligenceInapp", base: "intelligence", label: "Intelligence du matin", desc: "Alertes quotidiennes et insights" },
+  { key: "errorInapp",        base: "error",        label: "Erreurs",              desc: "Incidents détectés par vos agents" },
+  { key: "budgetInapp",       base: "budget",       label: "Budget",               desc: "Alertes de dépassement de budget" },
+];
+
+function NotificationsTab() {
+  const { selectedCompanyId } = useCompany();
+  const { pushToast } = useToastActions();
+  const qc = useQueryClient();
+
+  const { data: prefs, isLoading } = useQuery({
+    queryKey: ["notification-preferences", selectedCompanyId],
+    queryFn: () => notificationsApi.getPreferences(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+  });
+
+  const save = useMutation({
+    mutationFn: (patch: Partial<NotificationPreferences>) =>
+      notificationsApi.updatePreferences(selectedCompanyId!, patch),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["notification-preferences", selectedCompanyId] });
+      pushToast({ title: "Préférences enregistrées", tone: "success" });
+    },
+    onError: () => pushToast({ title: "Erreur lors de la sauvegarde", tone: "error" }),
+  });
+
+  function toggle(key: keyof NotificationPreferences) {
+    if (!prefs) return;
+    save.mutate({ [key]: !prefs[key] });
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 py-8 text-sm text-[#8A8680]">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Chargement…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-[#4B4846]">
+        Choisissez comment vous souhaitez être alerté pour chaque type d'événement.
+      </p>
+
+      {/* Column headers */}
+      <div className="grid grid-cols-[1fr_80px_80px] gap-4 pb-2 border-b border-[#E8E4DC]">
+        <span />
+        <span className="text-xs font-semibold text-[#8A8680] uppercase tracking-wide text-center">
+          In-app
+        </span>
+        <span className="text-xs font-semibold text-[#8A8680] uppercase tracking-wide text-center">
+          E-mail
+        </span>
+      </div>
+
+      {NOTIF_ROWS.map(({ key, base, label, desc }) => {
+        const inappKey  = key as keyof NotificationPreferences;
+        const emailKey  = `${base}Email` as keyof NotificationPreferences;
+        return (
+          <div key={base} className="grid grid-cols-[1fr_80px_80px] gap-4 items-center">
+            <div>
+              <p className="text-sm font-medium text-[#0F0F0D]">{label}</p>
+              <p className="text-xs text-[#8A8680] mt-0.5">{desc}</p>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => toggle(inappKey)}
+                className={`w-10 h-5 rounded-full transition-colors ${
+                  prefs?.[inappKey] ? "bg-[#1A9E68]" : "bg-[#D4CFC8]"
+                }`}
+              >
+                <span
+                  className={`block w-4 h-4 rounded-full bg-white shadow transition-transform mx-0.5 ${
+                    prefs?.[inappKey] ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => toggle(emailKey)}
+                className={`w-10 h-5 rounded-full transition-colors ${
+                  prefs?.[emailKey] ? "bg-[#1A9E68]" : "bg-[#D4CFC8]"
+                }`}
+              >
+                <span
+                  className={`block w-4 h-4 rounded-full bg-white shadow transition-transform mx-0.5 ${
+                    prefs?.[emailKey] ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Parametres() {
   const [activeTab, setActiveTab] = useState<Tab>("adn");
 
@@ -650,6 +853,7 @@ export function Parametres() {
         {activeTab === "equipe" && <EquipeTab />}
         {activeTab === "packs" && <PacksTab />}
         {activeTab === "langue" && <LangueTab />}
+        {activeTab === "notifications" && <NotificationsTab />}
       </div>
     </div>
   );

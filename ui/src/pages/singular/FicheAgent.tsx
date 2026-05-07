@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { ArrowLeft, Pause, Play, ArrowRight } from "lucide-react"
+import { ArrowLeft, Pause, Play, ArrowRight, Settings } from "lucide-react"
 import { useParams, useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -170,16 +170,27 @@ export default function FicheAgent() {
               <AgentStatusBadge status={isActive ? "actif" : "pause"} />
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isPending}
-            onClick={() => isActive ? pauseMutation.mutate() : resumeMutation.mutate()}
-            className="flex-shrink-0 text-xs gap-1.5 border-[#E8E4DC]"
-          >
-            {isActive ? <Pause size={12} /> : <Play size={12} />}
-            {isActive ? t("detail.pause") : t("detail.resume")}
-          </Button>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`config`)}
+              className="text-xs gap-1.5 border-[#E8E4DC]"
+            >
+              <Settings size={12} />
+              Configurer
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => isActive ? pauseMutation.mutate() : resumeMutation.mutate()}
+              className="text-xs gap-1.5 border-[#E8E4DC]"
+            >
+              {isActive ? <Pause size={12} /> : <Play size={12} />}
+              {isActive ? t("detail.pause") : t("detail.resume")}
+            </Button>
+          </div>
         </section>
 
         {/* Capacités */}

@@ -26,6 +26,7 @@ import {
   agents,
 } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
+import { createNotification } from "../notifications/service.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -88,7 +89,7 @@ export async function runGates(
 
       // Escalate: create approval request (M13) and notify via SSE (M15)
       if (result.action === "escalate") {
-        await createApprovalRequestStub(params);
+        await createApprovalRequestStub({ ...params, db });
       }
 
       return result;
@@ -245,7 +246,13 @@ async function getAgentActionCount(
  * Stub — full implementation in M13 (CEO Console approval flow).
  * Creates an approval_requests record and notifies operator.
  */
-async function createApprovalRequestStub(params: RunGatesParams): Promise<void> {
-  void params;
-  // M13: emit.approvalRequired({ companyId, agentId, taskId, actionType, actionData })
+async function createApprovalRequestStub(params: RunGatesParams & { db: Db }): Promise<void> {
+  await createNotification(params.db, {
+    companyId: params.companyId,
+    type:      "approval_pending",
+    title:     "Action en attente d'approbation",
+    body:      `Un agent attend votre validation avant de continuer (${params.actionType}).`,
+    actionUrl: `/taches/${params.taskId}`,
+    metadata:  { agentId: params.agentId, taskId: params.taskId, actionType: params.actionType },
+  });
 }

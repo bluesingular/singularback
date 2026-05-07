@@ -127,7 +127,13 @@ function makeGatesDb(opts: {
   agentBudget?: { budgetUsedMonth: string; budgetLimitMonth: string };
 }) {
   let selectCall = 0;
-  const insertValues = vi.fn().mockResolvedValue(undefined);
+  // insertValues is used as the .values() function; it returns an object
+  // with both .returning() (for createNotification) and resolves directly
+  // (for legacy insert paths that don't chain .returning).
+  const insertValues = vi.fn().mockReturnValue({
+    returning: vi.fn().mockResolvedValue([{ id: "mock-notif-id" }]),
+    then: (resolve: (v: undefined) => void) => Promise.resolve(undefined).then(resolve),
+  });
 
   const db = {
     select: vi.fn().mockImplementation(() => ({
@@ -276,8 +282,8 @@ describe("runGates", () => {
     });
 
     expect(result.passed).toBe(false);
-    // Only 2 inserts (violation + audit for the failing gate), not 3
-    expect(insertValues).toHaveBeenCalledTimes(2);
+    // 3 inserts: violation + audit + notification (content_forbidden escalates)
+    expect(insertValues).toHaveBeenCalledTimes(3);
   });
 });
 

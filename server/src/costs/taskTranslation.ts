@@ -10,6 +10,8 @@
  * This module is pack-agnostic: it receives the translation config and computes.
  */
 
+import { formatNumber, DEFAULT_LOCALE } from "../i18n/format.js";
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface TaskTranslationEntry {
@@ -62,12 +64,13 @@ export function formatUsageGauge(
   tasksUsed: number,
   tasksLimit: number,
   translations: TaskTranslations,
+  locale = DEFAULT_LOCALE,
 ): string {
   const remaining = Math.max(0, tasksLimit - tasksUsed);
   const parts = translateRemainingTasks(remaining, translations);
 
-  const usedStr  = tasksUsed.toLocaleString("fr-FR");
-  const limitStr = tasksLimit.toLocaleString("fr-FR");
+  const usedStr  = formatNumber(tasksUsed, locale);
+  const limitStr = formatNumber(tasksLimit, locale);
 
   if (parts.length === 0 || remaining === 0) {
     return `${usedStr}\u202F/\u202F${limitStr} tasks — limit reached`;

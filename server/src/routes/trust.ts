@@ -12,7 +12,7 @@ import { Router } from "express";
 import { eq, and } from "drizzle-orm";
 import { trustScores, trustProposals } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
-import { assertCompanyAccess } from "./authz.js";
+import { assertCompanyAccess, requireRole } from "./authz.js";
 import pino from "pino";
 
 const logger = pino({ name: "trust-routes" });
@@ -54,6 +54,7 @@ export function trustRoutes(db: Db) {
         proposalId: string;
       };
       assertCompanyAccess(req, companyId);
+      requireRole(req, "operator");
 
       const [proposal] = await (db as any)
         .select()
@@ -107,6 +108,7 @@ export function trustRoutes(db: Db) {
         proposalId: string;
       };
       assertCompanyAccess(req, companyId);
+      requireRole(req, "operator");
 
       const updated = await (db as any)
         .update(trustProposals)

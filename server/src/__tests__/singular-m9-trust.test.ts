@@ -238,7 +238,15 @@ describe("checkTrustDowngrade", () => {
     const setMock  = vi.fn().mockResolvedValue(undefined);
     const whereMock = vi.fn().mockResolvedValue(undefined);
     setMock.mockReturnValue({ where: whereMock });
-    const db = { update: vi.fn().mockReturnValue({ set: setMock }) } as any;
+    const db = {
+      update: vi.fn().mockReturnValue({ set: setMock }),
+      // needed for createNotification (trust_downgrade notification)
+      insert: vi.fn().mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{ id: "mock-notif-id" }]),
+        }),
+      }),
+    } as any;
 
     const result = await checkTrustDowngrade(db, {
       companyId:    "company-1",

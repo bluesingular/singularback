@@ -1,11 +1,13 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { ArrowLeft, AlertTriangle, Star } from "lucide-react"
+import { ArrowLeft, AlertTriangle, Star, Loader2 } from "lucide-react"
 import { useNavigate, useParams } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import { MicroReward, HandoffIndicator } from "@/components/singular"
 import { Button } from "@/components/ui/button"
 import { issuesApi } from "@/api/issues"
+import { requestBiometric, isBiometricAvailable } from "@/hooks/useWebAuthn"
+import { useStreamingTask } from "@/hooks/useStreamingTask"
 
 // ---------------------------------------------------------------------------
 // Mock data
@@ -180,7 +182,13 @@ function ApprovalWidget({ onApprove }: ApprovalWidgetProps) {
       </div>
 
       <Button
-        onClick={() => onApprove(selected || 5)}
+        onClick={async () => {
+          if (isBiometricAvailable()) {
+            const ok = await requestBiometric();
+            if (!ok) return; // user cancelled biometric — don't approve
+          }
+          onApprove(selected || 5);
+        }}
         className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white w-full sm:w-fit"
         disabled={selected === 0}
         size="sm"
@@ -201,6 +209,7 @@ export default function FilDeTache() {
   const { id: issueId } = useParams<{ id?: string }>()
   const [approved, setApproved] = React.useState(false)
   const [microRewardMsg, setMicroRewardMsg] = React.useState<string | null>(null)
+  const { streamingText, isStreaming } = useStreamingTask(issueId)
 
   async function handleApprove(rating: number) {
     if (issueId) {
@@ -276,6 +285,25 @@ export default function FilDeTache() {
             <p className="text-xs text-[#8A8680] mt-2">il y a 12 min</p>
           </div>
         </div>
+
+        {/* Live streaming output — visible while the agent is writing */}
+        {isStreaming && (
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#1A9E68] flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 mt-0.5">
+              S
+            </div>
+            <div className="flex-1 bg-white border border-[#1A9E68]/30 rounded-2xl rounded-tl-sm p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Loader2 size={12} className="animate-spin text-[#1A9E68]" />
+                <p className="text-xs font-semibold text-[#1A9E68]">Sophie · en train d'écrire…</p>
+              </div>
+              <p className="text-sm text-[#0F0F0D] leading-relaxed whitespace-pre-wrap font-mono">
+                {streamingText}
+                <span className="inline-block w-0.5 h-4 bg-[#1A9E68] animate-pulse ml-0.5 align-middle" />
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* CV results */}
         <div className="flex items-start gap-3">

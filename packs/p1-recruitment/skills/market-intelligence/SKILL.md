@@ -1,5 +1,18 @@
 ---
 name: market-intelligence
+config_params:
+  - name: secteurs_surveilles
+    type: text_list
+    label: "Secteurs à surveiller"
+    description: "Marchés sur lesquels Iris concentre sa veille"
+    placeholder: "ex : tech, santé, finance"
+    default: []
+  - name: frequence_rapport
+    type: select
+    label: "Fréquence des rapports"
+    description: "À quelle fréquence Iris produit sa veille marché"
+    options: ["quotidienne", "hebdomadaire", "bimensuelle"]
+    default: "hebdomadaire"
 description: >
   Utiliser pour produire une analyse des tendances du marché de l'emploi sur un secteur.
   Déclencher sur : chaque lundi matin (cron), demande explicite de veille.

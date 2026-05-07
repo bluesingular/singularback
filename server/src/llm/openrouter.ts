@@ -81,6 +81,8 @@ export interface CallLLMParams {
   skillName?: string;
 }
 
+export type ChunkCallback = (text: string) => void;
+
 // ── Caller ────────────────────────────────────────────────────────────────────
 
 /**
@@ -162,6 +164,150 @@ export async function callLLM(params: CallLLMParams): Promise<LLMResponse> {
   // recordUsage({ companyId, agentId, taskId, model, inputTokens, outputTokens })
   await recordUsageStub(params, result.usage);
 
+  return result;
+}
+
+/**
+ * Stream an LLM response via OpenRouter's SSE API.
+ *
+ * Calls `onChunk(text)` for each text delta received.
+ * Returns the full aggregated response once the stream closes.
+ *
+ * GDPR guard fires before any HTTP call — same invariant as callLLM.
+ */
+export async function callLLMStream(
+  params: CallLLMParams,
+  onChunk: ChunkCallback,
+): Promise<LLMResponse> {
+  // RULE 1: GDPR guard — throws GdprViolationError if model is unsafe
+  assertGdprSafe(
+    params.model,
+    params.gdprRequired ?? false,
+    params.skillName ?? "unknown",
+  );
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new LLMError("OPENROUTER_API_KEY is not configured", 500, params.model);
+  }
+
+  const body: Record<string, unknown> = {
+    model: params.model,
+    messages: params.messages,
+    max_tokens: params.maxOutputTokens,
+    temperature: 0.3,
+    stream: true,
+    stream_options: { include_usage: true },
+  };
+
+  if (params.tools && params.tools.length > 0) {
+    body.tools = params.tools;
+  }
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": process.env.APP_URL ?? "https://singular.blue",
+      "X-Title": "Singular Platform",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const err = (await response.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
+    throw new LLMError(
+      `OpenRouter stream error: ${err.error?.message ?? response.statusText}`,
+      response.status,
+      params.model,
+    );
+  }
+
+  if (!response.body) {
+    throw new LLMError("OpenRouter returned empty stream body", 500, params.model);
+  }
+
+  // Parse SSE stream — OpenRouter uses standard OpenAI SSE format:
+  //   data: {"choices":[{"delta":{"content":"..."}}],"usage":null}
+  //   data: [DONE]
+  const reader  = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  let buffer          = "";
+  let responseId      = "";
+  let resolvedModel   = params.model;
+  let fullContent     = "";
+  let promptTokens    = 0;
+  let completionTokens = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    // Process complete SSE lines
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? ""; // keep incomplete last line
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+
+      const payload = trimmed.slice(5).trim();
+      if (payload === "[DONE]") continue;
+
+      let chunk: {
+        id?: string;
+        model?: string;
+        choices?: Array<{
+          delta?: { content?: string | null };
+          finish_reason?: string | null;
+        }>;
+        usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | null;
+      };
+
+      try {
+        chunk = JSON.parse(payload);
+      } catch {
+        continue; // skip malformed chunks
+      }
+
+      if (chunk.id)    responseId    = chunk.id;
+      if (chunk.model) resolvedModel = chunk.model;
+
+      // Accumulate usage from any chunk that includes it (OpenRouter sends it in the last chunk)
+      if (chunk.usage) {
+        promptTokens     = chunk.usage.prompt_tokens;
+        completionTokens = chunk.usage.completion_tokens;
+      }
+
+      const delta = chunk.choices?.[0]?.delta?.content;
+      if (delta) {
+        fullContent += delta;
+        onChunk(delta);
+      }
+    }
+  }
+
+  const result: LLMResponse = {
+    id: responseId,
+    model: resolvedModel,
+    choices: [{
+      message:       { role: "assistant", content: fullContent },
+      finish_reason: "stop",
+    }],
+    usage: {
+      promptTokens,
+      completionTokens,
+      totalTokens: promptTokens + completionTokens,
+    },
+  };
+
+  await recordUsageStub(params, result.usage);
   return result;
 }
 

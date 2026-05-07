@@ -116,7 +116,11 @@
       "Bash(pnpm --filter @paperclipai/server exec vitest run --reporter=verbose src/__tests__/singular-g5-clarification.test.ts)",
       "Bash(pnpm --filter @paperclipai/ui exec tsc --noEmit)",
       "Bash(pnpm --filter @paperclipai/server test --reporter=verbose)",
-      "Bash(pnpm --filter @paperclipai/server test)"
+      "Bash(pnpm --filter @paperclipai/server test)",
+      "Bash(pnpm --filter @paperclipai/server test --reporter=verbose --run)",
+      "Bash(pnpm --filter @paperclipai/server test -- --reporter=verbose --run)",
+      "Bash(node -e ' *)",
+      "Bash(grep -E \"\\\\.\\(ts|js\\)$\")"
     ]
   }
 }

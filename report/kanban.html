@@ -237,50 +237,50 @@ const TASKS = [
   // BLOCKING — must ship before first paying customer
   // ════════════════════════════════════════════════════════════
 
-  { id: "G1", title: "G1 — i18n architecture: company.locale + company.timezone on all strings and notifications", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Decision point: hardcoding French now makes internationalisation 3× more expensive later." },
-  { id: "G2", title: "G2 — Agent capability declaration: machine-readable SKILL.md frontmatter (inputs/outputs/gdpr/ai_act/autonomy_default)", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Lets the platform validate required integrations, auto-route LLM tier, and surface capabilities in plain language — without per-agent code." },
-  { id: "G3", title: "G3 — RBAC: Owner/Admin/Operator/Viewer/API roles on company_members", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Without this, the platform cannot serve any business with more than one person." },
-  { id: "G4", title: "G4 — Inbound webhooks: POST /webhooks/{company_id}/{id} → routing rules → BullMQ", tag: "infra", sprint: "blocking", status: "todo",
-    note: "Difference between a reactive platform (humans trigger agents) and a truly autonomous one (the world triggers agents)." },
-  { id: "G5", title: "G5 — Human clarification flow: awaiting_clarification task state, 48h timeout, response channel back into BullMQ worker", tag: "infra", sprint: "blocking", status: "todo",
-    note: "An agent mid-task must be able to pause, ask a specific question, receive an answer, and resume — without abandoning the task." },
+  { id: "G1", title: "G1 — i18n architecture: company.locale + company.timezone on all strings and notifications", tag: "infra", sprint: "blocking", status: "done",
+    note: "DONE 2026-05-06. server/src/i18n/format.ts (formatDate/Time/DateTime/Number/MicroEuros/Euros + defaults). taskTranslation.ts now accepts locale param. Client: useLocale() hook reads selectedCompany.locale/timezone. Applied to TableauDeBord, ConsoleCEO, Rapports, AdminHealth, AdminTenantDetail, AdminTenants. 16/16 G1 tests pass. 438/438 singular tests pass." },
+  { id: "G2", title: "G2 — Agent capability declaration: machine-readable SKILL.md frontmatter (inputs/outputs/gdpr/ai_act/autonomy_default)", tag: "infra", sprint: "blocking", status: "done",
+    note: "DONE 2026-05-07. parseSkill() already extracted inputs/outputSchema/aiAct/tools/purpose/dataCategories. Added tools + webScope to pack installer capabilityMetadata. New GET /companies/:id/agents/:agentId/capabilities endpoint in agent-config.ts: returns per-skill capability objects + aggregate flags (requiresGdpr, requiresWebAccess, autonomyTier, aiActRiskLevel=highest across skills). 17/17 G2 tests pass. 130/130 singular gap tests pass." },
+  { id: "G3", title: "G3 — RBAC: Owner/Admin/Operator/Viewer/API roles on company_members", tag: "infra", sprint: "blocking", status: "done",
+    note: "DONE 2026-05-06. COMPANY_ROLES + ROLE_PERMISSIONS in @paperclipai/shared. requireRole() in authz.ts. companyContextMiddleware populates req.ctx.role. Role enforcement on trust (approve/reject), intelligence (mark-read), agent-config (PUT) routes. Full member management: GET list, PATCH role, DELETE (soft). Last-owner 409 guard. Équipe tab in Parametres.tsx wired to real membersApi. 16/16 G3 tests pass." },
+  { id: "G4", title: "G4 — Inbound webhooks: POST /webhooks/{company_id}/{id} → routing rules → BullMQ", tag: "infra", sprint: "blocking", status: "done",
+    note: "DONE 2026-05-07. server/src/routes/webhooks.ts: UUID path → endpoint lookup → HMAC validation → webhook_events insert → emit.webhookReceived() with routingRules. Legacy agent-slug path preserved. Source detection (Slack/GitHub/Stripe/custom). Management CRUD in webhook-endpoints.ts (GET/POST/PATCH/DELETE, admin-only writes, soft-delete). DB: webhook_endpoints + webhook_events tables. 18/18 G4 tests pass. 148/148 singular gap tests pass." },
+  { id: "G5", title: "G5 — Human clarification flow: awaiting_clarification task state, 48h timeout, response channel back into BullMQ worker", tag: "infra", sprint: "blocking", status: "done",
+    note: "DONE 2026-05-07. server/src/routes/clarifications.ts: POST /issues/:id/clarification (ask), POST /clarifications/:id/reply (answer+resume), GET /clarifications (list), POST /clarifications/:id/cancel (admin). Issue transitions: in_progress → awaiting_clarification → in_progress (or blocked on cancel). emit.clarificationRequested() schedules 48h timeout; reply cancels it and dispatches agent heartbeat. 17/17 G5 tests pass. 165/165 singular gap tests pass." },
 
   // ════════════════════════════════════════════════════════════
   // PRODUCT GAPS — before first paying customer
   // ════════════════════════════════════════════════════════════
 
-  { id: "GA", title: "Gap A — Customer self-service onboarding: sign-up, email verification, wizard (7 questions → full Company DNA), pack selection, Stripe checkout, first login", tag: "ui", sprint: "product", status: "todo",
-    note: "The complete journey does not exist. M12 assumed the wizard had already delivered answers. The wizard itself was never built." },
-  { id: "GB", title: "Gap B — Multi-tenant portal: all 9 screens read company_id exclusively from useAuth().companyId — zero hardcoded tenant references", tag: "ui", sprint: "product", status: "todo",
-    note: "Correct architecture: app.swwarm.com (customer portal) separate from admin.swwarm.com (Swwarm internal)." },
-  { id: "GC", title: "Gap C — Swwarm admin portal (admin.swwarm.com): tenant list + health metrics, Bull Board (internal only), billing oversight, read-only impersonation", tag: "ui", sprint: "product", status: "todo",
-    note: "Without this, the platform is unmanageable at 50+ tenants." },
-  { id: "GD", title: "Gap D — Skill management system (admin.swwarm.com): structured editor, semantic versioning + diff + rollback, golden dataset manager, test runner, publish flow, opt-in update notifications for tenants", tag: "infra", sprint: "product", status: "todo",
-    note: "This is the tool used to build packs — not hand-writing .md files. Also includes contribution review loop (tenant improvement → platform promotion)." },
-  { id: "GE", title: "Gap E — Notification system: notifications + notification_preferences tables, in-app notification centre, email channel (transactional), push channel (PWA WebPush)", tag: "infra", sprint: "product", status: "todo",
-    note: "Delivery rules: approval → all channels; intelligence → email + in-app; batch complete → in-app only." },
-  { id: "GF", title: "Gap F — Agent configuration UI: form auto-rendered from capability declaration frontmatter, no raw SKILL.md editing exposed to customers", tag: "ui", sprint: "product", status: "todo",
-    note: "Tone, parameters, blocked contacts, schedule — configurable by the customer without touching raw instructions." },
-  { id: "GH", title: "Gap H — PWA: web app manifest + service worker + WebAuthn biometric auth for approvals, home screen install prompt", tag: "ui", sprint: "product", status: "todo",
-    note: "Gives 80% of mobile stickiness with 1% of the effort. Native iOS/Android at 500 customers." },
+  { id: "GA", title: "Gap A — Customer self-service onboarding: sign-up, email verification, wizard (7 questions → full Company DNA), pack selection, Stripe checkout, first login", tag: "ui", sprint: "product", status: "done",
+    note: "DONE 2026-05-07 (extended). POST /signup + Inscription.tsx + CataloguePacks.tsx + AssistantInstallation.tsx (7-step wizard) — core done 2026-05-05. Extended: companyDna template in pack.json with {{specialisation/zone_geo/client_type}} placeholders; installer applies interpolateTemplate() to DNA fields; POST /billing/checkout (Stripe checkout session, graceful null when unconfigured); GET /billing/portal; POST /resend-verification; EmailVerificationBanner in Layout; SuccessPaiement.tsx + /succes-paiement route; fixed console nav to use /:companyPrefix/console; checkout trigger after install (redirects to Stripe or falls through to console). 35 tests pass." },
+  { id: "GB", title: "Gap B — Multi-tenant portal: all 9 screens read company_id exclusively from useAuth().companyId — zero hardcoded tenant references", tag: "ui", sprint: "product", status: "done",
+    note: "DONE 2026-05-05. All 9 screens use selectedCompanyId from useCompany(). Hardcoded P1 data removed. intelligenceApi added. plan field added to shared Company type." },
+  { id: "GC", title: "Gap C — Swwarm admin portal (admin.swwarm.com): tenant list + health metrics, Bull Board (internal only), billing oversight, read-only impersonation", tag: "ui", sprint: "product", status: "done",
+    note: "DONE 2026-05-06. server/src/routes/admin.ts (5 endpoints, assertInstanceAdmin guard). UI: AdminLayout + AdminHealth + AdminTenants + AdminTenantDetail. Routes at /instance/admin. 15/15 tests pass. costEurMicro (micro-EUR → EUR) conversion fixed." },
+  { id: "GD", title: "Gap D — Skill management system (admin.swwarm.com): structured editor, semantic versioning + diff + rollback, golden dataset manager, test runner, publish flow, opt-in update notifications for tenants", tag: "infra", sprint: "product", status: "done",
+    note: "DONE 2026-05-07. 11 admin routes (admin-skills.ts): pending queue, version CRUD, publish flow (draft→review→staging→active), approve/reject/rollback, golden dataset CRUD — all behind assertInstanceAdmin. AdminSkills.tsx (pending queue + version browser). AdminSkillEditor.tsx (prompt editor, diff view vs parent, golden dataset manager, publish/approve/reject/rollback action buttons). AdminLayout nav item added. App.tsx routes wired. 19/19 tests pass." },
+  { id: "GE", title: "Gap E — Notification system: notifications + notification_preferences tables, in-app notification centre, email channel (transactional), push channel (PWA WebPush)", tag: "infra", sprint: "product", status: "done",
+    note: "DONE 2026-05-07. DB schema (migration 0075), service.ts + email.ts (Resend), 7-route API. NotificationBell in SingularSidebar (unread badge, panel, dismiss, mark-read, mark-all-read). Notification preferences tab added to Parametres.tsx: per-type toggles for in-app + email channels. 25/25 tests pass. WebPush deferred to Gap H." },
+  { id: "GF", title: "Gap F — Agent configuration UI: form auto-rendered from capability declaration frontmatter, no raw SKILL.md editing exposed to customers", tag: "ui", sprint: "product", status: "done",
+    note: "DONE 2026-05-06. config_params frontmatter in all 7 P1 SKILL.md files + parser extension. GET/PUT /agents/:id/config. ConfigAgent.tsx — select/number/text/text_list/toggle fields. Configurer button in FicheAgent. 21 tests pass." },
+  { id: "GH", title: "Gap H — PWA: web app manifest + service worker + WebAuthn biometric auth for approvals, home screen install prompt", tag: "ui", sprint: "product", status: "done",
+    note: "DONE 2026-05-06. site.webmanifest (Swwarm branding, #1A9E68, standalone), index.html meta tags, sw.js (swwarm-v1 cache, FR offline, WebPush push+notificationclick handlers). push_subscriptions DB table. POST/DELETE /push/subscribe routes. sendWebPush() helper (VAPID, graceful 410). WebPush wired into createNotification() alongside email. useInstallPrompt hook (beforeinstallprompt). InstallBanner component mounted in Layout. useWebAuthn (requestBiometric + isBiometricAvailable). useWebPush hook (subscribe/unsubscribe). WebAuthn gate wired into ApprovalWidget in FilDeTache. 13/13 tests pass." },
 
   // ════════════════════════════════════════════════════════════
   // DEPTH — ship alongside first packs
   // ════════════════════════════════════════════════════════════
 
-  { id: "G6", title: "G6 — Streaming LLM: stream mode in routeModel() → real-time SSE agent.writing chunks", tag: "infra", sprint: "depth", status: "todo",
-    note: "SSE infrastructure (M15) already exists. Streaming LLM is the missing link between M3 and M15." },
+  { id: "G6", title: "G6 — Streaming LLM: stream mode in routeModel() → real-time SSE agent.writing chunks", tag: "infra", sprint: "depth", status: "done",
+    note: "DONE 2026-05-07. callLLMStream() in openrouter.ts (stream:true, SSE chunk parsing, GDPR guard fires before HTTP). executeWithStreaming() in llm/streaming.ts fans chunks to sseManager.publishEvent(agent.writing) + done sentinel. useStreamingTask() hook in UI accumulates chunks per taskId from useCompanyEvents. FilDeTache.tsx shows live streaming bubble with blinking cursor. 12/12 tests pass." },
   { id: "G7", title: "G7 — Agent versioning: task.skill_version pin — skill updates only apply to new tasks", tag: "infra", sprint: "depth", status: "todo",
     note: "Makes M10 (self-improvement) safe: a mid-day skill update no longer produces inconsistent outputs across tasks." },
   { id: "G8", title: "G8 — Task DAG: BullMQ job dependencies — Task B waits for Task A approval", tag: "infra", sprint: "depth", status: "todo",
     note: "BullMQ supports dependencies natively. Requires a configuration layer + UI on top." },
   { id: "G9", title: "G9 — Batch processing: fan-out N items, parallel workers, single approval gate for batch outcome", tag: "infra", sprint: "depth", status: "todo",
     note: "200 CVs in parallel, 500 personalised emails, 50 competitor pages analysed simultaneously." },
-  { id: "G10", title: "G10 — GDPR compliance export: Article 17 (erasure), Article 20 (portability), audit trail CSV export", tag: "infra", sprint: "depth", status: "todo",
-    note: "Immutable audit trail requires anonymisation (not deletion). anonymise_contact(id) replaces PII with hashed identifiers throughout the audit trail." },
+  { id: "G10", title: "G10 — GDPR compliance export: Article 17 (erasure), Article 20 (portability), audit trail CSV export", tag: "infra", sprint: "depth", status: "done",
+    note: "DONE 2026-05-07. Migration 0076: gdpr_erasure_log table. gdpr.ts routes: POST .../gdpr/contacts/:id/erase (Art.17, Owner), POST .../gdpr/users/:id/erase (Art.17, anonymises authUsers row + deletes sessions/accounts/push/prefs), GET .../gdpr/portability/contacts/:id (Art.20 JSON, Admin), GET .../gdpr/portability/users/:id (Art.20 JSON, Owner), GET .../gdpr/audit.csv (CSV stream, Admin). audit_entries retained under Art.17(3)(b) legal obligation — noted in erasure log. 15/15 tests pass." },
   { id: "G11", title: "G11 — Multi-modal input: PDF extraction, images (native multimodal), voice (Whisper), spreadsheets (structured parsing)", tag: "infra", sprint: "depth", status: "todo",
     note: "Build G10 before G11: text extracted from PDFs immediately creates new GDPR obligations." },
 
@@ -369,11 +369,11 @@ const TAG_LABEL = { infra: "Backend", ui: "UI / i18n", test: "Test / QA", ops: "
 const STATUS_CYCLE = { todo: "progress", progress: "done", done: "todo" };
 
 function save() {
-  localStorage.setItem("singular_kanban_v2", JSON.stringify(TASKS.map(t => ({ id: t.id, status: t.status }))));
+  localStorage.setItem("singular_kanban_v3", JSON.stringify(TASKS.map(t => ({ id: t.id, status: t.status }))));
 }
 
 function load() {
-  const saved = JSON.parse(localStorage.getItem("singular_kanban_v2") || "[]");
+  const saved = JSON.parse(localStorage.getItem("singular_kanban_v3") || "[]");
   saved.forEach(s => {
     const t = TASKS.find(t => t.id === s.id);
     if (t) t.status = s.status;

@@ -1,5 +1,20 @@
 ---
 name: candidate-re-engagement
+config_params:
+  - name: delai_silence_jours
+    type: number
+    label: "Silence avant relance (jours)"
+    description: "Nombre de jours sans réponse avant de déclencher une relance"
+    min: 2
+    max: 14
+    default: 5
+  - name: max_relances
+    type: number
+    label: "Relances maximum"
+    description: "Nombre de relances maximum avant d'archiver le candidat"
+    min: 1
+    max: 5
+    default: 2
 description: >
   Utiliser pour relancer un candidat qui n'a pas répondu depuis 4+ jours.
   Déclencher sur : candidat silencieux depuis X jours, candidat à relancer.

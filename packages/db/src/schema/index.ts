@@ -95,3 +95,9 @@ export { intelligenceCards, activationMoments } from "./intelligence.js";
 export { stripeEvents } from "./billing.js";
 // Singular.blue G5: human clarification flow
 export { clarificationRequests } from "./clarification_requests.js";
+// Singular.blue Gap E: notification system
+export { notifications, notificationPreferences } from "./notifications.js";
+// Singular.blue Gap H: WebPush subscriptions
+export { pushSubscriptions } from "./push_subscriptions.js";
+// Singular.blue G10: GDPR compliance
+export { gdprErasureLog } from "./gdpr.js";

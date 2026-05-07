@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useCompany } from "../context/CompanyContext";
 import { SidebarNavItem } from "./SidebarNavItem";
+import { NotificationBell } from "./NotificationBell";
 
 export function SingularSidebar() {
   const { selectedCompany } = useCompany();
@@ -24,6 +25,7 @@ export function SingularSidebar() {
         <span className="flex-1 text-sm font-semibold text-[#0F0F0D] truncate font-[Georgia,serif]">
           {selectedCompany?.name ?? "Mon cabinet"}
         </span>
+        <NotificationBell />
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 px-2 py-3">

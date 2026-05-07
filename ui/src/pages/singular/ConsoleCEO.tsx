@@ -4,6 +4,7 @@ import { Send, Lightbulb, X, CheckCircle2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCompany } from "../../context/CompanyContext";
 import { consoleApi, type ConsoleCard } from "@/api/console";
+import { useLocale } from "@/hooks/useLocale";
 
 interface Message {
   id: string;
@@ -81,6 +82,7 @@ function CardRow({
 export function ConsoleCEO() {
   const { t } = useTranslation("console");
   const { selectedCompanyId } = useCompany();
+  const { formatTime } = useLocale();
   const queryClient = useQueryClient();
 
   const [messages, setMessages] = useState<Message[]>(SEED_MESSAGES);
@@ -108,7 +110,7 @@ export function ConsoleCEO() {
       setApprovingId(null);
       queryClient.invalidateQueries({ queryKey: ["console-context"] });
       // Confirm in chat
-      const ts = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+      const ts = formatTime(new Date());
       setMessages((prev) => [
         ...prev,
         { id: Date.now().toString(), role: "console", text: t("cardApproved"), timestamp: ts },
@@ -133,7 +135,7 @@ export function ConsoleCEO() {
     const text = inputValue.trim();
     if (!text) return;
 
-    const ts = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    const ts = formatTime(new Date());
     setMessages((prev) => [
       ...prev,
       { id: Date.now().toString(), role: "user", text, timestamp: ts },
@@ -149,7 +151,7 @@ export function ConsoleCEO() {
           id: (Date.now() + 1).toString(),
           role: "console",
           text: t("thinking"),
-          timestamp: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+          timestamp: formatTime(new Date()),
         },
       ]);
     }, 1400);

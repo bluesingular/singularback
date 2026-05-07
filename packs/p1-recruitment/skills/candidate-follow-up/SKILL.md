@@ -1,5 +1,19 @@
 ---
 name: candidate-follow-up
+config_params:
+  - name: ton_candidat
+    type: select
+    label: "Ton avec les candidats"
+    description: "Registre des messages envoyés aux candidats"
+    options: ["chaleureux", "professionnel", "neutre"]
+    default: "chaleureux"
+  - name: delai_suivi_jours
+    type: number
+    label: "Délai de suivi (jours)"
+    description: "Jours après un entretien avant d'envoyer un message de suivi"
+    min: 1
+    max: 7
+    default: 2
 description: >
   Utiliser pour rédiger un email de suivi à un candidat en cours de process.
   Déclencher sur : candidat en attente de retour, confirmation d'entretien, mise à jour de statut.

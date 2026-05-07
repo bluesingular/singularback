@@ -1,5 +1,26 @@
 ---
 name: qualification-cv
+config_params:
+  - name: score_threshold
+    type: number
+    label: "Seuil de score minimum"
+    description: "CVs sous ce score sont automatiquement classés « Non retenu »"
+    min: 1
+    max: 5
+    default: 3
+  - name: max_cv_par_lot
+    type: number
+    label: "CVs maximum par lot"
+    description: "Limite le nombre de CVs traités en une seule session"
+    min: 1
+    max: 50
+    default: 10
+  - name: criteres_prioritaires
+    type: text
+    label: "Critères prioritaires"
+    description: "Compétences ou expériences à valoriser en priorité (séparées par des virgules)"
+    placeholder: "ex : Python, 3 ans d'expérience, Paris"
+    default: ""
 description: >
   Utiliser quand il faut évaluer et scorer un CV reçu pour une mission ouverte.
   Déclencher sur : nouveau CV reçu, batch de CVs à qualifier, "évalue ce profil".

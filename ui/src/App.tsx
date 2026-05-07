@@ -60,6 +60,14 @@ const SingularPreview = lazy(() => import("./pages/singular/Preview").then(m => 
 const AssistantInstallation = lazy(() => import("./pages/singular/AssistantInstallation").then(m => ({ default: m.AssistantInstallation })));
 const Inscription = lazy(() => import("./pages/singular/Inscription").then(m => ({ default: m.Inscription })));
 const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then(m => ({ default: m.CataloguePacks })));
+const SuccessPaiement = lazy(() => import("./pages/singular/SuccessPaiement").then(m => ({ default: m.SuccessPaiement })));
+const ConfigAgent    = lazy(() => import("./pages/singular/ConfigAgent").then(m => ({ default: m.ConfigAgent })));
+const AdminLayout    = lazy(() => import("./pages/singular/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
+const AdminHealth    = lazy(() => import("./pages/singular/admin/AdminHealth").then(m => ({ default: m.AdminHealth })));
+const AdminTenants   = lazy(() => import("./pages/singular/admin/AdminTenants").then(m => ({ default: m.AdminTenants })));
+const AdminTenantDetail = lazy(() => import("./pages/singular/admin/AdminTenantDetail").then(m => ({ default: m.AdminTenantDetail })));
+const AdminSkills       = lazy(() => import("./pages/singular/admin/AdminSkills").then(m => ({ default: m.AdminSkills })));
+const AdminSkillEditor  = lazy(() => import("./pages/singular/admin/AdminSkillEditor").then(m => ({ default: m.AdminSkillEditor })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -141,7 +149,8 @@ function boardRoutes() {
       <Route path="installation" element={<Suspense fallback={null}><AssistantInstallation /></Suspense>} />
       <Route path="tableau-de-bord" element={<Suspense fallback={null}><TableauDeBord /></Suspense>} />
       <Route path="mon-equipe" element={<Suspense fallback={null}><MonEquipe /></Suspense>} />
-      <Route path="mon-equipe/:agentSlug" element={<Suspense fallback={null}><FicheAgent /></Suspense>} />
+      <Route path="mon-equipe/:slug" element={<Suspense fallback={null}><FicheAgent /></Suspense>} />
+      <Route path="mon-equipe/:slug/config" element={<Suspense fallback={null}><ConfigAgent /></Suspense>} />
       <Route path="confiance" element={<Suspense fallback={null}><CentreDeConfiance /></Suspense>} />
       <Route path="taches/:taskId" element={<Suspense fallback={null}><FilDeTache /></Suspense>} />
       <Route path="console" element={<Suspense fallback={null}><ConsoleCEO /></Suspense>} />
@@ -361,6 +370,7 @@ export function App() {
         <Route path="preview/*" element={<SingularPreview />} />
         <Route path="auth" element={<AuthPage />} />
         <Route path="inscription" element={<Suspense fallback={null}><Inscription /></Suspense>} />
+        <Route path="succes-paiement" element={<Suspense fallback={null}><SuccessPaiement /></Suspense>} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />
@@ -369,6 +379,13 @@ export function App() {
           <Route index element={<CompanyRootRedirect />} />
           <Route path="onboarding" element={<OnboardingRoutePage />} />
           <Route path="instance" element={<Navigate to="/instance/settings/general" replace />} />
+          <Route path="instance/admin" element={<Suspense fallback={null}><AdminLayout /></Suspense>}>
+            <Route index element={<Suspense fallback={null}><AdminHealth /></Suspense>} />
+            <Route path="tenants" element={<Suspense fallback={null}><AdminTenants /></Suspense>} />
+            <Route path="tenants/:companyId" element={<Suspense fallback={null}><AdminTenantDetail /></Suspense>} />
+            <Route path="skills" element={<Suspense fallback={null}><AdminSkills /></Suspense>} />
+            <Route path="skills/:skillType/versions/:versionId" element={<Suspense fallback={null}><AdminSkillEditor /></Suspense>} />
+          </Route>
           <Route path="instance/settings" element={<Layout />}>
             <Route index element={<Navigate to="general" replace />} />
             <Route path="general" element={<InstanceGeneralSettings />} />

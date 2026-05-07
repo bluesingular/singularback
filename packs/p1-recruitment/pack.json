@@ -303,5 +303,11 @@
     "budget_defaults": {
         "per_agent_monthly_euros": 50,
         "total_monthly_euros": 250
+    },
+    "companyDna": {
+        "description": "Cabinet de recrutement spécialisé {{specialisation}}, actif sur la zone {{zone_geo}}. Équipe de {{nb_consultants}} consultant(s), fondé(e) depuis {{founded_year}}. Modèle de facturation : {{billing_model}}.",
+        "customerProfile": "Clients principaux : {{client_type}}. Profils placés dans la fourchette {{avg_salary_range}}. Secteur de prédilection : {{specialisation}}.",
+        "tone": "Professionnel, bienveillant, orienté résultats. Ton adapté au secteur RH et recrutement. Langue principale : français.",
+        "regulatoryContext": "Recrutement en France. Respect du RGPD sur les données candidats. Droit du travail français applicable. Données hébergées en Europe."
     }
 }

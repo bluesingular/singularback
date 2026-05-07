@@ -11,7 +11,7 @@ import { Router } from "express";
 import { eq, and, desc } from "drizzle-orm";
 import { intelligenceCards } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
-import { assertCompanyAccess } from "./authz.js";
+import { assertCompanyAccess, requireRole } from "./authz.js";
 
 export function intelligenceRoutes(db: Db) {
   const router = Router();
@@ -41,6 +41,7 @@ export function intelligenceRoutes(db: Db) {
         cardId: string;
       };
       assertCompanyAccess(req, companyId);
+      requireRole(req, "operator");
 
       const updated = await (db as any)
         .update(intelligenceCards)

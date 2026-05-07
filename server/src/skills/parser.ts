@@ -43,6 +43,34 @@ export interface ToolDeclaration {
   permissions: string[]; // ['read','compose','send','post','write'...]
 }
 
+// ── Config params (Gap F) ─────────────────────────────────────────────────────
+
+export type ConfigParamType = "select" | "number" | "text" | "text_list" | "toggle";
+
+/**
+ * A customer-configurable parameter declared in SKILL.md frontmatter.
+ * The agent config UI renders one form field per entry.
+ */
+export interface ConfigParam {
+  /** Machine-readable key, stored in agent.runtimeConfig */
+  name: string;
+  type: ConfigParamType;
+  /** French label shown in the UI */
+  label: string;
+  /** French helper text shown below the field */
+  description?: string;
+  /** For type=select — ordered list of French option values */
+  options?: string[];
+  /** For type=number — inclusive minimum */
+  min?: number;
+  /** For type=number — inclusive maximum */
+  max?: number;
+  /** Placeholder text for type=text or type=text_list */
+  placeholder?: string;
+  /** Default value used when runtimeConfig has no entry for this param */
+  default: string | number | boolean | string[];
+}
+
 /** Machine-readable declaration of a skill input parameter. */
 export interface InputDeclaration {
   /** Identifier, e.g. "cv_document" */
@@ -99,6 +127,11 @@ export interface ParsedSkill {
   outputSchema: Record<string, unknown> | null;
   /** EU AI Act classification */
   aiAct: AiActDeclaration;
+
+  // ── Gap F: customer-configurable parameters ───────────────────────────────
+
+  /** Parameters the customer can tune from the agent config UI */
+  configParams: ConfigParam[];
 }
 
 // ── Parsers ───────────────────────────────────────────────────────────────────
@@ -176,6 +209,37 @@ function parseDataCategories(raw: unknown): string[] {
   return raw.map(String).filter((s) => s.length > 0);
 }
 
+const VALID_PARAM_TYPES = new Set<ConfigParamType>([
+  "select", "number", "text", "text_list", "toggle",
+]);
+
+function parseConfigParams(raw: unknown): ConfigParam[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((p): p is Record<string, unknown> => p !== null && typeof p === "object")
+    .map((p): ConfigParam | null => {
+      const name = String(p.name ?? "").trim();
+      const type = VALID_PARAM_TYPES.has(p.type as ConfigParamType)
+        ? (p.type as ConfigParamType)
+        : null;
+      if (!name || !type) return null;
+
+      const param: ConfigParam = {
+        name,
+        type,
+        label: typeof p.label === "string" ? p.label : name,
+        default: p.default as ConfigParam["default"] ?? "",
+      };
+      if (typeof p.description === "string") param.description = p.description;
+      if (Array.isArray(p.options))          param.options = p.options.map(String);
+      if (typeof p.min === "number")         param.min = p.min;
+      if (typeof p.max === "number")         param.max = p.max;
+      if (typeof p.placeholder === "string") param.placeholder = p.placeholder;
+      return param;
+    })
+    .filter((p): p is ConfigParam => p !== null);
+}
+
 function parseOutputSchema(raw: unknown): Record<string, unknown> | null {
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
     return raw as Record<string, unknown>;
@@ -211,5 +275,6 @@ export function parseSkill(raw: string): ParsedSkill {
     inputs: parseInputs(data.inputs),
     outputSchema: parseOutputSchema(data.output_schema),
     aiAct: parseAiAct(data.ai_act),
+    configParams: parseConfigParams(data.config_params),
   };
 }
