@@ -540,6 +540,41 @@
       "when": 1746835200000,
       "tag": "0076_gdpr_erasure_log",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1746921600000,
+      "tag": "0077_g7_skill_version_pin",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1747008000000,
+      "tag": "0078_g9_batch_processing",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1747094400000,
+      "tag": "0079_g12_mcp_api_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1747180800000,
+      "tag": "0080_g13_public_api",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1747267200000,
+      "tag": "0081_g15_action_types",
+      "breakpoints": true
     }
   ]
 }

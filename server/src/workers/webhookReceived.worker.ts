@@ -16,7 +16,8 @@ import pino from "pino";
 import { redisConnectionBlocking } from "../queue/redis.js";
 import { emit } from "../queue/emit.js";
 import type { WebhookReceivedJob, RoutingRule } from "../queue/jobs.js";
-import { getDb, webhookEvents } from "@paperclipai/db";
+import { webhookEvents } from "@paperclipai/db";
+import type { Db } from "@paperclipai/db";
 
 const logger = pino({ name: "webhook-received-worker" });
 
@@ -53,7 +54,8 @@ function matchesCondition(
 
 // ── Worker ────────────────────────────────────────────────────────────────────
 
-export const webhookReceivedWorker = new Worker<WebhookReceivedJob>(
+export function initWebhookReceivedWorker(db: Db): Worker {
+  const worker = new Worker<WebhookReceivedJob>(
   "agents",
   async (job: Job<WebhookReceivedJob>) => {
     if (job.name !== "webhook.received") return;
@@ -61,8 +63,6 @@ export const webhookReceivedWorker = new Worker<WebhookReceivedJob>(
     const { endpointId, companyId, routingRules, payload, source } = job.data;
 
     logger.info({ endpointId, companyId, source, ruleCount: routingRules.length }, "webhook: processing job");
-
-    const db = getDb();
     let dispatched = false;
 
     for (const rule of routingRules) {
@@ -107,13 +107,16 @@ export const webhookReceivedWorker = new Worker<WebhookReceivedJob>(
   },
 );
 
-webhookReceivedWorker.on("failed", (job, err) => {
-  logger.error(
-    { endpointId: job?.data?.endpointId, companyId: job?.data?.companyId, err },
-    "webhook.received job failed",
-  );
-});
+  worker.on("failed", (job, err) => {
+    logger.error(
+      { endpointId: job?.data?.endpointId, companyId: job?.data?.companyId, err },
+      "webhook.received job failed",
+    );
+  });
 
-webhookReceivedWorker.on("error", (err) => {
-  logger.error({ err }, "webhook-received worker connection error");
-});
+  worker.on("error", (err) => {
+    logger.error({ err }, "webhook-received worker connection error");
+  });
+
+  return worker;
+}

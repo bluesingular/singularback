@@ -18,6 +18,8 @@ import type {
   SkillImprovementJob,
   ClarificationRequestedJob,
   ClarificationTimedOutJob,
+  BatchItemExecuteJob,
+  BatchItemCompleteJob,
 } from "./jobs.js";
 
 export const emit = {
@@ -90,6 +92,18 @@ export const emit = {
     const job = await systemQueue.getJob(`clarification-timeout:${clarificationId}`);
     if (job) await job.remove();
   },
+
+  // ── G9: Batch fan-out jobs ──────────────────────────────────────────────────
+
+  batchExecuteItem: async (data: BatchItemExecuteJob) =>
+    backgroundQueue.add("batch.item.execute", data, {
+      jobId: `batch-item:${data.itemId}`,
+    }),
+
+  batchItemComplete: async (data: BatchItemCompleteJob) =>
+    backgroundQueue.add("batch.item.complete", data, {
+      jobId: `batch-complete:${data.itemId}`,
+    }),
 
   // ── System jobs ─────────────────────────────────────────────────────────────
 

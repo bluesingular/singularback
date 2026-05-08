@@ -44,6 +44,9 @@ import { initTelemetry, getTelemetryClient } from "./telemetry.js";
 import { bootstrapScheduler, shutdownScheduler } from "./queue/scheduler.js";
 import "./workers/index.js"; // Start BullMQ workers
 import { initActivationCheckWorker } from "./workers/activationCheck.worker.js";
+import { initTaskApprovedWorker } from "./workers/taskApproved.worker.js";
+import { initWebhookReceivedWorker } from "./workers/webhookReceived.worker.js";
+import { createClarificationTimeoutWorker } from "./workers/clarificationTimeout.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -614,6 +617,12 @@ export async function startServer(): Promise<StartedServer> {
 
     // M12/M11: Start activation sequence worker (needs db instance)
     initActivationCheckWorker(db as any);
+    // G8: Task DAG worker (releases downstream tasks on approval)
+    initTaskApprovedWorker(db as any);
+    // G4: Webhook received worker (routes inbound webhooks to agents)
+    initWebhookReceivedWorker(db as any);
+    // G5: Clarification timeout worker (times out unanswered clarification requests)
+    createClarificationTimeoutWorker(db as any);
 
     // Routine scheduler still uses setInterval for now — will be migrated
     // to BullMQ cron jobs in a future module.

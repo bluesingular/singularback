@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS "notifications" (
   "id"                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "company_id"          uuid NOT NULL REFERENCES "companies"("id") ON DELETE CASCADE,
-  "user_id"             uuid REFERENCES "user"("id") ON DELETE CASCADE,
+  "user_id"             text,
   "type"                text NOT NULL,
   "title"               text NOT NULL,
   "body"                text NOT NULL,
@@ -31,7 +31,7 @@ CREATE INDEX IF NOT EXISTS "notifications_created_idx"
 CREATE TABLE IF NOT EXISTS "notification_preferences" (
   "id"                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "company_id"          uuid NOT NULL REFERENCES "companies"("id") ON DELETE CASCADE,
-  "user_id"             uuid NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
+  "user_id"             text NOT NULL,
   "approval_inapp"      boolean NOT NULL DEFAULT true,
   "approval_email"      boolean NOT NULL DEFAULT true,
   "trust_inapp"         boolean NOT NULL DEFAULT true,

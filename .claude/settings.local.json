@@ -120,7 +120,18 @@
       "Bash(pnpm --filter @paperclipai/server test --reporter=verbose --run)",
       "Bash(pnpm --filter @paperclipai/server test -- --reporter=verbose --run)",
       "Bash(node -e ' *)",
-      "Bash(grep -E \"\\\\.\\(ts|js\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|js\\)$\")",
+      "Bash(grep -oE '\\\\{ id: \"[^\"]+\", title: \"[^\"]+\", [^}]*status: \"[^\"]+\"' /Users/luc/projects/singular/report/kanban.html)",
+      "Bash(chmod +x /Users/luc/projects/singular/infra/deploy.sh /Users/luc/projects/singular/infra/setup-server.sh)",
+      "Bash(redis-cli ping *)",
+      "Bash(pg_isready -h localhost -p 5432)",
+      "Bash(openssl rand *)",
+      "Bash(echo \"AUTH=$\\(openssl rand -base64 32\\)\")",
+      "Bash(echo \"VAULT=$\\(openssl rand -hex 32\\)\")",
+      "Bash(echo \"TOKEN=$\\(openssl rand -hex 16\\)\")",
+      "Bash(timeout 15 pnpm dev:server)",
+      "Bash(pnpm dev:server)",
+      "Bash(kill %1)"
     ]
   }
 }

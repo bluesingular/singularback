@@ -1,0 +1,71 @@
+# OVH Cloud production deployment
+# Postgres and Redis are OVH Managed Databases — not in this compose file.
+# This file runs only the app container + Nginx.
+#
+# Usage on the server:
+#   docker compose -f infra/docker-compose.prod.yml up -d
+
+services:
+  app:
+    image: ${DOCKER_IMAGE:-swwarm/app:latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3100"
+      HOST: "0.0.0.0"
+      SERVE_UI: "true"
+      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
+
+      # ── Injected from .env.prod (never commit real values) ─────────────────
+      PAPERCLIP_PUBLIC_URL: "${PUBLIC_URL}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET}"
+      BETTER_AUTH_URL: "${PUBLIC_URL}"
+      DATABASE_URL: "${DATABASE_URL}"
+      REDIS_URL: "${REDIS_URL}"
+      VAULT_MASTER_KEY: "${VAULT_MASTER_KEY}"
+      OPENROUTER_API_KEY: "${OPENROUTER_API_KEY}"
+      FIRECRAWL_API_KEY: "${FIRECRAWL_API_KEY}"
+      INTERNAL_AUTH_TOKEN: "${INTERNAL_AUTH_TOKEN}"
+
+      # ── Optional ───────────────────────────────────────────────────────────
+      RESEND_API_KEY: "${RESEND_API_KEY:-}"
+      FROM_EMAIL: "${FROM_EMAIL:-noreply@swwarm.com}"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY:-}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+
+    volumes:
+      - app-data:/paperclip
+    expose:
+      - "3100"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/swwarm.conf:/etc/nginx/conf.d/swwarm.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    networks:
+      - internal
+    depends_on:
+      - app
+
+volumes:
+  app-data:
+
+networks:
+  internal:
+    driver: bridge

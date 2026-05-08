@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "clarification_requests" (
   "status"          text NOT NULL DEFAULT 'pending',
   -- status: 'pending' | 'answered' | 'timed_out' | 'cancelled'
   "answer"          text,
-  "answered_by"     uuid REFERENCES "auth_users"("id") ON DELETE SET NULL,
+  "answered_by"     text,
   "timeout_job_id"  text,
   "asked_at"        timestamptz NOT NULL DEFAULT now(),
   "answered_at"     timestamptz,

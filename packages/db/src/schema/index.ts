@@ -101,3 +101,11 @@ export { notifications, notificationPreferences } from "./notifications.js";
 export { pushSubscriptions } from "./push_subscriptions.js";
 // Singular.blue G10: GDPR compliance
 export { gdprErasureLog } from "./gdpr.js";
+// Singular.blue G9: batch processing
+export { batchRuns, batchItems } from "./batch.js";
+// Singular.blue G12: MCP server API keys
+export { mcpApiKeys } from "./mcp_api_keys.js";
+// Singular.blue G13: public API keys + webhook subscriptions
+export { publicApiKeys, webhookSubscriptions } from "./public_api.js";
+// Singular.blue G15: third-party action type registration
+export { registeredActionTypes } from "./registered_action_types.js";

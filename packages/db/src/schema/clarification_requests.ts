@@ -2,7 +2,6 @@ import { pgTable, uuid, text, timestamp, index } from "drizzle-orm/pg-core";
 import { companies } from "./companies.js";
 import { issues } from "./issues.js";
 import { agents } from "./agents.js";
-import { authUsers } from "./auth.js";
 
 export const clarificationRequests = pgTable(
   "clarification_requests",
@@ -14,7 +13,7 @@ export const clarificationRequests = pgTable(
     question:     text("question").notNull(),
     status:       text("status").notNull().default("pending"),
     answer:       text("answer"),
-    answeredBy:   uuid("answered_by").references(() => authUsers.id, { onDelete: "set null" }),
+    answeredBy:   text("answered_by"),
     timeoutJobId: text("timeout_job_id"),
     askedAt:      timestamp("asked_at", { withTimezone: true }).notNull().defaultNow(),
     answeredAt:   timestamp("answered_at", { withTimezone: true }),

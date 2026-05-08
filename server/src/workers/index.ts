@@ -6,7 +6,7 @@
  */
 
 export { emailWorker } from "./emailReceived.worker.js";
-export { taskApprovedWorker } from "./taskApproved.worker.js";
+export { initTaskApprovedWorker } from "./taskApproved.worker.js";
 export { initActivationCheckWorker } from "./activationCheck.worker.js";
-export { webhookReceivedWorker } from "./webhookReceived.worker.js";
-export { clarificationTimeoutWorker } from "./clarificationTimeout.worker.js";
+export { initWebhookReceivedWorker } from "./webhookReceived.worker.js";
+export { createClarificationTimeoutWorker } from "./clarificationTimeout.worker.js";

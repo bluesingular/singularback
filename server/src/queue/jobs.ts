@@ -109,6 +109,24 @@ export const ActivationCheckJobSchema = z.object({
   ]),
 });
 
+// ── G9: Batch processing jobs ─────────────────────────────────────────────────
+
+export const BatchItemExecuteJobSchema = z.object({
+  batchRunId: z.string().uuid(),
+  itemId:     z.string().uuid(),
+  companyId:  z.string().uuid(),
+  agentId:    z.string().uuid().nullable(),
+  skillType:  z.string(),
+  input:      z.record(z.unknown()),
+});
+
+export const BatchItemCompleteJobSchema = z.object({
+  batchRunId: z.string().uuid(),
+  itemId:     z.string().uuid(),
+  companyId:  z.string().uuid(),
+  outcome:    z.enum(["done", "failed"]),
+});
+
 // ── Inferred types ────────────────────────────────────────────────────────────
 
 export type HeartbeatJob = z.infer<typeof HeartbeatJobSchema>;
@@ -121,3 +139,5 @@ export type CostResetJob = z.infer<typeof CostResetJobSchema>;
 export type ActivationCheckJob = z.infer<typeof ActivationCheckJobSchema>;
 export type ClarificationRequestedJob = z.infer<typeof ClarificationRequestedJobSchema>;
 export type ClarificationTimedOutJob = z.infer<typeof ClarificationTimedOutJobSchema>;
+export type BatchItemExecuteJob = z.infer<typeof BatchItemExecuteJobSchema>;
+export type BatchItemCompleteJob = z.infer<typeof BatchItemCompleteJobSchema>;

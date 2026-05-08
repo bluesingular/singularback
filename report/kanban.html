@@ -273,29 +273,29 @@ const TASKS = [
 
   { id: "G6", title: "G6 — Streaming LLM: stream mode in routeModel() → real-time SSE agent.writing chunks", tag: "infra", sprint: "depth", status: "done",
     note: "DONE 2026-05-07. callLLMStream() in openrouter.ts (stream:true, SSE chunk parsing, GDPR guard fires before HTTP). executeWithStreaming() in llm/streaming.ts fans chunks to sseManager.publishEvent(agent.writing) + done sentinel. useStreamingTask() hook in UI accumulates chunks per taskId from useCompanyEvents. FilDeTache.tsx shows live streaming bubble with blinking cursor. 12/12 tests pass." },
-  { id: "G7", title: "G7 — Agent versioning: task.skill_version pin — skill updates only apply to new tasks", tag: "infra", sprint: "depth", status: "todo",
-    note: "Makes M10 (self-improvement) safe: a mid-day skill update no longer produces inconsistent outputs across tasks." },
-  { id: "G8", title: "G8 — Task DAG: BullMQ job dependencies — Task B waits for Task A approval", tag: "infra", sprint: "depth", status: "todo",
-    note: "BullMQ supports dependencies natively. Requires a configuration layer + UI on top." },
-  { id: "G9", title: "G9 — Batch processing: fan-out N items, parallel workers, single approval gate for batch outcome", tag: "infra", sprint: "depth", status: "todo",
-    note: "200 CVs in parallel, 500 personalised emails, 50 competitor pages analysed simultaneously." },
+  { id: "G7", title: "G7 — Agent versioning: task.skill_version pin — skill updates only apply to new tasks", tag: "infra", sprint: "depth", status: "done",
+    note: "Migration 0077 (skill_type + skill_version_id on issues), skill-version.ts service (getActiveSkillVersion, pinSkillVersion, resolveSkillForTask, activateSkillVersion), 3 routes. 16/16 tests pass." },
+  { id: "G8", title: "G8 — Task DAG: BullMQ job dependencies — Task B waits for Task A approval", tag: "infra", sprint: "depth", status: "done",
+    note: "dag.ts service (releaseBlockedTasks, addDependency, removeDependency, getDagView) + taskApprovedWorker factory + 3 REST routes. 16/16 tests pass." },
+  { id: "G9", title: "G9 — Batch processing: fan-out N items, parallel workers, single approval gate for batch outcome", tag: "infra", sprint: "depth", status: "done",
+    note: "Migration 0078 (batch_runs + batch_items), runner.ts service (createBatch/onItemComplete/approveBatch/rejectBatch), 4 REST routes, 2 new BullMQ job types. 15/15 tests pass." },
   { id: "G10", title: "G10 — GDPR compliance export: Article 17 (erasure), Article 20 (portability), audit trail CSV export", tag: "infra", sprint: "depth", status: "done",
     note: "DONE 2026-05-07. Migration 0076: gdpr_erasure_log table. gdpr.ts routes: POST .../gdpr/contacts/:id/erase (Art.17, Owner), POST .../gdpr/users/:id/erase (Art.17, anonymises authUsers row + deletes sessions/accounts/push/prefs), GET .../gdpr/portability/contacts/:id (Art.20 JSON, Admin), GET .../gdpr/portability/users/:id (Art.20 JSON, Owner), GET .../gdpr/audit.csv (CSV stream, Admin). audit_entries retained under Art.17(3)(b) legal obligation — noted in erasure log. 15/15 tests pass." },
-  { id: "G11", title: "G11 — Multi-modal input: PDF extraction, images (native multimodal), voice (Whisper), spreadsheets (structured parsing)", tag: "infra", sprint: "depth", status: "todo",
-    note: "Build G10 before G11: text extracted from PDFs immediately creates new GDPR obligations." },
+  { id: "G11", title: "G11 — Multi-modal input: PDF extraction, images (native multimodal), voice (Whisper), spreadsheets (structured parsing)", tag: "infra", sprint: "depth", status: "done",
+    note: "extractInput.ts (extractPdf/extractImage/transcribeVoice/extractSpreadsheet) + POST /tasks/:id/attachments (multer). gdprFlag propagated to caller. 14/14 tests pass." },
 
   // ════════════════════════════════════════════════════════════
   // ECOSYSTEM — Year 2 / after 50 paying customers
   // ════════════════════════════════════════════════════════════
 
-  { id: "G12", title: "G12 — MCP server: Swwarm agents callable as MCP tools by external AI systems", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "Currently Swwarm is an MCP client. Becoming an MCP server means Dust, Claude, GPT agents can delegate to Sophie." },
-  { id: "G13", title: "G13 — Public API + SDK: REST CRUD, webhook subscriptions, TypeScript/Python SDK, per-company API keys, rate limiting, auto-generated OpenAPI docs", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "Without this, every new agent type requires a platform code change. With this, the community builds the verticals." },
-  { id: "G14", title: "G14 — A2A protocol (Google): enterprise interoperability with all major AI platforms", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "Google, Salesforce, SAP are converging on A2A. Not optional within 18 months for enterprise customers." },
-  { id: "G15", title: "G15 — Plugin/extension system: third-party developers register new action types", tag: "infra", sprint: "ecosystem", status: "todo",
-    note: "The composability that makes Swwarm extensible without touching platform code." },
+  { id: "G12", title: "G12 — MCP server: Swwarm agents callable as MCP tools by external AI systems", tag: "infra", sprint: "ecosystem", status: "done",
+    note: "Migration 0079 (mcp_api_keys), toolSchema.ts (skillToMcpTool/buildToolName), server.ts (JSON-RPC 2.0: initialize/tools/list/tools/call), HTTP route POST /mcp/:companyId + key management. 18/18 tests pass." },
+  { id: "G13", title: "G13 — Public API + SDK: REST CRUD, webhook subscriptions, TypeScript/Python SDK, per-company API keys, rate limiting, auto-generated OpenAPI docs", tag: "infra", sprint: "ecosystem", status: "done",
+    note: "publicApiAuth middleware (sliding-window rate limit), GET/POST /api/v1/agents|tasks|webhooks/subscriptions, OpenAPI 3.0 at /api/v1/openapi.json, @swwarm/sdk TypeScript client, key management at /companies/:id/public-api/keys. 18/18 tests pass." },
+  { id: "G14", title: "G14 — A2A protocol (Google): enterprise interoperability with all major AI platforms", tag: "infra", sprint: "ecosystem", status: "done",
+    note: "Agent Card at /.well-known/agent.json + /a2a/:companyId/agent.json. JSON-RPC 2.0: tasks/send, tasks/get, tasks/cancel. Bearer auth via public_api_keys. Maps A2A tasks to Swwarm issues. 18/18 tests pass." },
+  { id: "G15", title: "G15 — Plugin/extension system: third-party developers register new action types", tag: "infra", sprint: "ecosystem", status: "done",
+    note: "registered_action_types table + webhook-based dispatcher. CRUD at /companies/:id/action-types. HMAC-SHA256 signed invocations (X-Swwarm-Signature). Slug validation, 30s timeout. 18/18 tests pass." },
 
   // ════════════════════════════════════════════════════════════
   // OPS — production deployment (needs DATABASE_URL)
