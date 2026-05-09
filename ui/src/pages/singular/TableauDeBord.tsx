@@ -54,7 +54,7 @@ function sseToActivity(event: { type: string; data: Record<string, unknown> }) {
 // ---------------------------------------------------------------------------
 
 export default function TableauDeBord() {
-  const { t, i18n } = useTranslation("dashboard")
+  const { t } = useTranslation("dashboard")
   const { t: tc } = useTranslation("common")
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -139,9 +139,7 @@ export default function TableauDeBord() {
     weekday: "long", day: "numeric", month: "long", timeZone: timezone,
   })
 
-  const taskTranslation = i18n.language === "en"
-    ? `~${Math.max(0, taskLimit - tasksDone)} tasks remaining`
-    : `environ ${Math.max(0, taskLimit - tasksDone)} tâches restantes`
+  const taskTranslation = t("usage.taskSummary", { count: Math.max(0, taskLimit - tasksDone) })
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -165,10 +163,11 @@ export default function TableauDeBord() {
           </div>
           {tasksDone > 0 && (
             <p className="text-base text-[#0F0F0D]">
-              {i18n.language === "en"
-                ? <>Your team completed <span className="font-semibold text-[#1A9E68]">{tasksDone} tasks</span> this month.</>
-                : <>Votre équipe a complété <span className="font-semibold text-[#1A9E68]">{tasksDone} tâche{tasksDone > 1 ? "s" : ""}</span> ce mois.</>
-              }
+              {t("summaryBefore")}{" "}
+              <span className="font-semibold text-[#1A9E68]">
+                {tasksDone} {t("task", { count: tasksDone })}
+              </span>{" "}
+              {t("summaryAfter")}
             </p>
           )}
           <UsageGauge
@@ -253,9 +252,7 @@ export default function TableauDeBord() {
               ))}
               {!liveActivity && activities.length === 0 && (
                 <p className="px-4 py-6 text-sm text-[#8A8680] text-center">
-                  {i18n.language === "en"
-                    ? "Activity will appear here as your agents work."
-                    : "L'activité apparaîtra ici au fil du travail de vos agents."}
+                  {t("feed.noActivity")}
                 </p>
               )}
             </div>
@@ -283,8 +280,8 @@ export default function TableauDeBord() {
                     <p className="text-sm font-semibold text-[#0F0F0D]">{agent.name}</p>
                     <p className="text-xs text-[#8A8680] truncate">
                       {agent.status === "active"
-                        ? (i18n.language === "en" ? "Active" : "Actif")
-                        : (i18n.language === "en" ? "Paused" : "En pause")}
+                        ? tc("agentStatus.active")
+                        : tc("agentStatus.paused")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -295,9 +292,7 @@ export default function TableauDeBord() {
               ))}
               {agents.length === 0 && (
                 <p className="px-4 py-6 text-sm text-[#8A8680] text-center">
-                  {i18n.language === "en"
-                    ? "No agents yet. Install a pack to get started."
-                    : "Aucun agent pour l'instant. Installez un pack pour commencer."}
+                  {tc("agentStatus.empty")}
                 </p>
               )}
             </div>

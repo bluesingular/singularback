@@ -9,6 +9,10 @@ export const ollamaAdapter: ServerAdapterModule = {
   testEnvironment,
   models: [],
   listModels: listOllamaModels,
+  // Allow the server to inject a local-agent JWT so the adapter can call the
+  // Paperclip API to fetch issue details (e.g. body) that aren't in the wake
+  // payload.
+  supportsLocalAgentJwt: true,
   agentConfigurationDoc: `# ollama_local agent configuration
 
 Adapter: ollama_local
@@ -18,6 +22,7 @@ Runs a local Ollama model. Requires Ollama to be installed and running (ollama s
 Core fields:
 - host (string, optional): Ollama base URL, default "http://localhost:11434"
 - model (string, required): model name matching what you have pulled locally — run "ollama list" to see available models
+- instructions (string, optional): system prompt injected as the first message to the model
 - timeoutSec (number, optional): request timeout in seconds, default 300
 - options (object, optional): Ollama model options (temperature, top_p, num_ctx, etc.)
 

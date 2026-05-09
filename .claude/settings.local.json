@@ -131,7 +131,19 @@
       "Bash(echo \"TOKEN=$\\(openssl rand -hex 16\\)\")",
       "Bash(timeout 15 pnpm dev:server)",
       "Bash(pnpm dev:server)",
-      "Bash(kill %1)"
+      "Bash(kill %1)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm dev *)",
+      "Bash(curl -s http://localhost:5174)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174/)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(pnpm --filter @paperclipai/ui build)",
+      "Bash(grep -o \"singular_language.\\\\{0,100\\\\}\" /Users/luc/projects/singular/ui/dist/assets/index-wTvH-6V-.js)",
+      "Bash(awk '{print $2}')",
+      "Bash(kill 40437 40431)",
+      "Bash(curl -s http://localhost:3100/)",
+      "Bash(echo \"---EXIT: $?\")",
+      "Bash(curl -s http://localhost:11434/api/tags)"
     ]
   }
 }

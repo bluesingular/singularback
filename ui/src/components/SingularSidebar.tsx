@@ -6,16 +6,19 @@ import {
   BarChart2,
   BookUser,
   Settings,
-  Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCompany } from "../context/CompanyContext";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { NotificationBell } from "./NotificationBell";
+import { SidebarFooter } from "./SidebarFooter";
 
 export function SingularSidebar() {
   const { selectedCompany } = useCompany();
   const prefix = selectedCompany?.issuePrefix ?? "";
   const base = `/${prefix}`;
+
+  const { t } = useTranslation("common");
 
   return (
     <aside className="w-60 h-full min-h-0 border-r border-[#E8E4DC] bg-[#FAFAF8] flex flex-col">
@@ -31,22 +34,22 @@ export function SingularSidebar() {
       <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 px-2 py-3">
         <SidebarNavItem
           to={`${base}/tableau-de-bord`}
-          label="Tableau de bord"
+          label={t("nav.dashboard")}
           icon={LayoutDashboard}
         />
         <SidebarNavItem
           to={`${base}/mon-equipe`}
-          label="Mon équipe IA"
+          label={t("nav.team")}
           icon={Users}
         />
         <SidebarNavItem
           to={`${base}/confiance`}
-          label="Centre de confiance"
+          label={t("nav.trust")}
           icon={ShieldCheck}
         />
         <SidebarNavItem
           to={`${base}/console`}
-          label="Console CEO"
+          label={t("nav.console")}
           icon={MessageSquare}
         />
 
@@ -54,12 +57,12 @@ export function SingularSidebar() {
 
         <SidebarNavItem
           to={`${base}/rapports`}
-          label="Rapports & ROI"
+          label={t("nav.reports")}
           icon={BarChart2}
         />
         <SidebarNavItem
           to={`${base}/contacts`}
-          label="Contacts"
+          label={t("nav.contacts")}
           icon={BookUser}
         />
 
@@ -67,18 +70,18 @@ export function SingularSidebar() {
 
         <SidebarNavItem
           to={`${base}/parametres`}
-          label="Paramètres"
+          label={t("nav.settings")}
           icon={Settings}
         />
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-[#E8E4DC] px-4 py-3">
-        <div className="flex items-center gap-2 text-xs text-[#8A8680]">
-          <Zap className="h-3 w-3 text-[#1A9E68]" />
-          <span>singular.blue</span>
-        </div>
-      </div>
+      <SidebarFooter
+        borderColor="border-[#E8E4DC]"
+        textColor="text-[#0F0F0D]"
+        mutedColor="text-[#8A8680]"
+        activeBg="bg-[#E8E4DC]"
+        hoverBg="hover:bg-[#E8E4DC]/60"
+      />
     </aside>
   );
 }

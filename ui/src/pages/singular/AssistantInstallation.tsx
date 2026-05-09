@@ -361,6 +361,7 @@ export function AssistantInstallation() {
           const res = await fetch(`/api/companies/${selectedCompanyId}/billing/checkout`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ plan: "growth" }),
           });
           const { url } = await res.json();

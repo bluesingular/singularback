@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "DM Sans", sans-serif;
+  --font-serif: "Georgia", serif;
+  --font-mono: "DM Mono", monospace;
+  --color-background: #FAFAF8;
+  --color-green: #1A9E68;
+  --color-amber: #C97C0A;
+  --color-trust: #1A4E8C;
+  --color-border: #E8E4DC;
+  --color-muted: #6B6B6B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background-color: #FAFAF8;
+  color: #1A1A1A;
+  margin: 0;
+}

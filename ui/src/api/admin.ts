@@ -1,4 +1,4 @@
-import { api } from "./client";
+import { request } from "./client";
 
 export interface TenantSummary {
   id: string;
@@ -70,11 +70,11 @@ export interface ImpersonationSession {
 
 export const adminApi = {
   get<T = unknown>(path: string): Promise<T> {
-    return api(path) as Promise<T>;
+    return request(path) as Promise<T>;
   },
 
   post<T = unknown>(path: string, body?: unknown): Promise<T> {
-    return api(path, {
+    return request(path, {
       method: "POST",
       headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -82,7 +82,7 @@ export const adminApi = {
   },
 
   patch<T = unknown>(path: string, body?: unknown): Promise<T> {
-    return api(path, {
+    return request(path, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -90,26 +90,26 @@ export const adminApi = {
   },
 
   delete<T = unknown>(path: string): Promise<T> {
-    return api(path, { method: "DELETE" }) as Promise<T>;
+    return request(path, { method: "DELETE" }) as Promise<T>;
   },
 
   health(): Promise<PlatformHealth> {
-    return api("/admin/health");
+    return request("/admin/health");
   },
 
   listTenants(): Promise<{ tenants: TenantSummary[] }> {
-    return api("/admin/tenants");
+    return request("/admin/tenants");
   },
 
   getTenant(companyId: string): Promise<TenantDetail> {
-    return api(`/admin/tenants/${companyId}`);
+    return request(`/admin/tenants/${companyId}`);
   },
 
   startImpersonation(companyId: string): Promise<ImpersonationSession> {
-    return api(`/admin/tenants/${companyId}/impersonate`, { method: "POST" });
+    return request(`/admin/tenants/${companyId}/impersonate`, { method: "POST" });
   },
 
   endImpersonation(companyId: string): Promise<{ ok: boolean }> {
-    return api(`/admin/tenants/${companyId}/impersonate`, { method: "DELETE" });
+    return request(`/admin/tenants/${companyId}/impersonate`, { method: "DELETE" });
   },
 };

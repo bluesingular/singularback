@@ -54,6 +54,8 @@ export function NotificationBell() {
     enabled: !!selectedCompanyId && open,
   });
 
+  // selectedCompanyId is guaranteed non-null here: this component only renders
+  // inside the authenticated SingularSidebar, which requires a resolved company.
   const markRead = useMutation({
     mutationFn: (id: string) => notificationsApi.markRead(selectedCompanyId!, id),
     onSuccess: () => {

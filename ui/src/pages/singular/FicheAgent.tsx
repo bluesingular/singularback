@@ -19,23 +19,6 @@ import { queryKeys } from "@/lib/queryKeys"
 // Helpers
 // ---------------------------------------------------------------------------
 
-function autonomyLabel(level: string): string {
-  switch (level) {
-    case "highlyTrusted": return "Très autonome"
-    case "trusted":       return "De confiance"
-    case "supervised":    return "Supervisée"
-    default:              return "En construction"
-  }
-}
-
-function autonomyDescription(level: string): string {
-  switch (level) {
-    case "highlyTrusted": return "Résumés hebdomadaires uniquement."
-    case "trusted":       return "Contrôle aléatoire — vous voyez l'essentiel."
-    case "supervised":    return "Vous validez chaque lot avant transmission."
-    default:              return "Historique en cours de construction."
-  }
-}
 
 function trustDotLevel(level: string): "trusted" | "upgrade" | "building" {
   if (level === "highlyTrusted") return "trusted"
@@ -48,7 +31,17 @@ function trustDotLevel(level: string): "trusted" | "upgrade" | "building" {
 // ---------------------------------------------------------------------------
 
 export default function FicheAgent() {
-  const { t, i18n } = useTranslation("agents")
+  const { t } = useTranslation("agents")
+
+  function autonomyLabel(level: string): string {
+    const key = level as "highlyTrusted" | "trusted" | "supervised" | "building"
+    return t(`autonomy.${key}`, t("autonomy.building"))
+  }
+
+  function autonomyDescription(level: string): string {
+    const key = level as "highlyTrusted" | "trusted" | "supervised" | "building"
+    return t(`autonomy.${key}_desc`, t("autonomy.building_desc"))
+  }
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -130,7 +123,7 @@ export default function FicheAgent() {
           </button>
           <div className="bg-white rounded-2xl border border-[#E8E4DC] p-10 text-center">
             <p className="text-sm text-[#8A8680]">
-              {i18n.language === "en" ? "Agent not found." : "Agent introuvable."}
+              {t("detail.notFound")}
             </p>
           </div>
         </div>
@@ -209,9 +202,7 @@ export default function FicheAgent() {
 
           {agentScores.length === 0 ? (
             <p className="text-sm text-[#8A8680]">
-              {i18n.language === "en"
-                ? "Trust score will appear after the first completed tasks."
-                : "Le score de confiance apparaîtra après les premières tâches."}
+              {t("detail.trustEmpty")}
             </p>
           ) : (
             <>
@@ -271,9 +262,7 @@ export default function FicheAgent() {
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between text-xs text-[#8A8680]">
                     <span>
-                      {i18n.language === "en"
-                        ? `${streak} consecutive 4+★ approvals`
-                        : `${streak} validations consécutives 4+★`}
+                      {t("detail.streakLabel", { count: streak })}
                     </span>
                     <span className="font-semibold text-[#0F0F0D]">{streak}/{streakTarget}</span>
                   </div>

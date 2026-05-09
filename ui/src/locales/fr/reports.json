@@ -12,12 +12,18 @@
     "aiCost": "coût ce mois",
     "fullTeam": "équipe IA complète",
     "humanEquivalent": "équivalent humain",
-    "estimatedMonthly": "coût mensuel estimé"
+    "estimatedMonthly": "coût mensuel estimé",
+    "budgetUsed": "du budget utilisé",
+    "thisMonth": "ce mois"
   },
   "simulator": {
     "title": "Simulateur d'embauche",
     "savings": "Économie estimée",
-    "adjustLabel": "Ajuster la comparaison — {{count}} ETP"
+    "adjustLabel": "Ajuster la comparaison — {{count}} ETP",
+    "aiTeamDoes": "Votre équipe IA fait le travail de",
+    "at": "à",
+    "hireCompare": "Si vous embauchiez un chargé de sourcing junior :",
+    "charges": "charges (≈ ×1,45)"
   },
   "activityByAgent": "Activité par agent",
   "taskBreakdown": "Répartition des tâches",

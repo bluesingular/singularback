@@ -21,5 +21,10 @@
   "openTasks_plural": "{{count}} open tasks",
   "today": "today",
   "yesterday": "yesterday",
-  "daysAgo": "{{count}} days ago"
+  "daysAgo": "{{count}} days ago",
+  "empty": {
+    "title": "Contacts will appear here automatically",
+    "body": "Every candidate or client contacted by your agents will be recorded with their interaction history.",
+    "comingSoon": "Detailed contact profiles are coming in the next release."
+  }
 }

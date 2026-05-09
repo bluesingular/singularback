@@ -217,7 +217,9 @@ async function fetchConfigSchema(adapterType: string): Promise<AdapterConfigSche
 
   const promise = (async () => {
     try {
-      const res = await fetch(`/api/adapters/${encodeURIComponent(adapterType)}/config-schema`);
+      const res = await fetch(`/api/adapters/${encodeURIComponent(adapterType)}/config-schema`, {
+        credentials: "include",
+      });
       if (!res.ok) {
         failedSchemaTypes.add(adapterType);
         return null;

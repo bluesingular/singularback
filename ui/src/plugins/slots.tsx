@@ -325,7 +325,7 @@ async function importPluginModule(url: string): Promise<Record<string, unknown>>
   }
 
   // Fetch the module source text
-  const response = await fetch(url);
+  const response = await fetch(url, { credentials: "include" });
   if (!response.ok) {
     throw new Error(`Failed to fetch plugin module: ${response.status} ${response.statusText}`);
   }

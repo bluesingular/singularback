@@ -1,6 +1,5 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 
 import frCommon from "../locales/fr/common.json";
 import frDashboard from "../locales/fr/dashboard.json";
@@ -37,8 +36,13 @@ export const NAMESPACES = [
   "contacts",
 ] as const;
 
+// Read language directly from localStorage — no detector magic.
+const stored = typeof localStorage !== "undefined"
+  ? localStorage.getItem("singular_language")
+  : null;
+const initialLng = stored === "en" ? "en" : "fr";
+
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
@@ -65,14 +69,9 @@ i18n
         contacts: enContacts,
       },
     },
-    defaultNS: "common",
+    lng: initialLng,
     fallbackLng: "fr",
-    supportedLngs: SUPPORTED_LANGUAGES,
-    detection: {
-      order: ["localStorage", "navigator"],
-      lookupLocalStorage: "singular_language",
-      caches: ["localStorage"],
-    },
+    defaultNS: "common",
     interpolation: {
       escapeValue: false,
     },

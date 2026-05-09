@@ -47,7 +47,9 @@ export async function loadDynamicParser(adapterType: string): Promise<DynamicPar
   if (failedLoads.has(adapterType)) return null;
 
   try {
-    const response = await fetch(`/api/adapters/${encodeURIComponent(adapterType)}/ui-parser.js`);
+    const response = await fetch(`/api/adapters/${encodeURIComponent(adapterType)}/ui-parser.js`, {
+      credentials: "include",
+    });
     if (!response.ok) {
       failedLoads.add(adapterType);
       return null;
@@ -98,7 +100,6 @@ export async function loadDynamicParser(adapterType: string): Promise<DynamicPar
 
     // Cache for reuse
     dynamicParserCache.set(adapterType, parserModule);
-    console.info(`[adapter-ui-loader] Loaded dynamic UI parser for "${adapterType}"`);
     return parserModule;
   } catch (err) {
     console.warn(`[adapter-ui-loader] Failed to load UI parser for "${adapterType}":`, err);

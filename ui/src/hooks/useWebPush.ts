@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useAuth } from "@paperclipai/ui";
+import { useCompany } from "../context/CompanyContext";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
 
@@ -11,12 +11,13 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 export function useWebPush() {
-  const auth = useAuth();
+  const { selectedCompanyId } = useCompany();
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const subscribe = useCallback(async () => {
     if (!VAPID_PUBLIC_KEY) return;
+    if (!selectedCompanyId) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     setLoading(true);
@@ -27,13 +28,13 @@ export function useWebPush() {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource,
       });
 
-      const companyId = (auth as any).companyId;
-      await fetch(`/api/companies/${companyId}/push/subscribe`, {
+      await fetch(`/api/companies/${selectedCompanyId}/push/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           endpoint: sub.endpoint,
           p256dh: btoa(
@@ -51,9 +52,10 @@ export function useWebPush() {
     } finally {
       setLoading(false);
     }
-  }, [auth]);
+  }, [selectedCompanyId]);
 
   const unsubscribe = useCallback(async () => {
+    if (!selectedCompanyId) return;
     if (!("serviceWorker" in navigator)) return;
     setLoading(true);
     try {
@@ -61,10 +63,10 @@ export function useWebPush() {
       const sub = await reg.pushManager.getSubscription();
       if (!sub) return;
 
-      const companyId = (auth as any).companyId;
-      await fetch(`/api/companies/${companyId}/push/unsubscribe`, {
+      await fetch(`/api/companies/${selectedCompanyId}/push/unsubscribe`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ endpoint: sub.endpoint }),
       });
 
@@ -75,7 +77,7 @@ export function useWebPush() {
     } finally {
       setLoading(false);
     }
-  }, [auth]);
+  }, [selectedCompanyId]);
 
   return { subscribed, loading, subscribe, unsubscribe };
 }

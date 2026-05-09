@@ -16,7 +16,8 @@
   },
   "feed": {
     "title": "Live activity",
-    "empty": "Your team is resting. Upcoming tasks will appear here."
+    "empty": "Your team is resting. Upcoming tasks will appear here.",
+    "noActivity": "Activity will appear here as your agents work."
   },
   "team": {
     "title": "Your team",
@@ -27,13 +28,18 @@
   "usage": {
     "title": "Usage this month",
     "remaining": "remaining",
-    "of": "of"
+    "of": "of",
+    "taskSummary": "~{{count}} tasks remaining"
   },
   "goal": {
     "title": "Monthly goal",
     "remaining": "{{count}} remaining · {{days}} days until end of month"
   },
-  "summary": "Your team completed <strong>{{count}} tasks</strong> this weekend.",
+  "summary": "Your team completed <strong>{{count}} tasks</strong> this month.",
+  "summaryBefore": "Your team completed",
+  "summaryAfter": "this month.",
+  "task": "task",
+  "task_plural": "tasks",
   "events": {
     "agentReading": "{{agent}} is reading…",
     "agentAnalysing": "{{agent}} is analysing…",

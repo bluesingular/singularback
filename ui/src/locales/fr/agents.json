@@ -34,19 +34,26 @@
     "handoffsOut": "Transmis par cet agent",
     "handoffsIn": "Reçus par cet agent",
     "streakProgress": "{{count}} / {{target}} validations 4+★",
+    "streakLabel": "{{count}} validations consécutives 4+★",
     "streakRemaining": "{{count}} validation consécutive 4+★ avant la prochaine proposition d'autonomie",
     "streakRemaining_plural": "{{count}} validations consécutives 4+★ avant la prochaine proposition d'autonomie",
     "upgradeReady": "Prête pour un niveau d'autonomie supérieur",
     "viewProposal": "Voir la proposition",
     "pause": "Mettre en pause",
     "resume": "Relancer",
-    "back": "Retour"
+    "back": "Retour",
+    "notFound": "Agent introuvable.",
+    "trustEmpty": "Le score de confiance apparaîtra après les premières tâches."
   },
   "autonomy": {
     "building": "En apprentissage",
+    "building_desc": "Historique en cours de construction.",
     "supervised": "Supervisé",
+    "supervised_desc": "Vous validez chaque lot avant transmission.",
     "trusted": "De confiance",
-    "highlyTrusted": "Très autonome"
+    "trusted_desc": "Contrôle aléatoire — vous voyez l'essentiel.",
+    "highlyTrusted": "Très autonome",
+    "highlyTrusted_desc": "Résumés hebdomadaires uniquement."
   },
   "status": {
     "done": "Terminé",

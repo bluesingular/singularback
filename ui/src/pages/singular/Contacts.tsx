@@ -5,7 +5,7 @@ import { Search, Plus, Users } from "lucide-react";
 type FilterTab = "tous" | "candidats" | "clients" | "partenaires";
 
 export function Contacts() {
-  const { t, i18n } = useTranslation("contacts");
+  const { t } = useTranslation("contacts");
   const filterTabs: { key: FilterTab; label: string }[] = [
     { key: "tous",       label: t("filters.all") },
     { key: "candidats",  label: t("filters.candidates") },
@@ -14,8 +14,6 @@ export function Contacts() {
   ];
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterTab>("tous");
-
-  const fr = i18n.language !== "en";
 
   return (
     <div className="min-h-screen px-6 py-6" style={{ backgroundColor: "#FAFAF8" }}>
@@ -79,23 +77,17 @@ export function Contacts() {
         </div>
         <div>
           <p className="text-sm font-medium" style={{ color: "#0F0F0D" }}>
-            {fr
-              ? "Les contacts apparaîtront ici automatiquement"
-              : "Contacts will appear here automatically"}
+            {t("empty.title")}
           </p>
           <p className="text-xs mt-1.5 max-w-xs mx-auto" style={{ color: "#8A8680" }}>
-            {fr
-              ? "Chaque candidat ou client contacté par vos agents sera enregistré avec son historique d'interactions."
-              : "Every candidate or client contacted by your agents will be recorded with their interaction history."}
+            {t("empty.body")}
           </p>
         </div>
       </div>
 
       {/* V2 notice */}
       <p className="text-xs text-center mt-6" style={{ color: "#8A8680" }}>
-        {fr
-          ? "Les fiches contacts détaillées arrivent dans la prochaine version."
-          : "Detailed contact profiles are coming in the next release."}
+        {t("empty.comingSoon")}
       </p>
     </div>
   );

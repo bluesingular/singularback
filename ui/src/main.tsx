@@ -17,9 +17,10 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { initPluginBridge } from "./plugins/bridge-init";
 import { PluginLauncherProvider } from "./plugins/launchers";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./lib/i18n";
 import "@mdxeditor/editor/style.css";
 import "./index.css";
-import "./lib/i18n";
 
 initPluginBridge(React, ReactDOM);
 
@@ -40,6 +41,7 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <I18nextProvider i18n={i18n}>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
@@ -67,5 +69,6 @@ createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>
+    </I18nextProvider>
   </StrictMode>
 );

@@ -1,4 +1,4 @@
-import { api } from "./client";
+import { request } from "./client";
 
 export type MemberRole = "owner" | "admin" | "operator" | "viewer" | "api";
 
@@ -14,18 +14,18 @@ export interface Member {
 
 export const membersApi = {
   list(companyId: string): Promise<{ members: Member[] }> {
-    return api(`/companies/${companyId}/singular/members`);
+    return request(`/companies/${companyId}/singular/members`);
   },
 
   updateRole(companyId: string, memberId: string, role: MemberRole): Promise<{ id: string; role: MemberRole }> {
-    return api(`/companies/${companyId}/singular/members/${memberId}/role`, {
+    return request(`/companies/${companyId}/singular/members/${memberId}/role`, {
       method: "PATCH",
       body: JSON.stringify({ role }),
     });
   },
 
   remove(companyId: string, memberId: string): Promise<{ ok: boolean }> {
-    return api(`/companies/${companyId}/singular/members/${memberId}`, {
+    return request(`/companies/${companyId}/singular/members/${memberId}`, {
       method: "DELETE",
     });
   },

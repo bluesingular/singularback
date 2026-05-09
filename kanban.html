@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Singular.blue — Build Kanban</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&family=Georgia&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #F2EFE9;
+      color: #1A1A1A;
+      min-height: 100vh;
+      padding: 32px 24px 64px;
+    }
+
+    header {
+      max-width: 1400px;
+      margin: 0 auto 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 32px; height: 32px;
+      background: #1A9E68;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px;
+    }
+
+    header h1 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      color: #1A1A1A;
+    }
+
+    header p {
+      margin-left: auto;
+      font-size: 12px;
+      color: #8A8680;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .board {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .column {
+      background: #FAFAF8;
+      border-radius: 16px;
+      border: 1px solid #E8E4DC;
+      overflow: hidden;
+    }
+
+    .col-header {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #E8E4DC;
+      position: sticky;
+      top: 0;
+      background: #FAFAF8;
+    }
+
+    .col-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .dot-done   { background: #1A9E68; }
+    .dot-wip    { background: #C97C0A; }
+    .dot-todo   { background: #D1C9BC; }
+
+    .col-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+
+    .col-count {
+      margin-left: auto;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: #8A8680;
+      background: #F0EDE8;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .cards {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .group-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #A09890;
+      padding: 6px 4px 2px;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #E8E4DC;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-tag {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tag-core    { background: #EEF4FF; color: #1A4E8C; }
+    .tag-gap     { background: #FFF8EE; color: #C97C0A; }
+    .tag-pack    { background: #EDFAF4; color: #1A9E68; }
+    .tag-ui      { background: #F5F2EE; color: #6B6B6B; }
+    .tag-adapter { background: #F0EDE8; color: #6B6B6B; }
+    .tag-ops     { background: #FEF2F2; color: #B91C1C; }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1A1A1A;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: #8A8680;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .card-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 10px;
+      color: #6B6B6B;
+      background: #F5F2EE;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* WIP pulse */
+    .card.wip {
+      border-color: #C97C0A40;
+      background: #FFFCF7;
+    }
+    .card.wip .card-title { color: #C97C0A; }
+
+    /* todo muted */
+    .card.todo { opacity: 0.85; }
+
+    @media (max-width: 900px) {
+      .board { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">S</div>
+  <h1>Singular.blue — Build Kanban</h1>
+  <p>Last updated · 2026-05-08</p>
+</header>
+
+<div class="board">
+
+  <!-- ── TODO ─────────────────────────────────────────── -->
+  <div class="column">
+    <div class="col-header">
+      <div class="col-dot dot-todo"></div>
+      <span class="col-title">To Do</span>
+      <span class="col-count">7</span>
+    </div>
+    <div class="cards">
+
+      <div class="group-label">Ops — Env vars to activate</div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-ops">Ops</span>
+          <span class="card-title">Email via Resend</span>
+        </div>
+        <div class="card-desc">Add RESEND_API_KEY + FROM_EMAIL to server/.env. Verify sending domain in Resend dashboard.</div>
+        <div class="card-chips"><span class="chip">RESEND_API_KEY</span><span class="chip">FROM_EMAIL</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-ops">Ops</span>
+          <span class="card-title">WebPush VAPID keys</span>
+        </div>
+        <div class="card-desc">Generate and add VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT to server/.env.</div>
+        <div class="card-chips"><span class="chip">VAPID_PUBLIC_KEY</span><span class="chip">VAPID_PRIVATE_KEY</span></div>
+      </div>
+
+      <div class="group-label">Frontend</div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap B</span>
+          <span class="card-title">Audit customer-app — zero hardcoded tenants</span>
+        </div>
+        <div class="card-desc">Verify all screens read companyId exclusively from useAuth(), no hardcoded references anywhere.</div>
+        <div class="card-chips"><span class="chip">customer-app</span><span class="chip">useAuth()</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap C</span>
+          <span class="card-title">Admin portal UI — admin.swwarm.com</span>
+        </div>
+        <div class="card-desc">Frontend for existing admin routes: tenant list, health metrics, Bull Board, read-only impersonation.</div>
+        <div class="card-chips"><span class="chip">admin.swwarm.com</span><span class="chip">tenant list</span><span class="chip">Bull Board</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-ui">UI</span>
+          <span class="card-title">Translate Paperclip admin UI to French</span>
+        </div>
+        <div class="card-desc">200+ hardcoded English strings in the original Paperclip admin (Dashboard, Inbox, Issues, Routines, Goals, etc.) need i18n wiring. Language switcher already works on Singular pages.</div>
+        <div class="card-chips"><span class="chip">i18n</span><span class="chip">Paperclip admin</span><span class="chip">t() keys</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap B</span>
+          <span class="card-title">Singular pages — tenant isolation</span>
+        </div>
+        <div class="card-desc">Currently all orgs/companies are visible on Singular pages. Each customer must only see their own company data. Enforce company_id scoping from auth context on all Singular page API calls — never trust client-supplied IDs.</div>
+        <div class="card-chips"><span class="chip">company_id</span><span class="chip">useAuth()</span><span class="chip">multi-tenancy</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-top">
+          <span class="card-tag tag-core">Security</span>
+          <span class="card-title">Fix RBAC — 4 critical gaps</span>
+        </div>
+        <div class="card-desc">
+          🔴 req.actor.memberships never populated → viewer bypass: viewers can mutate/delete anything (authz.ts:64).<br>
+          🔴 Issues, Projects, Goals, Agents routes have no requireRole() check — any member can do anything.<br>
+          🟡 Singular pages show all orgs — company_id not enforced per customer session.<br>
+          🟡 Public API keys have no role checks, only read/read_write scope.<br>
+          Fix order: (1) populate memberships in auth.ts:45-69, (2) add requireRole() to all mutation routes, (3) scope Singular pages to session company_id.
+        </div>
+        <div class="card-chips"><span class="chip">auth.ts</span><span class="chip">authz.ts</span><span class="chip">requireRole()</span><span class="chip">memberships</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── WIP ──────────────────────────────────────────── -->
+  <div class="column">
+    <div class="col-header">
+      <div class="col-dot dot-wip"></div>
+      <span class="col-title">In Progress</span>
+      <span class="col-count">0</span>
+    </div>
+    <div class="cards">
+      <div style="padding: 32px 16px; text-align: center; color: #A09890; font-size: 13px;">
+        Nothing in progress
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DONE ─────────────────────────────────────────── -->
+  <div class="column">
+    <div class="col-header">
+      <div class="col-dot dot-done"></div>
+      <span class="col-title">Done</span>
+      <span class="col-count">38</span>
+    </div>
+    <div class="cards">
+
+      <div class="group-label">Backend — Core</div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M0</span>
+          <span class="card-title">Multi-tenancy</span>
+        </div>
+        <div class="card-chips"><span class="chip">companies</span><span class="chip">JWT</span><span class="chip">company_id isolation</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M1</span>
+          <span class="card-title">BullMQ EDA</span>
+        </div>
+        <div class="card-chips"><span class="chip">queues</span><span class="chip">workers</span><span class="chip">idempotency</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M2</span>
+          <span class="card-title">Context assembly</span>
+        </div>
+        <div class="card-chips"><span class="chip">6-layer pipeline</span><span class="chip">token budgets</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M3</span>
+          <span class="card-title">LLM router + GDPR invariant</span>
+        </div>
+        <div class="card-chips"><span class="chip">DeepSeek blocked</span><span class="chip">Mistral EU</span><span class="chip">OpenRouter</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M4</span>
+          <span class="card-title">Integration Hub</span>
+        </div>
+        <div class="card-chips"><span class="chip">AES-256 vault</span><span class="chip">MCP router</span><span class="chip">webhooks</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M5</span>
+          <span class="card-title">Web browsing</span>
+        </div>
+        <div class="card-chips"><span class="chip">Firecrawl</span><span class="chip">Jina fallback</span><span class="chip">AI Act logging</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M6</span>
+          <span class="card-title">Quality gates + damage control</span>
+        </div>
+        <div class="card-chips"><span class="chip">output schema</span><span class="chip">immutable audit</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M7</span>
+          <span class="card-title">Cost intelligence</span>
+        </div>
+        <div class="card-chips"><span class="chip">micro-euro</span><span class="chip">task translation</span><span class="chip">budget alerts</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M8</span>
+          <span class="card-title">Org memory + Contacts</span>
+        </div>
+        <div class="card-chips"><span class="chip">pgvector</span><span class="chip">1024 dims</span><span class="chip">Mistral Embed</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M9</span>
+          <span class="card-title">Trust calibration</span>
+        </div>
+        <div class="card-chips"><span class="chip">scores</span><span class="chip">proposals</span><span class="chip">autonomy levels</span><span class="chip">streaks</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M10</span>
+          <span class="card-title">Skill versioning + self-improvement</span>
+        </div>
+        <div class="card-chips"><span class="chip">golden datasets</span><span class="chip">benchmarking</span><span class="chip">auto-activate</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M11</span>
+          <span class="card-title">Morning intelligence + activation</span>
+        </div>
+        <div class="card-chips"><span class="chip">max 3/day</span><span class="chip">14-day cooldown</span><span class="chip">5 moments</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M12</span>
+          <span class="card-title">Pack installer</span>
+        </div>
+        <div class="card-chips"><span class="chip">7-step atomic tx</span><span class="chip">seed tasks</span><span class="chip">rollback</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M13</span>
+          <span class="card-title">CEO Console</span>
+        </div>
+        <div class="card-chips"><span class="chip">proactive mode</span><span class="chip">approval cards</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M14</span>
+          <span class="card-title">Stripe billing</span>
+        </div>
+        <div class="card-chips"><span class="chip">idempotent webhooks</span><span class="chip">plan limits</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-core">M15</span>
+          <span class="card-title">SSE granular events</span>
+        </div>
+        <div class="card-chips"><span class="chip">task events</span><span class="chip">within-task</span><span class="chip">keepalive 30s</span></div>
+      </div>
+
+      <div class="group-label">Backend — Gaps</div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G1</span>
+          <span class="card-title">i18n architecture</span>
+        </div>
+        <div class="card-chips"><span class="chip">company.locale</span><span class="chip">timezone</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G2</span>
+          <span class="card-title">Agent capability declaration</span>
+        </div>
+        <div class="card-chips"><span class="chip">SKILL.md frontmatter</span><span class="chip">machine-readable</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G3</span>
+          <span class="card-title">RBAC</span>
+        </div>
+        <div class="card-chips"><span class="chip">Owner</span><span class="chip">Admin</span><span class="chip">Operator</span><span class="chip">Viewer</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G4</span>
+          <span class="card-title">Inbound webhooks</span>
+        </div>
+        <div class="card-chips"><span class="chip">routing rules</span><span class="chip">BullMQ</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G5</span>
+          <span class="card-title">Human clarification flow</span>
+        </div>
+        <div class="card-chips"><span class="chip">awaiting_clarification</span><span class="chip">48h timeout</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G6</span>
+          <span class="card-title">Streaming LLM responses</span>
+        </div>
+        <div class="card-chips"><span class="chip">routeModel stream</span><span class="chip">SSE chunks</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G7</span>
+          <span class="card-title">Agent versioning</span>
+        </div>
+        <div class="card-chips"><span class="chip">skill version pin</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G8</span>
+          <span class="card-title">Task DAG</span>
+        </div>
+        <div class="card-chips"><span class="chip">BullMQ dependencies</span><span class="chip">blocking relations</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G9</span>
+          <span class="card-title">Batch processing</span>
+        </div>
+        <div class="card-chips"><span class="chip">fan-out</span><span class="chip">parallel workers</span><span class="chip">single approval gate</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G10</span>
+          <span class="card-title">GDPR compliance export</span>
+        </div>
+        <div class="card-chips"><span class="chip">Art.17 erasure</span><span class="chip">Art.20 portability</span><span class="chip">audit CSV</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G11</span>
+          <span class="card-title">Multi-modal input</span>
+        </div>
+        <div class="card-chips"><span class="chip">PDF</span><span class="chip">image</span><span class="chip">Whisper</span><span class="chip">spreadsheets</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G12</span>
+          <span class="card-title">MCP server</span>
+        </div>
+        <div class="card-chips"><span class="chip">JSON-RPC 2.0</span><span class="chip">agents as tools</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G13</span>
+          <span class="card-title">Public API + SDK</span>
+        </div>
+        <div class="card-chips"><span class="chip">REST</span><span class="chip">OpenAPI</span><span class="chip">API keys</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G14</span>
+          <span class="card-title">A2A protocol</span>
+        </div>
+        <div class="card-chips"><span class="chip">Google A2A</span><span class="chip">agent.json</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">G15</span>
+          <span class="card-title">Plugin/extension system</span>
+        </div>
+        <div class="card-chips"><span class="chip">action type registration</span><span class="chip">invoke</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap A</span>
+          <span class="card-title">Self-service onboarding</span>
+        </div>
+        <div class="card-chips"><span class="chip">signup</span><span class="chip">company creation</span><span class="chip">pack selection</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap C</span>
+          <span class="card-title">Admin portal routes</span>
+        </div>
+        <div class="card-chips"><span class="chip">tenant list</span><span class="chip">impersonation</span><span class="chip">health metrics</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap D</span>
+          <span class="card-title">Skill management routes</span>
+        </div>
+        <div class="card-chips"><span class="chip">versioning</span><span class="chip">publish flow</span><span class="chip">golden datasets</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap F</span>
+          <span class="card-title">Agent configuration API</span>
+        </div>
+        <div class="card-chips"><span class="chip">capability declarations</span><span class="chip">config_params</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-gap">Gap H</span>
+          <span class="card-title">PWA + WebPush</span>
+        </div>
+        <div class="card-chips"><span class="chip">manifest</span><span class="chip">service worker</span><span class="chip">VAPID</span></div>
+      </div>
+
+      <div class="group-label">Pack P1 — Recruitment</div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-pack">Pack</span>
+          <span class="card-title">5 agents + 8 skills + 160 golden examples</span>
+        </div>
+        <div class="card-chips"><span class="chip">Sophie</span><span class="chip">Marc</span><span class="chip">Clara</span><span class="chip">Julien</span><span class="chip">Iris</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-pack">Pack</span>
+          <span class="card-title">3 seed tasks + 5-moment activation</span>
+        </div>
+        <div class="card-chips"><span class="chip">Day 0→7</span><span class="chip">production-quality data</span></div>
+      </div>
+
+      <div class="group-label">Frontend</div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-ui">UI</span>
+          <span class="card-title">9 Singular screens — admin shell</span>
+        </div>
+        <div class="card-chips"><span class="chip">:3100</span><span class="chip">French</span><span class="chip">Tailwind v4</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-ui">UI</span>
+          <span class="card-title">Customer portal — standalone app</span>
+        </div>
+        <div class="card-chips"><span class="chip">:5174</span><span class="chip">real APIs</span><span class="chip">cookie auth</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-ui">UI</span>
+          <span class="card-title">Admin sign in / sign out</span>
+        </div>
+        <div class="card-chips"><span class="chip">sidebar</span><span class="chip">better-auth</span></div>
+      </div>
+
+      <div class="group-label">Adapters</div>
+
+      <div class="card">
+        <div class="card-top">
+          <span class="card-tag tag-adapter">Adapter</span>
+          <span class="card-title">Ollama (local)</span>
+        </div>
+        <div class="card-chips"><span class="chip">server</span><span class="chip">UI config</span><span class="chip">model picker</span><span class="chip">NDJSON stream</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -16,7 +16,8 @@
   },
   "feed": {
     "title": "Activité en direct",
-    "empty": "Votre équipe se repose. Les prochaines tâches apparaîtront ici."
+    "empty": "Votre équipe se repose. Les prochaines tâches apparaîtront ici.",
+    "noActivity": "L'activité apparaîtra ici au fil du travail de vos agents."
   },
   "team": {
     "title": "Votre équipe",
@@ -27,13 +28,18 @@
   "usage": {
     "title": "Utilisation ce mois-ci",
     "remaining": "restants",
-    "of": "sur"
+    "of": "sur",
+    "taskSummary": "environ {{count}} tâches restantes"
   },
   "goal": {
     "title": "Objectif du mois",
     "remaining": "{{count}} restant · {{days}} jours avant la fin du mois"
   },
-  "summary": "Votre équipe a complété <strong>{{count}} tâches</strong> ce week-end.",
+  "summary": "Votre équipe a complété <strong>{{count}} tâches</strong> ce mois.",
+  "summaryBefore": "Votre équipe a complété",
+  "summaryAfter": "ce mois.",
+  "task": "tâche",
+  "task_plural": "tâches",
   "events": {
     "agentReading": "{{agent}} lit les informations…",
     "agentAnalysing": "{{agent}} analyse…",

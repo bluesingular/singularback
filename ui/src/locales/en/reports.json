@@ -12,12 +12,18 @@
     "aiCost": "cost this month",
     "fullTeam": "full AI team",
     "humanEquivalent": "human equivalent",
-    "estimatedMonthly": "estimated monthly cost"
+    "estimatedMonthly": "estimated monthly cost",
+    "budgetUsed": "of budget used",
+    "thisMonth": "this month"
   },
   "simulator": {
     "title": "Hire simulator",
     "savings": "Estimated savings",
-    "adjustLabel": "Adjust comparison — {{count}} FTE"
+    "adjustLabel": "Adjust comparison — {{count}} FTE",
+    "aiTeamDoes": "Your AI team handles the work of",
+    "at": "at",
+    "hireCompare": "Equivalent junior hire cost:",
+    "charges": "employer charges (≈ ×1.45)"
   },
   "activityByAgent": "Activity by agent",
   "taskBreakdown": "Task breakdown",

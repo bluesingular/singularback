@@ -34,19 +34,26 @@
     "handoffsOut": "Handed off by this agent",
     "handoffsIn": "Received by this agent",
     "streakProgress": "{{count}} / {{target}} 4+★ approvals",
+    "streakLabel": "{{count}} consecutive 4+★ approvals",
     "streakRemaining": "{{count}} consecutive 4+★ approval until next autonomy proposal",
     "streakRemaining_plural": "{{count}} consecutive 4+★ approvals until next autonomy proposal",
     "upgradeReady": "Ready for a higher autonomy level",
     "viewProposal": "View proposal",
     "pause": "Pause",
     "resume": "Resume",
-    "back": "Back"
+    "back": "Back",
+    "notFound": "Agent not found.",
+    "trustEmpty": "Trust score will appear after the first completed tasks."
   },
   "autonomy": {
     "building": "Building trust",
+    "building_desc": "Building trust history.",
     "supervised": "Supervised",
+    "supervised_desc": "You approve each batch before sending.",
     "trusted": "Trusted",
-    "highlyTrusted": "Highly autonomous"
+    "trusted_desc": "Spot checks — you see the highlights.",
+    "highlyTrusted": "Highly autonomous",
+    "highlyTrusted_desc": "Weekly summaries only."
   },
   "status": {
     "done": "Completed",

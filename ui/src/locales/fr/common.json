@@ -1,7 +1,7 @@
 {
   "nav": {
     "dashboard": "Tableau de bord",
-    "team": "Mon équipe",
+    "team": "Mon équipe IA",
     "trust": "Centre de confiance",
     "console": "Console CEO",
     "contacts": "Contacts",
@@ -43,5 +43,10 @@
     "label": "Langue",
     "fr": "Français",
     "en": "English"
+  },
+  "agentStatus": {
+    "active": "Actif",
+    "paused": "En pause",
+    "empty": "Aucun agent pour l'instant. Installez un pack pour commencer."
   }
 }

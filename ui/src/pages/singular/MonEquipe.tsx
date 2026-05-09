@@ -15,7 +15,8 @@ import type { Agent } from "@paperclipai/shared"
 // ---------------------------------------------------------------------------
 
 function AgentCard({ agent, onClick }: { agent: Agent; onClick: () => void }) {
-  const { t, i18n } = useTranslation("agents")
+  const { t } = useTranslation("agents")
+  const { t: tc } = useTranslation("common")
   const isActive = agent.status === "active"
   const avatarBg = isActive ? "bg-[#1A9E68]" : "bg-[#8A8680]"
 
@@ -37,9 +38,7 @@ function AgentCard({ agent, onClick }: { agent: Agent; onClick: () => void }) {
             {agent.name}
           </p>
           <p className="text-xs text-[#8A8680] mt-0.5">
-            {isActive
-              ? (i18n.language === "en" ? "Active" : "Actif")
-              : (i18n.language === "en" ? "Paused" : "En pause")}
+            {isActive ? tc("agentStatus.active") : tc("agentStatus.paused")}
           </p>
         </div>
       </div>
@@ -58,7 +57,8 @@ function AgentCard({ agent, onClick }: { agent: Agent; onClick: () => void }) {
 // ---------------------------------------------------------------------------
 
 export default function MonEquipe() {
-  const { t, i18n } = useTranslation("agents")
+  const { t } = useTranslation("agents")
+  const { t: tc } = useTranslation("common")
   const navigate = useNavigate()
   const { selectedCompanyId } = useCompany()
 
@@ -94,9 +94,7 @@ export default function MonEquipe() {
         ) : agents.length === 0 ? (
           <div className="bg-white rounded-2xl border border-[#E8E4DC] p-10 text-center">
             <p className="text-sm text-[#8A8680]">
-              {i18n.language === "en"
-                ? "No agents yet. Install a pack to get started."
-                : "Aucun agent pour l'instant. Installez un pack pour commencer."}
+              {tc("agentStatus.empty")}
             </p>
           </div>
         ) : (

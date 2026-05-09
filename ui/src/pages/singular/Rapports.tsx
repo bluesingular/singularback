@@ -14,7 +14,8 @@ const AGENT_COLORS = [
 ];
 
 export function Rapports() {
-  const { t, i18n } = useTranslation("reports");
+  const { t } = useTranslation("reports");
+  const { t: tc } = useTranslation("common");
   const { selectedCompanyId } = useCompany();
   const { formatNumber, formatEuros } = useLocale();
 
@@ -48,7 +49,6 @@ export function Rapports() {
 
   const agents = (agentList ?? []).slice(0, 8);
 
-  const fr = i18n.language !== "en";
 
   return (
     <div className="min-h-screen px-6 py-6" style={{ backgroundColor: "#FAFAF8" }}>
@@ -82,8 +82,8 @@ export function Rapports() {
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.tasksCompleted")}</p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>
             {budgetCents > 0
-              ? `${summary?.costs.monthUtilizationPercent.toFixed(0)}% ${fr ? "du budget utilisé" : "of budget used"}`
-              : fr ? "ce mois" : "this month"}
+              ? `${summary?.costs.monthUtilizationPercent.toFixed(0)}% ${t("kpi.budgetUsed")}`
+              : t("kpi.thisMonth")}
           </p>
         </div>
 
@@ -123,11 +123,11 @@ export function Rapports() {
         <div className="w-full mb-4" style={{ height: "1px", backgroundColor: "#1A9E6830" }} />
 
         <p className="text-sm mb-4" style={{ color: "#0F0F0D" }}>
-          {fr ? "Votre équipe IA fait le travail de" : "Your AI team handles the work of"}{" "}
+          {t("simulator.aiTeamDoes")}{" "}
           <span className="font-semibold" style={{ color: "#1A9E68" }}>
             {fteCount.toFixed(1).replace(".", ",")} ETP
           </span>{" "}
-          {fr ? "à" : "at"}{" "}
+          {t("simulator.at")}{" "}
           <span className="font-semibold" style={{ color: "#1A9E68" }}>
             {monthlyCostAI} €/mois
           </span>.
@@ -135,11 +135,11 @@ export function Rapports() {
 
         <div className="rounded-lg p-4 mb-4 text-sm space-y-1" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E4DC" }}>
           <p style={{ color: "#0F0F0D" }}>
-            {fr ? "Si vous embauchiez un chargé de sourcing junior :" : "Equivalent junior hire cost:"}{" "}
+            {t("simulator.hireCompare")}{" "}
             <span className="font-medium">{formatNumber(Math.round(fteCount * 2800))} €/mois brut</span>
           </p>
           <p style={{ color: "#8A8680" }}>
-            + {fr ? "charges (≈ ×1,45)" : "employer charges (≈ ×1.45)"} :{" "}
+            + {t("simulator.charges")} :{" "}
             <span className="font-medium" style={{ color: "#0F0F0D" }}>
               {formatNumber(monthlyCostHuman)} €/mois
             </span>
@@ -189,7 +189,7 @@ export function Rapports() {
                     <p className="text-sm truncate" style={{ color: "#0F0F0D" }}>{agent.name}</p>
                   </div>
                   <span className="text-xs" style={{ color: isActive ? color : "#8A8680" }}>
-                    {isActive ? (fr ? "Actif" : "Active") : (fr ? "En pause" : "Paused")}
+                    {isActive ? tc("agentStatus.active") : tc("agentStatus.paused")}
                   </span>
                 </div>
               );

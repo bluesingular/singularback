@@ -1,7 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
-    "team": "My team",
+    "team": "My AI team",
     "trust": "Trust centre",
     "console": "CEO Console",
     "contacts": "Contacts",
@@ -43,5 +43,10 @@
     "label": "Language",
     "fr": "Français",
     "en": "English"
+  },
+  "agentStatus": {
+    "active": "Active",
+    "paused": "Paused",
+    "empty": "No agents yet. Install a pack to get started."
   }
 }

@@ -11,12 +11,14 @@ import {
   Boxes,
   Repeat,
   Settings,
+  ExternalLink,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarProjects } from "./SidebarProjects";
 import { SidebarAgents } from "./SidebarAgents";
+import { SidebarFooter } from "./SidebarFooter";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { heartbeatsApi } from "../api/heartbeats";
@@ -71,6 +73,12 @@ export function Sidebar() {
 
       <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide flex flex-col gap-4 px-3 py-2">
         <div className="flex flex-col gap-0.5">
+          {/* Link to Singular customer portal */}
+          <SidebarNavItem
+            to={`/${selectedCompany?.issuePrefix ?? ""}/tableau-de-bord`}
+            label="Singular →"
+            icon={ExternalLink}
+          />
           {/* New Issue button aligned with nav items */}
           <button
             onClick={() => openNewIssue()}
@@ -123,6 +131,8 @@ export function Sidebar() {
           missingBehavior="placeholder"
         />
       </nav>
+
+      <SidebarFooter />
     </aside>
   );
 }
