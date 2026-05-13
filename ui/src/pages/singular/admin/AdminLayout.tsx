@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Outlet } from "react-router-dom"
 import { useNavigate, useLocation } from "@/lib/router"
-import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users } from "lucide-react"
+import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users, ShieldCheck, Bell, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV = [
@@ -14,7 +14,10 @@ const NAV = [
   { to: "/instance/admin/webhooks",      label: "Webhooks",     icon: Webhook,    exact: false },
   { to: "/instance/admin/llm-models",   label: "Modèles LLM",  icon: Cpu,        exact: false },
   { to: "/instance/admin/billing",      label: "Facturation",  icon: CreditCard, exact: false },
-  { to: "/instance/admin/members",      label: "Membres",      icon: Users,      exact: false },
+  { to: "/instance/admin/members",       label: "Membres",      icon: Users,      exact: false },
+  { to: "/instance/admin/trust",         label: "Confiance",    icon: ShieldCheck, exact: false },
+  { to: "/instance/admin/notifications", label: "Notifications", icon: Bell,       exact: false },
+  { to: "/instance/admin/gdpr",          label: "RGPD",         icon: FileText,   exact: false },
 ];
 
 function NavItem({ to, label, icon: Icon, exact }: { to: string; label: string; icon: React.ElementType; exact: boolean }) {

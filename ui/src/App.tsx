@@ -75,6 +75,9 @@ const AdminWebhooks     = lazy(() => import("./pages/singular/admin/AdminWebhook
 const AdminLlmModels   = lazy(() => import("./pages/singular/admin/AdminLlmModels").then(m => ({ default: m.AdminLlmModels })));
 const AdminBilling     = lazy(() => import("./pages/singular/admin/AdminBilling").then(m => ({ default: m.AdminBilling })));
 const AdminMembers     = lazy(() => import("./pages/singular/admin/AdminMembers").then(m => ({ default: m.AdminMembers })));
+const AdminTrustConfig = lazy(() => import("./pages/singular/admin/AdminTrustConfig").then(m => ({ default: m.AdminTrustConfig })));
+const AdminNotifications = lazy(() => import("./pages/singular/admin/AdminNotifications").then(m => ({ default: m.AdminNotifications })));
+const AdminGdpr        = lazy(() => import("./pages/singular/admin/AdminGdpr").then(m => ({ default: m.AdminGdpr })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -399,6 +402,9 @@ export function App() {
             <Route path="llm-models" element={<Suspense fallback={null}><AdminLlmModels /></Suspense>} />
             <Route path="billing" element={<Suspense fallback={null}><AdminBilling /></Suspense>} />
             <Route path="members" element={<Suspense fallback={null}><AdminMembers /></Suspense>} />
+            <Route path="trust" element={<Suspense fallback={null}><AdminTrustConfig /></Suspense>} />
+            <Route path="notifications" element={<Suspense fallback={null}><AdminNotifications /></Suspense>} />
+            <Route path="gdpr" element={<Suspense fallback={null}><AdminGdpr /></Suspense>} />
           </Route>
           <Route path="instance/settings" element={<Layout />}>
             <Route index element={<Navigate to="general" replace />} />
