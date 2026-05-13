@@ -1,13 +1,20 @@
 import * as React from "react"
 import { Outlet } from "react-router-dom"
 import { useNavigate, useLocation } from "@/lib/router"
-import { BarChart3, Building2, ArrowLeft, GitBranch } from "lucide-react"
+import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV = [
-  { to: "/instance/admin",         label: "Plateforme",   icon: BarChart3,  exact: true  },
-  { to: "/instance/admin/tenants", label: "Tenants",      icon: Building2,  exact: false },
-  { to: "/instance/admin/skills",  label: "Compétences",  icon: GitBranch,  exact: false },
+  { to: "/instance/admin",               label: "Plateforme",   icon: BarChart3, exact: true  },
+  { to: "/instance/admin/tenants",       label: "Tenants",      icon: Building2, exact: false },
+  { to: "/instance/admin/skills",        label: "Compétences",  icon: GitBranch, exact: false },
+  { to: "/instance/admin/api-keys",      label: "Clés API",     icon: Key,       exact: false },
+  { to: "/instance/admin/quality-gates", label: "Sécurité",     icon: Shield,    exact: false },
+  { to: "/instance/admin/integrations",  label: "Intégrations", icon: Plug,      exact: false },
+  { to: "/instance/admin/webhooks",      label: "Webhooks",     icon: Webhook,    exact: false },
+  { to: "/instance/admin/llm-models",   label: "Modèles LLM",  icon: Cpu,        exact: false },
+  { to: "/instance/admin/billing",      label: "Facturation",  icon: CreditCard, exact: false },
+  { to: "/instance/admin/members",      label: "Membres",      icon: Users,      exact: false },
 ];
 
 function NavItem({ to, label, icon: Icon, exact }: { to: string; label: string; icon: React.ElementType; exact: boolean }) {

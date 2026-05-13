@@ -68,6 +68,13 @@ const AdminTenants   = lazy(() => import("./pages/singular/admin/AdminTenants").
 const AdminTenantDetail = lazy(() => import("./pages/singular/admin/AdminTenantDetail").then(m => ({ default: m.AdminTenantDetail })));
 const AdminSkills       = lazy(() => import("./pages/singular/admin/AdminSkills").then(m => ({ default: m.AdminSkills })));
 const AdminSkillEditor  = lazy(() => import("./pages/singular/admin/AdminSkillEditor").then(m => ({ default: m.AdminSkillEditor })));
+const AdminApiKeys      = lazy(() => import("./pages/singular/admin/AdminApiKeys").then(m => ({ default: m.AdminApiKeys })));
+const AdminQualityGates = lazy(() => import("./pages/singular/admin/AdminQualityGates").then(m => ({ default: m.AdminQualityGates })));
+const AdminIntegrations = lazy(() => import("./pages/singular/admin/AdminIntegrations").then(m => ({ default: m.AdminIntegrations })));
+const AdminWebhooks     = lazy(() => import("./pages/singular/admin/AdminWebhooks").then(m => ({ default: m.AdminWebhooks })));
+const AdminLlmModels   = lazy(() => import("./pages/singular/admin/AdminLlmModels").then(m => ({ default: m.AdminLlmModels })));
+const AdminBilling     = lazy(() => import("./pages/singular/admin/AdminBilling").then(m => ({ default: m.AdminBilling })));
+const AdminMembers     = lazy(() => import("./pages/singular/admin/AdminMembers").then(m => ({ default: m.AdminMembers })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -385,6 +392,13 @@ export function App() {
             <Route path="tenants/:companyId" element={<Suspense fallback={null}><AdminTenantDetail /></Suspense>} />
             <Route path="skills" element={<Suspense fallback={null}><AdminSkills /></Suspense>} />
             <Route path="skills/:skillType/versions/:versionId" element={<Suspense fallback={null}><AdminSkillEditor /></Suspense>} />
+            <Route path="api-keys" element={<Suspense fallback={null}><AdminApiKeys /></Suspense>} />
+            <Route path="quality-gates" element={<Suspense fallback={null}><AdminQualityGates /></Suspense>} />
+            <Route path="integrations" element={<Suspense fallback={null}><AdminIntegrations /></Suspense>} />
+            <Route path="webhooks" element={<Suspense fallback={null}><AdminWebhooks /></Suspense>} />
+            <Route path="llm-models" element={<Suspense fallback={null}><AdminLlmModels /></Suspense>} />
+            <Route path="billing" element={<Suspense fallback={null}><AdminBilling /></Suspense>} />
+            <Route path="members" element={<Suspense fallback={null}><AdminMembers /></Suspense>} />
           </Route>
           <Route path="instance/settings" element={<Layout />}>
             <Route index element={<Navigate to="general" replace />} />

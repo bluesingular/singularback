@@ -29,4 +29,11 @@ export const membersApi = {
       method: "DELETE",
     });
   },
+
+  invite(companyId: string, email: string, role: MemberRole): Promise<{ ok: boolean }> {
+    return request(`/companies/${companyId}/invites`, {
+      method: "POST",
+      body: JSON.stringify({ email, role }),
+    });
+  },
 };
