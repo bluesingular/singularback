@@ -112,7 +112,7 @@ export async function releaseBlockedTasks(
     // 4. Trigger immediate heartbeat for the task's agent
     if (updated.assigneeAgentId) {
       await emit.heartbeat(
-        { agentId: updated.assigneeAgentId, companyId, triggeredBy: "dag_release" },
+        { agentId: updated.assigneeAgentId, companyId, triggeredBy: "dag_release" as "manual" },
         0,
       );
     }

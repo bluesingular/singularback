@@ -70,6 +70,7 @@ export async function extractPdf(
   let text = "";
   try {
     // Dynamic import so absence of pdf-parse doesn't crash startup
+    // @ts-ignore — pdf-parse has no bundled types; catch handles missing module
     const pdfParse = (await import("pdf-parse")).default;
     const result = await pdfParse(buffer);
     text = result.text.trim();
@@ -190,6 +191,7 @@ export async function transcribeVoice(
   const { FormData, Blob } = await import("node:buffer").then(
     // Node 18+ has Blob globally; FormData is in node:buffer since Node 18.11
     async () => {
+      // @ts-ignore — node-fetch has no bundled types in this ESM context
       const nodeFetch = await import("node-fetch").catch(() => null);
       return nodeFetch
         ? { FormData: nodeFetch.default as any, Blob: globalThis.Blob ?? Buffer }
@@ -198,7 +200,7 @@ export async function transcribeVoice(
   );
 
   const form = new globalThis.FormData();
-  const blob = new globalThis.Blob([buffer], { type: mimeType });
+  const blob = new globalThis.Blob([new Uint8Array(buffer)], { type: mimeType });
   form.append("file", blob, `audio.${ext}`);
   form.append("model", "whisper-1");
   form.append("response_format", "text");
@@ -248,10 +250,12 @@ export async function extractSpreadsheet(
     mimeType === "application/vnd.ms-excel"
   ) {
     try {
+      // @ts-ignore — xlsx has no bundled types; catch handles missing module
       const XLSX = await import("xlsx");
       const wb = XLSX.read(buffer, { type: "buffer" });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      rows = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1 });
+      // @ts-ignore
+      rows = XLSX.utils.sheet_to_json(ws, { header: 1 }) as string[][];
     } catch (err: any) {
       if (err?.code === "ERR_MODULE_NOT_FOUND" || err?.message?.includes("Cannot find module")) {
         throw new ExtractionError(

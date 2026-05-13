@@ -18,7 +18,7 @@ import { assertCompanyAccess, requireRole } from "./authz.js";
 import { notFound } from "../errors.js";
 
 const RoleSchema = z.object({
-  role: z.enum(COMPANY_ROLES as [CompanyRole, ...CompanyRole[]]),
+  role: z.enum([...COMPANY_ROLES] as [CompanyRole, ...CompanyRole[]]),
 });
 
 export function membersRoutes(db: Db) {

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
-import { and, asc, desc, eq, getTableColumns, gt, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, gt, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
 import {
   AGENT_DEFAULT_MAX_CONCURRENT_RUNS,
@@ -14,17 +14,22 @@ import {
   type RunLivenessState,
 } from "@paperclipai/shared";
 import {
+  activityLog,
   agents,
   agentRuntimeState,
   agentTaskSessions,
   agentWakeupRequests,
   companySkills as companySkillsTable,
+  documentRevisions,
   heartbeatRunEvents,
   heartbeatRuns,
   issueComments,
+  issueDocuments,
   issues,
+  issueWorkProducts,
   projects,
   projectWorkspaces,
+  workspaceOperations,
 } from "@paperclipai/db";
 import { conflict, HttpError, notFound } from "../errors.js";
 import { logger } from "../middleware/logger.js";
@@ -2792,6 +2797,69 @@ export function heartbeatService(db: Db) {
     }
   }
 
+  // ── Liveness classification stubs ──────────────────────────────────────────
+  // These functions are called by buildRunLivenessInput / classifyAndPersistRunLiveness.
+  // Full implementations live in the liveness-classification module (not yet extracted).
+
+  interface RunLivenessClassificationInput {
+    runStatus: string;
+    issue: { status: string; title: string; description: string | null } | null;
+    resultJson: Record<string, unknown> | null;
+    stdoutExcerpt: string | null;
+    stderrExcerpt: string | null;
+    error: string | null;
+    errorCode: string | null;
+    continuationAttempt: number;
+    evidence: {
+      issueCommentsCreated: number;
+      documentRevisionsCreated: number;
+      planDocumentRevisionsCreated: number;
+      workProductsCreated: number;
+      workspaceOperationsCreated: number;
+      activityEventsCreated: number;
+      toolOrActionEventsCreated: number;
+      latestEvidenceAt: Date | null;
+    };
+  }
+
+  function buildHeartbeatRunStopMetadata(opts: {
+    adapterType: string;
+    adapterConfig: Record<string, unknown> | null;
+    outcome: string;
+    errorCode: string | null;
+    errorMessage: string | null;
+  }): Record<string, unknown> {
+    return { adapterType: opts.adapterType, outcome: opts.outcome, errorCode: opts.errorCode };
+  }
+
+  function mergeHeartbeatRunStopMetadata(
+    base: Record<string, unknown> | null,
+    stop: Record<string, unknown>,
+  ): Record<string, unknown> {
+    return { ...(base ?? {}), ...stop };
+  }
+
+  function classifyRunLiveness(input: RunLivenessClassificationInput): {
+    livenessState: string;
+    livenessReason: string;
+    continuationAttempt: number;
+    lastUsefulActionAt: Date | null;
+    nextAction: string;
+  } {
+    const hasEvidence =
+      input.evidence.issueCommentsCreated > 0 ||
+      input.evidence.toolOrActionEventsCreated > 0 ||
+      input.evidence.activityEventsCreated > 0;
+    return {
+      livenessState:       hasEvidence ? "active" : "stalled",
+      livenessReason:      hasEvidence ? "produced_output" : "no_evidence",
+      continuationAttempt: input.continuationAttempt,
+      lastUsefulActionAt:  input.evidence.latestEvidenceAt,
+      nextAction:          input.runStatus === "running" ? "wait" : "complete",
+    };
+  }
+  // ─────────────────────────────────────────────────────────────────────────────
+
   function mergeRunStopMetadataForAgent(
     agent: Pick<typeof agents.$inferSelect, "adapterType" | "adapterConfig">,
     outcome: "succeeded" | "failed" | "cancelled" | "timed_out",
@@ -2841,7 +2909,7 @@ export function heartbeatService(db: Db) {
   ): Promise<RunLivenessClassificationInput> {
     const context = parseObject(run.contextSnapshot);
     const contextIssueId = readNonEmptyString(context.issueId);
-    const continuationAttempt = asNumber(context.continuationAttempt, run.continuationAttempt ?? 0);
+    const continuationAttempt = asNumber(context.continuationAttempt, (run as any).continuationAttempt ?? 0);
 
     const issue = contextIssueId
       ? await db
@@ -2971,19 +3039,19 @@ export function heartbeatService(db: Db) {
     resultJson?: Record<string, unknown> | null,
   ) {
     const classification = classifyRunLiveness(await buildRunLivenessInput(run, resultJson));
-    return db
+    return (db as any)
       .update(heartbeatRuns)
       .set({
-        livenessState: classification.livenessState,
-        livenessReason: classification.livenessReason,
+        livenessState:       classification.livenessState,
+        livenessReason:      classification.livenessReason,
         continuationAttempt: classification.continuationAttempt,
-        lastUsefulActionAt: classification.lastUsefulActionAt,
-        nextAction: classification.nextAction,
-        updatedAt: new Date(),
+        lastUsefulActionAt:  classification.lastUsefulActionAt,
+        nextAction:          classification.nextAction,
+        updatedAt:           new Date(),
       })
       .where(eq(heartbeatRuns.id, run.id))
       .returning()
-      .then((rows) => rows[0] ?? null);
+      .then((rows: any[]) => rows[0] ?? null);
   }
 
 

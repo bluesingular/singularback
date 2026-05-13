@@ -175,7 +175,7 @@ export function adminRoutes(db: Db) {
     // Members with user info
     const members = await (db as any)
       .select({
-        userId:    companyMemberships.userId,
+        userId:    companyMemberships.principalId,
         role:      companyMemberships.membershipRole,
         status:    companyMemberships.status,
         email:     authUsers.email,
@@ -183,7 +183,7 @@ export function adminRoutes(db: Db) {
         joinedAt:  companyMemberships.createdAt,
       })
       .from(companyMemberships)
-      .leftJoin(authUsers, eq(authUsers.id, companyMemberships.userId))
+      .leftJoin(authUsers, eq(authUsers.id, companyMemberships.principalId))
       .where(eq(companyMemberships.companyId, companyId))
       .orderBy(companyMemberships.createdAt);
 

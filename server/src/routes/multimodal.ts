@@ -35,7 +35,7 @@ export function multimodalRoutes(_db: Db): Router {
     upload.single("file"),
     async (req, res, next) => {
       try {
-        const { companyId, taskId } = req.params;
+        const { companyId, taskId } = req.params as { companyId: string; taskId: string };
         assertCompanyAccess(req, companyId);
 
         if (!req.file) throw badRequest("No file uploaded — use multipart/form-data with field 'file'");

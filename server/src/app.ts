@@ -154,6 +154,7 @@ export async function createApp(
     betterAuthHandler?: express.RequestHandler;
     betterAuthApi?: {
       api: {
+        signUpEmail: (opts: { body: { name: string; email: string; password: string }; asResponse: true }) => Promise<Response>;
         signInEmail: (opts: { body: { email: string; password: string }; asResponse: true }) => Promise<Response>;
         signOut: (opts: { headers: Headers; asResponse: true }) => Promise<Response>;
       };

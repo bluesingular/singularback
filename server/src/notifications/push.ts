@@ -5,6 +5,7 @@
  * VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT must all be set.
  */
 
+// @ts-ignore — web-push has no DefinitelyTyped package; runtime usage is safe
 import webpush from "web-push";
 import pino from "pino";
 

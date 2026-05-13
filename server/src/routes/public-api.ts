@@ -53,12 +53,11 @@ export function publicApiRoutes(db: Db): Router {
       const companyId = req.publicApiCompanyId!;
       const rows = await (db as any)
         .select({
-          id:          agents.id,
-          name:        agents.name,
-          description: agents.description,
-          icon:        agents.icon,
-          isActive:    agents.isActive,
-          createdAt:   agents.createdAt,
+          id:        agents.id,
+          name:      agents.name,
+          icon:      agents.icon,
+          status:    agents.status,
+          createdAt: agents.createdAt,
         })
         .from(agents)
         .where(eq(agents.companyId, companyId))
@@ -76,12 +75,11 @@ export function publicApiRoutes(db: Db): Router {
       const companyId = req.publicApiCompanyId!;
       const [row] = await (db as any)
         .select({
-          id:          agents.id,
-          name:        agents.name,
-          description: agents.description,
-          icon:        agents.icon,
-          isActive:    agents.isActive,
-          createdAt:   agents.createdAt,
+          id:        agents.id,
+          name:      agents.name,
+          icon:      agents.icon,
+          status:    agents.status,
+          createdAt: agents.createdAt,
         })
         .from(agents)
         .where(and(eq(agents.id, req.params.id), eq(agents.companyId, companyId)));
@@ -104,14 +102,14 @@ export function publicApiRoutes(db: Db): Router {
 
       const conditions: any[] = [eq(issues.companyId, companyId)];
       if (status)  conditions.push(eq(issues.status,  status));
-      if (agentId) conditions.push(eq(issues.agentId, agentId));
+      if (agentId) conditions.push(eq(issues.assigneeAgentId, agentId));
 
       const rows = await (db as any)
         .select({
           id:        issues.id,
           title:     issues.title,
           status:    issues.status,
-          agentId:   issues.agentId,
+          agentId:   issues.assigneeAgentId,
           createdAt: issues.createdAt,
           updatedAt: issues.updatedAt,
         })
@@ -136,7 +134,7 @@ export function publicApiRoutes(db: Db): Router {
           id:        issues.id,
           title:     issues.title,
           status:    issues.status,
-          agentId:   issues.agentId,
+          agentId:   issues.assigneeAgentId,
           createdAt: issues.createdAt,
           updatedAt: issues.updatedAt,
         })
@@ -166,17 +164,17 @@ export function publicApiRoutes(db: Db): Router {
         .values({
           id:          randomUUID(),
           companyId,
-          title:       title.trim().slice(0, 500),
-          description: description ?? null,
-          agentId:     agentId ?? null,
-          status:      "open",
-          originKind:  "public_api",
+          title:            title.trim().slice(0, 500),
+          description:      description ?? null,
+          assigneeAgentId:  agentId ?? null,
+          status:           "open",
+          originKind:       "public_api",
         })
         .returning({
           id:        issues.id,
           title:     issues.title,
           status:    issues.status,
-          agentId:   issues.agentId,
+          agentId:   issues.assigneeAgentId,
           createdAt: issues.createdAt,
           updatedAt: issues.updatedAt,
         });
