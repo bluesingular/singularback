@@ -47,6 +47,10 @@ import { initActivationCheckWorker } from "./workers/activationCheck.worker.js";
 import { initTaskApprovedWorker } from "./workers/taskApproved.worker.js";
 import { initWebhookReceivedWorker } from "./workers/webhookReceived.worker.js";
 import { createClarificationTimeoutWorker } from "./workers/clarificationTimeout.worker.js";
+import {
+  initMorningIntelligenceWorker,
+  scheduleIntelligenceSweep,
+} from "./workers/morningIntelligence.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -623,6 +627,11 @@ export async function startServer(): Promise<StartedServer> {
     initWebhookReceivedWorker(db as any);
     // G5: Clarification timeout worker (times out unanswered clarification requests)
     createClarificationTimeoutWorker(db as any);
+    // M13: Morning intelligence sweep worker + daily 8am schedule
+    initMorningIntelligenceWorker(db as any);
+    void scheduleIntelligenceSweep().catch((err) => {
+      logger.error({ err }, "Morning intelligence sweep scheduling failed");
+    });
 
     // Routine scheduler still uses setInterval for now — will be migrated
     // to BullMQ cron jobs in a future module.

@@ -16,6 +16,13 @@
 import { intelligenceCards } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { isOnCooldown, cardExpiresAt, MAX_CARDS_PER_DAY } from "./cooldown.js";
+import {
+  trustProposalGenerator,
+  trustAnomalyGenerator as trustAnomalyGeneratorImpl,
+  goalRiskGenerator,
+  relationshipGapGenerator,
+  budgetAlertGenerator,
+} from "./generators.js";
 import pino from "pino";
 
 const logger = pino({ name: "intelligence-sweep" });
@@ -96,22 +103,13 @@ export async function generateIntelligenceCards(
   return top.length;
 }
 
-// ── Built-in generators (stubs — real data queries added per module) ──────────
+// ── Default generator set — used by the BullMQ cron worker ──────────────────
 
-/**
- * Trust anomaly generator: surfaces agents whose trust score dropped recently.
- * Real implementation queries trust_scores; stub returns empty for now.
- */
-export const trustAnomalyGenerator: CardGenerator = async (_db, _companyId) => {
-  // M11 stub — real implementation queries trust_scores for drops > 0.5 in 7 days
-  return [];
-};
+export const trustAnomalyGenerator = trustAnomalyGeneratorImpl;
 
-/**
- * Goal progress generator: surfaces goals that are behind schedule.
- * Real implementation queries goals table; stub returns empty for now.
- */
-export const goalProgressGenerator: CardGenerator = async (_db, _companyId) => {
-  // M11 stub — real implementation queries goals table
-  return [];
-};
+export {
+  trustProposalGenerator,
+  goalRiskGenerator,
+  relationshipGapGenerator,
+  budgetAlertGenerator,
+} from "./generators.js";
