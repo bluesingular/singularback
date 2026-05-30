@@ -17,10 +17,11 @@
  *   customer.subscription.deleted  → downgrade to "solo"
  */
 
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { stripeEvents, companies } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { applyPlanLimits, UnknownPlanError } from "./plans.js";
+import { emit } from "../queue/emit.js";
 import pino from "pino";
 
 const logger = pino({ name: "stripe-webhook" });
@@ -32,9 +33,11 @@ export interface StripeEventPayload {
   type: string;
   data: {
     object: {
-      id?:                  string;  // subscription id
+      id?:                  string;  // subscription id OR checkout session id
       customer?:            string;  // stripe customer id
+      subscription?:        string;  // subscription id (on checkout.session.completed)
       status?:              string;  // active | canceled | etc.
+      payment_status?:      string;  // paid | unpaid (on checkout.session)
       items?: {
         data: Array<{
           price?: { lookup_key?: string };
@@ -84,7 +87,48 @@ export async function handleStripeWebhook(
     await (tx as any).insert(stripeEvents).values({ stripeEventId, eventType });
 
     // 2. Handle supported event types
-    if (
+    if (eventType === "checkout.session.completed") {
+      // Link the Stripe customer + subscription IDs to the company after payment
+      const session = event.data.object;
+      const companyId = session.metadata?.companyId;
+      if (!companyId) {
+        logger.warn({ stripeEventId }, "stripe-webhook: checkout.session.completed missing companyId metadata");
+        return;
+      }
+      if (session.payment_status !== "paid") {
+        logger.info({ stripeEventId, companyId }, "stripe-webhook: checkout session not paid — skipping");
+        return;
+      }
+
+      const planSlug = session.metadata?.plan ?? "growth";
+      let limits: ReturnType<typeof applyPlanLimits>;
+      try {
+        limits = applyPlanLimits(planSlug);
+      } catch {
+        limits = applyPlanLimits("growth");
+      }
+
+      await (tx as any)
+        .update(companies)
+        .set({
+          stripeCustomerId: session.customer ?? null,
+          stripeSubId:      session.subscription ?? null,
+          plan:             limits.plan,
+          tasksLimitMonth:  limits.tasksLimitMonth,
+          tokensLimitMonth: limits.tokensLimitMonth,
+          updatedAt:        new Date(),
+        })
+        .where(eq(companies.id, companyId));
+
+      // Schedule monthly cost reset now that the company is a paid subscriber
+      await emit.scheduleMonthlyReset(companyId);
+
+      logger.info(
+        { stripeEventId, companyId, planSlug, stripeCustomerId: session.customer },
+        "stripe-webhook: company activated after checkout",
+      );
+
+    } else if (
       eventType === "customer.subscription.updated" ||
       eventType === "customer.subscription.deleted"
     ) {
@@ -144,6 +188,7 @@ export async function handleStripeWebhook(
       // Unrecognised event type — recorded but no side effects
       logger.info({ stripeEventId, eventType }, "stripe-webhook: unhandled event type — recorded");
     }
+
   });
 
   return { processed: true, stripeEventId, eventType };

@@ -51,6 +51,7 @@ import {
   initMorningIntelligenceWorker,
   scheduleIntelligenceSweep,
 } from "./workers/morningIntelligence.worker.js";
+import { initCostResetWorker } from "./workers/costReset.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -627,6 +628,8 @@ export async function startServer(): Promise<StartedServer> {
     initWebhookReceivedWorker(db as any);
     // G5: Clarification timeout worker (times out unanswered clarification requests)
     createClarificationTimeoutWorker(db as any);
+    // M14: Monthly cost reset worker
+    initCostResetWorker(db as any);
     // M13: Morning intelligence sweep worker + daily 8am schedule
     initMorningIntelligenceWorker(db as any);
     void scheduleIntelligenceSweep().catch((err) => {
