@@ -129,12 +129,14 @@ describeEmbeddedPostgres("disableAllRoutinesInConfig", () => {
     await db.insert(companies).values([
       {
         id: companyId,
+        slug: companyId,
         name: "Paperclip",
         issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
         requireBoardApprovalForNewAgents: false,
       },
       {
         id: otherCompanyId,
+        slug: otherCompanyId,
         name: "Other company",
         issuePrefix: `T${otherCompanyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
         requireBoardApprovalForNewAgents: false,
@@ -144,6 +146,8 @@ describeEmbeddedPostgres("disableAllRoutinesInConfig", () => {
     await db.insert(agents).values([
       {
         id: agentId,
+        slug: agentId,
+        displayName: "Coder",
         companyId,
         name: "Coder",
         adapterType: "process",
@@ -153,6 +157,8 @@ describeEmbeddedPostgres("disableAllRoutinesInConfig", () => {
       },
       {
         id: otherAgentId,
+        slug: otherAgentId,
+        displayName: "Other coder",
         companyId: otherCompanyId,
         name: "Other coder",
         adapterType: "process",
