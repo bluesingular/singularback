@@ -37,17 +37,27 @@ export class UnknownPlanError extends Error {
  * Returns the DB column values to write when a company's plan changes.
  * Throws UnknownPlanError for unrecognised plan slugs.
  */
+// Per-plan concurrent task caps (C4)
+const CONCURRENCY_LIMITS: Record<string, number> = {
+  solo:       2,
+  growth:     5,
+  pro:        10,
+  enterprise: 25,
+};
+
 export function applyPlanLimits(plan: string): {
-  plan:             string;
-  tasksLimitMonth:  number;
-  tokensLimitMonth: number;
+  plan:               string;
+  tasksLimitMonth:    number;
+  tokensLimitMonth:   number;
+  maxConcurrentTasks: number;
 } {
   const limits = PLAN_LIMITS[plan];
   if (!limits) throw new UnknownPlanError(plan);
 
   return {
     plan,
-    tasksLimitMonth:  limits.tasksPerMonth,
-    tokensLimitMonth: limits.tokensPerMonth,
+    tasksLimitMonth:    limits.tasksPerMonth,
+    tokensLimitMonth:   limits.tokensPerMonth,
+    maxConcurrentTasks: CONCURRENCY_LIMITS[plan] ?? 5,
   };
 }

@@ -4,7 +4,8 @@ export { authUsers, authSessions, authAccounts, authVerifications } from "./auth
 export { instanceSettings } from "./instance_settings.js";
 export { instanceUserRoles } from "./instance_user_roles.js";
 export { userSidebarPreferences } from "./user_sidebar_preferences.js";
-export { agents } from "./agents.js";
+export { agents, AGENT_COLOURS } from "./agents.js";
+export type { AgentColour, AgentStatus } from "./agents.js";
 export { boardApiKeys } from "./board_api_keys.js";
 export { cliAuthChallenges } from "./cli_auth_challenges.js";
 export { companyMemberships } from "./company_memberships.js";
@@ -109,3 +110,7 @@ export { mcpApiKeys } from "./mcp_api_keys.js";
 export { publicApiKeys, webhookSubscriptions } from "./public_api.js";
 // Singular.blue G15: third-party action type registration
 export { registeredActionTypes } from "./registered_action_types.js";
+// Singular.blue C7: security events log (injection attempts, PII detections)
+export { securityEvents } from "./security_events.js";
+// Singular.blue C8: LLM-as-judge evaluation results
+export { judgeResults } from "./judge_results.js";

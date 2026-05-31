@@ -33,6 +33,8 @@ export const companies = pgTable(
     tokensUsedMonth: bigint("tokens_used_month", { mode: "number" }).notNull().default(0),
     tokensLimitMonth: bigint("tokens_limit_month", { mode: "number" }).notNull().default(20_000_000),
     billingPeriodStart: timestamp("billing_period_start", { withTimezone: true }).notNull().defaultNow(),
+    // Singular.blue C4: max concurrent tasks (plan-tier concurrency cap)
+    maxConcurrentTasks: integer("max_concurrent_tasks").notNull().default(5),
     // Singular.blue: Stripe identifiers
     stripeCustomerId: text("stripe_customer_id"),
     stripeSubId: text("stripe_sub_id"),
