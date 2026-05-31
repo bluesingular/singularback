@@ -27,6 +27,7 @@ import type { Db } from "@paperclipai/db";
 import { interpolateTemplate } from "./template.js";
 import { parseSkill } from "../skills/parser.js";
 import { BASE_CONSTITUTION } from "../safety/constitution.js";
+import { bootstrapAgentTrust } from "../trust/bootstrap.js";
 import {
   PackValidationError,
   PackInstallError,
@@ -387,6 +388,12 @@ export async function installPack(
       err,
     );
   }
+
+  // Gap C: Bootstrap trust scores for all installed agents
+  await bootstrapAgentTrust(db, companyId, agentIds, {
+    skillType:     pack.skills[0]?.slug,
+    industrySlug:  variables.industry ?? undefined,
+  }).catch((err) => logger.warn({ err }, "trust-bootstrap: non-fatal failure"));
 
   // Step 6: Schedule seed tasks (within 10 min)
   await scheduleSeedTasks(agentQueue, { companyId, seedTasks: pack.seedTasks, agentIds, variables });

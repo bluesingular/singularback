@@ -122,3 +122,7 @@ export { taskExecutionEvents } from "./task_execution_events.js";
 export { pendingJobs } from "./pending_jobs.js";
 // Singular.blue AG-1/AG-2: mission context + agent peer messages
 export { missionContext, agentMessages } from "./agent_collab.js";
+// Singular.blue AG-3: task checkpoints for long-horizon resumption
+export { taskCheckpoints } from "./task_checkpoints.js";
+// Singular.blue Gap N: SLA breach tracking
+export { slaEvents } from "./sla_events.js";
