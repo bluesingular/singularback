@@ -12,8 +12,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../auth/AuthContext";
 import {
-  agentsApi, missionsApi, tasksApi, approvalsApi, type Agent,
-  type Mission, type MissionDetail, type MissionMessage, type Task,
+  agentsApi, missionsApi, tasksApi, approvalsApi, clientContextsApi,
+  type Agent, type Mission, type MissionDetail, type MissionMessage, type Task,
+  type ClientContext,
 } from "../api/client";
 import { X, ChevronRight } from "lucide-react";
 
@@ -465,6 +466,36 @@ function MissionPicker({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+// ── Client context selector ───────────────────────────────────────────────────
+
+function ClientContextSelector({
+  contexts,
+  selected,
+  onSelect,
+}: {
+  contexts: ClientContext[];
+  selected: string | null;
+  onSelect: (id: string | null) => void;
+}) {
+  if (contexts.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-[#E8E4DC]">
+      <span className="text-xs text-[#6B6B6B]">Client :</span>
+      <select
+        value={selected ?? ""}
+        onChange={(e) => onSelect(e.target.value || null)}
+        className="text-xs border border-[#E8E4DC] rounded-md px-2 py-1 bg-[#FAFAF8] focus:outline-none focus:border-[#1A9E68]"
+      >
+        <option value="">Tous les clients</option>
+        {contexts.map((ctx) => (
+          <option key={ctx.id} value={ctx.id}>{ctx.name}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export default function ConsoleCEO() {
   const { companyId } = useAuth();
   const qc = useQueryClient();
@@ -473,6 +504,7 @@ export default function ConsoleCEO() {
   const [selectedMissionId, setSelectedMissionId] = useState<string | undefined>();
   const [selectedAgent, setSelectedAgent] = useState<Agent | undefined>();
   const [bubbles, setBubbles] = useState<Record<string, string>>({});
+  const [selectedClientCtxId, setSelectedClientCtxId] = useState<string | null>(null);
 
   // ── Queries ─────────────────────────────────────────────────────────────────
 
@@ -490,9 +522,17 @@ export default function ConsoleCEO() {
     refetchInterval: 15_000,
   });
 
+  const { data: clientContextsData } = useQuery({
+    queryKey: ["client-contexts", companyId],
+    queryFn: () => clientContextsApi.list(companyId!),
+    enabled: !!companyId,
+  });
+
   const { data: missionsData } = useQuery({
-    queryKey: ["missions", companyId],
-    queryFn: () => missionsApi.list(companyId!),
+    queryKey: ["missions", companyId, selectedClientCtxId],
+    queryFn: () => selectedClientCtxId
+      ? clientContextsApi.missions(companyId!, selectedClientCtxId)
+      : missionsApi.list(companyId!),
     enabled: !!companyId,
   });
 
@@ -523,9 +563,9 @@ export default function ConsoleCEO() {
 
 
   const agents: Agent[] = agentsData ?? [];
-
   const tasks: Task[] = (tasksData as any)?.issues ?? [];
   const missions: Mission[] = (missionsData as any)?.missions ?? [];
+  const clientContexts: ClientContext[] = (clientContextsData as any)?.contexts ?? [];
   const messages: MissionMessage[] = missionDetail?.messages ?? [];
 
   // Auto-select first mission
@@ -570,7 +610,13 @@ export default function ConsoleCEO() {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#FAFAF8]">
+    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-[#FAFAF8]">
+      <ClientContextSelector
+        contexts={clientContexts}
+        selected={selectedClientCtxId}
+        onSelect={(id) => { setSelectedClientCtxId(id); setSelectedMissionId(undefined); }}
+      />
+      <div className="flex flex-1 overflow-hidden">
 
       {/* ── LEFT: Mission Control ── */}
       <div className="w-1/2 flex flex-col border-r border-[#E8E4DC] min-w-0">
@@ -684,6 +730,7 @@ export default function ConsoleCEO() {
           onClose={() => setSelectedAgent(undefined)}
         />
       )}
+      </div>
     </div>
   );
 }

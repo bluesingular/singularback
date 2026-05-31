@@ -273,3 +273,26 @@ export const billingApi = {
   portal: (companyId: string) =>
     api.get<{ url: string | null }>(`/companies/${companyId}/billing/portal`, companyId),
 };
+
+// ── Client contexts (§35) ─────────────────────────────────────────────────────
+
+export interface ClientContext {
+  id:        string;
+  companyId: string;
+  name:      string;
+  slug:      string;
+  clientDna: Record<string, unknown>;
+  status:    "active" | "paused" | "archived";
+  createdAt: string;
+}
+
+export const clientContextsApi = {
+  list: (companyId: string) =>
+    api.get<{ ok: true; contexts: ClientContext[] }>(`/companies/${companyId}/client-contexts`, companyId),
+  create: (companyId: string, data: { name: string; slug: string; clientDna?: Record<string, unknown> }) =>
+    api.post<{ ok: true; id: string; slug: string }>(`/companies/${companyId}/client-contexts`, data, companyId),
+  update: (companyId: string, ctxId: string, data: { name?: string; clientDna?: Record<string, unknown>; status?: string }) =>
+    api.patch(`/companies/${companyId}/client-contexts/${ctxId}`, data, companyId),
+  missions: (companyId: string, ctxId: string) =>
+    api.get<{ ok: true; missions: Mission[] }>(`/companies/${companyId}/client-contexts/${ctxId}/missions`, companyId),
+};

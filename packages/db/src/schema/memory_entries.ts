@@ -59,6 +59,8 @@ export const memoryEntries = pgTable(
     lastReinforcedAt:  timestamp("last_reinforced_at", { withTimezone: true }),
     // F2: staleness decay
     confidenceDecayAt: timestamp("confidence_decay_at", { withTimezone: true }),
+    // §35: client context isolation — NULL = firm-level memory
+    clientContextId:   uuid("client_context_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

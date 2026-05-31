@@ -140,3 +140,6 @@ export {
 // Singular.blue 100-customer features
 export { counterfactualExplanations } from "./counterfactual_explanations.js";
 export { integrationQueryLog } from "./integration_query_log.js";
+// Singular.blue §34–§35 Partner programme + client contexts
+export { partnerReferralFees, partnerWhiteLabelConfig } from "./partner.js";
+export { clientContexts, clientSkillOverlays } from "./client_contexts.js";

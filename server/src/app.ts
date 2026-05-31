@@ -34,6 +34,8 @@ import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { consoleRoutes } from "./routes/console.js";
 import { missionRoutes } from "./routes/missions.js";
 import { steerRoutes } from "./routes/steer.js";
+import { partnerRoutes } from "./routes/partners.js";
+import { clientContextRoutes } from "./routes/client-contexts.js";
 import { trustRoutes } from "./routes/trust.js";
 import { intelligenceRoutes } from "./routes/intelligence.js";
 import { sseRoutes } from "./routes/sse.js";
@@ -265,6 +267,8 @@ export async function createApp(
   api.use(consoleRoutes(db));
   api.use(missionRoutes(db));
   api.use(steerRoutes(db));
+  api.use(partnerRoutes(db));
+  api.use(clientContextRoutes(db));
   api.use(trustRoutes(db));
   api.use(webhookEndpointRoutes(db));
   api.use(clarificationRoutes(db));
