@@ -33,7 +33,7 @@ export default function MonEquipe() {
     enabled: !!companyId,
   });
 
-  const agents = agentsData?.agents ?? [];
+  const agents = agentsData ?? [];
   const scores = trustData?.scores ?? [];
 
   const trustForAgent = (agentId: string) =>

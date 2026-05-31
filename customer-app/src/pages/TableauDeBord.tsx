@@ -54,7 +54,7 @@ export default function TableauDeBord() {
   });
 
   const cards = intel?.cards ?? [];
-  const agents = agentsData?.agents ?? [];
+  const agents = agentsData ?? [];
   const approvals = approvalsData?.approvals ?? [];
   const usagePercent = costs
     ? Math.min(100, Math.round((costs.tasksThisMonth / Math.max(costs.tasksLimit, 1)) * 100))

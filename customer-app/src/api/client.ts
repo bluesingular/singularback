@@ -34,7 +34,7 @@ async function req<T>(
   }
 
   const text = await res.text();
-  return text ? JSON.parse(text) : undefined;
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 export const api = {
@@ -95,14 +95,66 @@ export const authApi = {
 export interface Agent {
   id: string;
   name: string;
+  slug: string;
+  displayName: string;
+  colour: string;
+  status: "active" | "paused" | "deactivated" | string;
   description?: string;
-  status?: string;
   adapterType?: string;
+  teamRosterVisible?: boolean;
 }
 
 export const agentsApi = {
   list: (companyId: string) =>
-    api.get<{ agents: Agent[] }>("/agents", companyId),
+    api.get<Agent[]>(`/companies/${companyId}/agents`, companyId),
+};
+
+// ── Missions ──────────────────────────────────────────────────────────────────
+
+export interface Mission {
+  id: string;
+  title: string;
+  brief: string;
+  status: "draft" | "active" | "blocked" | "complete" | "archived";
+  orchestratorId?: string | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface MissionMessage {
+  id: string;
+  missionId: string;
+  role: "user" | "orchestrator" | "system";
+  content: string;
+  agentId?: string | null;
+  createdAt: string;
+}
+
+export interface MissionDetail extends Mission {
+  messages: MissionMessage[];
+  tasks: Task[];
+}
+
+export const missionsApi = {
+  list: (companyId: string) =>
+    api.get<{ missions: Mission[] }>(`/companies/${companyId}/missions`, companyId),
+  get: (companyId: string, missionId: string) =>
+    api.get<MissionDetail>(`/companies/${companyId}/missions/${missionId}`, companyId),
+  create: (companyId: string, data: { title: string; brief: string }) =>
+    api.post<{ id: string }>(`/companies/${companyId}/missions`, data, companyId),
+  addMessage: (companyId: string, missionId: string, content: string) =>
+    api.post(`/companies/${companyId}/missions/${missionId}/messages`, { content }, companyId),
+  updateStatus: (companyId: string, missionId: string, status: string) =>
+    api.patch(`/companies/${companyId}/missions/${missionId}`, { status }, companyId),
+  archive: (companyId: string, missionId: string) =>
+    api.post(`/companies/${companyId}/missions/${missionId}/archive`, {}, companyId),
+};
+
+// ── Steer ─────────────────────────────────────────────────────────────────────
+
+export const steerApi = {
+  send: (taskId: string, instruction: string, companyId: string) =>
+    api.post(`/tasks/${taskId}/steer`, { instruction }, companyId),
 };
 
 // ── Tasks / Issues ────────────────────────────────────────────────────────────

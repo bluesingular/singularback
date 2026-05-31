@@ -52,7 +52,7 @@ export default function CentreDeConfiance() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["trust-proposals", companyId] }),
   });
 
-  const agents = agentsData?.agents ?? [];
+  const agents = agentsData ?? [];
   const scores = trustData?.scores ?? [];
   const proposals = proposalsData?.proposals ?? [];
 
