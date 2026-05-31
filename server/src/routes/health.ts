@@ -1,5 +1,6 @@
 import { Router } from "express";
 import type { Db } from "@paperclipai/db";
+import { checkRedisHealth } from "../queue/redis.js";
 import { and, count, eq, gt, inArray, isNull, sql } from "drizzle-orm";
 import { heartbeatRuns, instanceUserRoles, invites } from "@paperclipai/db";
 import type { DeploymentExposure, DeploymentMode } from "@paperclipai/shared";
@@ -126,6 +127,18 @@ export function healthRoutes(
       },
       ...(devServer ? { devServer } : {}),
     });
+  });
+
+  // T6: Infrastructure health — redis + postgres status
+  router.get("/infra", async (_req, res) => {
+    const [redis, postgres] = await Promise.all([
+      checkRedisHealth(),
+      db
+        ? db.execute(sql`SELECT 1`).then(() => "ok" as const).catch(() => "degraded" as const)
+        : Promise.resolve("degraded" as const),
+    ]);
+    const healthy = redis === "ok" && postgres === "ok";
+    res.status(healthy ? 200 : 503).json({ redis, postgres });
   });
 
   return router;

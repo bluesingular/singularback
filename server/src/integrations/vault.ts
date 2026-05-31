@@ -131,3 +131,74 @@ export function decryptJson<T = unknown>(
 ): T {
   return JSON.parse(decryptCredential(companyId, enc, iv, tag)) as T;
 }
+
+// ── T8: Key versioning ────────────────────────────────────────────────────────
+
+/**
+ * T8 — Vault key versioning.
+ *
+ * Credentials store which key version encrypted them, enabling safe rotation.
+ * The current key version is read from VAULT_KEY_VERSION env var (default: 1).
+ *
+ * On rotation:
+ *   1. Generate new VAULT_MASTER_KEY, increment VAULT_KEY_VERSION
+ *   2. Run: scripts/rotate-vault-keys
+ *      → Decrypts each credential with old key version
+ *      → Re-encrypts with new key version
+ *      → Updates keyVersion field in DB
+ *
+ * This is documented in OPERATIONS.md.
+ */
+
+export interface VersionedCredential {
+  encrypted: Buffer;
+  iv:        Buffer;
+  tag:       Buffer;
+  keyVersion: number;
+}
+
+export function getCurrentKeyVersion(): number {
+  return parseInt(process.env.VAULT_KEY_VERSION ?? "1", 10);
+}
+
+/**
+ * Encrypt with the current key version attached.
+ * Use this for new credentials (replaces encryptCredential for versioned storage).
+ */
+export function encryptVersioned(
+  companyId: string,
+  plaintext: string,
+): VersionedCredential {
+  const blob = encryptCredential(companyId, plaintext);
+  return { ...blob, encrypted: blob.enc, keyVersion: getCurrentKeyVersion() };
+}
+
+/**
+ * Decrypt a versioned credential.
+ * If keyVersion !== currentVersion, decryption uses the key derived from
+ * VAULT_MASTER_KEY_V{keyVersion} env var (set during rotation window).
+ */
+export function decryptVersioned(
+  companyId:  string,
+  credential: VersionedCredential,
+): string {
+  const currentVersion = getCurrentKeyVersion();
+  if (credential.keyVersion !== currentVersion) {
+    // During rotation: use the old key from VAULT_MASTER_KEY_V{n} env var
+    const oldKeyHex = process.env[`VAULT_MASTER_KEY_V${credential.keyVersion}`];
+    if (!oldKeyHex) {
+      throw new VaultError(
+        `Key version ${credential.keyVersion} not found. Set VAULT_MASTER_KEY_V${credential.keyVersion} during rotation.`,
+      );
+    }
+    // Temporarily swap env to use old key
+    const saved = process.env.VAULT_MASTER_KEY;
+    process.env.VAULT_MASTER_KEY = oldKeyHex;
+    try {
+      return decryptCredential(companyId, credential.encrypted, credential.iv, credential.tag);
+    } finally {
+      process.env.VAULT_MASTER_KEY = saved;
+    }
+  }
+  return decryptCredential(companyId, credential.encrypted, credential.iv, credential.tag);
+}

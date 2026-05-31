@@ -62,16 +62,35 @@ const AgentManifestSchema = z.object({
 });
 
 const PackManifestSchema = z.object({
-  slug:        z.string().regex(/^[a-z0-9-]+$/),
-  name:        z.string().min(3).max(100),
-  version:     z.string().regex(/^\d+\.\d+\.\d+$/),
-  description: z.string().max(500).optional(),
-  agents:      z.array(AgentManifestSchema).min(1).max(10),
-  skills:      z.array(z.unknown()).min(1),
-  qualityGates: z.array(z.unknown()),
-  seedTasks:   z.array(z.unknown()).min(1),
+  slug:               z.string().regex(/^[a-z0-9-]+$/),
+  name:               z.string().min(3).max(100),
+  version:            z.string().regex(/^\d+\.\d+\.\d+$/),
+  // A2: minPlatformVersion — pack declares minimum platform it requires
+  minPlatformVersion: z.string().regex(/^\d+\.\d+\.\d+$/).optional(),
+  description:        z.string().max(500).optional(),
+  agents:             z.array(AgentManifestSchema).min(1).max(10),
+  skills:             z.array(z.unknown()).min(1),
+  qualityGates:       z.array(z.unknown()),
+  seedTasks:          z.array(z.unknown()).min(1),
   activationSequence: z.array(z.unknown()).length(5),
 });
+
+/** A2: semver comparison (no external dep — compare three numeric parts). */
+function semverGte(a: string, b: string): boolean {
+  const parse = (v: string) => v.split(".").map(Number) as [number, number, number];
+  const [aMajor, aMinor, aPatch] = parse(a);
+  const [bMajor, bMinor, bPatch] = parse(b);
+  if (aMajor !== bMajor) return aMajor > bMajor;
+  if (aMinor !== bMinor) return aMinor > bMinor;
+  return aPatch >= bPatch;
+}
+
+export class PackIncompatibleError extends Error {
+  constructor(slug: string, required: string, current: string) {
+    super(`Pack "${slug}" requires platform v${required}, but running v${current}`);
+    this.name = "PackIncompatibleError";
+  }
+}
 
 export function validatePackManifest(pack: unknown): void {
   const result = PackManifestSchema.safeParse(pack);
@@ -80,6 +99,19 @@ export function validatePackManifest(pack: unknown): void {
     const field = firstIssue?.path.join(".") ?? "unknown";
     const msg   = firstIssue?.message ?? "Invalid manifest";
     throw new PackValidationError(`Pack manifest invalid — ${field}: ${msg}`);
+  }
+
+  // A2: platform version compatibility check
+  const manifest = result.data;
+  if (manifest.minPlatformVersion) {
+    const platformVersion = process.env.PLATFORM_VERSION ?? "1.0.0";
+    if (!semverGte(platformVersion, manifest.minPlatformVersion)) {
+      throw new PackIncompatibleError(
+        manifest.slug,
+        manifest.minPlatformVersion,
+        platformVersion,
+      );
+    }
   }
 }
 

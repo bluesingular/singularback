@@ -161,34 +161,28 @@ export async function assembleContext(
   const { agent, task, company, skill, tier, publishReading } = params;
   const budget = TOKEN_BUDGETS[tier];
 
-  // ── Layer 1: System identity (never truncated) ─────────────────────────────
+  // ── Layer 1: System identity (never truncated) — pure, no DB ─────────────
   const systemIdentity = buildSystemIdentity(agent, company, skill);
 
-  // ── Layer 2: Company DNA ───────────────────────────────────────────────────
-  publishReading?.("company_dna");
-  // Compressed for T0/T1; full markdown for T2+
-  const companyDna =
-    tier === "T0" || tier === "T1"
-      ? await getDnaCompressed(db, company.id)
-      : await getDnaFull(db, company.id);
-
-  // ── Layer 3: Current task (RULE 5 — never truncated) ──────────────────────
+  // ── Layer 3: Current task (RULE 5 — never truncated) — pure, no DB ───────
   const currentTask = buildTaskContext(task, budget.task);
 
-  // Assertion: if task was truncated, something is wrong with the data
-  if (estimateTokens(currentTask) > budget.task * 2) {
-    // Task is unusually large — log but proceed (never throw for task content)
-    // In production this would emit a warning metric
-  }
-
-  // ── Layer 4: Org memory ────────────────────────────────────────────────────
+  // ── Layers 2 + 4: parallel DB fetches (T1 — eliminate N+1 queries) ────────
+  // These are the only two DB-bound layers; fire them concurrently.
+  publishReading?.("company_dna");
   publishReading?.("org_memory");
-  const { text: orgMemory, chunksUsed: memoryChunksUsed } = await retrieveMemory(db, {
-    companyId: company.id,
-    query: `${task.title} ${task.description ?? ""}`,
-    maxChunks: tier === "T0" || tier === "T1" ? 5 : 10,
-    maxTokens: budget.memory,
-  });
+  const [companyDna, memoryResult] = await Promise.all([
+    tier === "T0" || tier === "T1"
+      ? getDnaCompressed(db, company.id)
+      : getDnaFull(db, company.id),
+    retrieveMemory(db, {
+      companyId: company.id,
+      query: `${task.title} ${task.description ?? ""}`,
+      maxChunks: tier === "T0" || tier === "T1" ? 5 : 10,
+      maxTokens: budget.memory,
+    }),
+  ]);
+  const { text: orgMemory, chunksUsed: memoryChunksUsed } = memoryResult;
 
   // ── Layer 5: Recent agent outputs ─────────────────────────────────────────
   const recentOutputs = buildRecentOutputs(

@@ -36,6 +36,7 @@ import { missionRoutes } from "./routes/missions.js";
 import { steerRoutes } from "./routes/steer.js";
 import { partnerRoutes } from "./routes/partners.js";
 import { clientContextRoutes } from "./routes/client-contexts.js";
+import { rateLimitMiddleware, authRateLimitMiddleware } from "./middleware/rate-limit.js";
 import { trustRoutes } from "./routes/trust.js";
 import { intelligenceRoutes } from "./routes/intelligence.js";
 import { sseRoutes } from "./routes/sse.js";
@@ -169,6 +170,19 @@ export async function createApp(
 ) {
   const app = express();
 
+  // P1 — Content Security Policy
+  app.use((_req, res, next) => {
+    res.setHeader("Content-Security-Policy", [
+      "default-src 'self'",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline'",       // Tailwind requires unsafe-inline
+      "connect-src 'self' https://api.openrouter.ai https://api.mistral.ai https://openrouter.ai",
+      "img-src 'self' data: https:",
+      "frame-ancestors 'none'",
+    ].join("; "));
+    next();
+  });
+
   app.use(express.json({
     // Company import/export payloads can inline full portable packages.
     limit: "10mb",
@@ -223,7 +237,8 @@ export async function createApp(
   }
   app.use(llmRoutes(db));
 
-  // Singular.blue auth routes — /api/v1/auth/*
+  // Singular.blue auth routes — /api/v1/auth/* (stricter rate limit)
+  app.use("/api/v1/auth", authRateLimitMiddleware);
   app.use(
     "/api/v1/auth",
     singularAuthRoutes(db, {
@@ -234,6 +249,7 @@ export async function createApp(
 
   // Mount API routes
   const api = Router();
+  api.use(rateLimitMiddleware);   // P3: three-tier rate limiting
   api.use(boardMutationGuard());
   api.use(
     "/health",

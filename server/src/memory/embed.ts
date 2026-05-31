@@ -11,8 +11,18 @@
  * RULE 2: OPENROUTER_API_KEY never reaches the LLM context.
  */
 
-const EMBED_MODEL  = "mistralai/mistral-embed";
-const EMBED_DIMS   = 1024;
+/**
+ * T3 — Embedding model pin.
+ * WARNING: changing EMBEDDING_CONFIG.model requires re-embedding ALL existing
+ * memory_entries. Run: yarn scripts/re-embed-all --confirm before any change.
+ */
+export const EMBEDDING_CONFIG = {
+  model:      "mistralai/mistral-embed",
+  dimensions: 1024,
+} as const;
+
+const EMBED_MODEL  = EMBEDDING_CONFIG.model;
+const EMBED_DIMS   = EMBEDDING_CONFIG.dimensions;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/embeddings";
 
 export class EmbedError extends Error {
