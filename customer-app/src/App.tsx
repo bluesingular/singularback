@@ -11,6 +11,7 @@ import ConsoleCEO from "./pages/ConsoleCEO";
 import Rapports from "./pages/Rapports";
 import Contacts from "./pages/Contacts";
 import Parametres from "./pages/Parametres";
+import SuccesPaiement from "./pages/SuccesPaiement";
 
 const qc = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
@@ -43,6 +44,8 @@ function Guard() {
         <Route path="parametres" element={<Parametres />} />
         <Route path="*" element={<Navigate to="tableau-de-bord" replace />} />
       </Route>
+      {/* Full-page routes (no sidebar) */}
+      <Route path="succes-paiement" element={<SuccesPaiement />} />
     </Routes>
   );
 }

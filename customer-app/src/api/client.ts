@@ -260,3 +260,16 @@ export const approvalsApi = {
   reject: (id: string, companyId: string) =>
     api.post(`/approvals/${id}/reject`, {}, companyId),
 };
+
+// ── Billing ───────────────────────────────────────────────────────────────────
+
+export const billingApi = {
+  checkout: (companyId: string, plan: "growth" | "pro") =>
+    api.post<{ url: string | null; sessionId: string | null }>(
+      `/companies/${companyId}/billing/checkout`,
+      { plan },
+      companyId,
+    ),
+  portal: (companyId: string) =>
+    api.get<{ url: string | null }>(`/companies/${companyId}/billing/portal`, companyId),
+};
