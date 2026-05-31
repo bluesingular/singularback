@@ -43,7 +43,7 @@ const COLUMNS = [
 
 interface SseAgentEvent {
   type: "agent.writing" | "agent.tool_call" | "agent.reading" | "agent.analysing" | "task.started" | "task.completed" | "task.blocked";
-  data: { agentId?: string; fragment?: string; toolName?: string; taskId?: string };
+  data: { agentId?: string; fragment?: string; chunk?: string; toolName?: string; taskId?: string };
 }
 
 function useSse(companyId: string | undefined, onEvent: (e: SseAgentEvent) => void) {
@@ -542,7 +542,7 @@ export default function ConsoleCEO() {
       const agentId = event.data.agentId;
       if (!agentId) return;
       const text = event.type === "agent.writing"
-        ? event.data.fragment ?? ""
+        ? event.data.fragment ?? event.data.chunk ?? ""
         : `⚙ ${event.data.toolName ?? "outil"}`;
       setBubbles((prev) => ({ ...prev, [agentId]: text }));
     }
