@@ -52,6 +52,7 @@ import {
   scheduleIntelligenceSweep,
 } from "./workers/morningIntelligence.worker.js";
 import { initCostResetWorker } from "./workers/costReset.worker.js";
+import { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./workers/batchItem.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -630,6 +631,9 @@ export async function startServer(): Promise<StartedServer> {
     createClarificationTimeoutWorker(db as any);
     // M14: Monthly cost reset worker
     initCostResetWorker(db as any);
+    // G9: Batch item execution + completion workers
+    initBatchItemExecuteWorker(db as any);
+    initBatchItemCompleteWorker(db as any);
     // M13: Morning intelligence sweep worker + daily 8am schedule
     initMorningIntelligenceWorker(db as any);
     void scheduleIntelligenceSweep().catch((err) => {

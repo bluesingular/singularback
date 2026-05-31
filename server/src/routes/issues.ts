@@ -61,6 +61,7 @@ import {
   SVG_CONTENT_TYPE,
 } from "../attachment-types.js";
 import { queueIssueAssignmentWakeup } from "../services/issue-assignment-wakeup.js";
+import { pinSkillVersion } from "../tasks/skill-version.js";
 import {
   applyIssueExecutionPolicyTransition,
   normalizeIssueExecutionPolicy,
@@ -1427,6 +1428,16 @@ export function issueRoutes(
         ...(Array.isArray(req.body.blockedByIssueIds) ? { blockedByIssueIds: req.body.blockedByIssueIds } : {}),
       },
     });
+
+    // G7: pin current active skill version at task creation time so the task
+    // always executes against the same skill prompt even if a newer version
+    // is published later (CLAUDE.md: "tasks always execute against creation-time version")
+    const skillType = (req.body as { skillType?: string }).skillType;
+    if (skillType && issue.assigneeAgentId) {
+      void pinSkillVersion(db, issue.id, companyId, skillType).catch(() => {
+        // Non-fatal: task executes fine without a pinned version (uses active)
+      });
+    }
 
     void queueIssueAssignmentWakeup({
       heartbeat,
