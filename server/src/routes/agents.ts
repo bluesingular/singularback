@@ -2637,5 +2637,43 @@ export function agentRoutes(db: Db) {
     });
   });
 
+  // ── WAR-11: soul.md GET / PATCH ─────────────────────────────────────────────
+
+  // GET /companies/:companyId/agents/:agentId/soul
+  router.get("/companies/:companyId/agents/:agentId/soul", async (req, res) => {
+    const { companyId, agentId } = req.params as { companyId: string; agentId: string };
+    assertCompanyAccess(req, companyId);
+
+    const [agent] = await db
+      .select({ soulMd: agentsTable.soulMd })
+      .from(agentsTable)
+      .where(and(eq(agentsTable.id, agentId), eq(agentsTable.companyId, companyId)))
+      .limit(1);
+
+    if (!agent) { res.status(404).json({ error: "Agent not found" }); return; }
+    res.json({ soulMd: agent.soulMd ?? "" });
+  });
+
+  // PATCH /companies/:companyId/agents/:agentId/soul
+  router.patch("/companies/:companyId/agents/:agentId/soul", async (req, res) => {
+    const { companyId, agentId } = req.params as { companyId: string; agentId: string };
+    assertCompanyAccess(req, companyId);
+
+    const { soulMd } = req.body as { soulMd?: string };
+    if (typeof soulMd !== "string") {
+      res.status(400).json({ error: "soulMd must be a string" });
+      return;
+    }
+
+    const [updated] = await db
+      .update(agentsTable)
+      .set({ soulMd, updatedAt: new Date() })
+      .where(and(eq(agentsTable.id, agentId), eq(agentsTable.companyId, companyId)))
+      .returning({ id: agentsTable.id });
+
+    if (!updated) { res.status(404).json({ error: "Agent not found" }); return; }
+    res.json({ ok: true });
+  });
+
   return router;
 }

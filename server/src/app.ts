@@ -31,6 +31,7 @@ import { sidebarPreferenceRoutes } from "./routes/sidebar-preferences.js";
 import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { consoleRoutes } from "./routes/console.js";
+import { missionRoutes } from "./routes/missions.js";
 import { trustRoutes } from "./routes/trust.js";
 import { intelligenceRoutes } from "./routes/intelligence.js";
 import { sseRoutes } from "./routes/sse.js";
@@ -260,6 +261,7 @@ export async function createApp(
   api.use(inboxDismissalRoutes(db));
   api.use(instanceSettingsRoutes(db));
   api.use(consoleRoutes(db));
+  api.use(missionRoutes(db));
   api.use(trustRoutes(db));
   api.use(webhookEndpointRoutes(db));
   api.use(clarificationRoutes(db));

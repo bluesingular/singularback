@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { publishTaskStarted, publishTaskCompleted, publishTaskBlocked } from "../realtime/publish.js";
+import { nudgeOnTaskComplete } from "../intelligence/nudge.js";
 import type { Db } from "@paperclipai/db";
 import {
   activityLog,
@@ -1833,6 +1834,13 @@ export function issueService(db: Db) {
           publishTaskStarted({ companyId, taskId: result.id, agentId, title });
         } else if (data.status === "done" && agentId) {
           publishTaskCompleted({ companyId, taskId: result.id, agentId, title });
+          void nudgeOnTaskComplete(db, {
+            id:        result.id,
+            companyId,
+            title,
+            priority:  result.priority ?? null,
+            agentName: result.assigneeAgentId ? agentId : null,
+          });
         } else if (data.status === "blocked" || data.status === "in_review") {
           publishTaskBlocked({
             companyId,

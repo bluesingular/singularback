@@ -52,6 +52,7 @@ const MonEquipe      = lazy(() => import("./pages/singular/MonEquipe"));
 const FicheAgent     = lazy(() => import("./pages/singular/FicheAgent"));
 const CentreDeConfiance = lazy(() => import("./pages/singular/CentreDeConfiance"));
 const FilDeTache     = lazy(() => import("./pages/singular/FilDeTache"));
+const MissionsArchive = lazy(() => import('./pages/singular/MissionsArchive').then(m => ({ default: m.MissionsArchive })));
 const ConsoleCEO     = lazy(() => import("./pages/singular/ConsoleCEO").then(m => ({ default: m.ConsoleCEO })));
 const Rapports       = lazy(() => import("./pages/singular/Rapports").then(m => ({ default: m.Rapports })));
 const Contacts       = lazy(() => import("./pages/singular/Contacts").then(m => ({ default: m.Contacts })));
@@ -164,6 +165,7 @@ function boardRoutes() {
       <Route path="confiance" element={<Suspense fallback={null}><CentreDeConfiance /></Suspense>} />
       <Route path="taches/:taskId" element={<Suspense fallback={null}><FilDeTache /></Suspense>} />
       <Route path="console" element={<Suspense fallback={null}><ConsoleCEO /></Suspense>} />
+      <Route path="missions/archives" element={<Suspense fallback={null}><MissionsArchive /></Suspense>} />
       <Route path="rapports" element={<Suspense fallback={null}><Rapports /></Suspense>} />
       <Route path="contacts" element={<Suspense fallback={null}><Contacts /></Suspense>} />
       <Route path="parametres" element={<Suspense fallback={null}><Parametres /></Suspense>} />

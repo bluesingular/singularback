@@ -26,6 +26,7 @@ import { agents, companySkills, qualityGates, companyDna, AGENT_COLOURS } from "
 import type { Db } from "@paperclipai/db";
 import { interpolateTemplate } from "./template.js";
 import { parseSkill } from "../skills/parser.js";
+import { BASE_CONSTITUTION } from "../safety/constitution.js";
 import {
   PackValidationError,
   PackInstallError,
@@ -65,12 +66,44 @@ export function validatePackManifest(pack: PackManifest): void {
   }
 }
 
+// ── WAR-2: soul.md generation ─────────────────────────────────────────────────
+
+function buildSoulMd(def: PackManifest["agents"][number], variables: Record<string, string>): string {
+  const template = def.soulTemplate ?? `# ${def.name}\n\nTu es ${def.name}, ${def.description}.`;
+  const body = interpolateTemplate(template, variables);
+
+  const extension = def.constitutionExtension
+    ? `\n\n[[CONSTITUTION_EXTENSION]]\n${def.constitutionExtension}`
+    : "";
+
+  return `${body}\n\n${BASE_CONSTITUTION}${extension}`;
+}
+
+// ── WAR-5: team roster markdown ───────────────────────────────────────────────
+
+function buildTeamRoster(
+  companyName: string,
+  agentDefs: PackManifest["agents"],
+  agentIds: string[],
+): string {
+  const lines = [`# Votre équipe — ${companyName}`, ""];
+  for (let i = 0; i < agentDefs.length; i++) {
+    const def = agentDefs[i];
+    lines.push(`## ${def.displayName ?? def.name} (actif)`);
+    lines.push(`Rôle : ${def.description}`);
+    lines.push(`Niveau de confiance : supervisé (2.5/5 sur 0 tâches)`);
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+
 // ── Steps 2–5: DB helpers ─────────────────────────────────────────────────────
 
 async function installAgents(
   tx: Db,
   companyId: string,
   agentDefs: PackManifest["agents"],
+  variables: Record<string, string> = {},
 ): Promise<string[]> {
   const ids: string[] = [];
   for (let i = 0; i < agentDefs.length; i++) {
@@ -85,6 +118,9 @@ async function installAgents(
       skillsAssigned:  def.skills ?? [],
       handoffs:        def.handoffs ?? [],
     };
+    // WAR-2: generate soul.md from template + base constitution
+    const soulMd = buildSoulMd(def, variables);
+
     const rows = await (tx as any)
       .insert(agents)
       .values({
@@ -93,6 +129,7 @@ async function installAgents(
         slug:              def.slug,
         displayName:       def.displayName ?? def.name,
         colour,
+        soulMd,
         teamRosterVisible: true,
         metadata: agentMeta,
       })
@@ -100,6 +137,7 @@ async function installAgents(
         target: [agents.companyId, agents.slug],
         set: {
           displayName: def.displayName ?? def.name,
+          soulMd,
           metadata:    agentMeta,
         },
       })
@@ -312,7 +350,7 @@ export async function installPack(
       validatePackManifest(pack);
 
       // Step 2: Install agents
-      agentIds = await installAgents(tx, companyId, pack.agents);
+      agentIds = await installAgents(tx, companyId, pack.agents, variables);
 
       // Step 3: Install skills
       await installSkills(tx, companyId, pack.skills, variables);

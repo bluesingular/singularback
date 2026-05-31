@@ -114,3 +114,5 @@ export { registeredActionTypes } from "./registered_action_types.js";
 export { securityEvents } from "./security_events.js";
 // Singular.blue C8: LLM-as-judge evaluation results
 export { judgeResults } from "./judge_results.js";
+// Singular.blue WAR-3: mission system (CEO-level strategic intent)
+export { missions, missionMessages, missionTasks } from "./missions.js";
