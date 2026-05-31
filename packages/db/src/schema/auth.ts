@@ -6,8 +6,10 @@ export const authUsers = pgTable("user", {
   email: text("email").notNull(),
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  createdAt:    timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt:    timestamp("updated_at", { withTimezone: true }).notNull(),
+  // Gap K: session gap awareness — updated on every authenticated request
+  lastActiveAt: timestamp("last_active_at", { withTimezone: true }),
 });
 
 export const authSessions = pgTable("session", {

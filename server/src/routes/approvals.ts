@@ -1,4 +1,7 @@
 import { Router, type Request } from "express";
+import { z } from "zod";
+import { eq, and } from "drizzle-orm";
+import { approvals } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import {
   addApprovalCommentSchema,
@@ -351,6 +354,61 @@ export function approvalRoutes(db: Db) {
     });
 
     res.status(201).json(comment);
+  });
+
+  // ── Gap B: Inline output editing ─────────────────────────────────────────
+  // PATCH /approvals/:id/edit
+  // Records the operator's inline edit of the agent output before approval.
+  // Only creates a training example when content was actually changed.
+  // INVARIANT: Approving as-is (no edit) produces NO training signal.
+
+  const editBody = z.object({
+    operatorEdit: z.string().min(1),
+    originalOutput: z.string().optional(),
+  });
+
+  router.patch("/approvals/:id/edit", async (req, res, next) => {
+    try {
+      const { id } = req.params as { id: string };
+
+      const parsed = editBody.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: parsed.error.issues[0]?.message });
+        return;
+      }
+
+      const { operatorEdit, originalOutput } = parsed.data;
+
+      // Only record if operator actually changed the content
+      const hasChange = !originalOutput || operatorEdit !== originalOutput;
+      if (!hasChange) {
+        res.json({ ok: true, recorded: false, message: "No changes detected — no training signal created." });
+        return;
+      }
+
+      const charCount = Math.abs(operatorEdit.length - (originalOutput?.length ?? 0));
+
+      const [updated] = await db
+        .update(approvals)
+        .set({
+          operatorEdit,
+          editCharCount:  charCount,
+          editRecordedAt: new Date(),
+          updatedAt:      new Date(),
+        })
+        .where(eq(approvals.id, id))
+        .returning({ id: approvals.id });
+
+      if (!updated) {
+        res.status(404).json({ error: "Approval not found" });
+        return;
+      }
+
+      logger.info({ approvalId: id, charCount }, "gap-b: inline edit recorded");
+      res.json({ ok: true, recorded: true, charCount });
+    } catch (err) {
+      next(err);
+    }
   });
 
   return router;

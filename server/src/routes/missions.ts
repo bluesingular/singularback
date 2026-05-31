@@ -20,6 +20,7 @@ import { and, eq, desc, ne, count, inArray } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
 import { missions, missionMessages, missionTasks, issues } from "@paperclipai/db";
 import { assertCompanyAccess } from "./authz.js";
+import { approvePartialOutput, requestPartialCompletion } from "../tasks/partial-output.js";
 import pino from "pino";
 
 const logger = pino({ name: "missions" });
@@ -200,6 +201,28 @@ export function missionRoutes(db: Db): Router {
       : "Tout fonctionne normalement";
 
     res.json({ status, message, activeTasks });
+  });
+
+  // ── Gap H: Partial output decision endpoints ──────────────────────────────
+
+  // POST /companies/:companyId/tasks/:taskId/partial/approve
+  router.post("/companies/:companyId/tasks/:taskId/partial/approve", async (req, res, next) => {
+    try {
+      const { companyId, taskId } = req.params as { companyId: string; taskId: string };
+      assertCompanyAccess(req, companyId);
+      await approvePartialOutput(db, taskId, companyId);
+      res.json({ ok: true });
+    } catch (err) { next(err); }
+  });
+
+  // POST /companies/:companyId/tasks/:taskId/partial/request-completion
+  router.post("/companies/:companyId/tasks/:taskId/partial/request-completion", async (req, res, next) => {
+    try {
+      const { companyId, taskId } = req.params as { companyId: string; taskId: string };
+      assertCompanyAccess(req, companyId);
+      await requestPartialCompletion(db, taskId, companyId);
+      res.json({ ok: true });
+    } catch (err) { next(err); }
   });
 
   // POST /companies/:companyId/missions/:missionId/archive

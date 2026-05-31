@@ -16,6 +16,8 @@ export const companyDna = pgTable("company_dna", {
   forbiddenTopics: text("forbidden_topics").array().notNull().default([]),
   terminology: jsonb("terminology").$type<Record<string, string>>().notNull().default({}),
   competitors: text("competitors").array().notNull().default([]),
+  // A3: Pack-declared DNA extension fields (set at pack install via pack.json dna_extensions)
+  packExtensions: jsonb("pack_extensions").$type<Record<string, unknown>>().notNull().default({}),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: text("updated_by").references(() => authUsers.id),
 });
