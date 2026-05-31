@@ -126,3 +126,17 @@ export { missionContext, agentMessages } from "./agent_collab.js";
 export { taskCheckpoints } from "./task_checkpoints.js";
 // Singular.blue Gap N: SLA breach tracking
 export { slaEvents } from "./sla_events.js";
+// Singular.blue 50-customer agentic learning features
+export {
+  proceduralPatterns,
+  outcomeAttributions,
+  behavioralBaselines,
+  behavioralAnomalies,
+  companyNarrative,
+  skillVarianceMetrics,
+  skillModelPins,
+  agentProposals,
+} from "./agentic_learning.js";
+// Singular.blue 100-customer features
+export { counterfactualExplanations } from "./counterfactual_explanations.js";
+export { integrationQueryLog } from "./integration_query_log.js";

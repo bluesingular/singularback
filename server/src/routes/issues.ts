@@ -3038,5 +3038,41 @@ export function issueRoutes(
     res.json({ ok: true, rating, handoff: handoffResult, trust: trustResult });
   });
 
+  // GET /issues/:id/counterfactual
+  // AG-14: task detail drill-down — one extra tap from approval card
+  router.get("/issues/:id/counterfactual", async (req, res) => {
+    const taskId    = req.params.id as string;
+    const companyId = (req as any).ctx?.companyId as string | undefined;
+
+    if (!companyId) { res.status(403).json({ error: "No active company" }); return; }
+
+    try {
+      const { getExplanation } = await import("../compliance/counterfactual-store.js");
+      const explanation = await getExplanation(db, taskId, companyId);
+
+      if (!explanation) {
+        res.status(404).json({ ok: false, error: "No counterfactual explanation for this task" });
+        return;
+      }
+
+      // Role-based: external_safe always visible; internal_full requires operator role
+      const isOperator = (req as any).actor?.type === "board";
+      res.json({
+        ok: true,
+        explanation: {
+          taskId:          explanation.taskId,
+          decision:        explanation.decision,
+          keyFactors:      explanation.keyFactors,
+          counterfactuals: explanation.counterfactuals,
+          externalSafe:    explanation.externalSafe,
+          internalFull:    isOperator ? explanation.internalFull : undefined,
+          generatedAt:     explanation.generatedAt,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({ ok: false, error: "Failed to retrieve explanation" });
+    }
+  });
+
   return router;
 }

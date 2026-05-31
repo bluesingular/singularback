@@ -15,6 +15,7 @@ import {
   pgTable,
   uuid,
   text,
+  jsonb,
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
@@ -41,6 +42,9 @@ export const contacts = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+    // Gap M: learned optimal send times from response patterns (3+ obs. required)
+    // {"day_of_week": [1,2], "hour_range": [8,10], "confidence": 0.8, "observations": 5}
+    preferredContactTime: jsonb("preferred_contact_time"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

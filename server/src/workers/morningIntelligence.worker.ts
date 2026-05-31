@@ -29,6 +29,7 @@ import {
   budgetAlertGenerator,
 } from "../intelligence/sweep.js";
 import { refreshBaselines, detectAnomalies } from "../monitoring/behavioral.js";
+import { computeOptimalTiming } from "../contacts/timing.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -72,6 +73,14 @@ export function initMorningIntelligenceWorker(db: Db) {
           await detectAnomalies(db, company.id).catch((err) =>
             logger.warn({ companyId: company.id, err }, "morning-intelligence: anomaly detection failed"),
           );
+
+          // Gap M: weekly contact timing (runs every Monday — checked by job day)
+          const isMonday = new Date().getUTCDay() === 1;
+          if (isMonday) {
+            await computeOptimalTiming(db, company.id).catch((err) =>
+              logger.warn({ companyId: company.id, err }, "morning-intelligence: contact timing failed"),
+            );
+          }
 
           logger.info(
             { companyId: company.id, inserted },
