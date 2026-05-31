@@ -22,7 +22,7 @@
  * RULE 10: Seed tasks must be indistinguishable from real work.
  */
 
-import { agents, companySkills, qualityGates, companyDna } from "@paperclipai/db";
+import { agents, companySkills, qualityGates, companyDna, AGENT_COLOURS } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { interpolateTemplate } from "./template.js";
 import { parseSkill } from "../skills/parser.js";
@@ -73,8 +73,13 @@ async function installAgents(
   agentDefs: PackManifest["agents"],
 ): Promise<string[]> {
   const ids: string[] = [];
-  for (const def of agentDefs) {
-    // Use upsert to avoid duplicate agent errors
+  for (let i = 0; i < agentDefs.length; i++) {
+    const def = agentDefs[i];
+    // Assign colour sequentially from the approved palette if not declared
+    const colour = def.colour && (AGENT_COLOURS as readonly string[]).includes(def.colour)
+      ? def.colour
+      : AGENT_COLOURS[i % AGENT_COLOURS.length];
+
     const agentMeta = {
       packDescription: def.description,
       skillsAssigned:  def.skills ?? [],
@@ -84,13 +89,18 @@ async function installAgents(
       .insert(agents)
       .values({
         companyId,
-        name: def.name,
+        name:              def.name,
+        slug:              def.slug,
+        displayName:       def.displayName ?? def.name,
+        colour,
+        teamRosterVisible: true,
         metadata: agentMeta,
       })
       .onConflictDoUpdate({
-        target: [agents.companyId, agents.name],
+        target: [agents.companyId, agents.slug],
         set: {
-          metadata: agentMeta,
+          displayName: def.displayName ?? def.name,
+          metadata:    agentMeta,
         },
       })
       .returning({ id: agents.id });
@@ -130,24 +140,36 @@ async function installSkills(
       // Non-fatal: skill installs even if parsing fails; metadata stays empty
     }
 
+    const gdprRequired = Boolean(capabilityMetadata.gdprRequired ?? false);
+    const tier         = Number(capabilityMetadata.tier ?? 1) as 0 | 1 | 2 | 3;
+    const aiActRisk    = String((capabilityMetadata.aiAct as any)?.risk_level ?? "minimal");
+    const safeRisk     = ["minimal","limited","high","unacceptable"].includes(aiActRisk)
+      ? aiActRisk : "minimal";
+
     await (tx as any)
       .insert(companySkills)
       .values({
         companyId,
-        key:         def.slug,
-        slug:        def.slug,
-        name:        def.name,
+        key:          def.slug,
+        slug:         def.slug,
+        name:         def.name,
         markdown,
-        sourceType:  "pack",
-        metadata:    capabilityMetadata,
+        sourceType:   "pack",
+        gdprRequired,
+        tier,
+        aiActRisk:    safeRisk,
+        metadata:     capabilityMetadata,
       })
       .onConflictDoUpdate({
         target: [companySkills.companyId, companySkills.key],
         set: {
           markdown,
-          name:      def.name,
-          sourceType: "pack",
-          metadata:  capabilityMetadata,
+          name:         def.name,
+          sourceType:   "pack",
+          gdprRequired,
+          tier,
+          aiActRisk:    safeRisk,
+          metadata:     capabilityMetadata,
         },
       });
   }
