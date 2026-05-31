@@ -15,7 +15,7 @@
  */
 
 import type { Db } from "@paperclipai/db";
-import { agents, companySkills, issues } from "@paperclipai/db";
+import { agents, companySkills, issues, memoryEntries } from "@paperclipai/db";
 import { eq, and } from "drizzle-orm";
 import { parseSkill } from "../skills/parser.js";
 import { emit } from "../queue/emit.js";
@@ -63,7 +63,7 @@ function rpcOk(id: string | number | null, result: unknown): JsonRpcResponse {
 function handleInitialize(id: string | number | null): JsonRpcResponse {
   return rpcOk(id, {
     protocolVersion: MCP_PROTOCOL_VERSION,
-    capabilities:    { tools: {} },
+    capabilities:    { tools: {}, resources: {} },
     serverInfo:      { name: "swwarm", version: "1.0.0" },
   });
 }
@@ -192,6 +192,70 @@ async function handleToolsCall(
 
 // ── Main dispatcher ───────────────────────────────────────────────────────────
 
+// ── resources/list — expose org memory as MCP resources ──────────────────────
+
+async function handleResourcesList(
+  db:        Db,
+  companyId: string,
+  id:        string | number | null,
+): Promise<JsonRpcResponse> {
+  // Expose the 20 most recent org memory entries as readable resources
+  const rows = await (db as any)
+    .select({
+      id:      memoryEntries.id,
+      content: memoryEntries.content,
+      source:  (memoryEntries as any).source,
+    })
+    .from(memoryEntries)
+    .where(eq(memoryEntries.companyId, companyId))
+    .orderBy(eq(memoryEntries.companyId, companyId)) // latest first via DB default
+    .limit(20);
+
+  const resources = rows.map((r: any) => ({
+    uri:      `swwarm://memory/${r.id}`,
+    name:     `Org memory — ${(r.source ?? "general").slice(0, 50)}`,
+    mimeType: "text/plain",
+  }));
+
+  log.info({ companyId, resourceCount: resources.length }, "mcp: resources/list");
+  return rpcOk(id, { resources });
+}
+
+// ── resources/read ────────────────────────────────────────────────────────────
+
+async function handleResourcesRead(
+  db:        Db,
+  companyId: string,
+  id:        string | number | null,
+  params:    unknown,
+): Promise<JsonRpcResponse> {
+  const { uri } = (params as Record<string, string>) ?? {};
+  if (!uri || typeof uri !== "string") {
+    return rpcError(id, RPC_INVALID_PARAMS, "params.uri is required");
+  }
+
+  // Parse swwarm://memory/<uuid>
+  const match = uri.match(/^swwarm:\/\/memory\/([0-9a-f-]{36})$/i);
+  if (!match) {
+    return rpcError(id, RPC_INVALID_PARAMS, `Unrecognised resource URI: ${uri}`);
+  }
+
+  const memoryId = match[1];
+  const [row] = await (db as any)
+    .select({ content: memoryEntries.content, companyId: memoryEntries.companyId })
+    .from(memoryEntries)
+    .where(eq(memoryEntries.id, memoryId))
+    .limit(1);
+
+  if (!row || row.companyId !== companyId) {
+    return rpcError(id, RPC_INVALID_PARAMS, "Resource not found");
+  }
+
+  return rpcOk(id, {
+    contents: [{ uri, mimeType: "text/plain", text: row.content }],
+  });
+}
+
 /**
  * Dispatches a JSON-RPC request to the appropriate handler.
  * Returns a JSON-RPC response (always 200 HTTP — errors are in the response body).
@@ -221,6 +285,10 @@ export async function handleJsonRpc(
         return await handleToolsList(db, companyId, id);
       case "tools/call":
         return await handleToolsCall(db, companyId, id, req.params);
+      case "resources/list":
+        return await handleResourcesList(db, companyId, id);
+      case "resources/read":
+        return await handleResourcesRead(db, companyId, id, req.params);
       default:
         return rpcError(id, RPC_METHOD_NOT_FOUND, `Method not found: ${req.method}`);
     }

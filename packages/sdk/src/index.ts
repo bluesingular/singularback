@@ -58,6 +58,24 @@ export interface CreateWebhookParams {
   events: string[];
 }
 
+export interface Mission {
+  id:          string;
+  title:       string;
+  status:      "draft" | "active" | "blocked" | "complete" | "archived";
+  createdAt:   string;
+  completedAt: string | null;
+}
+
+export interface CreateMissionParams {
+  title: string;
+  brief?: string;
+}
+
+export interface ListMissionsParams {
+  limit?:  number;
+  offset?: number;
+}
+
 export interface ApiError extends Error {
   status: number;
   body: unknown;
@@ -157,9 +175,75 @@ export class SwwarmClient {
     return this.request("DELETE", `/webhooks/subscriptions/${encodeURIComponent(id)}`);
   }
 
+  // ── Missions ───────────────────────────────────────────────────────────────
+
+  listMissions(params: ListMissionsParams = {}): Promise<{ missions: Mission[]; limit: number; offset: number }> {
+    const qs = new URLSearchParams();
+    if (params.limit  !== undefined) qs.set("limit",  String(params.limit));
+    if (params.offset !== undefined) qs.set("offset", String(params.offset));
+    const query = qs.toString();
+    return this.request("GET", `/missions${query ? `?${query}` : ""}`);
+  }
+
+  getMission(id: string): Promise<{ ok: boolean; mission: Mission }> {
+    return this.request("GET", `/missions/${encodeURIComponent(id)}`);
+  }
+
+  createMission(params: CreateMissionParams): Promise<{ ok: boolean; mission: Mission }> {
+    return this.request("POST", "/missions", params);
+  }
+
   // ── OpenAPI spec ───────────────────────────────────────────────────────────
 
   getOpenApiSpec(): Promise<unknown> {
     return this.request("GET", "/openapi.json");
   }
+}
+
+// ── Webhook verification helper ───────────────────────────────────────────────
+
+/**
+ * Verify an inbound Swwarm webhook signature (Node.js environments).
+ *
+ * @example
+ * import { verifyWebhookSignature } from "@swwarm/sdk";
+ *
+ * app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+ *   const valid = verifyWebhookSignature(
+ *     req.body.toString(),
+ *     req.headers["x-swwarm-signature"] as string,
+ *     process.env.WEBHOOK_SECRET!,
+ *   );
+ *   if (!valid) return res.status(401).send("Invalid signature");
+ *   // process req.body...
+ * });
+ *
+ * Note: requires Node.js 18+ (uses built-in crypto module dynamically).
+ */
+export async function verifyWebhookSignature(
+  rawBody:   string,
+  signature: string,
+  secret:    string,
+): Promise<boolean> {
+  const received = signature.startsWith("sha256=") ? signature.slice(7) : signature;
+
+  // Use Web Crypto API for universal compatibility (Node 18+ / browser)
+  const enc     = new TextEncoder();
+  const keyData = enc.encode(secret);
+  const msgData = enc.encode(rawBody);
+
+  const key = await crypto.subtle.importKey(
+    "raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+  );
+  const sigBuffer = await crypto.subtle.sign("HMAC", key, msgData);
+  const expected  = Array.from(new Uint8Array(sigBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  if (received.length !== expected.length) return false;
+  let diff = 0;
+  for (let i = 0; i < received.length; i++) {
+    diff |= received.charCodeAt(i) ^ expected.charCodeAt(i);
+  }
+  return diff === 0;
 }

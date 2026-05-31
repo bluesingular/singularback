@@ -5,9 +5,12 @@
  *   GET    /api/v1/openapi.json                    — no auth
  *   GET    /api/v1/agents                          — list agents
  *   GET    /api/v1/agents/:id                      — get agent
- *   GET    /api/v1/tasks                           — list tasks (filter: status, agentId, limit, offset)
+ *   GET    /api/v1/tasks                           — list tasks
  *   GET    /api/v1/tasks/:id                       — get task
- *   POST   /api/v1/tasks                           — create task (read_write scope only)
+ *   POST   /api/v1/tasks                           — create task (read_write only)
+ *   GET    /api/v1/missions                        — list missions
+ *   GET    /api/v1/missions/:id                    — get mission
+ *   POST   /api/v1/missions                        — create mission (read_write only)
  *   GET    /api/v1/webhooks/subscriptions          — list subscriptions
  *   POST   /api/v1/webhooks/subscriptions          — create subscription (read_write only)
  *   DELETE /api/v1/webhooks/subscriptions/:id      — delete subscription (read_write only)
@@ -21,7 +24,7 @@
 import { Router } from "express";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Db } from "@paperclipai/db";
-import { publicApiKeys, webhookSubscriptions, agents, issues } from "@paperclipai/db";
+import { publicApiKeys, webhookSubscriptions, agents, issues, missions } from "@paperclipai/db";
 import { and, eq, isNull, desc } from "drizzle-orm";
 import { assertCompanyAccess, requireRole } from "./authz.js";
 import { notFound, badRequest, forbidden } from "../errors.js";
@@ -272,8 +275,6 @@ export function publicApiRoutes(db: Db): Router {
     }
   });
 
-  router.use("/api/v1", v1);
-
   // ── Key management (session auth, operator+) ───────────────────────────────
 
   router.post("/companies/:companyId/public-api/keys", async (req, res, next) => {
@@ -361,6 +362,62 @@ export function publicApiRoutes(db: Db): Router {
       next(err);
     }
   });
+
+  // ── Missions API ──────────────────────────────────────────────────────────
+
+  // GET /api/v1/missions
+  v1.get("/missions", async (req, res, next) => {
+    try {
+      const companyId = req.publicApiCompanyId!;
+      const limit  = Math.min(parseInt(req.query.limit  as string ?? "20", 10), 100);
+      const offset = parseInt(req.query.offset as string ?? "0",  10);
+      const rows = await (db as any)
+        .select({
+          id:          missions.id,
+          title:       missions.title,
+          status:      missions.status,
+          createdAt:   missions.createdAt,
+          completedAt: missions.completedAt,
+        })
+        .from(missions)
+        .where(eq(missions.companyId, companyId))
+        .orderBy(desc(missions.createdAt))
+        .limit(limit)
+        .offset(offset);
+      res.json({ ok: true, missions: rows, limit, offset });
+    } catch (err) { next(err); }
+  });
+
+  // GET /api/v1/missions/:id
+  v1.get("/missions/:id", async (req, res, next) => {
+    try {
+      const companyId = req.publicApiCompanyId!;
+      const [row] = await (db as any)
+        .select()
+        .from(missions)
+        .where(and(eq(missions.id, req.params.id), eq(missions.companyId, companyId)))
+        .limit(1);
+      if (!row) throw notFound("Mission not found");
+      res.json({ ok: true, mission: row });
+    } catch (err) { next(err); }
+  });
+
+  // POST /api/v1/missions (read_write only)
+  v1.post("/missions", async (req, res, next) => {
+    try {
+      if (req.publicApiScope === "read") throw forbidden("Read-only key cannot create missions");
+      const companyId = req.publicApiCompanyId!;
+      const { title, brief } = req.body ?? {};
+      if (!title || typeof title !== "string") throw badRequest("title is required");
+      const [row] = await (db as any)
+        .insert(missions)
+        .values({ companyId, title: title.trim().slice(0, 200), brief: brief ?? title })
+        .returning({ id: missions.id, title: missions.title, status: missions.status, createdAt: missions.createdAt });
+      res.status(201).json({ ok: true, mission: row });
+    } catch (err) { next(err); }
+  });
+
+  router.use("/api/v1", v1);
 
   return router;
 }

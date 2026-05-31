@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { publishTaskStarted, publishTaskCompleted, publishTaskBlocked } from "../realtime/publish.js";
+import { deliverEvent } from "../webhooks/delivery.js";
 import { nudgeOnTaskComplete } from "../intelligence/nudge.js";
 import type { Db } from "@paperclipai/db";
 import {
@@ -1834,6 +1835,13 @@ export function issueService(db: Db) {
           publishTaskStarted({ companyId, taskId: result.id, agentId, title });
         } else if (data.status === "done" && agentId) {
           publishTaskCompleted({ companyId, taskId: result.id, agentId, title });
+          // G13: outbound webhook delivery
+          void deliverEvent(db, {
+            event: "task.completed",
+            companyId,
+            data:  { taskId: result.id, agentId, title, status: "done" },
+            timestamp: Math.floor(Date.now() / 1000),
+          });
           void nudgeOnTaskComplete(db, {
             id:        result.id,
             companyId,
