@@ -37,6 +37,7 @@ import { steerRoutes } from "./routes/steer.js";
 import { partnerRoutes } from "./routes/partners.js";
 import { clientContextRoutes } from "./routes/client-contexts.js";
 import { rateLimitMiddleware, authRateLimitMiddleware } from "./middleware/rate-limit.js";
+import { awayModeRoutes } from "./routes/away-mode.js";
 import { trustRoutes } from "./routes/trust.js";
 import { intelligenceRoutes } from "./routes/intelligence.js";
 import { sseRoutes } from "./routes/sse.js";
@@ -285,6 +286,7 @@ export async function createApp(
   api.use(steerRoutes(db));
   api.use(partnerRoutes(db));
   api.use(clientContextRoutes(db));
+  api.use(awayModeRoutes(db));
   api.use(trustRoutes(db));
   api.use(webhookEndpointRoutes(db));
   api.use(clarificationRoutes(db));

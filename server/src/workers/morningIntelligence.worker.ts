@@ -30,6 +30,8 @@ import {
 } from "../intelligence/sweep.js";
 import { refreshBaselines, detectAnomalies } from "../monitoring/behavioral.js";
 import { computeOptimalTiming } from "../contacts/timing.js";
+import { runMemoryCorrectnessTests } from "../evals/memory-correctness.js";
+import { computeAndStoreEmbeddingMetrics } from "../analytics/embedding-depth.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -74,11 +76,20 @@ export function initMorningIntelligenceWorker(db: Db) {
             logger.warn({ companyId: company.id, err }, "morning-intelligence: anomaly detection failed"),
           );
 
-          // Gap M: weekly contact timing (runs every Monday — checked by job day)
+          // Gap M + §31.4 + §31.5: weekly jobs (Monday only)
           const isMonday = new Date().getUTCDay() === 1;
           if (isMonday) {
             await computeOptimalTiming(db, company.id).catch((err) =>
               logger.warn({ companyId: company.id, err }, "morning-intelligence: contact timing failed"),
+            );
+            // §31.4: memory correctness tests
+            await runMemoryCorrectnessTests(db, company.id).catch((err) =>
+              logger.warn({ companyId: company.id, err }, "morning-intelligence: memory tests failed"),
+            );
+            // §31.5: embedding depth metrics
+            const weekStart = getWeekStart();
+            await computeAndStoreEmbeddingMetrics(db, company.id, weekStart).catch((err) =>
+              logger.warn({ companyId: company.id, err }, "morning-intelligence: embedding metrics failed"),
             );
           }
 
@@ -126,4 +137,13 @@ export async function scheduleIntelligenceSweep() {
     },
   );
   logger.info("morning-intelligence: daily sweep scheduled at 08:00 UTC");
+}
+
+function getWeekStart(): Date {
+  const d = new Date();
+  const day = d.getUTCDay();
+  const diff = (day === 0 ? -6 : 1 - day); // Mon=1
+  d.setUTCDate(d.getUTCDate() + diff);
+  d.setUTCHours(0, 0, 0, 0);
+  return d;
 }

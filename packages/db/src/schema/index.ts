@@ -143,3 +143,12 @@ export { integrationQueryLog } from "./integration_query_log.js";
 // Singular.blue §34–§35 Partner programme + client contexts
 export { partnerReferralFees, partnerWhiteLabelConfig } from "./partner.js";
 export { clientContexts, clientSkillOverlays } from "./client_contexts.js";
+// Singular.blue §31 AI evaluation infrastructure + §31.5 embedding metrics + §11.6 away mode
+export {
+  hallucinationChecks,
+  skillRegressionResults,
+  autonomySafetyEvals,
+  memoryCorrectnessTests,
+  embeddingMetrics,
+  awayMode,
+} from "./eval_infrastructure.js";
