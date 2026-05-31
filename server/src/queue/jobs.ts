@@ -8,9 +8,17 @@
 
 import { z } from "zod";
 
+// ── P4: Trace ID propagation ──────────────────────────────────────────────────
+// Every job payload carries a traceId so all log entries across worker
+// boundaries can be correlated. Generated at task creation, never in workers.
+
+export const BaseJobSchema = z.object({
+  traceId: z.string().uuid().optional(), // optional for backwards compat with existing jobs
+});
+
 // ── Agent execution jobs ──────────────────────────────────────────────────────
 
-export const HeartbeatJobSchema = z.object({
+export const HeartbeatJobSchema = BaseJobSchema.extend({
   agentId: z.string().uuid(),
   companyId: z.string().uuid(),
   triggeredBy: z.enum(["scheduler", "email", "slack", "webhook", "approval", "manual"]),

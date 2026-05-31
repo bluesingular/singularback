@@ -43,26 +43,42 @@ export const SEED_TASK_MAX_DELAY_MS = 10 * 60 * 1000; // 600_000 ms
 
 // ── Step 1: Validation ────────────────────────────────────────────────────────
 
-export function validatePackManifest(pack: PackManifest): void {
-  const required: Array<keyof PackManifest> = [
-    "slug", "name", "version", "agents", "skills", "qualityGates",
-    "seedTasks", "activationSequence",
-  ];
+// ── A1: Pack manifest Zod schema ─────────────────────────────────────────────
 
-  for (const field of required) {
-    if (pack[field] === undefined || pack[field] === null) {
-      throw new PackValidationError(`Pack manifest missing required field: ${field}`);
-    }
-  }
+import { z } from "zod";
 
-  if (!Array.isArray(pack.agents) || pack.agents.length === 0) {
-    throw new PackValidationError("Pack must define at least one agent");
-  }
-  if (!Array.isArray(pack.seedTasks) || pack.seedTasks.length === 0) {
-    throw new PackValidationError("Pack must define at least one seed task");
-  }
-  if (!Array.isArray(pack.activationSequence) || pack.activationSequence.length !== 5) {
-    throw new PackValidationError("Pack must define exactly 5 activation triggers");
+const AgentManifestSchema = z.object({
+  slug:        z.string().regex(/^[a-z0-9-]+$/),
+  name:        z.string().min(1).max(100),
+  description: z.string().max(500),
+  modelTier:   z.string(),
+  skills:      z.array(z.string()),
+  colour:      z.string().optional(),
+  displayName: z.string().optional(),
+  soulTemplate: z.string().optional(),
+  constitutionExtension: z.string().optional(),
+  handoffs:    z.array(z.unknown()).optional(),
+});
+
+const PackManifestSchema = z.object({
+  slug:        z.string().regex(/^[a-z0-9-]+$/),
+  name:        z.string().min(3).max(100),
+  version:     z.string().regex(/^\d+\.\d+\.\d+$/),
+  description: z.string().max(500).optional(),
+  agents:      z.array(AgentManifestSchema).min(1).max(10),
+  skills:      z.array(z.unknown()).min(1),
+  qualityGates: z.array(z.unknown()),
+  seedTasks:   z.array(z.unknown()).min(1),
+  activationSequence: z.array(z.unknown()).length(5),
+});
+
+export function validatePackManifest(pack: unknown): void {
+  const result = PackManifestSchema.safeParse(pack);
+  if (!result.success) {
+    const firstIssue = result.error.issues[0];
+    const field = firstIssue?.path.join(".") ?? "unknown";
+    const msg   = firstIssue?.message ?? "Invalid manifest";
+    throw new PackValidationError(`Pack manifest invalid — ${field}: ${msg}`);
   }
 }
 

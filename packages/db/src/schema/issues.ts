@@ -4,6 +4,7 @@ import {
   pgTable,
   uuid,
   text,
+  boolean,
   timestamp,
   integer,
   jsonb,
@@ -57,6 +58,15 @@ export const issues = pgTable(
     // G7 — skill version pin: captures the active version at task creation time
     skillType:      text("skill_type"),
     skillVersionId: uuid("skill_version_id").references(() => skillVersions.id, { onDelete: "set null" }),
+    // C3 — cancellation: set true by cancel API; workers poll at step boundaries
+    cancelRequested: boolean("cancel_requested").notNull().default(false),
+    // C6 — failure taxonomy: maps LLM/gate/tool errors to actionable categories
+    failureReason: text("failure_reason"),
+    // WAR-3 — link to CEO-level mission (FK added in 0087 when missions table exists)
+    missionId: uuid("mission_id"),
+    // F3: approval escalation path
+    approvalEscalateAt: timestamp("approval_escalate_at", { withTimezone: true }),
+    escalationLevel:    integer("escalation_level").notNull().default(0),
     startedAt: timestamp("started_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),

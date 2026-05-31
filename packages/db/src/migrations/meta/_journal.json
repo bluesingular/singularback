@@ -610,6 +610,13 @@
       "when": 1748822400000,
       "tag": "0086_war3_missions",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1748908800000,
+      "tag": "0087_f1_f3_f7_t10_p4_p5_a3_ag1_ag2",
+      "breakpoints": true
     }
   ]
 }

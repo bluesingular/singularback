@@ -6,6 +6,7 @@ import type { Db } from "@paperclipai/db";
 import type { DeploymentExposure, DeploymentMode } from "@paperclipai/shared";
 import type { StorageService } from "./storage/types.js";
 import { httpLogger, errorHandler, companyContextMiddleware } from "./middleware/index.js";
+import { errorEnvelopeMiddleware } from "./middleware/response-envelope.js";
 import { actorMiddleware } from "./middleware/auth.js";
 import { singularAuthRoutes } from "./routes/singular/auth.js";
 import { bullBoardRouter, internalAuthMiddleware } from "./routes/monitoring.js";
@@ -32,6 +33,7 @@ import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { consoleRoutes } from "./routes/console.js";
 import { missionRoutes } from "./routes/missions.js";
+import { steerRoutes } from "./routes/steer.js";
 import { trustRoutes } from "./routes/trust.js";
 import { intelligenceRoutes } from "./routes/intelligence.js";
 import { sseRoutes } from "./routes/sse.js";
@@ -262,6 +264,7 @@ export async function createApp(
   api.use(instanceSettingsRoutes(db));
   api.use(consoleRoutes(db));
   api.use(missionRoutes(db));
+  api.use(steerRoutes(db));
   api.use(trustRoutes(db));
   api.use(webhookEndpointRoutes(db));
   api.use(clarificationRoutes(db));
@@ -476,6 +479,7 @@ export async function createApp(
     app.use(vite.middlewares);
   }
 
+  app.use(errorEnvelopeMiddleware);
   app.use(errorHandler);
 
   jobCoordinator.start();

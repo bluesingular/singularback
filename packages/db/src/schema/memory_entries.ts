@@ -4,6 +4,7 @@ import {
   text,
   integer,
   boolean,
+  numeric,
   timestamp,
   index,
   customType,
@@ -52,6 +53,12 @@ export const memoryEntries = pgTable(
     // M8: 1024-dim Mistral Embed vector for cosine similarity search
     embedding: vectorColumn("embedding"),
     archived: boolean("archived").notNull().default(false),
+    // F1: confidence scoring + conflict tracking
+    confidenceScore:   numeric("confidence_score", { precision: 3, scale: 2 }).notNull().default("1.0"),
+    supersededBy:      uuid("superseded_by"),
+    lastReinforcedAt:  timestamp("last_reinforced_at", { withTimezone: true }),
+    // F2: staleness decay
+    confidenceDecayAt: timestamp("confidence_decay_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

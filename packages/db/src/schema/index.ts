@@ -116,3 +116,9 @@ export { securityEvents } from "./security_events.js";
 export { judgeResults } from "./judge_results.js";
 // Singular.blue WAR-3: mission system (CEO-level strategic intent)
 export { missions, missionMessages, missionTasks } from "./missions.js";
+// Singular.blue F7: task execution events (reasoning capture)
+export { taskExecutionEvents } from "./task_execution_events.js";
+// Singular.blue P5: transactional outbox for BullMQ jobs
+export { pendingJobs } from "./pending_jobs.js";
+// Singular.blue AG-1/AG-2: mission context + agent peer messages
+export { missionContext, agentMessages } from "./agent_collab.js";

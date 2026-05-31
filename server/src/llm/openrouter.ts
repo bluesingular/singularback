@@ -13,6 +13,8 @@
 
 import { assertGdprSafe } from "./router.js";
 import { publishAgentToolCall } from "../realtime/publish.js";
+import { checkBudgetBeforeCall } from "../costs/service.js";
+import type { Db } from "@paperclipai/db";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -68,6 +70,8 @@ export class LLMError extends Error {
 }
 
 export interface CallLLMParams {
+  /** Optional DB instance for budget pre-flight check (F6) */
+  db?: Db;
   model: string;
   messages: OpenAIMessage[];
   tools?: OpenAITool[];
@@ -95,6 +99,11 @@ export type ChunkCallback = (text: string) => void;
  * 3. Usage tracked via costService stub (full impl in M7)
  */
 export async function callLLM(params: CallLLMParams): Promise<LLMResponse> {
+  // F6: Token budget pre-flight — block before any LLM call if limit reached
+  if (params.db) {
+    await checkBudgetBeforeCall(params.db, params.companyId);
+  }
+
   // RULE 1: GDPR guard — throws GdprViolationError if model is unsafe
   assertGdprSafe(
     params.model,
