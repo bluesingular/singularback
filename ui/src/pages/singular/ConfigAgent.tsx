@@ -9,6 +9,7 @@ import { agentConfigApi, type ConfigParam } from "@/api/agentConfig"
 import { Button } from "@/components/ui/button"
 import { queryKeys } from "@/lib/queryKeys"
 import { cn } from "@/lib/utils"
+import { AgentConfigTabs } from "@/components/singular/AgentConfigTabs"
 
 // ── Field renderers ───────────────────────────────────────────────────────────
 
@@ -252,11 +253,72 @@ export function ConfigAgent() {
 
   const hasParams = config.configParams.length > 0
 
+  // Skills tab content — passed into AgentConfigTabs
+  const skillsContent = (
+    <div className="flex flex-col gap-5">
+      {/* Save button + validation */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-[#8A8680]">Ces réglages s'appliquent aux prochaines tâches.</p>
+        <Button
+          onClick={() => saveMutation.mutate()}
+          disabled={saveMutation.isPending || saved}
+          className={cn(
+            "gap-1.5 text-sm",
+            saved
+              ? "bg-[#1A9E68]/10 text-[#1A9E68] border border-[#1A9E68]/30"
+              : "bg-[#1A9E68] text-white hover:bg-[#158A58]",
+          )}
+        >
+          {saved ? <><CheckCircle size={14} />Enregistré</> : <><Save size={14} />Enregistrer</>}
+        </Button>
+      </div>
+
+      {validationErrors.length > 0 && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+          <ul className="list-disc list-inside text-sm text-red-600 space-y-0.5">
+            {validationErrors.map((e) => <li key={e}>{e}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {!hasParams ? (
+        <div className="bg-white rounded-2xl border border-[#E8E4DC] p-8 text-center">
+          <p className="text-sm text-[#8A8680]">Cet agent n'a pas encore de paramètres configurables.</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-[#E8E4DC] divide-y divide-[#F0EDE6]">
+          {config.configParams.map((param) => (
+            <div key={param.name} className="p-5 flex items-start gap-4">
+              <div className="flex-1 min-w-0">
+                <label className="block text-sm font-medium text-[#0F0F0D] mb-0.5">{param.label}</label>
+                {param.description && (
+                  <p className="text-xs text-[#8A8680] leading-relaxed">{param.description}</p>
+                )}
+              </div>
+              <div className={cn(
+                param.type === "toggle" || param.type === "number" ? "flex-shrink-0" : "w-full max-w-xs flex-shrink-0",
+              )}>
+                <ParamField param={param} value={values[param.name]} onChange={(v) => handleChange(param.name, v)} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {config.skillSlugs.length > 0 && (
+        <div className="rounded-xl bg-[#F0EDE6] px-4 py-3">
+          <p className="text-xs text-[#8A8680]">
+            <span className="font-medium text-[#4B4846]">Compétences :</span>{" "}
+            {config.skillSlugs.join(", ")}
+          </p>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="flex-1 overflow-y-auto bg-[#FAFAF8]">
       <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6">
-
-        {/* Back */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
@@ -265,104 +327,18 @@ export function ConfigAgent() {
           Retour à la fiche
         </button>
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">
-              Configurer {config.agentName}
-            </h1>
-            <p className="text-sm text-[#8A8680] mt-1">
-              Ces réglages s'appliquent immédiatement aux prochaines tâches.
-            </p>
-          </div>
+        <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">
+          Configurer {config.agentName}
+        </h1>
 
-          <Button
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending || saved}
-            className={cn(
-              "gap-1.5 text-sm flex-shrink-0",
-              saved
-                ? "bg-[#1A9E68]/10 text-[#1A9E68] border border-[#1A9E68]/30"
-                : "bg-[#1A9E68] text-white hover:bg-[#158A58]",
-            )}
-          >
-            {saved ? (
-              <>
-                <CheckCircle size={14} />
-                Enregistré
-              </>
-            ) : (
-              <>
-                <Save size={14} />
-                Enregistrer
-              </>
-            )}
-          </Button>
+        {/* WAR-11 / Gap F: two-tab layout — soul identity + skills config */}
+        <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm overflow-hidden">
+          <AgentConfigTabs
+            agentId={agent?.id ?? ""}
+            agentName={config.agentName}
+            skillsContent={skillsContent}
+          />
         </div>
-
-        {/* Validation errors */}
-        {validationErrors.length > 0 && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-700 mb-1">Valeurs invalides :</p>
-            <ul className="list-disc list-inside text-sm text-red-600 space-y-0.5">
-              {validationErrors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Params */}
-        {!hasParams ? (
-          <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-8 text-center">
-            <p className="text-sm text-[#8A8680]">
-              Cet agent n'a pas encore de paramètres configurables.
-            </p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm divide-y divide-[#F0EDE6]">
-            {config.configParams.map((param) => (
-              <div key={param.name} className="p-5 flex items-start gap-4">
-                {/* Label + description */}
-                <div className="flex-1 min-w-0">
-                  <label className="block text-sm font-medium text-[#0F0F0D] mb-0.5">
-                    {param.label}
-                  </label>
-                  {param.description && (
-                    <p className="text-xs text-[#8A8680] leading-relaxed">
-                      {param.description}
-                    </p>
-                  )}
-                </div>
-
-                {/* Field — right-aligned for toggle/number, full-width below for text */}
-                <div
-                  className={cn(
-                    param.type === "toggle" || param.type === "number"
-                      ? "flex-shrink-0"
-                      : "w-full max-w-xs flex-shrink-0",
-                  )}
-                >
-                  <ParamField
-                    param={param}
-                    value={values[param.name]}
-                    onChange={(v) => handleChange(param.name, v)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Skills info */}
-        {config.skillSlugs.length > 0 && (
-          <div className="rounded-xl bg-[#F0EDE6] px-4 py-3">
-            <p className="text-xs text-[#8A8680]">
-              <span className="font-medium text-[#4B4846]">Compétences concernées :</span>{" "}
-              {config.skillSlugs.join(", ")}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )
