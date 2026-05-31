@@ -28,6 +28,7 @@ import {
   relationshipGapGenerator,
   budgetAlertGenerator,
 } from "../intelligence/sweep.js";
+import { refreshBaselines, detectAnomalies } from "../monitoring/behavioral.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -63,6 +64,15 @@ export function initMorningIntelligenceWorker(db: Db) {
             DEFAULT_GENERATORS,
           );
           totalInserted += inserted;
+
+          // AG-10: refresh behavioral baselines + detect anomalies (admin-only surface)
+          await refreshBaselines(db, company.id).catch((err) =>
+            logger.warn({ companyId: company.id, err }, "morning-intelligence: baseline refresh failed"),
+          );
+          await detectAnomalies(db, company.id).catch((err) =>
+            logger.warn({ companyId: company.id, err }, "morning-intelligence: anomaly detection failed"),
+          );
+
           logger.info(
             { companyId: company.id, inserted },
             "morning-intelligence: company swept",

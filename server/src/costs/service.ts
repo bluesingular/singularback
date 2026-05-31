@@ -74,6 +74,9 @@ export interface RecordUsageParams {
   inputTokens:  number;
   outputTokens: number;
   tier:         0 | 1 | 2 | 3;
+  /** Gap I: cost attribution — link cost to mission/goal for ROI calculation */
+  missionId?:   string | null;
+  goalId?:      string | null;
 }
 
 /**
@@ -103,6 +106,8 @@ export async function recordUsage(
     outputTokens: params.outputTokens,
     costEurMicro,
     billingMonth,
+    missionId:    params.missionId ?? null,
+    goalId:       params.goalId    ?? null,
   });
 
   // Update company's running monthly counters (for real-time usage gauge)

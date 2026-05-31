@@ -16,11 +16,12 @@
 
 import { Router } from "express";
 import { z } from "zod";
-import { and, eq, desc, ne, count, inArray } from "drizzle-orm";
+import { and, eq, desc, ne, count, inArray, sql } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
-import { missions, missionMessages, missionTasks, issues } from "@paperclipai/db";
+import { missions, missionMessages, missionTasks, issues, costRecords } from "@paperclipai/db";
 import { assertCompanyAccess } from "./authz.js";
 import { approvePartialOutput, requestPartialCompletion } from "../tasks/partial-output.js";
+import { recordOutcome } from "../learning/outcome-attribution.js";
 import pino from "pino";
 
 const logger = pino({ name: "missions" });
@@ -239,6 +240,39 @@ export function missionRoutes(db: Db): Router {
     if (!updated) { res.status(404).json({ error: "Mission not found" }); return; }
     logger.info({ companyId, missionId }, "missions: archived");
     res.json({ ok: true });
+  });
+
+  // GET /companies/:companyId/missions/:missionId/cost
+  // Gap I: cost attribution — returns total cost for a mission in EUR
+  router.get("/companies/:companyId/missions/:missionId/cost", async (req, res) => {
+    const { companyId, missionId } = req.params as { companyId: string; missionId: string };
+    assertCompanyAccess(req, companyId);
+
+    const [row] = await db
+      .select({ totalMicro: sql<number>`coalesce(sum(cost_eur_micro), 0)` })
+      .from(costRecords)
+      .where(and(
+        eq(costRecords.companyId, companyId),
+        eq((costRecords as any).missionId, missionId),
+      ));
+
+    const totalEur = (Number(row?.totalMicro ?? 0) / 1_000_000).toFixed(2);
+    res.json({ missionId, totalEur: parseFloat(totalEur) });
+  });
+
+  // POST /companies/:companyId/missions/:missionId/outcome
+  // AG-7: record mission outcome → triggers attribution pipeline
+  router.post("/companies/:companyId/missions/:missionId/outcome", async (req, res) => {
+    const { companyId, missionId } = req.params as { companyId: string; missionId: string };
+    assertCompanyAccess(req, companyId);
+
+    const { outcome } = z.object({
+      outcome: z.enum(["positive", "negative", "neutral"]),
+    }).parse(req.body);
+
+    const result = await recordOutcome({ db, companyId, missionId, outcome });
+    logger.info({ companyId, missionId, outcome, ...result }, "missions: outcome recorded");
+    res.json({ ok: true, ...result });
   });
 
   return router;
