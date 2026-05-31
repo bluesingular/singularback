@@ -33,6 +33,7 @@ export type SseEventType =
   | "agent.reading"
   | "agent.analysing"
   | "agent.writing"
+  | "agent.tool_call"
   | "keepalive";
 
 export interface SseEvent {

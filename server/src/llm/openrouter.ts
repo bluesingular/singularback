@@ -12,6 +12,7 @@
  */
 
 import { assertGdprSafe } from "./router.js";
+import { publishAgentToolCall } from "../realtime/publish.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -159,6 +160,20 @@ export async function callLLM(params: CallLLMParams): Promise<LLMResponse> {
       totalTokens: data.usage.total_tokens,
     },
   };
+
+  // Publish agent.tool_call SSE events for each tool call in the response (M15)
+  const toolCalls = result.choices[0]?.message?.tool_calls;
+  if (toolCalls && toolCalls.length > 0) {
+    for (const tc of toolCalls) {
+      publishAgentToolCall({
+        companyId:  params.companyId,
+        taskId:     params.taskId,
+        agentId:    params.agentId,
+        toolName:   tc.function.name,
+        toolCallId: tc.id,
+      });
+    }
+  }
 
   // M7 stub: cost recording will be implemented with the cost_records table.
   // recordUsage({ companyId, agentId, taskId, model, inputTokens, outputTokens })

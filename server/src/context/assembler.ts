@@ -154,15 +154,18 @@ export async function assembleContext(
     skill: SkillForContext;
     tier: Tier;
     recentOutputs?: RecentOutput[];
+    /** If provided, publishes agent.reading SSE events during assembly */
+    publishReading?: (source: string) => void;
   },
 ): Promise<AssembledContext> {
-  const { agent, task, company, skill, tier } = params;
+  const { agent, task, company, skill, tier, publishReading } = params;
   const budget = TOKEN_BUDGETS[tier];
 
   // ── Layer 1: System identity (never truncated) ─────────────────────────────
   const systemIdentity = buildSystemIdentity(agent, company, skill);
 
   // ── Layer 2: Company DNA ───────────────────────────────────────────────────
+  publishReading?.("company_dna");
   // Compressed for T0/T1; full markdown for T2+
   const companyDna =
     tier === "T0" || tier === "T1"
@@ -179,6 +182,7 @@ export async function assembleContext(
   }
 
   // ── Layer 4: Org memory ────────────────────────────────────────────────────
+  publishReading?.("org_memory");
   const { text: orgMemory, chunksUsed: memoryChunksUsed } = await retrieveMemory(db, {
     companyId: company.id,
     query: `${task.title} ${task.description ?? ""}`,

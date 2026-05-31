@@ -11,6 +11,7 @@
 import { callLLMStream } from "./openrouter.js";
 import type { CallLLMParams, LLMResponse } from "./openrouter.js";
 import { sseManager } from "../realtime/sse.js";
+import { publishAgentReading, publishAgentAnalysing } from "../realtime/publish.js";
 
 export interface StreamingParams extends CallLLMParams {
   /** Published in each agent.writing SSE event so the UI can filter by task */
@@ -31,6 +32,9 @@ export interface StreamingParams extends CallLLMParams {
  */
 export async function executeWithStreaming(params: StreamingParams): Promise<LLMResponse> {
   const { companyId, taskId, agentId } = params;
+
+  // Signal that the agent is now analysing (thinking before writing)
+  publishAgentAnalysing({ companyId, taskId, agentId, step: "llm_call" });
 
   const response = await callLLMStream(params, (chunk) => {
     sseManager.publishEvent(companyId, {

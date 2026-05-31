@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
+import { publishTaskStarted, publishTaskCompleted, publishTaskBlocked } from "../realtime/publish.js";
 import type { Db } from "@paperclipai/db";
 import {
   activityLog,
@@ -1488,7 +1489,8 @@ export function issueService(db: Db) {
       const children = await db
         .select({ id: issues.id, status: issues.status })
         .from(issues)
-        .where(and(eq(issues.companyId, parent.companyId), eq(issues.parentId, parentIssueId)));
+        .where(and(eq(issues.companyId, parent.companyId), eq(issues.parentId, parentIssueId)))
+        .orderBy(issues.id);
       if (children.length === 0) return null;
       if (!children.every((child) => child.status === "done" || child.status === "cancelled")) {
         return null;
@@ -1819,7 +1821,29 @@ export function issueService(db: Db) {
         return enriched;
       };
 
-      return dbOrTx === db ? db.transaction(runUpdate) : runUpdate(dbOrTx);
+      const result = await (dbOrTx === db ? db.transaction(runUpdate) : runUpdate(dbOrTx));
+
+      // Publish SSE event when task status transitions to a notable state
+      if (result && data.status && data.status !== existing.status) {
+        const companyId = existing.companyId;
+        const agentId   = result.assigneeAgentId ?? existing.assigneeAgentId ?? null;
+        const title     = result.title ?? existing.title ?? "";
+
+        if (data.status === "in_progress" && agentId) {
+          publishTaskStarted({ companyId, taskId: result.id, agentId, title });
+        } else if (data.status === "done" && agentId) {
+          publishTaskCompleted({ companyId, taskId: result.id, agentId, title });
+        } else if (data.status === "blocked" || data.status === "in_review") {
+          publishTaskBlocked({
+            companyId,
+            taskId:  result.id,
+            agentId,
+            reason:  data.status === "in_review" ? "pending_approval" : "other",
+          });
+        }
+      }
+
+      return result;
     },
 
     remove: (id: string) =>
