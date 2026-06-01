@@ -13,3 +13,4 @@ export { createClarificationTimeoutWorker } from "./clarificationTimeout.worker.
 export { initMorningIntelligenceWorker, scheduleIntelligenceSweep } from "./morningIntelligence.worker.js";
 export { initCostResetWorker } from "./costReset.worker.js";
 export { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./batchItem.worker.js";
+export { initFleetSnapshotWorker, scheduleFleetSnapshot } from "./fleetSnapshot.worker.js";

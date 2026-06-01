@@ -16,7 +16,9 @@
  * 10.  handleA2ARequest — tasks/cancel rejects TASK_NOT_CANCELABLE for done task
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("G14 — A2A server unit tests", () => {
 

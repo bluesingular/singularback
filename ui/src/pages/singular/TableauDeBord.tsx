@@ -149,7 +149,7 @@ export default function TableauDeBord() {
         {pendingApprovals > 0 && (
           <ApprovalBanner
             count={pendingApprovals}
-            onClick={() => navigate("/approbations")}
+            onClick={() => navigate("/approvals/pending")}
           />
         )}
 
@@ -157,17 +157,22 @@ export default function TableauDeBord() {
         <section className="flex flex-col gap-3">
           <div>
             <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">
-              {firstName ? `${t("title")}, ${firstName} 👋` : t("title")}
+              {firstName ? `Good morning, ${firstName}` : "Good morning"}
             </h1>
             <p className="text-sm text-[#8A8680] mt-0.5">{dateLabel}</p>
           </div>
-          {tasksDone > 0 && (
+          {tasksDone > 0 ? (
             <p className="text-base text-[#0F0F0D]">
-              {t("summaryBefore")}{" "}
+              Your team completed{" "}
               <span className="font-semibold text-[#1A9E68]">
-                {tasksDone} {t("task", { count: tasksDone })}
+                {tasksDone} task{tasksDone !== 1 ? "s" : ""}
               </span>{" "}
-              {t("summaryAfter")}
+              this month.
+            </p>
+          ) : (
+            <p className="text-base text-[#8A8680]">
+              No tasks completed yet this month.{" "}
+              <a href="console" className="text-[#1A4E8C] hover:underline">Give your team an instruction →</a>
             </p>
           )}
           <UsageGauge
@@ -178,15 +183,15 @@ export default function TableauDeBord() {
           />
         </section>
 
-        {/* Intelligence du matin */}
+        {/* Morning intelligence */}
         {intelCards.length > 0 && (
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-                {t("morning.title")}
+                This morning
               </h2>
               <span className="text-xs text-[#8A8680]">
-                {t("morning.count", { count: intelCards.length })}
+                {intelCards.length} insight{intelCards.length !== 1 ? "s" : ""}
               </span>
             </div>
             <div className="flex flex-col gap-3">
@@ -215,11 +220,11 @@ export default function TableauDeBord() {
         {/* Main grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          {/* Left: Activité récente */}
+          {/* Left: Recent activity */}
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-                {t("activity.title")}
+                Recent activity
               </h2>
               {connected && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-[#B91C1C] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
@@ -234,7 +239,7 @@ export default function TableauDeBord() {
                   key="live"
                   agentName={liveActivity.agentName}
                   action={liveActivity.action}
-                  time="maintenant"
+                  time="now"
                   isLive={true}
                   className="px-4"
                 />
@@ -252,15 +257,15 @@ export default function TableauDeBord() {
               ))}
               {!liveActivity && activities.length === 0 && (
                 <p className="px-4 py-6 text-sm text-[#8A8680] text-center">
-                  {t("feed.noActivity")}
+                  No activity yet. Your team's work will appear here in real time.
                 </p>
               )}
             </div>
           </section>
 
-          {/* Right: Mon équipe */}
+          {/* Right: My team */}
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">{t("team.title")}</h2>
+            <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">My team</h2>
             <div className="bg-white rounded-xl border border-[#E8E4DC] shadow-sm divide-y divide-[#E8E4DC]">
               {agents.map((agent) => (
                 <button
@@ -292,19 +297,19 @@ export default function TableauDeBord() {
               ))}
               {agents.length === 0 && (
                 <p className="px-4 py-6 text-sm text-[#8A8680] text-center">
-                  {tc("agentStatus.empty")}
+                  No agents yet. Install a pack to get started.
                 </p>
               )}
             </div>
           </section>
         </div>
 
-        {/* Objectif principal */}
+        {/* Current goal */}
         {activeGoal && (
           <section className="bg-[#1A9E68] rounded-xl p-5 text-white flex flex-col gap-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-[Georgia,serif]">{t("goal.title")}</h2>
+                <h2 className="text-lg font-[Georgia,serif]">Current goal</h2>
                 <p className="text-sm text-white/80 mt-0.5">{activeGoal.title}</p>
               </div>
               {goalsTotal > 0 && (

@@ -135,20 +135,20 @@ describe("Gap A -- Company DNA interpolation", () => {
 
   it("3. pack.json -- has companyDna field", async () => {
     const fs = await import("fs/promises");
-    const pack = JSON.parse(await fs.readFile("../packs/p1-recruitment/pack.json", "utf8"));
+    const pack = JSON.parse(await fs.readFile(new URL("../../../packs/p1-recruitment/pack.json", import.meta.url).pathname, "utf8"));
     expect(pack.companyDna).toBeDefined();
     expect(typeof pack.companyDna.description).toBe("string");
   });
 
   it("4. pack.json -- companyDna description contains {{specialisation}} placeholder", async () => {
     const fs = await import("fs/promises");
-    const pack = JSON.parse(await fs.readFile("../packs/p1-recruitment/pack.json", "utf8"));
+    const pack = JSON.parse(await fs.readFile(new URL("../../../packs/p1-recruitment/pack.json", import.meta.url).pathname, "utf8"));
     expect(pack.companyDna.description).toContain("{{specialisation}}");
   });
 
   it("5. pack.json -- companyDna customerProfile contains {{client_type}} placeholder", async () => {
     const fs = await import("fs/promises");
-    const pack = JSON.parse(await fs.readFile("../packs/p1-recruitment/pack.json", "utf8"));
+    const pack = JSON.parse(await fs.readFile(new URL("../../../packs/p1-recruitment/pack.json", import.meta.url).pathname, "utf8"));
     expect(pack.companyDna.customerProfile).toContain("{{client_type}}");
   });
 });
@@ -247,6 +247,7 @@ describe("Gap A -- Resend verification", () => {
 
 describe("Gap A -- createCheckoutSession (no Stripe key)", () => {
   afterEach(() => {
+    vi.clearAllMocks();
     delete process.env.STRIPE_SECRET_KEY;
     vi.resetModules();
   });

@@ -233,30 +233,41 @@ async function installSkills(
     const safeRisk     = ["minimal","limited","high","unacceptable"].includes(aiActRisk)
       ? aiActRisk : "minimal";
 
+    // §20: Record lineage — which master skill (if any) this copy originates from.
+    // def.sourceSkillId and def.masterVersion are optional fields on PackManifest skills.
+    const defAny = def as unknown as Record<string, unknown>;
+    const sourceSkillId  = defAny.sourceSkillId  as string | undefined;
+    const masterVersion  = defAny.masterVersion  as string | undefined;
+
     await (tx as any)
       .insert(companySkills)
       .values({
         companyId,
-        key:          def.slug,
-        slug:         def.slug,
-        name:         def.name,
+        key:           def.slug,
+        slug:          def.slug,
+        name:          def.name,
         markdown,
-        sourceType:   "pack",
+        sourceType:    "pack",
         gdprRequired,
         tier,
-        aiActRisk:    safeRisk,
-        metadata:     capabilityMetadata,
+        aiActRisk:     safeRisk,
+        metadata:      capabilityMetadata,
+        sourceSkillId: sourceSkillId ?? null,
+        masterVersion: masterVersion ?? null,
       })
       .onConflictDoUpdate({
         target: [companySkills.companyId, companySkills.key],
         set: {
           markdown,
-          name:         def.name,
-          sourceType:   "pack",
+          name:          def.name,
+          sourceType:    "pack",
           gdprRequired,
           tier,
-          aiActRisk:    safeRisk,
-          metadata:     capabilityMetadata,
+          aiActRisk:     safeRisk,
+          metadata:      capabilityMetadata,
+          // Preserve lineage on update — do not overwrite once set
+          ...(sourceSkillId && { sourceSkillId }),
+          ...(masterVersion && { masterVersion }),
         },
       });
   }

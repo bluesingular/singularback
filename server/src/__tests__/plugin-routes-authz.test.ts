@@ -277,12 +277,15 @@ describe("scoped plugin API routes", () => {
     expect(res.body).toEqual({ ok: true });
     expect(workerManager.call).toHaveBeenCalledWith(
       pluginId,
-      "handleApiRequest",
+      "performAction",
       expect.objectContaining({
-        routeKey: "smoke",
-        method: "GET",
-        companyId: "company-1",
-        query: { companyId: "company-1" },
+        key: "handleApiRequest",
+        params: expect.objectContaining({
+          routeKey: "smoke",
+          method: "GET",
+          companyId: "company-1",
+          query: { companyId: "company-1" },
+        }),
       }),
     );
   }, 20_000);

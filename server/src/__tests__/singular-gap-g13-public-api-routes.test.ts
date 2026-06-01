@@ -114,6 +114,8 @@ async function buildAuthApp(role: "operator" | "viewer" = "operator", dbOverride
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("G13 — Public API routes", () => {
 
   it("11. GET /api/v1/openapi.json — 200 without auth", async () => {

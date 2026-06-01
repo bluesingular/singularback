@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { HttpError } from "../errors.js";
 import { errorHandler } from "../middleware/error-handler.js";
 
@@ -21,6 +21,8 @@ function makeRes(): Response {
   (res.status as unknown as ReturnType<typeof vi.fn>).mockReturnValue(res);
   return res;
 }
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("errorHandler", () => {
   it("attaches the original Error to res.err for 500s", () => {

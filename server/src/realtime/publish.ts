@@ -8,10 +8,12 @@
  *
  * Event types (per spec §11.2):
  *   Task-level:   task.started | task.completed | task.blocked
- *   Within-task:  agent.reading | agent.analysing | agent.writing | agent.tool_call
+ *   Within-task:  agent.reading | agent.analysing | agent.writing | agent.tool_call | agent.reasoning
  *   System:       keepalive (managed by SseManager, not here)
  */
 
+import type { Db } from "@paperclipai/db";
+import { taskExecutionEvents } from "@paperclipai/db";
 import { sseManager } from "./sse.js";
 
 // ── Task-level events ─────────────────────────────────────────────────────────
@@ -94,5 +96,34 @@ export function publishAgentToolCall(opts: {
       toolCallId: opts.toolCallId,
       ts: Date.now(),
     },
+  });
+}
+
+/**
+ * F7 — Reasoning capture.
+ *
+ * Emits an `agent.reasoning` SSE event (fragment ≤ 120 chars) and persists the
+ * full fragment to task_execution_events so the drill-down panel can replay it.
+ * Never surfaced in the main UI — operator-request only.
+ */
+export async function publishAgentReasoning(opts: {
+  db:        Db;
+  companyId: string;
+  taskId:    string;
+  agentId:   string;
+  fragment:  string;   // truncated to 120 chars before broadcast
+}): Promise<void> {
+  const fragment = opts.fragment.slice(0, 120);
+
+  sseManager.publishEvent(opts.companyId, {
+    type: "agent.reasoning",
+    data: { taskId: opts.taskId, agentId: opts.agentId, fragment, ts: Date.now() },
+  });
+
+  await opts.db.insert(taskExecutionEvents).values({
+    taskId:    opts.taskId,
+    companyId: opts.companyId,
+    eventType: "reasoning",
+    content:   fragment,
   });
 }

@@ -247,6 +247,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
+        slug: companyId,
         name: "Paperclip",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
@@ -254,6 +255,8 @@ describe("heartbeat comment wake batching", () => {
 
       await db.insert(agents).values({
         id: agentId,
+        slug: agentId,
+        displayName: "Gateway Agent",
         companyId,
         name: "Gateway Agent",
         role: "engineer",
@@ -440,6 +443,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
+        slug: companyId,
         name: "Paperclip",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
@@ -447,6 +451,8 @@ describe("heartbeat comment wake batching", () => {
 
       await db.insert(agents).values({
         id: agentId,
+        slug: agentId,
+        displayName: "Gateway Agent",
         companyId,
         name: "Gateway Agent",
         role: "engineer",
@@ -626,6 +632,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
+        slug: companyId,
         name: "Paperclip",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
@@ -633,6 +640,8 @@ describe("heartbeat comment wake batching", () => {
 
       await db.insert(agents).values({
         id: agentId,
+        slug: agentId,
+        displayName: "Gateway Agent",
         companyId,
         name: "Gateway Agent",
         role: "engineer",
@@ -778,6 +787,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
+        slug: companyId,
         name: "Paperclip",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
@@ -786,6 +796,8 @@ describe("heartbeat comment wake batching", () => {
       await db.insert(agents).values([
         {
           id: primaryAgentId,
+          slug: primaryAgentId,
+          displayName: "Primary Agent",
           companyId,
           name: "Primary Agent",
           role: "engineer",
@@ -806,6 +818,8 @@ describe("heartbeat comment wake batching", () => {
         },
         {
           id: mentionedAgentId,
+          slug: mentionedAgentId,
+          displayName: "Mentioned Agent",
           companyId,
           name: "Mentioned Agent",
           role: "engineer",
@@ -962,6 +976,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
+        slug: companyId,
         name: "Paperclip",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
@@ -969,6 +984,8 @@ describe("heartbeat comment wake batching", () => {
 
       await db.insert(agents).values({
         id: agentId,
+        slug: agentId,
+        displayName: "Gateway Agent",
         companyId,
         name: "Gateway Agent",
         role: "engineer",

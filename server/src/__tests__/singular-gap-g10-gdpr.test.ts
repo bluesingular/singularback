@@ -142,6 +142,8 @@ async function buildApp(role: "owner" | "admin" | "viewer" | "none" = "owner", d
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("G10 — GDPR compliance routes", () => {
 
   it("1. POST .../gdpr/contacts/:id/erase — 200 owner erases contact", async () => {

@@ -131,6 +131,8 @@ async function buildApp(
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("companyContextMiddleware", () => {
   it("1. unauthenticated actor → ctx is null, request proceeds", async () => {
     const app = await buildApp(

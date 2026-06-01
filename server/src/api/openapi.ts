@@ -68,6 +68,25 @@ export function buildOpenApiSpec(baseUrl: string) {
           },
           required: ["title"],
         },
+        Mission: {
+          type: "object",
+          properties: {
+            id:          { type: "string", format: "uuid" },
+            title:       { type: "string" },
+            status:      { type: "string", enum: ["draft", "active", "blocked", "complete", "archived"] },
+            createdAt:   { type: "string", format: "date-time" },
+            completedAt: { type: "string", format: "date-time", nullable: true },
+          },
+          required: ["id", "title", "status", "createdAt"],
+        },
+        CreateMissionRequest: {
+          type: "object",
+          properties: {
+            title: { type: "string", maxLength: 200 },
+            brief: { type: "string" },
+          },
+          required: ["title"],
+        },
         WebhookSubscription: {
           type: "object",
           properties: {
@@ -85,7 +104,11 @@ export function buildOpenApiSpec(baseUrl: string) {
             url:    { type: "string", format: "uri" },
             events: {
               type: "array",
-              items: { type: "string" },
+              items: {
+                type: "string",
+                enum: ["task.created","task.completed","task.blocked","task.failed","task.cancelled",
+                       "mission.created","mission.completed","mission.archived","agent.status_changed","*"],
+              },
               description: "Event types to subscribe to. Use [\"*\"] for all events.",
             },
           },
@@ -228,6 +251,54 @@ export function buildOpenApiSpec(baseUrl: string) {
             "400": { description: "Validation error",      content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
             "401": { description: "Invalid API key",       content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
             "403": { description: "Read-only key",         content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+      },
+      "/missions": {
+        get: {
+          operationId: "listMissions",
+          summary: "List missions",
+          description: "Returns CEO-level missions for the authenticated company.",
+          tags: ["Missions"],
+          parameters: [
+            { name: "limit",  in: "query", schema: { type: "integer", default: 20, maximum: 100 } },
+            { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+          ],
+          responses: {
+            "200": {
+              description: "Mission list",
+              content: { "application/json": { schema: { type: "object", properties: { missions: { type: "array", items: { $ref: "#/components/schemas/Mission" } }, limit: { type: "integer" }, offset: { type: "integer" } }, required: ["missions"] } } },
+            },
+            "401": { description: "Invalid API key", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+        post: {
+          operationId: "createMission",
+          summary: "Create mission",
+          description: "Create a new CEO-level mission. The orchestrator decomposes it into tasks.",
+          tags: ["Missions"],
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { $ref: "#/components/schemas/CreateMissionRequest" } } },
+          },
+          responses: {
+            "201": { description: "Mission created", content: { "application/json": { schema: { type: "object", properties: { ok: { type: "boolean" }, mission: { $ref: "#/components/schemas/Mission" } } } } } },
+            "400": { description: "Validation error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "401": { description: "Invalid API key",  content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "403": { description: "Read-only key",    content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+      },
+      "/missions/{id}": {
+        get: {
+          operationId: "getMission",
+          summary: "Get mission",
+          tags: ["Missions"],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          responses: {
+            "200": { description: "Mission", content: { "application/json": { schema: { type: "object", properties: { ok: { type: "boolean" }, mission: { $ref: "#/components/schemas/Mission" } } } } } },
+            "401": { description: "Invalid API key", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "404": { description: "Not found",       content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
           },
         },
       },

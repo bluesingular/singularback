@@ -237,6 +237,7 @@ describeEmbeddedPostgres("heartbeat orphaned process recovery", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
@@ -244,6 +245,8 @@ describeEmbeddedPostgres("heartbeat orphaned process recovery", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",
@@ -319,6 +322,7 @@ describeEmbeddedPostgres("heartbeat orphaned process recovery", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
@@ -326,6 +330,8 @@ describeEmbeddedPostgres("heartbeat orphaned process recovery", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",

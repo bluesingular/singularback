@@ -248,6 +248,7 @@ describe("Gap E — email delivery", () => {
   const originalKey = process.env.RESEND_API_KEY;
 
   afterEach(() => {
+    vi.clearAllMocks();
     if (originalKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = originalKey;
     vi.unstubAllGlobals();

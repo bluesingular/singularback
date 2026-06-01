@@ -122,6 +122,8 @@ async function buildApp(dbOverride?: any) {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("G14 — A2A routes", () => {
 
   it("11. GET /.well-known/agent.json — 200 without auth", async () => {

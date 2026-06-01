@@ -80,6 +80,7 @@ describe("GET /invites/:token/test-resolution", () => {
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     setInviteResolutionNetworkForTest(null);
   });
 

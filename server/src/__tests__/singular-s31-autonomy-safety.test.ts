@@ -2,7 +2,7 @@
  * §31.4 — Autonomy safety evaluation tests.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   SAFETY_THRESHOLD,
   MIN_EDGE_CASES,
@@ -11,6 +11,8 @@ import {
   runAutonomySafetyEval,
   type AutonomyTier,
 } from "../evals/autonomy-safety.js";
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("§31.4 — autonomy safety constants", () => {
   it("1. safety threshold is 0.95", () => {

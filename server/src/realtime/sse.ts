@@ -34,6 +34,7 @@ export type SseEventType =
   | "agent.analysing"
   | "agent.writing"
   | "agent.tool_call"
+  | "agent.reasoning"
   | "keepalive";
 
 export interface SseEvent {
@@ -183,3 +184,19 @@ export class SseManager {
 
 /** Global SSE manager — one per server process */
 export const sseManager = new SseManager();
+
+/**
+ * __resetSseManagerForTests — clears all connections and timers.
+ * Call in beforeEach/afterEach in test files that import sseManager
+ * to prevent connection state from leaking across test files.
+ */
+export function __resetSseManagerForTests(): void {
+  for (const [companyId, conns] of sseManager["connections"]) {
+    for (const conn of conns) {
+      sseManager.removeConnection(companyId, conn.id);
+    }
+  }
+  sseManager["connections"].clear();
+  sseManager["keepaliveTimers"].clear();
+  sseManager["inactivityTimers"].clear();
+}

@@ -160,6 +160,7 @@ describeEmbeddedPostgres("executionWorkspaceService.getCloseReadiness", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: "PAP",
       requireBoardApprovalForNewAgents: false,
@@ -245,6 +246,7 @@ describeEmbeddedPostgres("executionWorkspaceService.getCloseReadiness", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: "PAP",
       requireBoardApprovalForNewAgents: false,
@@ -341,6 +343,7 @@ describeEmbeddedPostgres("executionWorkspaceService.getCloseReadiness", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: "PAP",
       requireBoardApprovalForNewAgents: false,

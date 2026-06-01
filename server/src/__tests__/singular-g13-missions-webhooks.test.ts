@@ -2,10 +2,12 @@
  * G13 — Missions API + Webhook delivery tests.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { deliverEvent, verifyWebhookSignature } from "../webhooks/delivery.js";
 
 // ── Webhook delivery ──────────────────────────────────────────────────────────
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("G13 — webhook delivery", () => {
   it("1. delivers to matching active subscriptions", async () => {

@@ -25,6 +25,7 @@ import {
 } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { assertInstanceAdmin } from "./authz.js";
+import { getLatestFleetSnapshot, computeAndPersistFleetSnapshot } from "../fleet/snapshot.js";
 
 const log = pino({ name: "admin-routes" });
 
@@ -299,6 +300,30 @@ export function adminRoutes(db: Db) {
   });
 
   // ── DELETE /admin/tenants/:companyId/impersonate ──────────────────────────
+
+  // ── Gap O: fleet registry ──────────────────────────────────────────────────
+
+  // GET /admin/fleet — latest fleet snapshot (internal Swwarm team only)
+  router.get("/admin/fleet", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const snapshot = await getLatestFleetSnapshot(db);
+      if (!snapshot) {
+        res.status(404).json({ ok: false, error: { code: "SWWARM_NO_SNAPSHOT", message: "No fleet snapshot computed yet." } });
+        return;
+      }
+      res.json({ ok: true, data: snapshot });
+    } catch (err) { next(err); }
+  });
+
+  // POST /admin/fleet/refresh — trigger an immediate recompute
+  router.post("/admin/fleet/refresh", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const snapshot = await computeAndPersistFleetSnapshot(db);
+      res.json({ ok: true, data: snapshot });
+    } catch (err) { next(err); }
+  });
 
   router.delete("/admin/tenants/:companyId/impersonate", async (req, res) => {
     const { companyId } = req.params as { companyId: string };

@@ -11,7 +11,7 @@
  *  7. detectAnomalies skips skill with < 5 recent tasks
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { detectAnomalies, refreshBaselines } from "../monitoring/behavioral.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -45,6 +45,8 @@ function makeRecentMetrics(overrides: Record<string, any> = {}) {
 }
 
 // ── detectAnomalies tests ─────────────────────────────────────────────────────
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("AG-10 — detectAnomalies", () => {
   it("1. no anomaly when metrics are within normal range", async () => {

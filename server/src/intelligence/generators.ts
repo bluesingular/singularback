@@ -277,3 +277,78 @@ export const budgetAlertGenerator: CardGenerator = async (db: Db, companyId: str
     };
   });
 };
+
+// ── §10b Weekly Review Card ────────────────────────────────────────────────────
+//
+// Surfaced every Monday (or on first sweep after the weekend) if the company
+// has any active goals or completed tasks in the last 7 days.
+//
+// Shows: completed tasks, stalled goals, delegation ratio this week.
+// Urgency 2 = informational — it's a review, not an alert.
+
+import { count, gte, sql } from "drizzle-orm";
+import { issues, embeddingMetrics } from "@paperclipai/db";
+
+export const weeklyReviewGenerator: CardGenerator = async (
+  db: Db,
+  companyId: string,
+): Promise<CandidateCard[]> => {
+  // Only surface on Mondays (day 1) or if it's been 7 days since last card
+  // The cooldown mechanism in sweep.ts handles deduplication via insightKey.
+  const now      = new Date();
+  const weekAgo  = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const [taskRow] = await db
+    .select({ done: count() })
+    .from(issues)
+    .where(
+      and(
+        eq(issues.companyId, companyId),
+        eq(issues.status, "done"),
+        gte(issues.completedAt, weekAgo),
+      ),
+    );
+
+  const completedCount = Number(taskRow?.done ?? 0);
+  if (completedCount === 0) return [];
+
+  // Active goals count
+  const [goalRow] = await db
+    .select({ active: count() })
+    .from(goals)
+    .where(
+      and(
+        eq(goals.companyId, companyId),
+        sql`${goals.status} IN ('planned','in_progress')`,
+      ),
+    );
+
+  const activeGoals = Number(goalRow?.active ?? 0);
+
+  // Latest embedding score for autonomy pct
+  const metric = await db.query.embeddingMetrics.findFirst({
+    where: eq(embeddingMetrics.companyId, companyId),
+    orderBy: (t, { desc: d }) => [d(t.weekStart)],
+    columns: { autonomousTaskPct: true },
+  });
+
+  const autoPct = Math.round(Number(metric?.autonomousTaskPct ?? 0));
+
+  // ISO week label for the insightKey — surfaces once per week
+  const weekLabel = `${now.getFullYear()}-W${String(Math.ceil((now.getDate() - now.getDay() + 10) / 7)).padStart(2, "0")}`;
+
+  const body = [
+    `${completedCount} tâche${completedCount > 1 ? "s" : ""} terminée${completedCount > 1 ? "s" : ""} cette semaine.`,
+    activeGoals > 0 ? `${activeGoals} objectif${activeGoals > 1 ? "s" : ""} en cours.` : "",
+    autoPct > 0 ? `${autoPct}% des actions exécutées en autonomie.` : "",
+  ].filter(Boolean).join(" ");
+
+  return [{
+    cardType:   "goal",
+    urgency:    2,
+    title:      "Revue hebdomadaire",
+    body,
+    insightKey: `weekly:review:${companyId}:${weekLabel}`,
+    actionUrl:  `/companies/${companyId}/dashboard`,
+  }];
+};

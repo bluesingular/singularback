@@ -86,6 +86,108 @@ export function webhookRoutes(db: Db): Router {
   const router = Router();
 
   /**
+   * GET /webhooks/whatsapp/:companyId/verify
+   *
+   * Gap G — Meta webhook verification challenge.
+   * Meta sends hub.mode=subscribe + hub.verify_token + hub.challenge.
+   * We echo hub.challenge if the verify_token matches the one stored for this company.
+   */
+  router.get("/whatsapp/:companyId/verify", async (req, res) => {
+    const { companyId } = req.params as { companyId: string };
+    const mode      = String(req.query["hub.mode"]         ?? "");
+    const token     = String(req.query["hub.verify_token"] ?? "");
+    const challenge = String(req.query["hub.challenge"]    ?? "");
+
+    // Resolve the stored verify_token for this company from integration config
+    const [integration] = await db
+      .select({ config: integrations.config })
+      .from(integrations)
+      .where(and(eq(integrations.companyId, companyId), eq(integrations.type, "whatsapp")))
+      .limit(1);
+
+    const verifyToken = (integration?.config as Record<string, unknown>)?.verifyToken as string | undefined;
+    if (!verifyToken) {
+      res.status(403).json({ error: "WhatsApp integration not configured" });
+      return;
+    }
+
+    if (mode === "subscribe" && token === verifyToken) {
+      res.status(200).send(challenge);
+    } else {
+      res.status(403).json({ error: "Webhook verification failed" });
+    }
+  });
+
+  /**
+   * POST /webhooks/whatsapp/:companyId
+   *
+   * Gap G — Inbound WhatsApp messages.
+   * Parses the Meta payload and routes to the agent via the existing webhook pipeline.
+   */
+  router.post("/whatsapp/:companyId", async (req, res) => {
+    const { companyId } = req.params as { companyId: string };
+
+    // Verify Meta's X-Hub-Signature-256 HMAC before processing.
+    // The webhookSecret is stored in the integration config at connect time.
+    // If no secret is configured the message is still accepted (Meta doesn't
+    // require a secret, but operators should configure one in production).
+    try {
+      const [waIntegration] = await db
+        .select({ config: integrations.config })
+        .from(integrations)
+        .where(and(eq(integrations.companyId, companyId), eq(integrations.type, "whatsapp")))
+        .limit(1);
+
+      const webhookSecret = (waIntegration?.config as Record<string, unknown>)?.webhookSecret as string | undefined;
+      if (webhookSecret) {
+        const valid = verifyWebhookSignature(req, webhookSecret, "custom");
+        if (!valid) {
+          logger.warn({ companyId }, "whatsapp: invalid HMAC signature — discarding");
+          res.status(200).json({ received: true }); // always 200 to Meta
+          return;
+        }
+      }
+    } catch (err) {
+      logger.error({ err, companyId }, "whatsapp: HMAC check failed");
+      res.status(200).json({ received: true });
+      return;
+    }
+
+    // Acknowledge immediately — Meta requires < 5s
+    res.status(200).json({ received: true });
+
+    // Extract sender phone from Meta webhook payload (best-effort)
+    function extractWaFrom(body: unknown): string | null {
+      try {
+        const b = body as Record<string, unknown>;
+        const entries = b.entry as unknown[];
+        const change  = ((entries?.[0] as Record<string, unknown>)?.changes as unknown[])?.[0];
+        const msgs    = ((change as Record<string, unknown>)?.value as Record<string, unknown>)?.messages as unknown[];
+        const from    = (msgs?.[0] as Record<string, unknown>)?.from;
+        return typeof from === "string" && from ? from : null;
+      } catch { return null; }
+    }
+
+    const from = extractWaFrom(req.body);
+    if (!from) {
+      logger.debug({ companyId }, "whatsapp: non-message event ignored");
+      return;
+    }
+
+    // Emit via existing webhook pipeline
+    await emit.webhookReceived({
+      endpointId:   null,
+      companyId,
+      source:       "custom",
+      payload:      { ...req.body as Record<string, unknown>, _whatsapp_from: from },
+      receivedAt:   new Date().toISOString(),
+      routingRules: [],
+    }).catch((err) => logger.error({ err, companyId }, "whatsapp: failed to emit"));
+
+    logger.info({ companyId, from }, "whatsapp: inbound message queued");
+  });
+
+  /**
    * POST /webhooks/:companyId/:id
    *
    * If :id looks like a UUID → G4 endpoint-ID path (routing rules).

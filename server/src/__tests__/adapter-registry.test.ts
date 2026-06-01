@@ -12,6 +12,7 @@ import {
 import {
   resolveExternalAdapterRegistration,
   setOverridePaused,
+  __resetForTests as resetRegistry,
 } from "../adapters/registry.js";
 
 const externalAdapter: ServerAdapterModule = {
@@ -39,9 +40,11 @@ describe("server adapter registry", () => {
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     unregisterServerAdapter("external_test");
     unregisterServerAdapter("claude_local");
     setOverridePaused("claude_local", false);
+    resetRegistry();
   });
 
   it("registers external adapters and exposes them through lookup helpers", async () => {

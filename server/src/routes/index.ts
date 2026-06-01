@@ -36,3 +36,4 @@ export { mcpServerRoutes } from "./mcp-server.js";
 export { publicApiRoutes } from "./public-api.js";
 export { a2aRoutes } from "./a2a.js";
 export { extensionRoutes } from "./extensions.js";
+export { agentMessageRoutes } from "./agent-messages.js";

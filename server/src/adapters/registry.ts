@@ -298,6 +298,10 @@ export function resolveExternalAdapterRegistration(
  * and avoid racing against the loading window.
  */
 const externalAdaptersReady: Promise<void> = (async () => {
+  // Skip disk reads during test runs — test files mock the adapters they need.
+  // The stale ~/.paperclip/adapter-plugins.json from a previous test run would
+  // otherwise pollute unrelated test files that import this module.
+  if (process.env.VITEST) return;
   try {
     const externalAdapters = await buildExternalAdapters();
     for (const externalAdapter of externalAdapters) {
@@ -465,4 +469,17 @@ export function findActiveServerAdapter(type: string): ServerAdapterModule | nul
     if (fallback) return fallback;
   }
   return adaptersByType.get(type) ?? null;
+}
+
+/**
+ * __resetForTests — clears all mutable registry state.
+ * Only exported for use in test files. Never call in production code.
+ * Restores the module to the same state as a fresh import.
+ */
+export function __resetForTests(): void {
+  adaptersByType.clear();
+  builtinFallbacks.clear();
+  pausedOverrides.clear();
+  // Re-register all builtins so tests that call getServerAdapter() still work.
+  registerBuiltInAdapters();
 }

@@ -53,6 +53,7 @@ describeEmbeddedPostgres("workspace runtime service authz helper", () => {
     const companyId = randomUUID();
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `PAP-${companyId.slice(0, 8)}`,
       requireBoardApprovalForNewAgents: false,
@@ -105,6 +106,8 @@ describeEmbeddedPostgres("workspace runtime service authz helper", () => {
     const agentId = randomUUID();
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: input.name ?? "Agent",
       companyId,
       name: input.name ?? "Agent",
       role: input.role ?? "engineer",

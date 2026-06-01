@@ -61,6 +61,7 @@ describeEmbeddedPostgres("inbox dismissals", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: "PAP",
       requireBoardApprovalForNewAgents: false,
@@ -90,6 +91,7 @@ describeEmbeddedPostgres("inbox dismissals", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: "PAP",
       requireBoardApprovalForNewAgents: false,
@@ -98,6 +100,8 @@ describeEmbeddedPostgres("inbox dismissals", () => {
     await db.insert(agents).values([
       {
         id: primaryAgentId,
+        slug: primaryAgentId,
+        displayName: "Primary",
         companyId,
         name: "Primary",
         role: "engineer",
@@ -109,6 +113,8 @@ describeEmbeddedPostgres("inbox dismissals", () => {
       },
       {
         id: secondaryAgentId,
+        slug: secondaryAgentId,
+        displayName: "Secondary",
         companyId,
         name: "Secondary",
         role: "engineer",

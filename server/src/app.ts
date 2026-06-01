@@ -34,6 +34,12 @@ import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { consoleRoutes } from "./routes/console.js";
 import { missionRoutes } from "./routes/missions.js";
 import { steerRoutes } from "./routes/steer.js";
+import { agentMessageRoutes } from "./routes/agent-messages.js";
+import { voiceRoutes } from "./routes/voice.js";
+import { documentStudioRoutes } from "./routes/document-studio.js";
+import { financialPulseRoutes } from "./routes/financial-pulse.js";
+import { ceoHealthRoutes } from "./routes/ceo-health.js";
+import { calendarIntelligenceRoutes } from "./routes/calendar-intelligence.js";
 import { partnerRoutes } from "./routes/partners.js";
 import { clientContextRoutes } from "./routes/client-contexts.js";
 import { rateLimitMiddleware, authRateLimitMiddleware } from "./middleware/rate-limit.js";
@@ -171,6 +177,12 @@ export async function createApp(
 ) {
   const app = express();
 
+  // Trust one hop of proxy headers (Cloudflare / nginx in front of this process).
+  // This makes req.ip return the real client IP from X-Forwarded-For only when
+  // the request arrives from the immediate upstream proxy — preventing IP spoofing
+  // by external clients who set X-Forwarded-For directly.
+  app.set("trust proxy", 1);
+
   // P1 — Content Security Policy
   app.use((_req, res, next) => {
     res.setHeader("Content-Security-Policy", [
@@ -284,6 +296,12 @@ export async function createApp(
   api.use(consoleRoutes(db));
   api.use(missionRoutes(db));
   api.use(steerRoutes(db));
+  api.use(agentMessageRoutes(db));
+  api.use(voiceRoutes(db));
+  api.use(documentStudioRoutes(db));
+  api.use(financialPulseRoutes(db));
+  api.use(ceoHealthRoutes(db));
+  api.use(calendarIntelligenceRoutes(db));
   api.use(partnerRoutes(db));
   api.use(clientContextRoutes(db));
   api.use(awayModeRoutes(db));

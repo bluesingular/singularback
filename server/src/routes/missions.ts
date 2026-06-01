@@ -22,14 +22,27 @@ import { missions, missionMessages, missionTasks, issues, costRecords } from "@p
 import { assertCompanyAccess } from "./authz.js";
 import { approvePartialOutput, requestPartialCompletion } from "../tasks/partial-output.js";
 import { recordOutcome } from "../learning/outcome-attribution.js";
+import {
+  setMissionSkillOverrides,
+  getMissionSkillOverrides,
+  getEffectiveSkillsForAgent,
+  SkillNotInstalledError,
+} from "../missions/skill-composition.js";
 import pino from "pino";
 
 const logger = pino({ name: "missions" });
 
+const skillOverrideSchema = z.object({
+  agent_id:          z.string().uuid(),
+  additional_skills: z.array(z.string()).default([]),
+  removed_skills:    z.array(z.string()).default([]),
+});
+
 const createMissionSchema = z.object({
-  title: z.string().min(1).max(200),
-  brief: z.string().min(1),
+  title:          z.string().min(1).max(200),
+  brief:          z.string().min(1),
   orchestratorId: z.string().uuid().optional(),
+  skillOverrides: z.array(skillOverrideSchema).optional(),
 });
 
 const addMessageSchema = z.object({
@@ -86,6 +99,14 @@ export function missionRoutes(db: Db): Router {
       orchestratorId: body.orchestratorId ?? null,
       status:         "active",
     }).returning();
+
+    if (body.skillOverrides && body.skillOverrides.length > 0) {
+      await setMissionSkillOverrides(db, {
+        missionId: mission.id,
+        companyId,
+        overrides: body.skillOverrides,
+      });
+    }
 
     logger.info({ companyId, missionId: mission.id }, "missions: created");
     res.status(201).json(mission);
@@ -175,6 +196,50 @@ export function missionRoutes(db: Db): Router {
     if (!updated) { res.status(404).json({ error: "Mission not found" }); return; }
     res.json(updated);
   });
+
+  // ── AG-15: skill overrides ────────────────────────────────────────────────────
+
+  // GET /companies/:companyId/missions/:missionId/skill-overrides
+  router.get("/companies/:companyId/missions/:missionId/skill-overrides", async (req, res, next) => {
+    try {
+      const { companyId, missionId } = req.params as { companyId: string; missionId: string };
+      assertCompanyAccess(req, companyId);
+      const overrides = await getMissionSkillOverrides(db, missionId, companyId);
+      res.json({ ok: true, data: overrides ?? [] });
+    } catch (err) { next(err); }
+  });
+
+  // PUT /companies/:companyId/missions/:missionId/skill-overrides
+  router.put("/companies/:companyId/missions/:missionId/skill-overrides", async (req, res, next) => {
+    try {
+      const { companyId, missionId } = req.params as { companyId: string; missionId: string };
+      assertCompanyAccess(req, companyId);
+      const overrides = z.array(skillOverrideSchema).parse(req.body.overrides ?? req.body);
+      await setMissionSkillOverrides(db, { missionId, companyId, overrides });
+      res.json({ ok: true, data: null });
+    } catch (err) {
+      if (err instanceof SkillNotInstalledError) {
+        res.status(422).json({ ok: false, error: { code: "SWWARM_SKILL_NOT_INSTALLED", message: err.message } });
+        return;
+      }
+      next(err);
+    }
+  });
+
+  // GET /companies/:companyId/missions/:missionId/agents/:agentId/effective-skills
+  router.get(
+    "/companies/:companyId/missions/:missionId/agents/:agentId/effective-skills",
+    async (req, res, next) => {
+      try {
+        const { companyId, missionId, agentId } = req.params as {
+          companyId: string; missionId: string; agentId: string;
+        };
+        assertCompanyAccess(req, companyId);
+        const skills = await getEffectiveSkillsForAgent(db, { missionId, companyId, agentId });
+        res.json({ ok: true, data: skills });
+      } catch (err) { next(err); }
+    },
+  );
 
   // ── WAR-10: dispatcher health (plain-language, never technical) ─────────────
   // GET /companies/:companyId/dispatcher-health

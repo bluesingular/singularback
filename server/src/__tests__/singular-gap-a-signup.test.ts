@@ -148,6 +148,8 @@ async function buildApp(db: unknown, betterAuth?: unknown) {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("Gap A — POST /api/v1/auth/signup", () => {
   it("1. betterAuth not configured → 400", async () => {
     const app = await buildApp(makeDb());

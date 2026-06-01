@@ -53,6 +53,7 @@ import {
 } from "./workers/morningIntelligence.worker.js";
 import { initCostResetWorker } from "./workers/costReset.worker.js";
 import { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./workers/batchItem.worker.js";
+import { initFleetSnapshotWorker, scheduleFleetSnapshot } from "./workers/fleetSnapshot.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -638,6 +639,12 @@ export async function startServer(): Promise<StartedServer> {
     initMorningIntelligenceWorker(db as any);
     void scheduleIntelligenceSweep().catch((err) => {
       logger.error({ err }, "Morning intelligence sweep scheduling failed");
+    });
+
+    // Gap O: Fleet registry snapshot — every 6 hours
+    initFleetSnapshotWorker(db as any);
+    void scheduleFleetSnapshot().catch((err) => {
+      logger.error({ err }, "Fleet snapshot scheduling failed");
     });
 
     // Routine scheduler still uses setInterval for now — will be migrated

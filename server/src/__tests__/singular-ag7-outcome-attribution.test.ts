@@ -62,6 +62,8 @@ function makeDb(taskLinks: any[], attributionCounts: any[] = [], existingPattern
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("AG-7 — recordOutcome", () => {
   it("1. creates attribution rows for non-cancelled tasks", async () => {
     const tasks = [

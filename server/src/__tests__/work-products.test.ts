@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { workProductService } from "../services/work-products.ts";
 
 function createWorkProductRow(overrides: Partial<Record<string, unknown>> = {}) {
@@ -27,6 +27,8 @@ function createWorkProductRow(overrides: Partial<Record<string, unknown>> = {}) 
     ...overrides,
   };
 }
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("workProductService", () => {
   it("uses a transaction when creating a new primary work product", async () => {

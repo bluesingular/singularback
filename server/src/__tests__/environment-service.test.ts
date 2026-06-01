@@ -49,6 +49,7 @@ describeEmbeddedPostgres("environmentService leases", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Acme",
       status: "active",
       createdAt: new Date(),
@@ -56,6 +57,8 @@ describeEmbeddedPostgres("environmentService leases", () => {
     });
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",
@@ -146,6 +149,7 @@ describeEmbeddedPostgres("environmentService leases", () => {
     const companyId = randomUUID();
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Acme",
       status: "active",
       createdAt: new Date(),
@@ -167,6 +171,7 @@ describeEmbeddedPostgres("environmentService leases", () => {
     const companyId = randomUUID();
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Acme",
       status: "active",
       createdAt: new Date(),
@@ -204,6 +209,7 @@ describeEmbeddedPostgres("environmentService leases", () => {
     const companyId = randomUUID();
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Acme",
       status: "active",
       createdAt: new Date(),

@@ -1,10 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { buildSkillMentionHref } from "@paperclipai/shared";
 import {
   applyRunScopedMentionedSkillKeys,
   extractMentionedSkillIdsFromSources,
   resolveExecutionRunAdapterConfig,
 } from "../services/heartbeat.ts";
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("resolveExecutionRunAdapterConfig", () => {
   it("overlays project env on top of agent env and unions secret keys", async () => {

@@ -113,6 +113,7 @@ describe("WHAM used_percent normalization via fetchCodexQuota", () => {
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     vi.unstubAllGlobals();
   });
 

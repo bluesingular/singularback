@@ -15,6 +15,7 @@ const mockLogActivity = vi.hoisted(() => vi.fn());
 vi.mock("../services/index.js", () => ({
   sidebarPreferenceService: () => mockSidebarPreferenceService,
   logActivity: mockLogActivity,
+  packInstallService: () => ({ install: vi.fn(), listAvailablePacks: vi.fn(), loadPackManifest: vi.fn() }),
 }));
 
 function createApp(actor: Record<string, unknown>) {

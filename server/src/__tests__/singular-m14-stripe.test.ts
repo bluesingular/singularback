@@ -104,6 +104,8 @@ function makeSubDeleted(): StripeEventPayload {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("handleStripeWebhook", () => {
   beforeEach(() => { mockEventId = `evt_${Math.random().toString(36).slice(2)}`; });
 

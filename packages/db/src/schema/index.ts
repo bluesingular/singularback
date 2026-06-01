@@ -152,3 +152,6 @@ export {
   embeddingMetrics,
   awayMode,
 } from "./eval_infrastructure.js";
+
+// Singular.blue Gap O: agent fleet registry (admin-only fleet snapshots)
+export { fleetSnapshots } from "./fleet_snapshots.js";

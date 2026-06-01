@@ -3,6 +3,8 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { vi } from "vitest";
 import type { ServerAdapterModule } from "../adapters/index.js";
+import { removeAdapterPlugin } from "../services/adapter-plugin-store.js";
+import { __resetForTests as resetRegistry } from "../adapters/registry.js";
 
 const overridingConfigSchemaAdapter: ServerAdapterModule = {
   type: "claude_local",
@@ -31,6 +33,22 @@ let findServerAdapter: typeof import("../adapters/registry.js").findServerAdapte
 let setOverridePaused: typeof import("../adapters/registry.js").setOverridePaused;
 let adapterRoutes: typeof import("../routes/adapters.js").adapterRoutes;
 let errorHandler: typeof import("../middleware/index.js").errorHandler;
+
+const mockPluginLoader = vi.hoisted(() => ({
+  loadExternalAdapterPackage: vi.fn(),
+  getUiParserSource: vi.fn(),
+  getOrExtractUiParserSource: vi.fn(),
+  reloadExternalAdapter: vi.fn(),
+  buildExternalAdapters: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("../adapters/plugin-loader.js", () => ({
+  loadExternalAdapterPackage: mockPluginLoader.loadExternalAdapterPackage,
+  getUiParserSource: mockPluginLoader.getUiParserSource,
+  getOrExtractUiParserSource: mockPluginLoader.getOrExtractUiParserSource,
+  reloadExternalAdapter: mockPluginLoader.reloadExternalAdapter,
+  buildExternalAdapters: mockPluginLoader.buildExternalAdapters,
+}));
 
 function createApp() {
   const app = express();
@@ -75,8 +93,10 @@ describe("adapter routes", () => {
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     setOverridePaused("claude_local", false);
     unregisterServerAdapter("claude_local");
+    resetRegistry();
   });
 
   it("GET /api/adapters includes capabilities object for each adapter", async () => {
@@ -207,5 +227,8 @@ describe("adapter routes", () => {
     expect(registered?.sessionManagement).toEqual(declaredSessionManagement);
 
     unregisterServerAdapter(HOT_INSTALL_TYPE);
+    // Remove from the on-disk plugin store so subsequent test workers don't try
+    // to load the non-existent /tmp/fake-hot-install-adapter package.
+    removeAdapterPlugin(HOT_INSTALL_TYPE);
   });
 });

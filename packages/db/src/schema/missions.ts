@@ -6,7 +6,7 @@
  * Orchestrator creates tasks (issues) from missions.
  */
 
-import { pgTable, uuid, varchar, text, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, jsonb, timestamp, index } from "drizzle-orm/pg-core";
 import { companies } from "./companies.js";
 import { agents } from "./agents.js";
 import { issues } from "./issues.js";
@@ -20,6 +20,8 @@ export const missions = pgTable(
     brief:         text("brief").notNull(),
     status:        text("status").notNull().default("active"),
     orchestratorId: uuid("orchestrator_id").references(() => agents.id, { onDelete: "set null" }),
+    // AG-15: per-mission skill overrides — does not modify agent base config
+    skillOverrides: jsonb("skill_overrides"),
     createdAt:     timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     completedAt:   timestamp("completed_at", { withTimezone: true }),
     archivedAt:    timestamp("archived_at", { withTimezone: true }),

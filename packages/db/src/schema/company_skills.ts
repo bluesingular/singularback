@@ -26,6 +26,9 @@ export const companySkills = pgTable(
     sourceRef: text("source_ref"),
     trustLevel: text("trust_level").notNull().default("markdown_only"),
     compatibility: text("compatibility").notNull().default("compatible"),
+    // §20: skill lineage — set at pack install when copied from a master skill
+    sourceSkillId:  uuid("source_skill_id"),   // master skill this was copied from
+    masterVersion:  text("master_version"),     // master version at copy time
     // G2: capability declaration — mirrors SKILL.md frontmatter for LLM routing
     gdprRequired: boolean("gdpr_required").notNull().default(false),
     tier:         smallint("tier").notNull().default(1),

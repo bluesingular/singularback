@@ -385,7 +385,7 @@ export function agentService(db: Db) {
 
     getById,
 
-    create: async (companyId: string, data: Omit<typeof agents.$inferInsert, "companyId">) => {
+    create: async (companyId: string, data: Omit<typeof agents.$inferInsert, "companyId" | "slug" | "displayName"> & { slug?: string; displayName?: string }) => {
       if (data.reportsTo) {
         await ensureManager(companyId, data.reportsTo);
       }
@@ -398,9 +398,14 @@ export function agentService(db: Db) {
 
       const role = data.role ?? "general";
       const normalizedPermissions = normalizeAgentPermissions(data.permissions, role);
+      // WAR-1: ensure slug and displayName are always populated.
+      // Callers that predate the identity model won't pass these fields,
+      // so we derive safe defaults here rather than forcing every call-site to change.
+      const slug        = (data as any).slug        ?? uniqueName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const displayName = (data as any).displayName ?? uniqueName;
       const created = await db
         .insert(agents)
-        .values({ ...data, name: uniqueName, companyId, role, permissions: normalizedPermissions })
+        .values({ ...data, name: uniqueName, slug, displayName, companyId, role, permissions: normalizedPermissions })
         .returning()
         .then((rows) => rows[0]);
 

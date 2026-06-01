@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import express from "express";
 import request from "supertest";
 import { boardMutationGuard } from "../middleware/board-mutation-guard.js";
@@ -24,6 +24,8 @@ function createApp(
   });
   return app;
 }
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("boardMutationGuard", () => {
   it("allows safe methods for board actor", async () => {

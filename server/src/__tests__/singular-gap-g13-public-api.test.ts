@@ -21,6 +21,8 @@ import { createHash } from "node:crypto";
 
 // ── Import helpers (no route-level mocks needed here) ────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("G13 — Public API middleware + OpenAPI spec", () => {
 
   // ── 1. hashApiKey ──────────────────────────────────────────────────────────

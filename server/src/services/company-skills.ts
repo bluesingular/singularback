@@ -165,13 +165,15 @@ function selectCompanySkillColumns() {
     sourceRef: companySkills.sourceRef,
     trustLevel: companySkills.trustLevel,
     compatibility: companySkills.compatibility,
-    gdprRequired: companySkills.gdprRequired,
-    tier:         companySkills.tier,
-    aiActRisk:    companySkills.aiActRisk,
+    gdprRequired:  companySkills.gdprRequired,
+    tier:          companySkills.tier,
+    aiActRisk:     companySkills.aiActRisk,
     fileInventory: companySkills.fileInventory,
-    metadata: companySkills.metadata,
-    createdAt: companySkills.createdAt,
-    updatedAt: companySkills.updatedAt,
+    metadata:      companySkills.metadata,
+    sourceSkillId: companySkills.sourceSkillId,
+    masterVersion: companySkills.masterVersion,
+    createdAt:     companySkills.createdAt,
+    updatedAt:     companySkills.updatedAt,
   };
 }
 

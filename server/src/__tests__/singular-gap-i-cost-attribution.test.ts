@@ -8,7 +8,7 @@
  *  4. Mission cost endpoint: totalEur computed correctly from micro-euros
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { recordUsage, calculateCostMicro, type RecordUsageParams } from "../costs/service.js";
 
 // ── Mock DB ───────────────────────────────────────────────────────────────────
@@ -36,6 +36,8 @@ function makeDb() {
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("Gap I — cost attribution", () => {
   it("1. recordUsage writes missionId when provided", async () => {

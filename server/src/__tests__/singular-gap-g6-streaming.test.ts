@@ -59,6 +59,8 @@ function makeUsageChunk(promptTokens: number, completionTokens: number) {
 
 // ── Tests: callLLMStream ───────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("G6 — callLLMStream", () => {
   beforeEach(() => {
     vi.resetModules();

@@ -1,6 +1,6 @@
 import express from "express";
 import request from "supertest";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { companyRoutes } from "../routes/companies.js";
 
 vi.mock("../services/index.js", () => ({
@@ -36,7 +36,10 @@ vi.mock("../services/index.js", () => ({
     saveIssueVote: vi.fn(),
   }),
   logActivity: vi.fn(),
+  packInstallService: () => ({ install: vi.fn(), listAvailablePacks: vi.fn(), loadPackManifest: vi.fn() }),
 }));
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("company routes malformed issue path guard", () => {
   it("returns a clear error when companyId is missing for issues list path", async () => {

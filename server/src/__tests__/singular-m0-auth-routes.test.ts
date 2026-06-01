@@ -115,6 +115,8 @@ async function buildApp(opts: {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("GET /api/v1/auth/me", () => {
   it("1. unauthenticated → 401", async () => {
     const app = await buildApp({

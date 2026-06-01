@@ -2273,5 +2273,57 @@ export function pluginRoutes(
     });
   });
 
+  // Scoped plugin API routes — dispatch manifest-declared routes to the plugin worker.
+  // Route: GET|POST /plugins/:pluginId/api/:routeKey
+  // Manifest: plugin.manifestJson.apiRoutes[].{ routeKey, method, path, auth, companyResolution }
+  router.all("/plugins/:pluginId/api/:routeKey", async (req, res) => {
+    const { pluginId, routeKey } = req.params;
+
+    const plugin = await resolvePlugin(registry, pluginId);
+    if (!plugin) return res.status(404).json({ error: "Plugin not found" });
+
+    const manifest = (plugin.manifestJson as unknown) as Record<string, unknown> | null;
+    const apiRoutes = (manifest?.apiRoutes ?? []) as Array<{
+      routeKey: string;
+      method: string;
+      companyResolution?: { from: string; key: string };
+    }>;
+
+    const routeDef = apiRoutes.find(
+      (r) => r.routeKey === routeKey && r.method.toUpperCase() === req.method.toUpperCase(),
+    );
+    if (!routeDef) return res.status(404).json({ error: "Route not found" });
+
+    // Resolve company ID from the declared source
+    let companyId: string | undefined;
+    if (routeDef.companyResolution?.from === "query") {
+      companyId = req.query[routeDef.companyResolution.key] as string | undefined;
+    } else if (routeDef.companyResolution?.from === "body") {
+      companyId = req.body?.[routeDef.companyResolution.key];
+    } else if (routeDef.companyResolution?.from === "param") {
+      companyId = (req.params as Record<string, string>)[routeDef.companyResolution.key];
+    }
+
+    if (!bridgeDeps?.workerManager) {
+      return res.status(503).json({ error: "Worker manager unavailable" });
+    }
+
+    // Dispatch to the plugin worker via performAction (closest to an API request handler).
+    // The plugin receives { routeKey, method, companyId, query, body } as the action params.
+    const rawResult = await bridgeDeps.workerManager.call(plugin.id, "performAction", {
+      key: "handleApiRequest",
+      params: {
+        routeKey,
+        method: req.method,
+        companyId,
+        query: req.query as Record<string, string>,
+        body: req.body ?? {},
+      },
+    }) as unknown;
+
+    const result = rawResult as { status?: number; body?: unknown } | null;
+    res.status(result?.status ?? 200).json(result?.body ?? {});
+  });
+
   return router;
 }

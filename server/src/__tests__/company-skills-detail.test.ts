@@ -44,6 +44,7 @@ describeEmbeddedPostgres("companySkillService.detail", () => {
   }, 20_000);
 
   afterEach(async () => {
+    vi.clearAllMocks();
     mockListSkills.mockClear();
     await db.delete(agents);
     await db.delete(companySkills);
@@ -108,6 +109,7 @@ describeEmbeddedPostgres("companySkillService.detail", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -129,6 +131,8 @@ describeEmbeddedPostgres("companySkillService.detail", () => {
     });
     await db.insert(agents).values({
       id: randomUUID(),
+      slug: randomUUID(),
+      displayName: "Reviewer",
       companyId,
       name: "Reviewer",
       role: "engineer",
@@ -165,6 +169,7 @@ describeEmbeddedPostgres("companySkillService.detail", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -203,6 +208,8 @@ describeEmbeddedPostgres("companySkillService.detail", () => {
     ]);
     await db.insert(agents).values({
       id: randomUUID(),
+      slug: randomUUID(),
+      displayName: "Reviewer",
       companyId,
       name: "Reviewer",
       role: "engineer",

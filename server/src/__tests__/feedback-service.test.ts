@@ -112,6 +112,7 @@ describe("feedbackService.saveIssueVote", () => {
   }, 20_000);
 
   afterEach(async () => {
+    vi.clearAllMocks();
     await db.delete(feedbackExports);
     await db.delete(feedbackVotes);
     await db.delete(instanceSettings);
@@ -148,6 +149,7 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `F${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -155,6 +157,8 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",
@@ -208,6 +212,7 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `R${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -216,9 +221,9 @@ describe("feedbackService.saveIssueVote", () => {
     await db.insert(companySkills).values([
       {
         id: randomUUID(),
+        slug: randomUUID(),
         companyId,
         key: "paperclipai/paperclip/paperclip",
-        slug: "paperclip",
         name: "Paperclip",
         markdown: "# Paperclip",
         sourceType: "catalog",
@@ -228,9 +233,9 @@ describe("feedbackService.saveIssueVote", () => {
       },
       {
         id: randomUUID(),
+        slug: randomUUID(),
         companyId,
         key: "octo/research/public-skill",
-        slug: "public-skill",
         name: "Public Skill",
         markdown: "# Public Skill",
         sourceType: "github",
@@ -242,6 +247,8 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",
@@ -352,6 +359,7 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `D${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -359,6 +367,8 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",
@@ -421,6 +431,7 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -428,6 +439,8 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "TraceCollector",
       companyId,
       name: "TraceCollector",
       role: "engineer",
@@ -990,6 +1003,7 @@ describe("feedbackService.saveIssueVote", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `H${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,

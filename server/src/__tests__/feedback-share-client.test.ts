@@ -11,6 +11,7 @@ describe("feedback trace share client", () => {
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     vi.restoreAllMocks();
   });
 

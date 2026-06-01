@@ -14,6 +14,7 @@
  */
 
 import pino from "pino";
+import { registerWhatsAppActionType } from "../integrations/whatsapp.js";
 
 const logger = pino({ name: "builtin-actions" });
 
@@ -159,3 +160,7 @@ registerActionType({
     return `Requête ${payload.queryTemplate} sur ${payload.integrationSlug}`;
   },
 });
+
+// Gap G: WhatsApp Business API connector
+// Registered at startup; credentials resolved lazily from Vault at call time.
+registerWhatsAppActionType();

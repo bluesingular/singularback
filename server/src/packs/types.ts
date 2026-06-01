@@ -22,7 +22,15 @@ export interface PackAgentHandoff {
 export interface PackAgent {
   slug:        string;
   name:        string;
+  /** Customer-facing callsign (defaults to name if omitted) */
+  displayName?: string;
   description: string;
+  /** One of 6 approved hex values. Assigned sequentially at install if omitted. */
+  colour?:     string;
+  /** soul.md template — interpolated with Company DNA at install time */
+  soulTemplate?: string;
+  /** [[CONSTITUTION_EXTENSION]] block appended to the base constitution */
+  constitutionExtension?: string;
   /** LLM model routing key, e.g. "T1_FR" */
   modelTier:   string;
   /** Skill slugs this agent is assigned to */

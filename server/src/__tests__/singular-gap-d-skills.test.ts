@@ -152,6 +152,8 @@ async function buildApp(opts: Parameters<typeof makeDb>[0] = {}, isAdmin = true)
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("Gap D — Admin skill routes", () => {
   it("1. GET /admin/skills/pending — 200 with versions", async () => {
     const { app } = await buildApp();

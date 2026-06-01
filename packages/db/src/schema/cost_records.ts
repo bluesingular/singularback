@@ -16,5 +16,8 @@ export const costRecords = pgTable("cost_records", {
   outputTokens: integer("output_tokens").notNull(),
   costEurMicro: integer("cost_eur_micro").notNull(), // micro-euros (1 EUR = 1,000,000 micro-EUR)
   billingMonth: text("billing_month").notNull(),     // 'YYYY-MM'
+  // Gap I: cost attribution per mission/goal for ROI calculation
+  missionId:    uuid("mission_id"),
+  goalId:       uuid("goal_id"),
   createdAt:    timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

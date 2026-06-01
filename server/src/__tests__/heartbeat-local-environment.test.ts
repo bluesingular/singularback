@@ -96,6 +96,7 @@ describeEmbeddedPostgres("heartbeat local environment lifecycle", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
@@ -103,6 +104,8 @@ describeEmbeddedPostgres("heartbeat local environment lifecycle", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "ProcessAgent",
       companyId,
       name: "ProcessAgent",
       role: "engineer",

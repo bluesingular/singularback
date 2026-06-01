@@ -20,6 +20,7 @@ describe("TelemetryClient periodic flush", () => {
   });
 
   afterEach(() => {
+    vi.clearAllMocks();
     vi.useRealTimers();
     vi.restoreAllMocks();
   });

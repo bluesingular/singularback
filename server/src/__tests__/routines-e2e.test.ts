@@ -179,6 +179,7 @@ describeEmbeddedPostgres("routine routes end-to-end", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
@@ -186,6 +187,8 @@ describeEmbeddedPostgres("routine routes end-to-end", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",

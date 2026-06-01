@@ -18,6 +18,8 @@
 
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("G15 — Action type registry service", () => {
 
   // ── 1. signPayload ────────────────────────────────────────────────────────

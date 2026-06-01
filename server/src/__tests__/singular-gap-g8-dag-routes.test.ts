@@ -6,7 +6,7 @@
 
 import express from "express";
 import request from "supertest";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { errorHandler } from "../middleware/error-handler.js";
 
 // ── Static mocks ──────────────────────────────────────────────────────────────
@@ -46,6 +46,8 @@ async function buildRouteApp(role: "operator" | "viewer" | "owner" = "operator")
 }
 
 // ── Route tests ───────────────────────────────────────────────────────────────
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("G8 — Task DAG routes", () => {
   it("12. POST .../tasks/:id/blocks — 201 creates dependency", async () => {

@@ -361,12 +361,15 @@ describeEmbeddedPostgres("cost and finance aggregate overflow handling", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "Cost Agent",
       companyId,
       name: "Cost Agent",
       role: "engineer",
@@ -434,6 +437,7 @@ describeEmbeddedPostgres("cost and finance aggregate overflow handling", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,

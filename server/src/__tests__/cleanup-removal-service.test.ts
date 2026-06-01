@@ -63,6 +63,7 @@ describeEmbeddedPostgres("cleanup removal services", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
@@ -70,6 +71,8 @@ describeEmbeddedPostgres("cleanup removal services", () => {
 
     await db.insert(agents).values({
       id: agentId,
+      slug: agentId,
+      displayName: "CodexCoder",
       companyId,
       name: "CodexCoder",
       role: "engineer",
@@ -158,9 +161,9 @@ describeEmbeddedPostgres("cleanup removal services", () => {
 
     await db.insert(companySkills).values({
       id: randomUUID(),
+      slug: randomUUID(),
       companyId,
       key: "paperclipai/paperclip/paperclip",
-      slug: "paperclip",
       name: "Paperclip",
       markdown: "# Paperclip",
     });

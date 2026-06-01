@@ -63,9 +63,14 @@ const Inscription = lazy(() => import("./pages/singular/Inscription").then(m => 
 const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then(m => ({ default: m.CataloguePacks })));
 const SuccessPaiement = lazy(() => import("./pages/singular/SuccessPaiement").then(m => ({ default: m.SuccessPaiement })));
 const ConfigAgent    = lazy(() => import("./pages/singular/ConfigAgent").then(m => ({ default: m.ConfigAgent })));
-const AdminLayout    = lazy(() => import("./pages/singular/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
-const AdminHealth    = lazy(() => import("./pages/singular/admin/AdminHealth").then(m => ({ default: m.AdminHealth })));
-const AdminTenants   = lazy(() => import("./pages/singular/admin/AdminTenants").then(m => ({ default: m.AdminTenants })));
+const AdminLayout       = lazy(() => import("./pages/singular/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
+const AdminHealth       = lazy(() => import("./pages/singular/admin/AdminHealth").then(m => ({ default: m.AdminHealth })));
+const AdminTenants      = lazy(() => import("./pages/singular/admin/AdminTenants").then(m => ({ default: m.AdminTenants })));
+const VoiceAgent        = lazy(() => import("./pages/singular/VoiceAgent"));
+const DocumentStudio    = lazy(() => import("./pages/singular/DocumentStudio"));
+const FinancialPulsePage = lazy(() => import("./pages/singular/FinancialPulse"));
+const CeoHealth         = lazy(() => import("./pages/singular/CeoHealth"));
+const CalendarBriefing  = lazy(() => import("./pages/singular/CalendarBriefing"));
 const AdminTenantDetail = lazy(() => import("./pages/singular/admin/AdminTenantDetail").then(m => ({ default: m.AdminTenantDetail })));
 const AdminSkills       = lazy(() => import("./pages/singular/admin/AdminSkills").then(m => ({ default: m.AdminSkills })));
 const AdminSkillEditor  = lazy(() => import("./pages/singular/admin/AdminSkillEditor").then(m => ({ default: m.AdminSkillEditor })));
@@ -168,6 +173,11 @@ function boardRoutes() {
       <Route path="missions/archives" element={<Suspense fallback={null}><MissionsArchive /></Suspense>} />
       <Route path="rapports" element={<Suspense fallback={null}><Rapports /></Suspense>} />
       <Route path="contacts" element={<Suspense fallback={null}><Contacts /></Suspense>} />
+      <Route path="note-vocale" element={<Suspense fallback={null}><VoiceAgent /></Suspense>} />
+      <Route path="studio-documents" element={<Suspense fallback={null}><DocumentStudio /></Suspense>} />
+      <Route path="sante-financiere" element={<Suspense fallback={null}><FinancialPulsePage /></Suspense>} />
+      <Route path="ratio-ceo" element={<Suspense fallback={null}><CeoHealth /></Suspense>} />
+      <Route path="briefing-reunion" element={<Suspense fallback={null}><CalendarBriefing /></Suspense>} />
       <Route path="parametres" element={<Suspense fallback={null}><Parametres /></Suspense>} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="onboarding" element={<OnboardingRoutePage />} />

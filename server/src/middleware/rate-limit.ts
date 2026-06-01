@@ -67,11 +67,11 @@ setInterval(() => {
 // ── Middleware ────────────────────────────────────────────────────────────────
 
 function getClientIp(req: any): string {
-  return (
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
-    req.socket?.remoteAddress ??
-    "unknown"
-  );
+  // Use req.ip which respects app.set("trust proxy") configured at startup.
+  // This ensures X-Forwarded-For is only trusted when the request arrives
+  // from a known reverse proxy — preventing IP spoofing via forged headers.
+  // Fallback to socket address when req.ip is unavailable (e.g. in tests).
+  return (req.ip as string | undefined) ?? req.socket?.remoteAddress ?? "unknown";
 }
 
 /**

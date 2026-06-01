@@ -163,6 +163,7 @@ describe("Gap H -- WebPush unsubscribe route", () => {
 
 describe("Gap H -- sendWebPush", () => {
   afterEach(() => {
+    vi.clearAllMocks();
     vi.resetModules();
     delete process.env.VAPID_PUBLIC_KEY;
     delete process.env.VAPID_PRIVATE_KEY;
@@ -212,20 +213,20 @@ describe("Gap H -- sendWebPush", () => {
 describe("Gap H -- SW and manifest", () => {
   it("13. SW cache name is swwarm-v1", async () => {
     const fs = await import("fs/promises");
-    const sw = await fs.readFile("../ui/public/sw.js", "utf8");
+    const sw = await fs.readFile(new URL("../../../ui/public/sw.js", import.meta.url).pathname, "utf8");
     expect(sw).toContain("swwarm-v1");
   });
 
   it("14. SW push handler parses JSON payload", async () => {
     const fs = await import("fs/promises");
-    const sw = await fs.readFile("../ui/public/sw.js", "utf8");
+    const sw = await fs.readFile(new URL("../../../ui/public/sw.js", import.meta.url).pathname, "utf8");
     expect(sw).toContain("event.data.json()");
     expect(sw).toContain("showNotification");
   });
 
   it("15. site.webmanifest theme_color is Swwarm green", async () => {
     const fs = await import("fs/promises");
-    const manifest = JSON.parse(await fs.readFile("../ui/public/site.webmanifest", "utf8"));
+    const manifest = JSON.parse(await fs.readFile(new URL("../../../ui/public/site.webmanifest", import.meta.url).pathname, "utf8"));
     expect(manifest.theme_color).toBe("#1A9E68");
     expect(manifest.name).toBe("Swwarm");
   });

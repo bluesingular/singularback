@@ -51,6 +51,7 @@ describeEmbeddedPostgres("companySkillService.list", () => {
 
     await db.insert(companies).values({
       id: companyId,
+      slug: companyId,
       name: "Paperclip",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
@@ -58,9 +59,9 @@ describeEmbeddedPostgres("companySkillService.list", () => {
 
     await db.insert(companySkills).values({
       id: skillId,
+      slug: skillId,
       companyId,
       key: `company/${companyId}/heavy-skill`,
-      slug: "heavy-skill",
       name: "Heavy Skill",
       description: "Large skill used for list projection regression coverage.",
       markdown: `# Heavy Skill\n\n${"x".repeat(250_000)}`,
@@ -79,8 +80,8 @@ describeEmbeddedPostgres("companySkillService.list", () => {
     expect(skill).not.toHaveProperty("markdown");
     expect(skill).toMatchObject({
       id: skillId,
+      slug: skillId,
       key: `company/${companyId}/heavy-skill`,
-      slug: "heavy-skill",
       name: "Heavy Skill",
       sourceType: "local_path",
       sourceLocator: skillDir,

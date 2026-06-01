@@ -52,6 +52,8 @@ function makeHandoffDb({
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("evaluateHandoffs", () => {
   const BASE_CTX = {
     companyId: "co-1",

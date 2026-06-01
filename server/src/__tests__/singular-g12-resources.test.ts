@@ -2,7 +2,7 @@
  * G12 — MCP resources/list + resources/read tests.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleJsonRpc, MCP_PROTOCOL_VERSION } from "../mcp/server.js";
 
 const COMPANY_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -17,6 +17,8 @@ function makeDb(memoryRows: any[] = []) {
   } as any;
   return db;
 }
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("G12 — resources/list", () => {
   it("1. resources/list returns memory entries as MCP resources", async () => {

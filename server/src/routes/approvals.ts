@@ -371,6 +371,13 @@ export function approvalRoutes(db: Db) {
     try {
       const { id } = req.params as { id: string };
 
+      // Security: verify the approval belongs to the authenticated company
+      // before allowing any write — same guard every other sensitive route uses.
+      if (!(await requireApprovalAccess(req, id))) {
+        res.status(404).json({ error: "Approval not found" });
+        return;
+      }
+
       const parsed = editBody.safeParse(req.body);
       if (!parsed.success) {
         res.status(400).json({ error: parsed.error.issues[0]?.message });

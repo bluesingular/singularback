@@ -2,13 +2,15 @@
  * AG-14 — Counterfactual explainability store tests.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   isHighRiskSkill,
   generateAndStore,
   formatStoredForExport,
   type StoredExplanation,
 } from "../compliance/counterfactual-store.js";
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("AG-14 — isHighRiskSkill", () => {
   it("1. cv_qualification is high-risk", () => {

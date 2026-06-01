@@ -28,10 +28,14 @@ import {
   relationshipGapGenerator,
   budgetAlertGenerator,
 } from "../intelligence/sweep.js";
+import { weeklyReviewGenerator } from "../intelligence/generators.js";
 import { refreshBaselines, detectAnomalies } from "../monitoring/behavioral.js";
 import { computeOptimalTiming } from "../contacts/timing.js";
 import { runMemoryCorrectnessTests } from "../evals/memory-correctness.js";
 import { computeAndStoreEmbeddingMetrics } from "../analytics/embedding-depth.js";
+import { financialAlertGenerator } from "../intelligence/financial-pulse.js";
+import { calendarAlertGenerator } from "../intelligence/calendar.js";
+import { ceoHealthCardGenerator } from "../intelligence/ceo-health.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -41,6 +45,14 @@ const DEFAULT_GENERATORS = [
   goalRiskGenerator,
   relationshipGapGenerator,
   budgetAlertGenerator,
+  // §18 Financial Pulse — alerts when invoices at risk or cash projection negative
+  financialAlertGenerator,
+  // §19 Calendar Intelligence — upcoming meeting alerts
+  calendarAlertGenerator,
+  // §11.7 CEO Health — ratio below threshold or trending down
+  ceoHealthCardGenerator,
+  // §10b Weekly Review — Monday summary of completed tasks + goal progress
+  weeklyReviewGenerator,
 ];
 
 // ── Worker ────────────────────────────────────────────────────────────────────

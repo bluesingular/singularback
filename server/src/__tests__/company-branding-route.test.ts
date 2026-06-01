@@ -47,6 +47,7 @@ vi.mock("../services/index.js", () => ({
   companyService: () => mockCompanyService,
   feedbackService: () => mockFeedbackService,
   logActivity: mockLogActivity,
+  packInstallService: () => ({ install: vi.fn(), listAvailablePacks: vi.fn(), loadPackManifest: vi.fn() }),
 }));
 
 function createCompany() {

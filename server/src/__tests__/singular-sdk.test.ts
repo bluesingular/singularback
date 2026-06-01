@@ -5,6 +5,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SwwarmClient, SwwarmApiError, verifyWebhookSignature } from "../../../packages/sdk/src/index.js";
 
+beforeEach(() => { vi.clearAllMocks(); });
+
 describe("SwwarmClient", () => {
   it("1. throws if apiKey is missing", () => {
     expect(() => new SwwarmClient({ apiKey: "" })).toThrow("apiKey is required");

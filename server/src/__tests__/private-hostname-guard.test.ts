@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import express from "express";
 import request from "supertest";
 import { privateHostnameGuard } from "../middleware/private-hostname-guard.js";
@@ -22,6 +22,8 @@ function createApp(opts: { enabled: boolean; allowedHostnames?: string[]; bindHo
   });
   return app;
 }
+
+beforeEach(() => { vi.clearAllMocks(); });
 
 describe("privateHostnameGuard", () => {
   it("allows requests when disabled", async () => {
