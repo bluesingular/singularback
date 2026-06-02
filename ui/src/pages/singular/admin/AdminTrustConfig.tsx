@@ -2,14 +2,14 @@ import * as React from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { adminApi } from "@/api/admin"
 import { trustApi, type TrustScore, type TrustProposal } from "@/api/trust"
-import { CheckCircle2, XCircle, TrendingUp, ShieldCheck } from "lucide-react"
+import { CheckCircle2, XCircle, TrendingUp, ShieldCheck, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const LEVEL_LABELS: Record<string, string> = {
   building:      "En construction",
-  supervised:    "Supervised",
+  supervised:    "Supervisé",
   trusted:       "Autonome",
-  highlyTrusted: "Highly autonomous",
+  highlyTrusted: "Très autonome",
 }
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -32,7 +32,52 @@ function ScoreBar({ value }: { value: number }) {
   )
 }
 
+function Sparkline({ points }: { points: number[] }) {
+  if (points.length < 2) {
+    return (
+      <div className="flex items-end gap-0.5 h-8">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="flex-1 bg-[#F0EDE6] rounded-sm" style={{ height: `${Math.round((points[0] ?? 2.5) / 5 * 100)}%` }} />
+        ))}
+      </div>
+    )
+  }
+
+  const W = 80
+  const H = 32
+  const min = Math.min(...points)
+  const max = Math.max(...points)
+  const range = max - min || 1
+  const xs = points.map((_, i) => (i / (points.length - 1)) * W)
+  const ys = points.map((v) => H - ((v - min) / range) * (H - 4) - 2)
+  const d = xs.map((x, i) => `${i === 0 ? "M" : "L"} ${x} ${ys[i]}`).join(" ")
+
+  const last = points[points.length - 1]
+  const prev = points[points.length - 2]
+  const stroke = last < prev ? "#DC2626" : last > prev ? "#1A9E68" : "#8A8680"
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
+      <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="2" fill={stroke} />
+    </svg>
+  )
+}
+
+function degradationReason(s: TrustScore): string | null {
+  if (s.qualityRatingAvg !== null && s.qualityRatingAvg < 3) {
+    return `Note qualité faible (★ ${s.qualityRatingAvg.toFixed(1)})`
+  }
+  if (s.approvalStreak === 0) {
+    return "Streak d'approbation interrompu"
+  }
+  return null
+}
+
 function ScoreCard({ s }: { s: TrustScore }) {
+  const placeholderPoints = Array.from({ length: 7 }, () => s.score)
+  const reason = degradationReason(s)
+
   return (
     <div className="bg-white border border-[#E8E4DC] rounded-xl p-4 flex flex-col gap-2">
       <div className="flex items-start justify-between gap-2">
@@ -54,6 +99,18 @@ function ScoreCard({ s }: { s: TrustScore }) {
             <span>·</span>
             <span>★ {s.qualityRatingAvg.toFixed(1)}</span>
           </>
+        )}
+      </div>
+      <div className="pt-2 border-t border-[#F0EDE6] flex items-end justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-[#8A8680] uppercase tracking-wider">7 derniers jours</span>
+          <Sparkline points={placeholderPoints} />
+        </div>
+        {reason && (
+          <div className="flex items-start gap-1 text-[10px] text-[#C97C0A] max-w-[120px] text-right">
+            <AlertTriangle size={10} className="flex-shrink-0 mt-0.5" />
+            <span>{reason}</span>
+          </div>
         )}
       </div>
     </div>
@@ -179,7 +236,6 @@ export function AdminTrustConfig() {
 
         {data && (
           <div className="flex flex-col gap-8">
-            {/* Pending proposals */}
             {proposals.length > 0 && (
               <section>
                 <div className="flex items-center gap-2 mb-3">
@@ -196,7 +252,6 @@ export function AdminTrustConfig() {
               </section>
             )}
 
-            {/* All scores */}
             <section>
               <div className="flex items-center gap-2 mb-3">
                 <ShieldCheck size={15} className="text-[#1A9E68]" />

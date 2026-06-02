@@ -3,7 +3,8 @@ import { useState } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useParams, useNavigate } from "@/lib/router"
 import { adminApi } from "@/api/admin"
-import { ArrowLeft, Eye, EyeOff, User, Bot, Clock } from "lucide-react"
+import { trustApi, type TrustScore } from "@/api/trust"
+import { ArrowLeft, Eye, EyeOff, User, Bot, Clock, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/hooks/useLocale"
 
@@ -28,21 +29,60 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  owner: "Owner",
+  owner: "Propriétaire",
   admin: "Admin",
   member: "Membre",
   viewer: "Lecteur",
 };
 
+const AUTONOMY_LABELS: Record<string, string> = {
+  manual:       "Manuel",
+  supervised:   "Supervisé",
+  spot_checked: "Contrôle ponctuel",
+  autonomous:   "Autonome",
+  building:     "En construction",
+  trusted:      "Autonome",
+  highlyTrusted: "Très autonome",
+}
+
+const AUTONOMY_COLORS: Record<string, string> = {
+  manual:       "bg-[#FEE2E2] text-[#DC2626]",
+  supervised:   "bg-[#FEF3C7] text-[#C97C0A]",
+  spot_checked: "bg-[#E8F0F8] text-[#1A4E8C]",
+  autonomous:   "bg-[#E8F5EE] text-[#1A9E68]",
+  building:     "bg-[#FEF3C7] text-[#C97C0A]",
+  trusted:      "bg-[#E8F5EE] text-[#1A9E68]",
+  highlyTrusted: "bg-[#EDE9FE] text-[#7C3AED]",
+}
+
+function MiniScoreBar({ value }: { value: number }) {
+  const pct = Math.round((value / 5) * 100)
+  const color = value >= 4 ? "bg-[#1A9E68]" : value >= 3 ? "bg-[#C97C0A]" : "bg-[#DC2626]"
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="w-16 h-1 bg-[#F0EDE6] rounded-full overflow-hidden">
+        <div className={cn("h-full rounded-full", color)} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-[10px] font-mono text-[#8A8680]">{value.toFixed(1)}</span>
+    </div>
+  )
+}
+
 export function AdminTenantDetail() {
   const { companyId } = useParams<{ companyId: string }>()
   const navigate = useNavigate()
-  const { formatDate, formatDateTime, formatEuros, formatNumber } = useLocale()
+  const { formatDate, formatDateTime, formatEuros } = useLocale()
   const [impersonating, setImpersonating] = useState(false)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin", "tenant", companyId],
     queryFn: () => adminApi.getTenant(companyId!),
+    enabled: !!companyId,
+  })
+
+  const { data: trustData } = useQuery({
+    queryKey: ["admin", "trust-detail", companyId],
+    queryFn: () => trustApi.getCompanyTrust(companyId!).catch(() => ({ scores: [] as TrustScore[], proposals: [] })),
     enabled: !!companyId,
   })
 
@@ -73,6 +113,12 @@ export function AdminTenantDetail() {
   }
 
   const { company, members, agents, tasksLast30d, costLast30d, recentAudit } = data
+  const trustScores = trustData?.scores ?? []
+  const trustByAgent = new Map<string, TrustScore[]>()
+  for (const ts of trustScores) {
+    const existing = trustByAgent.get(ts.agentId) ?? []
+    trustByAgent.set(ts.agentId, [...existing, ts])
+  }
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#FAFAF8]">
@@ -119,24 +165,21 @@ export function AdminTenantDetail() {
           </div>
         )}
 
-        {/* Metrics */}
-        <Section title="30-day metrics">
-          <Row label="Tasks" value={tasksLast30d} />
-          <Row label="Cost" value={formatEuros(costLast30d)} />
-          <Row label="Tasks used this month" value={`${company.tasksUsed} / ${company.tasksLimit}`} />
-          <Row label="Tokens used this month" value={`${(company.tokensUsed / 1_000).toFixed(0)}k / ${(company.tokensLimit / 1_000).toFixed(0)}k`} />
+        <Section title="Métriques 30 jours">
+          <Row label="Tâches" value={tasksLast30d} />
+          <Row label="Coût" value={formatEuros(costLast30d)} />
+          <Row label="Tâches utilisées ce mois" value={`${company.tasksUsed} / ${company.tasksLimit}`} />
+          <Row label="Tokens utilisés ce mois" value={`${(company.tokensUsed / 1_000).toFixed(0)}k / ${(company.tokensLimit / 1_000).toFixed(0)}k`} />
         </Section>
 
-        {/* Company info */}
         <Section title="Informations">
           <Row label="Locale" value={company.locale} />
           <Row label="Fuseau horaire" value={company.timezone} />
-          <Row label="Created" value={formatDate(company.createdAt)} />
+          <Row label="Créé le" value={formatDate(company.createdAt)} />
           {company.stripeCustomerId && <Row label="Stripe customer" value={<code className="text-xs font-mono">{company.stripeCustomerId}</code>} />}
           {company.stripeSubId && <Row label="Stripe subscription" value={<code className="text-xs font-mono">{company.stripeSubId}</code>} />}
         </Section>
 
-        {/* Members */}
         <Section title={`Membres (${members.length})`}>
           {members.length === 0 && <div className="px-5 py-4 text-xs text-[#8A8680]">Aucun membre.</div>}
           {members.map((m) => (
@@ -154,25 +197,72 @@ export function AdminTenantDetail() {
           ))}
         </Section>
 
-        {/* Agents */}
         <Section title={`Agents (${agents.length})`}>
           {agents.length === 0 && <div className="px-5 py-4 text-xs text-[#8A8680]">Aucun agent.</div>}
-          {agents.map((a) => (
-            <div key={a.id} className="px-5 py-3 flex items-center gap-3 border-b border-[#F0EDE6] last:border-0">
-              <Bot size={13} className="text-[#8A8680] flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-[#0F0F0D]">{a.name}</div>
-                <div className="text-xs text-[#8A8680]">{a.role}</div>
+          {agents.map((a) => {
+            const agentScores = trustByAgent.get(a.id) ?? []
+            const topScore = agentScores[0]
+            return (
+              <div key={a.id} className="px-5 py-3 flex items-start gap-3 border-b border-[#F0EDE6] last:border-0">
+                <Bot size={13} className="text-[#8A8680] flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-xs font-medium text-[#0F0F0D]">{a.name}</span>
+                    <span className={cn("text-xs font-medium", a.status === "active" ? "text-[#1A9E68]" : "text-[#8A8680]")}>
+                      {a.status}
+                    </span>
+                    {topScore && (
+                      <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-medium", AUTONOMY_COLORS[topScore.autonomyLevel] ?? "bg-[#F0EDE6] text-[#8A8680]")}>
+                        {AUTONOMY_LABELS[topScore.autonomyLevel] ?? topScore.autonomyLevel}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-[#8A8680] mb-1">{a.role}</div>
+                  {topScore && <MiniScoreBar value={topScore.score} />}
+                  {agentScores.length > 1 && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {agentScores.slice(1).map((ts) => (
+                        <span key={ts.skillType} className="text-[10px] text-[#8A8680] bg-[#F0EDE6] px-1.5 py-0.5 rounded font-mono">
+                          {ts.skillType}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <span className={cn("text-xs font-medium", a.status === "active" ? "text-[#1A9E68]" : "text-[#8A8680]")}>
-                {a.status}
-              </span>
-            </div>
-          ))}
+            )
+          })}
         </Section>
 
-        {/* Audit log */}
-        <Section title="Audit log (last 10 entries)">
+        {trustScores.length > 0 && (
+          <Section title="Compétences par agent">
+            {trustScores.map((ts) => (
+              <div key={`${ts.agentId}-${ts.skillType}`} className="px-5 py-3 flex items-center gap-3 border-b border-[#F0EDE6] last:border-0">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-medium text-[#0F0F0D]">{ts.agentName ?? ts.agentId.slice(0, 8)}</span>
+                    <span className="text-xs font-mono text-[#8A8680]">{ts.skillType}</span>
+                  </div>
+                  <MiniScoreBar value={ts.score} />
+                </div>
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-medium", AUTONOMY_COLORS[ts.autonomyLevel] ?? "bg-[#F0EDE6] text-[#8A8680]")}>
+                    {AUTONOMY_LABELS[ts.autonomyLevel] ?? ts.autonomyLevel}
+                  </span>
+                  <span className="text-[10px] text-[#8A8680]">{ts.taskCountWindow} tâches</span>
+                </div>
+              </div>
+            ))}
+            {trustScores.length === 0 && (
+              <div className="px-5 py-4 flex items-center gap-2 text-xs text-[#8A8680]">
+                <AlertCircle size={12} />
+                Aucun score de compétence enregistré.
+              </div>
+            )}
+          </Section>
+        )}
+
+        <Section title="Journal d'audit (10 dernières entrées)">
           {recentAudit.length === 0 && <div className="px-5 py-4 text-xs text-[#8A8680]">Aucune entrée.</div>}
           {recentAudit.map((entry) => (
             <div key={entry.id} className="px-5 py-3 flex items-start gap-3 border-b border-[#F0EDE6] last:border-0">

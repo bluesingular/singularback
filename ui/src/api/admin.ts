@@ -61,6 +61,29 @@ export interface PlatformHealth {
   costLast30Days: number;
 }
 
+export interface EmbeddingMetric {
+  companyId: string;
+  companyName: string;
+  embeddingScore: number;
+  prevScore: number | null;
+  weekStart: string;
+}
+
+export interface QueueStats {
+  waiting: number;
+  active: number;
+  delayed: number;
+  failed: number;
+}
+
+export interface SlaEvent {
+  id: string;
+  companyId: string;
+  creditDays: number;
+  reason: string;
+  createdAt: string;
+}
+
 export interface ImpersonationSession {
   companyId: string;
   companyName: string;
@@ -111,5 +134,21 @@ export const adminApi = {
 
   endImpersonation(companyId: string): Promise<{ ok: boolean }> {
     return request(`/admin/tenants/${companyId}/impersonate`, { method: "DELETE" });
+  },
+
+  listEmbeddingMetrics(): Promise<{ metrics: EmbeddingMetric[] }> {
+    return request("/admin/embedding-metrics");
+  },
+
+  getQueueStats(): Promise<QueueStats> {
+    return request("/admin/queue-stats");
+  },
+
+  getSlaEvents(companyId: string): Promise<{ events: SlaEvent[]; creditDaysThisMonth: number }> {
+    return request(`/admin/companies/${companyId}/sla-events`);
+  },
+
+  restartWorkers(): Promise<{ ok: boolean }> {
+    return request("/admin/workers/restart", { method: "POST" });
   },
 };
