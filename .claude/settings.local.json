@@ -57,7 +57,20 @@
       "Bash(npm install *)",
       "Bash(convert --version)",
       "Bash(sips -s format png icon.svg --out icon-192.png -z 192 192)",
-      "Bash(sips -s format png icon.svg --out icon-512.png -z 512 512)"
+      "Bash(sips -s format png icon.svg --out icon-512.png -z 512 512)",
+      "Bash(xargs -I{} basename {})",
+      "Bash(xargs -I{} basename {} .sql)",
+      "Bash(npx tsx *)",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "Bash(npx vite *)",
+      "Bash(node_modules/.bin/vite build *)",
+      "Bash(node_modules/.bin/vite --version)",
+      "Bash(node_modules/.bin/vite --config vite.config.ts)",
+      "Bash(NODE_ENV=development node_modules/.bin/vite)",
+      "Bash(node_modules/.bin/vite)",
+      "Bash(# Find what DB the server is actually using *)",
+      "Bash(curl -s http://localhost:3100/ 2>/dev/null | head -3 *)",
+      "Bash(# Find what DB the server at 3100 uses - check its embedded PG *)"
     ]
   }
 }

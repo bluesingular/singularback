@@ -6,3 +6,5 @@ dist/
 infra/.env.prod
 *.pem
 *.key
+.claude/worktrees/
+customer-app/package-lock.json
