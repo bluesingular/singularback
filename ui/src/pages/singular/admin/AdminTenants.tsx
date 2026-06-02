@@ -59,7 +59,7 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
       qc.invalidateQueries({ queryKey: ["admin", "tenants"] })
       onClose()
     },
-    onError: (err: any) => setError(err?.message ?? "Erreur lors de la création"),
+    onError: (err: unknown) => setError(err instanceof Error ? err.message : typeof err === "string" ? err : "Erreur lors de la création"),
   })
 
   return (
@@ -76,7 +76,7 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
             <input
               id="tenant-name"
               type="text"
-              autoComplete="off"
+              autoComplete="new-password"
               autoFocus
               value={name}
               onChange={e => { setName(e.target.value); setError("") }}
@@ -142,7 +142,7 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
       qc.invalidateQueries({ queryKey: ["admin", "tenants"] })
       onClose()
     },
-    onError: (err: any) => setError(err?.message ?? "Erreur lors de la mise à jour"),
+    onError: (err: unknown) => setError(err instanceof Error ? err.message : typeof err === "string" ? err : "Erreur lors de la mise à jour"),
   })
 
   return (
@@ -159,7 +159,7 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
             <input
               id="edit-tenant-name"
               type="text"
-              autoComplete="off"
+              autoComplete="new-password"
               autoFocus
               value={name}
               onChange={e => { setName(e.target.value); setError("") }}
