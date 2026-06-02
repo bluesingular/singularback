@@ -153,10 +153,10 @@ export const adminApi = {
   },
 
   createTenant(data: { name: string; plan?: string }): Promise<{ ok: true; data: { id: string; name: string; slug: string } }> {
-    return request("/admin/tenants", { method: "POST", body: JSON.stringify(data) });
+    return adminApi.post("/admin/tenants", data);
   },
 
   updateTenant(companyId: string, data: { name?: string; status?: string }): Promise<{ ok: boolean }> {
-    return request(`/admin/tenants/${companyId}`, { method: "PATCH", body: JSON.stringify(data) });
+    return adminApi.patch(`/admin/tenants/${companyId}`, data);
   },
 };

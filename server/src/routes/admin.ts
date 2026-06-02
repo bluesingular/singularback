@@ -265,7 +265,11 @@ export function adminRoutes(db: Db) {
         res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "Le nom de l'entreprise est requis." } });
         return;
       }
-      const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const baseSlug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      // Make slug unique by appending a timestamp suffix if needed
+      let slug = baseSlug;
+      const existing = await (db as any).select({ id: companies.id }).from(companies).where(eq(companies.slug, baseSlug));
+      if (existing.length > 0) slug = `${baseSlug}-${Date.now().toString(36)}`;
       const [company] = await (db as any)
         .insert(companies)
         .values({ name: name.trim(), slug, plan, status: "active" })
