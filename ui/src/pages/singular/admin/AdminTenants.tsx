@@ -119,7 +119,7 @@ export function AdminTenants() {
                 <div className="flex items-center gap-3 flex-wrap">
                   <Metric icon={Users} value={t.members} label="membres" />
                   <Metric icon={Bot} value={t.activeAgents} label="agents actifs" />
-                  <Metric icon={CheckSquare} value={t.tasksLast30d} label="tâches/30j" />
+                  <Metric icon={CheckSquare} value={t.tasksLast30d} label="tasks/30d" />
                   <Metric icon={Euro} value={formatEuros(t.costLast30d)} label="/30j" />
                 </div>
               </div>

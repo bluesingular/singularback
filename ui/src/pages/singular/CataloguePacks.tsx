@@ -151,12 +151,12 @@ export function CataloguePacks() {
 
               {/* Coming soon stubs */}
               <ComingSoonCard
-                name="Agence immobilière"
+                name="Real estate agency"
                 description="Qualification de leads, relances automatiques, comptes-rendus de visite."
               />
               <ComingSoonCard
                 name="Cabinet comptable"
-                description="Collecte de pièces, relances clients, préparation de bilans."
+                description="Document collection, client follow-up, balance sheet preparation."
               />
             </div>
           )}
@@ -175,7 +175,7 @@ export function CataloguePacks() {
         <div className="max-w-xs text-white flex flex-col gap-8">
           <blockquote className="text-center">
             <p className="text-xl font-serif leading-relaxed">
-              "En 20 minutes, Sophie qualifiait déjà mes premiers CVs. Je n'ai rien eu à configurer."
+              "Within 20 minutes Sophie was qualifying my first CVs. I didn't have to configure anything."
             </p>
             <footer className="mt-4 text-sm opacity-70">
               — Isabelle M., Cabinet de recrutement, Lyon

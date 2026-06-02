@@ -24,7 +24,7 @@ const TYPE_LABELS: Record<string, string> = {
   airtable:        "Airtable",
   google_calendar: "Google Agenda",
   hubspot:         "HubSpot",
-  custom:          "API personnalisée",
+  custom:          "Custom API",
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -56,11 +56,11 @@ function CreateIntegrationDialog({ companyId, onClose, onCreated, push }: Create
     mutationFn: () => integrationsApi.create(companyId, { type, name: name || TYPE_LABELS[type], credentials }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "integrations", companyId] })
-      push("Intégration ajoutée", "success")
+      push("Integration added", "success")
       onCreated()
       onClose()
     },
-    onError: () => push("Erreur lors de la création", "error"),
+    onError: () => push("Creation failed", "error"),
   })
 
   return (
@@ -143,9 +143,9 @@ function PermissionsPanel({ companyId, integration, push }: PermissionsPanelProp
     mutationFn: (agentId: string) => integrationsApi.revokePermissions(companyId, integration.id, agentId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "integration-permissions", integration.id] })
-      push("Accès révoqué", "success")
+      push("Access revoked", "success")
     },
-    onError: () => push("Erreur lors de la révocation", "error"),
+    onError: () => push("Revocation failed", "error"),
   })
 
   if (!data) return <div className="py-2 flex justify-center"><div className="w-4 h-4 border-2 border-[#1A9E68] border-t-transparent rounded-full animate-spin" /></div>
@@ -211,7 +211,7 @@ export function AdminIntegrations() {
     mutationFn: (id: string) => integrationsApi.remove(selectedCompanyId!, id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "integrations", selectedCompanyId] })
-      push("Intégration supprimée", "success")
+      push("Integration deleted", "success")
     },
     onError: () => push("Erreur lors de la suppression", "error"),
   })
@@ -280,8 +280,8 @@ export function AdminIntegrations() {
                           ? <CheckCircle size={11} className="text-[#1A9E68]" />
                           : <XCircle size={11} className="text-[#D64B4B]" />}
                         <span className="text-xs text-[#8A8680]">
-                          {intg.status === "connected" ? "Connectée" : intg.status === "error" ? "Erreur" : "Déconnectée"}
-                          {" · "}Ajoutée le {new Date(intg.createdAt).toLocaleDateString("fr-FR")}
+                          {intg.status === "connected" ? "Connected" : intg.status === "error" ? "Error" : "Disconnected"}
+                          {" · "}Added on {new Date(intg.createdAt).toLocaleDateString("en-GB")}
                         </span>
                       </div>
                     </div>

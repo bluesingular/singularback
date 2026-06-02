@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 const NOTIF_TYPE_LABELS: Record<Notification["type"], string> = {
   approval_pending: "Approbation requise",
   trust_proposal:   "Proposition d'autonomie",
-  trust_downgrade:  "Régression de confiance",
+  trust_downgrade:  "Trust regression",
   intelligence:     "Carte intelligence",
   agent_error:      "Erreur agent",
   budget_alert:     "Alerte budget",
@@ -181,7 +181,7 @@ export function AdminNotifications() {
                     tab === t ? "bg-white text-[#0F0F0D] shadow-sm font-medium" : "text-[#8A8680] hover:text-[#0F0F0D]",
                   )}
                 >
-                  {t === "prefs" ? "Préférences" : "Historique"}
+                  {t === "prefs" ? "Preferences" : "History"}
                 </button>
               ))}
             </div>

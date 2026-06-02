@@ -9,7 +9,7 @@ import { cn } from "../lib/utils";
 const TYPE_LABELS: Record<Notification["type"], string> = {
   approval_pending: "Approbation requise",
   trust_proposal:   "Proposition de confiance",
-  trust_downgrade:  "Supervision augmentée",
+  trust_downgrade:  "Increased supervision",
   intelligence:     "Intelligence",
   agent_error:      "Erreur agent",
   budget_alert:     "Alerte budget",
@@ -27,7 +27,7 @@ const TYPE_COLOR: Record<Notification["type"], string> = {
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "à l'instant";
+  if (mins < 1) return "just now";
   if (mins < 60) return `il y a ${mins} min`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `il y a ${hrs} h`;

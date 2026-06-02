@@ -165,8 +165,8 @@ function DrillDownPanel({ agent, onClose }: { agent: Agent; onClose: () => void 
                 />
                 <span className="text-xs text-stone-500">
                   {agent.currentTask.status === "in_review" ? "En attente de validation"
-                    : agent.currentTask.status === "awaiting_clarification" ? "Attend une réponse"
-                    : "En cours d'exécution"}
+                    : agent.currentTask.status === "awaiting_clarification" ? "Awaiting response"
+                    : "Running"}
                 </span>
               </div>
             </div>

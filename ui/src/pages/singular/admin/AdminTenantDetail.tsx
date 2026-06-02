@@ -28,7 +28,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  owner: "Propriétaire",
+  owner: "Owner",
   admin: "Admin",
   member: "Membre",
   viewer: "Lecteur",
@@ -120,18 +120,18 @@ export function AdminTenantDetail() {
         )}
 
         {/* Metrics */}
-        <Section title="Métriques 30 jours">
-          <Row label="Tâches" value={tasksLast30d} />
-          <Row label="Coût" value={formatEuros(costLast30d)} />
-          <Row label="Tâches utilisées ce mois" value={`${company.tasksUsed} / ${company.tasksLimit}`} />
-          <Row label="Tokens utilisés ce mois" value={`${(company.tokensUsed / 1_000).toFixed(0)}k / ${(company.tokensLimit / 1_000).toFixed(0)}k`} />
+        <Section title="30-day metrics">
+          <Row label="Tasks" value={tasksLast30d} />
+          <Row label="Cost" value={formatEuros(costLast30d)} />
+          <Row label="Tasks used this month" value={`${company.tasksUsed} / ${company.tasksLimit}`} />
+          <Row label="Tokens used this month" value={`${(company.tokensUsed / 1_000).toFixed(0)}k / ${(company.tokensLimit / 1_000).toFixed(0)}k`} />
         </Section>
 
         {/* Company info */}
         <Section title="Informations">
           <Row label="Locale" value={company.locale} />
           <Row label="Fuseau horaire" value={company.timezone} />
-          <Row label="Créé le" value={formatDate(company.createdAt)} />
+          <Row label="Created" value={formatDate(company.createdAt)} />
           {company.stripeCustomerId && <Row label="Stripe customer" value={<code className="text-xs font-mono">{company.stripeCustomerId}</code>} />}
           {company.stripeSubId && <Row label="Stripe subscription" value={<code className="text-xs font-mono">{company.stripeSubId}</code>} />}
         </Section>
@@ -172,7 +172,7 @@ export function AdminTenantDetail() {
         </Section>
 
         {/* Audit log */}
-        <Section title="Journal d'audit (10 dernières entrées)">
+        <Section title="Audit log (last 10 entries)">
           {recentAudit.length === 0 && <div className="px-5 py-4 text-xs text-[#8A8680]">Aucune entrée.</div>}
           {recentAudit.map((entry) => (
             <div key={entry.id} className="px-5 py-3 flex items-start gap-3 border-b border-[#F0EDE6] last:border-0">

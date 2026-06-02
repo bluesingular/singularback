@@ -600,7 +600,7 @@ function PacksTab() {
     onSuccess: () => {
       pushToast({
         title: "Pack installed!",
-        body: "Les agents et compétences sont maintenant disponibles.",
+        body: "Agents and skills are now available.",
         tone: "success",
       });
     },
@@ -697,11 +697,11 @@ function PacksTab() {
 // ── NotificationsTab ─────────────────────────────────────────────────────────
 
 const NOTIF_ROWS: { key: keyof NotificationPreferences; base: string; label: string; desc: string }[] = [
-  { key: "approvalInapp",     base: "approval",     label: "Approbations",         desc: "Tâches en attente de votre validation" },
+  { key: "approvalInapp",     base: "approval",     label: "Approvals",         desc: "Tasks awaiting your approval" },
   { key: "trustInapp",        base: "trust",        label: "Confiance",            desc: "Propositions d'autonomie et ajustements" },
   { key: "intelligenceInapp", base: "intelligence", label: "Intelligence du matin", desc: "Alertes quotidiennes et insights" },
-  { key: "errorInapp",        base: "error",        label: "Erreurs",              desc: "Incidents détectés par vos agents" },
-  { key: "budgetInapp",       base: "budget",       label: "Budget",               desc: "Alertes de dépassement de budget" },
+  { key: "errorInapp",        base: "error",        label: "Errors",              desc: "Incidents detected by your agents" },
+  { key: "budgetInapp",       base: "budget",       label: "Budget",               desc: "Budget overage alerts" },
 ];
 
 function NotificationsTab() {
@@ -720,7 +720,7 @@ function NotificationsTab() {
       notificationsApi.updatePreferences(selectedCompanyId!, patch),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notification-preferences", selectedCompanyId] });
-      pushToast({ title: "Préférences enregistrées", tone: "success" });
+      pushToast({ title: "Preferences saved", tone: "success" });
     },
     onError: () => pushToast({ title: "Erreur lors de la sauvegarde", tone: "error" }),
   });

@@ -23,9 +23,9 @@ type RecordingState = "idle" | "recording" | "processing" | "result" | "error";
 
 function ConfidenceBadge({ c }: { c: "high" | "medium" | "low" }) {
   const map = {
-    high:   { label: "Confiance élevée",  cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-    medium: { label: "Confiance moyenne", cls: "bg-amber-50 text-amber-700 border-amber-200" },
-    low:    { label: "Confiance faible",  cls: "bg-stone-50 text-stone-500 border-stone-200" },
+    high:   { label: "High confidence",  cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+    medium: { label: "Medium confidence", cls: "bg-amber-50 text-amber-700 border-amber-200" },
+    low:    { label: "Low confidence",  cls: "bg-stone-50 text-stone-500 border-stone-200" },
   };
   const { label, cls } = map[c];
   return (
@@ -189,7 +189,7 @@ export default function VoiceAgent() {
                   onClick={navigateToResult}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#1A9E68] text-white font-medium text-sm hover:bg-[#158A58] transition-colors"
                 >
-                  Voir {result.type === "mission" ? "la mission" : "la tâche"}
+                  View {result.type === "mission" ? "mission" : "task"}
                   <ArrowRight size={14} />
                 </button>
               )}

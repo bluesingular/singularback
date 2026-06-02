@@ -90,7 +90,7 @@ export function SidebarFooter({
             className={`shrink-0 ${mutedColor}`}
             onClick={() => signOutMutation.mutate()}
             disabled={signOutMutation.isPending}
-            title="Déconnexion"
+            title="Sign out"
           >
             <LogOut className="h-4 w-4" />
           </Button>

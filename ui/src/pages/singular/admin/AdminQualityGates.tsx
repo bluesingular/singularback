@@ -33,7 +33,7 @@ function describeGate(gate: QualityGate): string {
   const c = gate.config as Record<string, unknown>
   switch (gate.gateType) {
     case "volume_limit":        return `Max ${c.maxPerDay} emails/jour`
-    case "recipient_whitelist": return `Domaines autorisés : ${(c.allowedDomains as string[]).join(", ")}`
+    case "recipient_whitelist": return `Allowed domains: ${(c.allowedDomains as string[]).join(", ")}`
     case "budget_limit":        return `Limite : ${((c.limitCents as number) / 100).toFixed(2)} €/mois`
     case "content_forbidden":   return `Termes : ${(c.terms as string[]).slice(0, 3).join(", ")}${(c.terms as string[]).length > 3 ? "…" : ""}`
     default:                    return ""
@@ -203,14 +203,14 @@ export function AdminQualityGates() {
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       qualityGatesApi.update(selectedCompanyId!, id, { enabled }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "quality-gates", selectedCompanyId] }),
-    onError: () => push("Erreur lors de la mise à jour", "error"),
+    onError: () => push("Update failed", "error"),
   })
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => qualityGatesApi.remove(selectedCompanyId!, id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "quality-gates", selectedCompanyId] })
-      push("Règle supprimée", "success")
+      push("Rule deleted", "success")
     },
     onError: () => push("Erreur lors de la suppression", "error"),
   })
@@ -282,7 +282,7 @@ export function AdminQualityGates() {
                     <button
                       onClick={() => toggleMut.mutate({ id: gate.id, enabled: !gate.enabled })}
                       className="text-[#8A8680] hover:text-[#0F0F0D] transition-colors"
-                      title={gate.enabled ? "Désactiver" : "Activer"}
+                      title={gate.enabled ? "Disable" : "Enable"}
                     >
                       {gate.enabled
                         ? <ToggleRight size={20} className="text-[#1A9E68]" />
@@ -312,7 +312,7 @@ export function AdminQualityGates() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-[#0F0F0D]">{v.violation}</p>
                     <p className="text-xs text-[#8A8680] mt-0.5">
-                      {v.actionType} · {v.resolution ?? "non résolu"} · {new Date(v.createdAt).toLocaleString("fr-FR")}
+                      {v.actionType} · {v.resolution ?? "unresolved"} · {new Date(v.createdAt).toLocaleString("en-GB")}
                     </p>
                   </div>
                 </div>
@@ -326,7 +326,7 @@ export function AdminQualityGates() {
         <CreateGateDialog
           companyId={selectedCompanyId}
           onClose={() => setShowCreate(false)}
-          onCreated={() => push("Règle créée", "success")}
+          onCreated={() => push("Rule created", "success")}
         />
       )}
 

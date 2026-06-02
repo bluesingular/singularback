@@ -36,7 +36,7 @@ async function saveSoulMd(companyId: string, agentId: string, soulMd: string): P
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ soulMd }),
   });
-  if (!res.ok) throw new Error("Impossible d'enregistrer l'identité.");
+  if (!res.ok) throw new Error("Failed to save agent identity.");
 }
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
@@ -47,8 +47,8 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
   return (
     <div className="flex border-b border-stone-200">
       {([
-        { id: "soul",   label: "Identité",     icon: User },
-        { id: "skills", label: "Compétences",  icon: Wrench },
+        { id: "soul",   label: "Identity",     icon: User },
+        { id: "skills", label: "Skills",  icon: Wrench },
       ] as const).map(({ id, label, icon: Icon }) => (
         <button
           key={id}

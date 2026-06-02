@@ -6,9 +6,9 @@ import { UserX, UserCog, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ROLE_LABELS: Record<MemberRole, string> = {
-  owner:    "Propriétaire",
+  owner:    "Owner",
   admin:    "Admin",
-  operator: "Opérateur",
+  operator: "Operator",
   viewer:   "Lecteur",
   api:      "API",
 }
@@ -84,7 +84,7 @@ function MemberRow({ member, companyId }: { member: Member; companyId: string })
             )}
             <button
               onClick={() => setEditRole(role ?? "viewer")}
-              title="Modifier le rôle"
+              title="Change role"
               className="p-1 text-[#8A8680] hover:text-[#0F0F0D] transition-colors"
             >
               <UserCog size={14} />
@@ -148,7 +148,7 @@ function InviteForm({ companyId }: { companyId: string }) {
         disabled={invite.isPending}
         className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#0F0F0D] text-white hover:bg-[#1A1A18] disabled:opacity-50 transition-colors whitespace-nowrap"
       >
-        {invite.isPending ? "Envoi…" : sent ? "Envoyé ✓" : "Inviter"}
+        {invite.isPending ? "Sending…" : sent ? "Sent ✓" : "Invite"}
       </button>
     </form>
   )

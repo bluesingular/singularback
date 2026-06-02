@@ -58,7 +58,7 @@ function KeyCard({ item, onSave, onDelete, onTest, saving, testing, testResult }
                     : "bg-[#EFF3FB] text-[#1A4E8C]",
                 )}>
                   <Check size={10} />
-                  {item.source === "db" ? "Configurée" : "Via env"}
+                  {item.source === "db" ? "Configured" : "Via env"}
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-[#FEF3E2] text-[#C97C0A]">
@@ -90,7 +90,7 @@ function KeyCard({ item, onSave, onDelete, onTest, saving, testing, testResult }
           {item.source === "db" && (
             <button
               onClick={() => onDelete(item.provider)}
-              title="Supprimer la clé"
+              title="Delete key"
               className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8A8680] hover:text-[#D64B4B] hover:bg-[#FFF0F0] transition-colors"
             >
               <Trash2 size={14} />
@@ -100,7 +100,7 @@ function KeyCard({ item, onSave, onDelete, onTest, saving, testing, testResult }
             onClick={() => { setEditing((e) => !e); setValue(""); setShow(false) }}
             className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[#E8E4DC] text-[#4B4846] hover:bg-[#F0EDE6] transition-colors"
           >
-            {editing ? "Annuler" : item.configured ? "Mettre à jour" : "Configurer"}
+            {editing ? "Cancel" : item.configured ? "Update" : "Configure"}
           </button>
         </div>
       </div>
@@ -111,7 +111,7 @@ function KeyCard({ item, onSave, onDelete, onTest, saving, testing, testResult }
           testResult.ok ? "bg-[#E6F5EE] text-[#1A9E68]" : "bg-[#FFF0F0] text-[#D64B4B]",
         )}>
           {testResult.ok
-            ? testResult.note ?? "Connexion réussie ✓"
+            ? testResult.note ?? "Connection successful ✓"
             : `Échec de connexion : ${testResult.note ?? "Erreur inconnue"}`}
         </div>
       )}
@@ -169,7 +169,7 @@ export function AdminApiKeys() {
     onSuccess: (_, { provider }) => {
       qc.invalidateQueries({ queryKey: ["instance", "api-keys"] })
       setSavingProvider(null)
-      push("Clé enregistrée", "success")
+      push("Key saved", "success")
     },
     onError: (_, { provider }) => {
       setSavingProvider(null)
@@ -181,7 +181,7 @@ export function AdminApiKeys() {
     mutationFn: (provider: string) => instanceApiKeysApi.remove(provider),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["instance", "api-keys"] })
-      push("Clé supprimée", "success")
+      push("Key deleted", "success")
     },
     onError: () => push("Erreur lors de la suppression", "error"),
   })
@@ -192,7 +192,7 @@ export function AdminApiKeys() {
       const result = await instanceApiKeysApi.test(provider)
       setTestResults((r) => ({ ...r, [provider]: { ok: result.ok, note: result.note ?? result.error } }))
     } catch {
-      setTestResults((r) => ({ ...r, [provider]: { ok: false, note: "Erreur réseau" } }))
+      setTestResults((r) => ({ ...r, [provider]: { ok: false, note: "Network error" } }))
     } finally {
       setTestingProvider(null)
       setTimeout(() => setTestResults((r) => { const n = { ...r }; delete n[provider]; return n }), 6000)

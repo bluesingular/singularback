@@ -85,7 +85,7 @@ function PlanPanel({ plan }: { plan: TenantPlan }) {
 
       {/* Usage */}
       <div className="flex flex-col gap-3">
-        <UsageBar used={plan.tasksUsedMonth} limit={plan.tasksLimitMonth} label="Tâches / mois" />
+        <UsageBar used={plan.tasksUsedMonth} limit={plan.tasksLimitMonth} label="Tasks / month" />
         <UsageBar used={plan.tokensUsedMonth} limit={plan.tokensLimitMonth} label="Tokens / mois" />
       </div>
 

@@ -41,8 +41,8 @@ export function AdminHealth() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <KpiCard icon={Building2} label="Tenants actifs" value={data.tenants} />
-          <KpiCard icon={CheckSquare} label="Tâches (total)" value={formatNumber(data.tasksAllTime)} />
-          <KpiCard icon={Euro} label="Coût 30 jours" value={formatEuros(data.costLast30Days)} />
+          <KpiCard icon={CheckSquare} label="Tasks (total)" value={formatNumber(data.tasksAllTime)} />
+          <KpiCard icon={Euro} label="Cost (30 days)" value={formatEuros(data.costLast30Days)} />
         </div>
 
         <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-6">

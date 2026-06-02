@@ -30,7 +30,7 @@ const SOURCE_LABELS: Record<WebhookSourceHint, string> = {
   slack:    "Slack",
   github:   "GitHub",
   stripe:   "Stripe",
-  custom:   "Personnalisé",
+  custom:   "Custom",
 }
 
 const SOURCE_COLORS: Record<WebhookSourceHint, string> = {
@@ -52,7 +52,7 @@ function CopyButton({ text }: { text: string }) {
       className="flex items-center gap-1 text-xs text-[#8A8680] hover:text-[#0F0F0D] transition-colors px-1.5 py-0.5 rounded hover:bg-[#F0EDE6]"
     >
       {copied ? <Check size={11} className="text-[#1A9E68]" /> : <Copy size={11} />}
-      {copied ? "Copié" : "Copier"}
+      {copied ? "Copied" : "Copy"}
     </button>
   )
 }
@@ -188,10 +188,10 @@ function CreateDialog({ companyId, agents, onClose, push }: CreateDialogProps) {
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "webhooks", companyId] })
-      push("Endpoint créé", "success")
+      push("Endpoint created", "success")
       onClose()
     },
-    onError: () => push("Erreur lors de la création", "error"),
+    onError: () => push("Creation failed", "error"),
   })
 
   return (
@@ -205,7 +205,7 @@ function CreateDialog({ companyId, agents, onClose, push }: CreateDialogProps) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Candidatures Indeed, Réunions Calendly…"
+            placeholder="Indeed applications, Calendly meetings…"
             autoFocus
             className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none"
             style={{ borderColor: "#E8E4DC" }}
@@ -290,14 +290,14 @@ function EndpointCard({ endpoint, agents, companyId, push }: EndpointCardProps) 
   const toggleMut = useMutation({
     mutationFn: () => webhookEndpointsApi.update(companyId, endpoint.id, { isActive: !endpoint.isActive }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "webhooks", companyId] }),
-    onError: () => push("Erreur lors de la mise à jour", "error"),
+    onError: () => push("Update failed", "error"),
   })
 
   const saveRulesMut = useMutation({
     mutationFn: () => webhookEndpointsApi.update(companyId, endpoint.id, { routingRules: rules }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "webhooks", companyId] })
-      push("Règles sauvegardées", "success")
+      push("Rules saved", "success")
       setEditingRules(false)
     },
     onError: () => push("Erreur lors de la sauvegarde", "error"),
@@ -307,7 +307,7 @@ function EndpointCard({ endpoint, agents, companyId, push }: EndpointCardProps) 
     mutationFn: () => webhookEndpointsApi.remove(companyId, endpoint.id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "webhooks", companyId] })
-      push("Endpoint supprimé", "success")
+      push("Endpoint deleted", "success")
     },
     onError: () => push("Erreur lors de la suppression", "error"),
   })
@@ -343,7 +343,7 @@ function EndpointCard({ endpoint, agents, companyId, push }: EndpointCardProps) 
           <button
             onClick={() => toggleMut.mutate()}
             className="text-[#8A8680] hover:text-[#0F0F0D] transition-colors"
-            title={endpoint.isActive ? "Désactiver" : "Activer"}
+            title={endpoint.isActive ? "Disable" : "Enable"}
           >
             {endpoint.isActive
               ? <ToggleRight size={20} className="text-[#1A9E68]" />

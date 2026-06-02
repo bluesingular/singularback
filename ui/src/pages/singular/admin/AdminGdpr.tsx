@@ -94,7 +94,7 @@ function MemberEraseRow({ member, companyId }: { member: Member; companyId: stri
 
       {confirm && (
         <ConfirmDialog
-          title="Effacer les données utilisateur"
+          title="Erase user data"
           body={`Anonymiser toutes les données personnelles de ${member.name ?? member.email ?? member.userId} dans ce tenant (Art. 17 RGPD). Cette action est irréversible.`}
           confirmLabel="Effacer"
           danger
@@ -245,7 +245,7 @@ export function AdminGdpr() {
 
       {contactConfirm && (
         <ConfirmDialog
-          title="Effacer les données du contact"
+          title="Erase contact data"
           body={`Supprimer définitivement toutes les données du contact ${contactId} (notes, événements, fiche). Cette action est irréversible.`}
           confirmLabel="Effacer"
           danger

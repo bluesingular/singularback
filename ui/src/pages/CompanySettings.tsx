@@ -635,8 +635,8 @@ function PacksSection({ selectedCompanyId }: { selectedCompanyId?: string | null
     mutationFn: (packSlug: string) => companiesApi.installPack(selectedCompanyId!, packSlug),
     onSuccess: () => {
       pushToast({
-        title: "Pack installé!",
-        body: "Les agents et compétences sont maintenant disponibles.",
+        title: "Pack installed!",
+        body: "Agents and skills are now available.",
         tone: "success",
       });
     },

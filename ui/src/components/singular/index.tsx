@@ -261,7 +261,7 @@ export function ActivityItem({
     { label: string; classes: string }
   > = {
     approved: {
-      label: "Validé",
+      label: "Approved",
       classes: "bg-[#ECFBF4] text-[#1A9E68]",
     },
     pending: {
@@ -269,7 +269,7 @@ export function ActivityItem({
       classes: "bg-[#FFF8EC] text-[#C97C0A]",
     },
     sent: {
-      label: "Envoyé",
+      label: "Sent",
       classes: "bg-[#EFF3FA] text-[#1A4E8C]",
     },
   }

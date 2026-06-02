@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils"
 
 const LEVEL_LABELS: Record<string, string> = {
   building:      "En construction",
-  supervised:    "Supervisé",
+  supervised:    "Supervised",
   trusted:       "Autonome",
-  highlyTrusted: "Très autonome",
+  highlyTrusted: "Highly autonomous",
 }
 
 const LEVEL_COLORS: Record<string, string> = {

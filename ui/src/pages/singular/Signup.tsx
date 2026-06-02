@@ -90,7 +90,7 @@ export function Signup() {
       navigate(`/${data.company.issuePrefix}/catalogue`, { replace: true });
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue. Réessayez.");
+      setError(err instanceof Error ? err.message : "An error occurred. Please try again.");
     },
   });
 
@@ -137,7 +137,7 @@ export function Signup() {
           >
             <Field
               id="name"
-              label="Votre prénom et nom"
+              label="Full name"
               value={name}
               onChange={setName}
               placeholder="Isabelle Martin"
@@ -160,7 +160,7 @@ export function Signup() {
               type="password"
               value={password}
               onChange={setPassword}
-              placeholder="8 caractères minimum"
+              placeholder="8 characters minimum"
               autoComplete="new-password"
               disabled={mutation.isPending}
             />
@@ -192,7 +192,7 @@ export function Signup() {
                   Création en cours…
                 </>
               ) : (
-                "Créer mon compte →"
+                "Create my account →"
               )}
             </Button>
 
@@ -213,7 +213,7 @@ export function Signup() {
       >
         <blockquote className="max-w-sm text-center text-white">
           <p className="text-xl font-serif leading-relaxed">
-            "Sophie a qualifié 47 CVs ce mois. J'ai passé mes matinées avec mes clients."
+            "Sophie qualified 47 CVs this month. I spent my mornings with clients."
           </p>
           <footer className="mt-4 text-sm opacity-70">
             — Isabelle M., Cabinet de recrutement, Lyon
