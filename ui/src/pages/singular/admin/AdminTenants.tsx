@@ -1,5 +1,6 @@
 import * as React from "react"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@/lib/router"
 import { adminApi, type TenantSummary, type EmbeddingMetric } from "@/api/admin"
@@ -45,6 +46,32 @@ function EmbeddingPill({ metric }: { metric: EmbeddingMetric | undefined }) {
   return <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums", color)}>{score}</span>
 }
 
+// ── Modal wrapper via portal (bypasses Paperclip focus traps) ────────────────
+
+function Modal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const el = dialogRef.current
+    if (!el) return
+    el.showModal()
+    el.addEventListener("cancel", onClose)
+    return () => el.removeEventListener("cancel", onClose)
+  }, [onClose])
+
+  return createPortal(
+    <dialog
+      ref={dialogRef}
+      onClick={e => { if (e.target === dialogRef.current) onClose() }}
+      className="p-0 rounded-2xl shadow-xl border-0 backdrop:bg-black/30 w-full max-w-md mx-auto"
+      style={{ maxWidth: "28rem" }}
+    >
+      {children}
+    </dialog>,
+    document.body
+  )
+}
+
 // ── Create tenant modal ───────────────────────────────────────────────────────
 
 function CreateTenantModal({ onClose }: { onClose: () => void }) {
@@ -52,6 +79,9 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("")
   const [plan, setPlan] = useState("solo")
   const [error, setError] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 50) }, [])
 
   const create = useMutation({
     mutationFn: () => (adminApi as any).createTenant({ name, plan }),
@@ -59,12 +89,12 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
       qc.invalidateQueries({ queryKey: ["admin", "tenants"] })
       onClose()
     },
-    onError: (err: unknown) => setError(err instanceof Error ? err.message : typeof err === "string" ? err : "Erreur lors de la création"),
+    onError: (err: unknown) => setError(err instanceof Error ? err.message : "Erreur lors de la création"),
   })
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+    <Modal onClose={onClose}>
+      <div className="p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Nouveau tenant</h2>
           <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
@@ -72,12 +102,11 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
 
         <div className="flex flex-col gap-4">
           <div>
-            <label htmlFor="tenant-name" className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom de l'entreprise *</label>
+            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom de l'entreprise *</label>
             <input
-              id="tenant-name"
+              ref={inputRef}
               type="text"
-              autoComplete="new-password"
-              autoFocus
+              autoComplete="off"
               value={name}
               onChange={e => { setName(e.target.value); setError("") }}
               onKeyDown={e => e.key === "Enter" && name.trim() && create.mutate()}
@@ -114,7 +143,7 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors">Annuler</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
           <button
             onClick={() => create.mutate()}
             disabled={!name.trim() || create.isPending}
@@ -124,7 +153,7 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -135,6 +164,9 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
   const [name, setName] = useState(tenant.name)
   const [status, setStatus] = useState(tenant.status)
   const [error, setError] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 50) }, [])
 
   const update = useMutation({
     mutationFn: () => (adminApi as any).updateTenant(tenant.id, { name, status }),
@@ -142,12 +174,12 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
       qc.invalidateQueries({ queryKey: ["admin", "tenants"] })
       onClose()
     },
-    onError: (err: unknown) => setError(err instanceof Error ? err.message : typeof err === "string" ? err : "Erreur lors de la mise à jour"),
+    onError: (err: unknown) => setError(err instanceof Error ? err.message : "Erreur lors de la mise à jour"),
   })
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+    <Modal onClose={onClose}>
+      <div className="p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Modifier le tenant</h2>
           <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
@@ -155,12 +187,11 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
 
         <div className="flex flex-col gap-4">
           <div>
-            <label htmlFor="edit-tenant-name" className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom</label>
+            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom</label>
             <input
-              id="edit-tenant-name"
+              ref={inputRef}
               type="text"
-              autoComplete="new-password"
-              autoFocus
+              autoComplete="off"
               value={name}
               onChange={e => { setName(e.target.value); setError("") }}
               onKeyDown={e => e.key === "Enter" && name.trim() && update.mutate()}
@@ -196,7 +227,7 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors">Annuler</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
           <button
             onClick={() => update.mutate()}
             disabled={!name.trim() || update.isPending}
@@ -206,7 +237,7 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }
 
