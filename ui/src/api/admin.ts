@@ -91,6 +91,38 @@ export interface ImpersonationSession {
   startedAt: string;
 }
 
+export interface MasterSkill {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  markdown: string;
+  tier: number;
+  gdprRequired: boolean;
+  aiActRisk: string;
+  masterVersion: string | null;
+}
+
+export interface TenantCopy {
+  skillId: string;
+  companyId: string;
+  companyName: string;
+  masterVersion: string | null;
+}
+
+export interface SkillUpdateNotification {
+  id: string;
+  masterSkillId: string;
+  tenantSkillId: string;
+  companyId: string;
+  companyName: string;
+  skillName: string;
+  newVersion: string;
+  changelog: string | null;
+  status: string;
+  createdAt: string;
+}
+
 export const adminApi = {
   get<T = unknown>(path: string): Promise<T> {
     return request(path) as Promise<T>;
