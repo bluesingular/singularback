@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { MeCompany } from "../api/client";
+import { DispatcherHealth } from "./DispatcherHealth";
 
 const NAV = [
   { to: "tableau-de-bord", icon: LayoutDashboard, label: "Tableau de bord" },
@@ -91,6 +92,11 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Dispatcher health — WAR-10 */}
+      <div className="px-2 py-1.5 border-t border-[#E8E4DC]">
+        <DispatcherHealth />
+      </div>
 
       {/* User + logout */}
       <div className="px-3 py-3 border-t border-[#E8E4DC]">

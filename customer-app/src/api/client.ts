@@ -286,6 +286,50 @@ export interface ClientContext {
   createdAt: string;
 }
 
+// ── Dispatcher / platform health ─────────────────────────────────────────────
+
+export interface PlatformHealth {
+  redis:    "ok" | "degraded";
+  postgres: "ok" | "degraded";
+  workers:  "ok" | "degraded";
+  integrations: { slug: string; connected: boolean }[];
+}
+
+export const healthApi = {
+  platform: () =>
+    fetch("/api/v1/health", { credentials: "include" })
+      .then((r) => r.json())
+      .then((raw: { redis?: string; postgres?: string }) => ({
+        data: {
+          redis:        (raw.redis    ?? "ok") as "ok" | "degraded",
+          postgres:     (raw.postgres ?? "ok") as "ok" | "degraded",
+          workers:      "ok" as "ok" | "degraded",
+          integrations: [] as { slug: string; connected: boolean }[],
+        } satisfies PlatformHealth,
+      })),
+};
+
+// ── Session gap awareness (Gap K) ─────────────────────────────────────────────
+
+export interface SessionGapBriefing {
+  gapHours:        number;
+  tasksCompleted:  number;
+  tasksPending:    number;
+  notableEvents:   string[];  // max 3
+}
+
+export const sessionApi = {
+  gap: (companyId: string) =>
+    api.get<SessionGapBriefing & { gapHours: number }>(`/companies/${companyId}/session-gap-briefing`, companyId),
+};
+
+// ── Agent soul + skill update (WAR-11) ───────────────────────────────────────
+
+export const agentTrainApi = {
+  updateSoul: (companyId: string, agentId: string, soulMd: string) =>
+    api.patch(`/companies/${companyId}/agents/${agentId}`, { soulMd }, companyId),
+};
+
 export const clientContextsApi = {
   list: (companyId: string) =>
     api.get<{ ok: true; contexts: ClientContext[] }>(`/companies/${companyId}/client-contexts`, companyId),

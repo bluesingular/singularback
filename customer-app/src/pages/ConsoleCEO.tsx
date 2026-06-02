@@ -17,6 +17,7 @@ import {
   type ClientContext,
 } from "../api/client";
 import { X, ChevronRight } from "lucide-react";
+import { RetrainModal } from "../components/RetrainModal";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -159,6 +160,7 @@ function DrillDown({
   tasks: Task[];
   onClose: () => void;
 }) {
+  const [showRetrain, setShowRetrain] = useState(false);
   const colour = agent.colour ?? "#3B82F6";
   const agentTasks = tasks.filter((t) => t.agentId === agent.id);
   const current = agentTasks.find((t) => t.status === "running" || t.status === "approved" || t.status === "pending_approval");
@@ -239,7 +241,21 @@ function DrillDown({
         {!current && queue.length === 0 && (
           <p className="text-sm text-[#6B6B6B] text-center py-6">Aucune tâche active</p>
         )}
+
+        {/* WAR-11: Retrain / configure button */}
+        <div className="pt-2 border-t border-[#E8E4DC]">
+          <button
+            onClick={() => setShowRetrain(true)}
+            className="w-full text-left text-sm text-[#1A9E68] font-medium hover:underline"
+          >
+            Configurer {agent.displayName ?? agent.name} →
+          </button>
+        </div>
       </div>
+
+      {showRetrain && (
+        <RetrainModal agent={agent} onClose={() => setShowRetrain(false)} />
+      )}
     </div>
   );
 }
