@@ -680,6 +680,27 @@
       "when": 1748870400000,
       "tag": "0096_skill_lineage",
       "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1748880000000,
+      "tag": "0097_master_skills_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1748880001000,
+      "tag": "0098_p1_master_skills_seed",
+      "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1748880002000,
+      "tag": "0099_skill_update_notifications",
+      "breakpoints": true
     }
   ]
 }

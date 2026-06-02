@@ -155,3 +155,5 @@ export {
 
 // Singular.blue Gap O: agent fleet registry (admin-only fleet snapshots)
 export { fleetSnapshots } from "./fleet_snapshots.js";
+
+export { skillUpdateNotifications } from "./skill_update_notifications.js";

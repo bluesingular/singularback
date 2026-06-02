@@ -28,6 +28,7 @@ import { interpolateTemplate } from "./template.js";
 import { parseSkill } from "../skills/parser.js";
 import { BASE_CONSTITUTION } from "../safety/constitution.js";
 import { bootstrapAgentTrust } from "../trust/bootstrap.js";
+import { copyMasterSkillToTenant } from "../services/company-skills.js";
 import {
   PackValidationError,
   PackInstallError,
@@ -233,12 +234,19 @@ async function installSkills(
     const safeRisk     = ["minimal","limited","high","unacceptable"].includes(aiActRisk)
       ? aiActRisk : "minimal";
 
-    // §20: Record lineage — which master skill (if any) this copy originates from.
-    // def.sourceSkillId and def.masterVersion are optional fields on PackManifest skills.
+    // §20 three-tier architecture: if the manifest declares sourceSkillId,
+    // COPY from the master skill (Tier 1 → Tier 2) instead of inserting inline.
+    // This is the canonical path once masters are seeded.
     const defAny = def as unknown as Record<string, unknown>;
-    const sourceSkillId  = defAny.sourceSkillId  as string | undefined;
-    const masterVersion  = defAny.masterVersion  as string | undefined;
+    const sourceSkillId = defAny.sourceSkillId as string | undefined;
 
+    if (sourceSkillId) {
+      // Tier 1 → Tier 2 copy: tenant gets their own evolving copy
+      await copyMasterSkillToTenant(tx, sourceSkillId, companyId);
+      continue;
+    }
+
+    // Fallback: inline embed (used when manifest has no sourceSkillId)
     await (tx as any)
       .insert(companySkills)
       .values({
@@ -252,22 +260,19 @@ async function installSkills(
         tier,
         aiActRisk:     safeRisk,
         metadata:      capabilityMetadata,
-        sourceSkillId: sourceSkillId ?? null,
-        masterVersion: masterVersion ?? null,
+        sourceSkillId: null,
+        masterVersion: null,
       })
       .onConflictDoUpdate({
         target: [companySkills.companyId, companySkills.key],
         set: {
           markdown,
-          name:          def.name,
-          sourceType:    "pack",
+          name:      def.name,
+          sourceType: "pack",
           gdprRequired,
           tier,
-          aiActRisk:     safeRisk,
-          metadata:      capabilityMetadata,
-          // Preserve lineage on update — do not overwrite once set
-          ...(sourceSkillId && { sourceSkillId }),
-          ...(masterVersion && { masterVersion }),
+          aiActRisk:  safeRisk,
+          metadata:   capabilityMetadata,
         },
       });
   }

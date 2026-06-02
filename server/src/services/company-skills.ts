@@ -170,10 +170,11 @@ function selectCompanySkillColumns() {
     aiActRisk:     companySkills.aiActRisk,
     fileInventory: companySkills.fileInventory,
     metadata:      companySkills.metadata,
-    sourceSkillId: companySkills.sourceSkillId,
-    masterVersion: companySkills.masterVersion,
-    createdAt:     companySkills.createdAt,
-    updatedAt:     companySkills.updatedAt,
+    sourceCompanyId: (companySkills as any).sourceCompanyId,
+    sourceSkillId:   companySkills.sourceSkillId,
+    masterVersion:   companySkills.masterVersion,
+    createdAt:       companySkills.createdAt,
+    updatedAt:       companySkills.updatedAt,
   };
 }
 
@@ -1548,6 +1549,113 @@ function toCompanySkillListItem(skill: CompanySkillListRow, attachedAgentCount: 
     sourceBadge: source.sourceBadge,
     sourcePath: source.sourcePath,
   };
+}
+
+// ── §20: Three-tier skill copy ────────────────────────────────────────────────
+
+const PLATFORM_COMPANY_ID = "00000000-0000-0000-0000-000000000001";
+
+/**
+ * Copy a master skill (Tier 1) into a tenant's namespace (Tier 2).
+ *
+ * Invariants:
+ *   - masterSkillId must belong to the platform sentinel company
+ *   - The new row gets source_skill_id = master.id (lineage)
+ *   - source_company_id = NULL → tenant OWNS this copy
+ *   - All content (markdown, frontmatter, gdprRequired, tier, aiActRisk) is copied exactly
+ *   - Golden datasets are NOT copied — tenant accumulates their own
+ *
+ * @returns The new tenant skill id
+ */
+export async function copyMasterSkillToTenant(
+  db:            Db,
+  masterSkillId: string,
+  companyId:     string,
+): Promise<string> {
+  const [master] = await (db as any)
+    .select()
+    .from(companySkills)
+    .where(
+      and(
+        eq(companySkills.id, masterSkillId),
+        eq(companySkills.companyId, PLATFORM_COMPANY_ID),
+      ),
+    )
+    .limit(1);
+
+  if (!master) {
+    throw new Error(`Master skill not found: ${masterSkillId}`);
+  }
+
+  // Check if tenant already has a copy of this master skill
+  const [existing] = await (db as any)
+    .select({ id: companySkills.id })
+    .from(companySkills)
+    .where(
+      and(
+        eq(companySkills.companyId, companyId),
+        eq((companySkills as any).sourceSkillId, masterSkillId),
+      ),
+    )
+    .limit(1);
+
+  if (existing) return existing.id;
+
+  const [inserted] = await (db as any)
+    .insert(companySkills)
+    .values({
+      companyId,
+      key:             master.key,
+      slug:            master.slug,
+      name:            master.name,
+      description:     master.description,
+      markdown:        master.markdown,
+      sourceType:      "pack",
+      sourceLocator:   master.sourceLocator,
+      sourceRef:       master.sourceRef,
+      trustLevel:      master.trustLevel,
+      compatibility:   master.compatibility,
+      sourceCompanyId: null,              // tenant owns this copy
+      sourceSkillId:   masterSkillId,     // lineage: copied from this master
+      masterVersion:   master.masterVersion ?? "1.0.0",
+      gdprRequired:    master.gdprRequired,
+      tier:            master.tier,
+      aiActRisk:       master.aiActRisk,
+      metadata:        master.metadata ?? {},
+    })
+    .returning({ id: companySkills.id });
+
+  return inserted.id;
+}
+
+/**
+ * List all master skills (Tier 1 — platform-owned).
+ * Returns skills that belong to the platform sentinel company.
+ */
+export async function listMasterSkills(db: Db): Promise<CompanySkillRow[]> {
+  return (db as any)
+    .select()
+    .from(companySkills)
+    .where(eq(companySkills.companyId, PLATFORM_COMPANY_ID))
+    .orderBy(asc(companySkills.slug));
+}
+
+/**
+ * List all tenant copies of a given master skill.
+ * Used by the admin UI to show lineage: which tenants are using a master skill.
+ */
+export async function listTenantCopiesOfMaster(
+  db:            Db,
+  masterSkillId: string,
+): Promise<Array<{ skillId: string; companyId: string; masterVersion: string | null }>> {
+  return (db as any)
+    .select({
+      skillId:       companySkills.id,
+      companyId:     companySkills.companyId,
+      masterVersion: (companySkills as any).masterVersion,
+    })
+    .from(companySkills)
+    .where(eq((companySkills as any).sourceSkillId, masterSkillId));
 }
 
 export function companySkillService(db: Db) {

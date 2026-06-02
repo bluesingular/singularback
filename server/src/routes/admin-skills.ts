@@ -22,9 +22,19 @@ import { Router } from "express";
 import { eq, and, isNull, desc, ne } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@paperclipai/db";
-import { skillVersions, goldenDatasets, companies } from "@paperclipai/db";
+import { skillVersions, goldenDatasets, companies, companySkills, skillUpdateNotifications } from "@paperclipai/db";
 import { assertInstanceAdmin } from "./authz.js";
 import { notFound, badRequest } from "../errors.js";
+import {
+  listMasterSkills,
+  listTenantCopiesOfMaster,
+  copyMasterSkillToTenant,
+} from "../services/company-skills.js";
+import {
+  publishMasterSkillUpdate,
+  applyMasterUpdate,
+  dismissMasterUpdate,
+} from "../services/skill-merge.js";
 import pino from "pino";
 
 const log = pino({ name: "admin-skills" });
@@ -457,6 +467,90 @@ export function adminSkillRoutes(db: Db): Router {
     } catch (err) {
       next(err);
     }
+  });
+
+  // ── §20 Master skills (Tier 1 platform repository) ───────────────────────
+
+  // GET /admin/skills/master — list all master skills
+  router.get("/admin/skills/master", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const masters = await listMasterSkills(db);
+      res.json({ ok: true, skills: masters });
+    } catch (err) { next(err); }
+  });
+
+  // GET /admin/skills/master/:skillId/tenants — which tenants copied this master
+  router.get("/admin/skills/master/:skillId/tenants", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { skillId } = req.params;
+      const copies = await listTenantCopiesOfMaster(db, skillId);
+      res.json({ ok: true, copies });
+    } catch (err) { next(err); }
+  });
+
+  // PATCH /admin/skills/master/:skillId — update master markdown + notify tenants
+  router.patch("/admin/skills/master/:skillId", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { skillId } = req.params;
+      const { markdown, version, changelog } = req.body as {
+        markdown: string; version: string; changelog?: string;
+      };
+      if (!markdown?.trim() || !version?.trim()) {
+        res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "markdown and version are required" } });
+        return;
+      }
+      const result = await publishMasterSkillUpdate(db, skillId, markdown, version, changelog);
+      res.json({ ok: true, data: result });
+    } catch (err) { next(err); }
+  });
+
+  // POST /admin/skills/master/:skillId/copy — copy master to a tenant
+  router.post("/admin/skills/master/:skillId/copy", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { skillId } = req.params;
+      const { companyId } = req.body as { companyId: string };
+      if (!companyId) {
+        res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "companyId required" } });
+        return;
+      }
+      const tenantSkillId = await copyMasterSkillToTenant(db, skillId, companyId);
+      res.status(201).json({ ok: true, data: { tenantSkillId } });
+    } catch (err) { next(err); }
+  });
+
+  // GET /admin/skill-updates — all pending update notifications (across all tenants)
+  router.get("/admin/skill-updates", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const updates = await (db as any)
+        .select()
+        .from(skillUpdateNotifications)
+        .orderBy((skillUpdateNotifications as any).createdAt);
+      res.json({ ok: true, updates });
+    } catch (err) { next(err); }
+  });
+
+  // POST /admin/skill-updates/:id/apply — apply a pending update to a tenant copy
+  router.post("/admin/skill-updates/:id/apply", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const userId = (req as any).actor?.userId ?? "admin";
+      await applyMasterUpdate(db, req.params.id, userId);
+      res.json({ ok: true });
+    } catch (err) { next(err); }
+  });
+
+  // POST /admin/skill-updates/:id/dismiss — tenant dismisses without merging
+  router.post("/admin/skill-updates/:id/dismiss", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      await dismissMasterUpdate(db, req.params.id);
+      res.json({ ok: true });
+    } catch (err) { next(err); }
   });
 
   return router;
