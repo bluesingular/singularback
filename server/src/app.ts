@@ -183,16 +183,14 @@ export async function createApp(
   // by external clients who set X-Forwarded-For directly.
   app.set("trust proxy", 1);
 
-  // P1 — Content Security Policy
-  app.use((_req, res, next) => {
-    res.setHeader("Content-Security-Policy", [
-      "default-src 'self'",
-      "script-src 'self'",
-      "style-src 'self' 'unsafe-inline'",       // Tailwind requires unsafe-inline
-      "connect-src 'self' https://api.openrouter.ai https://api.mistral.ai https://openrouter.ai",
-      "img-src 'self' data: https:",
-      "frame-ancestors 'none'",
-    ].join("; "));
+  // P1 — Content Security Policy (API routes only — UI shell has its own CSP)
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api/")) {
+      res.setHeader("Content-Security-Policy", [
+        "default-src 'none'",
+        "frame-ancestors 'none'",
+      ].join("; "));
+    }
     next();
   });
 
