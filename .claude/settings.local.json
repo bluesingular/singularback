@@ -53,7 +53,11 @@
       "Bash(sed -i '' 's/title=\"Déconnexion\"/title=\"Sign out\"/' components/SidebarFooter.tsx)",
       "Bash(sed -i '' 's|Voir {result\\\\.type === \"mission\" ? \"la mission\" : \"la tâche\"}|View {result.type === \"mission\" ? \"mission\" : \"task\"}|' pages/singular/VoiceAgent.tsx)",
       "Bash(sed -i '' 's/owner:    \"Propriétaire\"/owner:    \"Owner\"/' pages/singular/admin/AdminMembers.tsx)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(npm install *)",
+      "Bash(convert --version)",
+      "Bash(sips -s format png icon.svg --out icon-192.png -z 192 192)",
+      "Bash(sips -s format png icon.svg --out icon-512.png -z 512 512)"
     ]
   }
 }
