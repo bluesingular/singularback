@@ -8,7 +8,7 @@
  * All user-facing strings from EMOTIONAL_LAYER.md.
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../auth/AuthContext";
 import {
@@ -128,7 +128,11 @@ function AgentDisc({
   const borderStyle = agent.status === "paused" ? "dashed" : "solid";
 
   return (
-    <div className="relative flex flex-col items-center gap-2 cursor-pointer select-none" onClick={onClick}>
+    <div
+      className="relative flex flex-col items-center gap-2 cursor-pointer select-none"
+      onClick={onClick}
+      data-agent-disc={agent.id}
+    >
       {bubble && <SpeechBubble text={bubble} colour={colour} />}
       <div
         className="relative flex items-center justify-center rounded-full"
@@ -146,6 +150,88 @@ function AgentDisc({
         {agent.displayName ?? agent.name}
       </span>
     </div>
+  );
+}
+
+// ── WAR-7: Delegation arrows SVG overlay (marching ants) ─────────────────────
+
+interface Arrow { agentId: string; colour: string; x1: number; y1: number; x2: number; y2: number }
+
+function DelegationArrows({
+  containerRef,
+  agents,
+  tasks,
+}: {
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  agents: Agent[];
+  tasks: Task[];
+}) {
+  const [arrows, setArrows] = useState<Arrow[]>([]);
+
+  // Only draw arrows for agents with a running task
+  const activeAgentIds = new Set(
+    tasks
+      .filter((t) => t.status === "running" || t.status === "approved")
+      .map((t) => t.agentId)
+      .filter(Boolean) as string[]
+  );
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    // Mission anchor: top-centre of the operatives floor (where the header is)
+    const anchorX = containerRect.width / 2;
+    const anchorY = 24; // within the container
+
+    const next: Arrow[] = [];
+    for (const agent of agents) {
+      if (!activeAgentIds.has(agent.id)) continue;
+      const el = container.querySelector(`[data-agent-disc="${agent.id}"]`);
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left - containerRect.left + rect.width / 2;
+      const cy = rect.top - containerRect.top + rect.height / 2;
+      next.push({
+        agentId: agent.id,
+        colour: (agent as any).colour ?? "#3B82F6",
+        x1: anchorX, y1: anchorY,
+        x2: cx, y2: cy,
+      });
+    }
+    setArrows(next);
+  });
+
+  if (arrows.length === 0) return null;
+
+  return (
+    <svg
+      className="pointer-events-none absolute inset-0 w-full h-full"
+      style={{ zIndex: 0 }}
+      aria-hidden
+    >
+      <defs>
+        <style>{`
+          @keyframes marchingAnts {
+            to { stroke-dashoffset: -24; }
+          }
+        `}</style>
+      </defs>
+      {arrows.map((a) => (
+        <line
+          key={a.agentId}
+          x1={a.x1} y1={a.y1}
+          x2={a.x2} y2={a.y2}
+          stroke={a.colour}
+          strokeWidth={2}
+          strokeDasharray="8 4"
+          strokeLinecap="round"
+          opacity={0.5}
+          style={{ animation: "marchingAnts 0.6s linear infinite" }}
+        />
+      ))}
+    </svg>
   );
 }
 
@@ -521,6 +607,7 @@ export default function ConsoleCEO() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | undefined>();
   const [bubbles, setBubbles] = useState<Record<string, string>>({});
   const [selectedClientCtxId, setSelectedClientCtxId] = useState<string | null>(null);
+  const operativesFloorRef = useRef<HTMLDivElement>(null);
 
   // ── Queries ─────────────────────────────────────────────────────────────────
 
@@ -715,8 +802,14 @@ export default function ConsoleCEO() {
             Aucun agent actif
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="flex flex-wrap gap-8 justify-start">
+          <div ref={operativesFloorRef} className="flex-1 overflow-y-auto p-6 relative">
+            {/* WAR-7: Delegation arrows — marching ants SVG overlay */}
+            <DelegationArrows
+              containerRef={operativesFloorRef}
+              agents={visibleAgents}
+              tasks={tasks}
+            />
+            <div className="flex flex-wrap gap-8 justify-start relative" style={{ zIndex: 1 }}>
               {visibleAgents.map((agent) => {
                 const ledState = getLedState(agent, tasks);
                 const bubble = bubbles[agent.id];
@@ -733,9 +826,6 @@ export default function ConsoleCEO() {
             </div>
           </div>
         )}
-
-        {/* Delegation arrows — SVG overlay (rendered inside operatives floor) */}
-        {/* Arrows would require DOM position measurement; deferred to WAR-7 */}
       </div>
 
       {/* ── Drill-down panel ── */}
