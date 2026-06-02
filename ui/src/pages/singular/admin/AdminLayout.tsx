@@ -48,8 +48,12 @@ function NavItem({ to, label, icon: Icon, exact }: { to: string; label: string; 
 export function AdminLayout() {
   const navigate = useNavigate()
 
+  // Force light theme for the entire admin portal.
+  // Paperclip sets `html.dark` globally; we override at this root so every
+  // child component (screens, dialogs, inputs) renders in light mode without
+  // needing per-component fixes.
   return (
-    <div className="flex h-screen bg-[#FAFAF8] overflow-hidden">
+    <div className="flex h-screen bg-[#FAFAF8] overflow-hidden" data-theme="light" style={{ colorScheme: "light", color: "#0F0F0D" }}>
       {/* Sidebar */}
       <aside className="w-52 flex-shrink-0 border-r border-[#E8E4DC] bg-white flex flex-col px-3 py-4 gap-1">
         <div className="px-2 pb-3 mb-2 border-b border-[#F0EDE6]">

@@ -1,17 +1,12 @@
 /**
- * AdminDialog — shared modal wrapper for all admin screens.
+ * AdminDialog — shared Radix Dialog wrapper for all admin screens.
  *
- * Uses Radix UI Dialog (same as the rest of Paperclip UI) so it correctly
- * handles focus trapping, keyboard events, and portal rendering.
- * All custom fixed-inset-0 modals in admin screens must use this instead.
+ * Light theme is forced at AdminLayout root (data-theme="light"), so all
+ * dialogs rendered via Radix portal inherit it without per-component overrides.
+ * Radix handles focus trapping and keyboard events correctly — no custom code needed.
  */
 import * as React from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface AdminDialogProps {
   open: boolean
@@ -25,23 +20,18 @@ export function AdminDialog({ open, onClose, title, children, maxWidth = "max-w-
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
       <DialogContent
-        className={`${maxWidth} p-0 gap-0`}
-        style={{
-          backgroundColor: "#ffffff",
-          color: "#0F0F0D",
-          borderColor: "#E8E4DC",
-        }}
+        className={`${maxWidth} p-0 gap-0 bg-white text-[#0F0F0D] border-[#E8E4DC]`}
+        // Radix portals outside the admin layout div, so we re-apply light theme here
+        data-theme="light"
+        style={{ colorScheme: "light" }}
       >
-        {/* Force light theme — Paperclip sets html.dark globally */}
-        <div className="light" data-theme="light" style={{ colorScheme: "light" }}>
-          <DialogHeader className="px-6 pt-6 pb-0">
-            <DialogTitle style={{ color: "#0F0F0D", fontFamily: "Georgia, serif", fontSize: "1.125rem", fontWeight: 400 }}>
-              {title}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="px-6 pb-6 pt-4" style={{ color: "#0F0F0D" }}>
-            {children}
-          </div>
+        <DialogHeader className="px-6 pt-6 pb-0">
+          <DialogTitle className="font-[Georgia,serif] text-[#0F0F0D] text-lg font-normal">
+            {title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="px-6 pb-6 pt-4 text-[#0F0F0D]">
+          {children}
         </div>
       </DialogContent>
     </Dialog>
