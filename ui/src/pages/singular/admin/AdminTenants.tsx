@@ -1,12 +1,12 @@
 import * as React from "react"
-import { useState, useRef, useEffect } from "react"
-import { createPortal } from "react-dom"
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@/lib/router"
 import { adminApi, type TenantSummary, type EmbeddingMetric } from "@/api/admin"
-import { Users, Bot, CheckSquare, Euro, ExternalLink, Eye, AlertTriangle, Plus, Pencil, X } from "lucide-react"
+import { Users, Bot, CheckSquare, Euro, ExternalLink, Eye, AlertTriangle, Plus, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/hooks/useLocale"
+import { AdminDialog } from "./AdminDialog"
 
 const PLAN_BADGE: Record<string, string> = {
   solo:       "bg-[#F0EDE6] text-[#4B4846]",
@@ -46,32 +46,6 @@ function EmbeddingPill({ metric }: { metric: EmbeddingMetric | undefined }) {
   return <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums", color)}>{score}</span>
 }
 
-// ── Modal wrapper via portal (bypasses Paperclip focus traps) ────────────────
-
-function Modal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    const el = dialogRef.current
-    if (!el) return
-    el.showModal()
-    el.addEventListener("cancel", onClose)
-    return () => el.removeEventListener("cancel", onClose)
-  }, [onClose])
-
-  return createPortal(
-    <dialog
-      ref={dialogRef}
-      onClick={e => { if (e.target === dialogRef.current) onClose() }}
-      className="p-0 rounded-2xl shadow-xl border-0 backdrop:bg-black/30 w-full max-w-md mx-auto"
-      style={{ maxWidth: "28rem" }}
-    >
-      {children}
-    </dialog>,
-    document.body
-  )
-}
-
 // ── Create tenant modal ───────────────────────────────────────────────────────
 
 function CreateTenantModal({ onClose }: { onClose: () => void }) {
@@ -79,9 +53,6 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("")
   const [plan, setPlan] = useState("solo")
   const [error, setError] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 50) }, [])
 
   const create = useMutation({
     mutationFn: () => (adminApi as any).createTenant({ name, plan }),
@@ -93,67 +64,58 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
   })
 
   return (
-    <Modal onClose={onClose}>
-      <div className="p-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Nouveau tenant</h2>
-          <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
+    <AdminDialog open={true} onClose={onClose} title="Nouveau tenant">
+      <div className="flex flex-col gap-4">
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom de l'entreprise *</label>
+          <input
+            type="text"
+            value={name}
+            onChange={e => { setName(e.target.value); setError("") }}
+            onKeyDown={e => e.key === "Enter" && name.trim() && create.mutate()}
+            placeholder="Ex : Acme SAS"
+            className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 focus:border-[#1A9E68]"
+          />
         </div>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom de l'entreprise *</label>
-            <input
-              ref={inputRef}
-              type="text"
-              autoComplete="off"
-              value={name}
-              onChange={e => { setName(e.target.value); setError("") }}
-              onKeyDown={e => e.key === "Enter" && name.trim() && create.mutate()}
-              placeholder="Ex : Acme SAS"
-              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 focus:border-[#1A9E68]"
-            />
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Plan</label>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { value: "solo", label: "Solo" },
+              { value: "growth", label: "Croissance" },
+              { value: "pro", label: "Pro" },
+              { value: "enterprise", label: "Entreprise" },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setPlan(opt.value)}
+                className={cn(
+                  "py-2 px-2 rounded-lg border text-xs font-medium transition-colors",
+                  plan === opt.value
+                    ? "border-[#1A9E68] bg-[#E8F5EE] text-[#1A9E68]"
+                    : "border-[#E8E4DC] text-[#4B4846] hover:border-[#CACAC8]"
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
-          <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Plan</label>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { value: "solo", label: "Solo" },
-                { value: "growth", label: "Croissance" },
-                { value: "pro", label: "Pro" },
-                { value: "enterprise", label: "Entreprise" },
-              ].map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setPlan(opt.value)}
-                  className={cn(
-                    "py-2 px-2 rounded-lg border text-xs font-medium transition-colors",
-                    plan === opt.value
-                      ? "border-[#1A9E68] bg-[#E8F5EE] text-[#1A9E68]"
-                      : "border-[#E8E4DC] text-[#4B4846] hover:border-[#CACAC8]"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
-          <button
-            onClick={() => create.mutate()}
-            disabled={!name.trim() || create.isPending}
-            className="px-4 py-2 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
-          >
-            {create.isPending ? "Création…" : "Créer"}
-          </button>
-        </div>
+        {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
-    </Modal>
+
+      <div className="flex justify-end gap-2 pt-4 border-t border-[#E8E4DC] mt-4">
+        <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
+        <button
+          onClick={() => create.mutate()}
+          disabled={!name.trim() || create.isPending}
+          className="px-4 py-2 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
+        >
+          {create.isPending ? "Création…" : "Créer"}
+        </button>
+      </div>
+    </AdminDialog>
   )
 }
 
@@ -164,9 +126,6 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
   const [name, setName] = useState(tenant.name)
   const [status, setStatus] = useState(tenant.status)
   const [error, setError] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 50) }, [])
 
   const update = useMutation({
     mutationFn: () => (adminApi as any).updateTenant(tenant.id, { name, status }),
@@ -178,66 +137,57 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
   })
 
   return (
-    <Modal onClose={onClose}>
-      <div className="p-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Modifier le tenant</h2>
-          <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
+    <AdminDialog open={true} onClose={onClose} title="Modifier le tenant">
+      <div className="flex flex-col gap-4">
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom</label>
+          <input
+            type="text"
+            value={name}
+            onChange={e => { setName(e.target.value); setError("") }}
+            onKeyDown={e => e.key === "Enter" && name.trim() && update.mutate()}
+            className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 focus:border-[#1A9E68]"
+          />
         </div>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom</label>
-            <input
-              ref={inputRef}
-              type="text"
-              autoComplete="off"
-              value={name}
-              onChange={e => { setName(e.target.value); setError("") }}
-              onKeyDown={e => e.key === "Enter" && name.trim() && update.mutate()}
-              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 focus:border-[#1A9E68]"
-            />
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Statut</label>
+          <div className="flex gap-2">
+            {[
+              { value: "active", label: "Actif" },
+              { value: "suspended", label: "Suspendu" },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setStatus(opt.value)}
+                className={cn(
+                  "flex-1 py-2 rounded-lg border text-xs font-medium transition-colors",
+                  status === opt.value
+                    ? opt.value === "active"
+                      ? "border-[#1A9E68] bg-[#E8F5EE] text-[#1A9E68]"
+                      : "border-[#C97C0A] bg-[#FDF3E7] text-[#C97C0A]"
+                    : "border-[#E8E4DC] text-[#4B4846] hover:border-[#CACAC8]"
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
-          <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Statut</label>
-            <div className="flex gap-2">
-              {[
-                { value: "active", label: "Actif" },
-                { value: "suspended", label: "Suspendu" },
-              ].map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setStatus(opt.value)}
-                  className={cn(
-                    "flex-1 py-2 rounded-lg border text-xs font-medium transition-colors",
-                    status === opt.value
-                      ? opt.value === "active"
-                        ? "border-[#1A9E68] bg-[#E8F5EE] text-[#1A9E68]"
-                        : "border-[#C97C0A] bg-[#FDF3E7] text-[#C97C0A]"
-                      : "border-[#E8E4DC] text-[#4B4846] hover:border-[#CACAC8]"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
-          <button
-            onClick={() => update.mutate()}
-            disabled={!name.trim() || update.isPending}
-            className="px-4 py-2 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
-          >
-            {update.isPending ? "Enregistrement…" : "Enregistrer"}
-          </button>
-        </div>
+        {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
-    </Modal>
+
+      <div className="flex justify-end gap-2 pt-4 border-t border-[#E8E4DC] mt-4">
+        <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
+        <button
+          onClick={() => update.mutate()}
+          disabled={!name.trim() || update.isPending}
+          className="px-4 py-2 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
+        >
+          {update.isPending ? "Enregistrement…" : "Enregistrer"}
+        </button>
+      </div>
+    </AdminDialog>
   )
 }
 

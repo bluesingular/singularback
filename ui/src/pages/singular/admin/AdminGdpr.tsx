@@ -5,8 +5,10 @@ import { membersApi, type Member } from "@/api/members"
 import { gdprApi } from "@/api/gdpr"
 import { Shield, Download, Trash2, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AdminDialog } from "./AdminDialog"
 
 function ConfirmDialog({
+  open,
   title,
   body,
   confirmLabel,
@@ -14,6 +16,7 @@ function ConfirmDialog({
   onClose,
   danger,
 }: {
+  open: boolean
   title: string
   body: string
   confirmLabel: string
@@ -22,34 +25,29 @@ function ConfirmDialog({
   danger?: boolean
 }) {
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full flex flex-col gap-4 shadow-xl">
-        <div className="flex items-start gap-3">
-          <AlertTriangle size={18} className="text-[#DC2626] mt-0.5 shrink-0" />
-          <div>
-            <p className="font-semibold text-[#0F0F0D]">{title}</p>
-            <p className="text-sm text-[#8A8680] mt-1">{body}</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2 rounded-xl text-sm border border-[#E8E4DC] text-[#0F0F0D] hover:bg-[#F0EDE6] transition-colors"
-          >
-            Annuler
-          </button>
-          <button
-            onClick={onConfirm}
-            className={cn(
-              "flex-1 py-2 rounded-xl text-sm font-semibold text-white transition-colors",
-              danger ? "bg-[#DC2626] hover:bg-red-700" : "bg-[#0F0F0D] hover:bg-[#1A1A18]",
-            )}
-          >
-            {confirmLabel}
-          </button>
-        </div>
+    <AdminDialog open={open} onClose={onClose} title={title} maxWidth="max-w-sm">
+      <div className="flex items-start gap-3 mb-4">
+        <AlertTriangle size={18} className="text-[#DC2626] mt-0.5 shrink-0" />
+        <p className="text-sm text-[#8A8680]">{body}</p>
       </div>
-    </div>
+      <div className="flex gap-2 pt-4 border-t border-[#E8E4DC]">
+        <button
+          onClick={onClose}
+          className="flex-1 py-2 rounded-xl text-sm border border-[#E8E4DC] text-[#0F0F0D] hover:bg-[#F0EDE6] transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          onClick={onConfirm}
+          className={cn(
+            "flex-1 py-2 rounded-xl text-sm font-semibold text-white transition-colors",
+            danger ? "bg-[#DC2626] hover:bg-red-700" : "bg-[#0F0F0D] hover:bg-[#1A1A18]",
+          )}
+        >
+          {confirmLabel}
+        </button>
+      </div>
+    </AdminDialog>
   )
 }
 
@@ -92,16 +90,15 @@ function MemberEraseRow({ member, companyId }: { member: Member; companyId: stri
         </div>
       </div>
 
-      {confirm && (
-        <ConfirmDialog
-          title="Erase user data"
-          body={`Anonymiser toutes les données personnelles de ${member.name ?? member.email ?? member.userId} dans ce tenant (Art. 17 RGPD). Cette action est irréversible.`}
-          confirmLabel="Effacer"
-          danger
-          onConfirm={() => { setConfirm(false); erase.mutate() }}
-          onClose={() => setConfirm(false)}
-        />
-      )}
+      <ConfirmDialog
+        open={confirm}
+        title="Erase user data"
+        body={`Anonymiser toutes les données personnelles de ${member.name ?? member.email ?? member.userId} dans ce tenant (Art. 17 RGPD). Cette action est irréversible.`}
+        confirmLabel="Effacer"
+        danger
+        onConfirm={() => { setConfirm(false); erase.mutate() }}
+        onClose={() => setConfirm(false)}
+      />
     </>
   )
 }
@@ -243,16 +240,15 @@ export function AdminGdpr() {
         )}
       </div>
 
-      {contactConfirm && (
-        <ConfirmDialog
-          title="Erase contact data"
-          body={`Supprimer définitivement toutes les données du contact ${contactId} (notes, événements, fiche). Cette action est irréversible.`}
-          confirmLabel="Effacer"
-          danger
-          onConfirm={() => { setContactConfirm(false); eraseContact.mutate() }}
-          onClose={() => setContactConfirm(false)}
-        />
-      )}
+      <ConfirmDialog
+        open={contactConfirm}
+        title="Erase contact data"
+        body={`Supprimer définitivement toutes les données du contact ${contactId} (notes, événements, fiche). Cette action est irréversible.`}
+        confirmLabel="Effacer"
+        danger
+        onConfirm={() => { setContactConfirm(false); eraseContact.mutate() }}
+        onClose={() => setContactConfirm(false)}
+      />
     </div>
   )
 }

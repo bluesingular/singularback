@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Package, CheckCircle2, Loader2, Trash2, Users, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { adminApi } from "../../../api/admin.js"
+import { AdminDialog } from "./AdminDialog"
 
 // ── P1 hardcoded manifest (from packs/p1-recruitment/manifest.json) ───────────
 
@@ -77,81 +78,76 @@ function InstallModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-xl w-full max-w-lg mx-4 overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#F0EDE6]">
-          <h2 className="text-base font-semibold text-[#0F0F0D]">Installer {pack.name}</h2>
-          <p className="text-xs text-[#8A8680] mt-0.5">v{pack.version}</p>
+    <AdminDialog open={true} onClose={onClose} title={`Installer ${pack.name}`} maxWidth="max-w-lg">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <p className="text-xs text-[#8A8680]">v{pack.version}</p>
+
+        {/* Tenant selector */}
+        <div>
+          <label className="text-xs font-medium text-[#8A8680] mb-1 block">Tenant cible</label>
+          <select
+            value={selectedTenant}
+            onChange={e => setSelectedTenant(e.target.value)}
+            required
+            className="w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] bg-white"
+          >
+            <option value="">Sélectionner un tenant…</option>
+            {tenants.map(t => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
-          {/* Tenant selector */}
-          <div>
-            <label className="text-xs font-medium text-[#8A8680] mb-1 block">Tenant cible</label>
-            <select
-              value={selectedTenant}
-              onChange={e => setSelectedTenant(e.target.value)}
-              required
-              className="w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] bg-white"
-            >
-              <option value="">Sélectionner un tenant…</option>
-              {tenants.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
+        {/* DNA extension questions */}
+        {dnaFields.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">
+              Configuration du pack
+            </p>
+            {dnaFields.map(([key, field]) => (
+              <div key={key}>
+                <label className="text-xs font-medium text-[#8A8680] mb-1 block">{field.label}</label>
+                {field.type === "enum" && field.values ? (
+                  <select
+                    value={dnaValues[key] ?? ""}
+                    onChange={e => setDnaValues(v => ({ ...v, [key]: e.target.value }))}
+                    className="w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] bg-white"
+                  >
+                    <option value="">Sélectionner…</option>
+                    {field.values.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                ) : (
+                  <input
+                    value={dnaValues[key] ?? ""}
+                    onChange={e => setDnaValues(v => ({ ...v, [key]: e.target.value }))}
+                    placeholder={field.label}
+                    className="w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
+                  />
+                )}
+              </div>
+            ))}
           </div>
+        )}
 
-          {/* DNA extension questions */}
-          {dnaFields.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">
-                Configuration du pack
-              </p>
-              {dnaFields.map(([key, field]) => (
-                <div key={key}>
-                  <label className="text-xs font-medium text-[#8A8680] mb-1 block">{field.label}</label>
-                  {field.type === "enum" && field.values ? (
-                    <select
-                      value={dnaValues[key] ?? ""}
-                      onChange={e => setDnaValues(v => ({ ...v, [key]: e.target.value }))}
-                      className="w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] bg-white"
-                    >
-                      <option value="">Sélectionner…</option>
-                      {field.values.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
-                  ) : (
-                    <input
-                      value={dnaValues[key] ?? ""}
-                      onChange={e => setDnaValues(v => ({ ...v, [key]: e.target.value }))}
-                      placeholder={field.label}
-                      className="w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={!selectedTenant || installing}
-              className="flex items-center gap-1.5 text-sm font-medium text-white bg-[#1A9E68] hover:bg-[#158a5a] px-4 py-2 rounded-xl transition-colors disabled:opacity-40"
-            >
-              {installing ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
-              {installing ? "Installation…" : "Installer"}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-sm font-medium text-[#8A8680] hover:text-[#0F0F0D] px-4 py-2 rounded-xl transition-colors"
-            >
-              Annuler
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-2 pt-4 border-t border-[#E8E4DC]">
+          <button
+            type="submit"
+            disabled={!selectedTenant || installing}
+            className="flex items-center gap-1.5 text-sm font-medium text-white bg-[#1A9E68] hover:bg-[#158a5a] px-4 py-2 rounded-xl transition-colors disabled:opacity-40"
+          >
+            {installing ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+            {installing ? "Installation…" : "Installer"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm font-medium text-[#8A8680] hover:text-[#0F0F0D] px-4 py-2 rounded-xl transition-colors"
+          >
+            Annuler
+          </button>
+        </div>
+      </form>
+    </AdminDialog>
   )
 }
 

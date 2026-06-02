@@ -4,6 +4,7 @@ import { qualityGatesApi, type QualityGate, type CreateGatePayload } from "@/api
 import { adminApi } from "@/api/admin"
 import { Shield, Plus, Trash2, ToggleLeft, ToggleRight, AlertTriangle, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AdminDialog } from "./AdminDialog"
 
 function useToast() {
   const [toasts, setToasts] = React.useState<{ id: number; msg: string; tone: "success" | "error" }[]>([])
@@ -77,10 +78,8 @@ function CreateGateDialog({ companyId, onClose, onCreated }: CreateGateDialogPro
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 flex flex-col gap-5">
-        <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Nouvelle règle de sécurité</h2>
-
+    <AdminDialog open={true} onClose={onClose} title="Nouvelle règle de sécurité">
+      <div className="flex flex-col gap-5">
         <div>
           <label className="block text-xs font-medium text-[#4B4846] mb-1.5">Type de règle</label>
           <select
@@ -150,25 +149,25 @@ function CreateGateDialog({ companyId, onClose, onCreated }: CreateGateDialogPro
             />
           </div>
         )}
-
-        <div className="flex justify-end gap-2 pt-1">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm text-[#4B4846] hover:bg-[#F0EDE6] transition-colors"
-          >
-            Annuler
-          </button>
-          <button
-            onClick={() => mut.mutate(buildPayload())}
-            disabled={mut.isPending}
-            className="px-4 py-2 rounded-xl text-sm font-medium bg-[#0F0F0D] text-white disabled:opacity-40 flex items-center gap-1.5"
-          >
-            {mut.isPending && <Loader2 size={13} className="animate-spin" />}
-            Créer la règle
-          </button>
-        </div>
       </div>
-    </div>
+
+      <div className="flex justify-end gap-2 pt-4 border-t border-[#E8E4DC] mt-4">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 rounded-xl text-sm text-[#4B4846] hover:bg-[#F0EDE6] transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          onClick={() => mut.mutate(buildPayload())}
+          disabled={mut.isPending}
+          className="px-4 py-2 rounded-xl text-sm font-medium bg-[#0F0F0D] text-white disabled:opacity-40 flex items-center gap-1.5"
+        >
+          {mut.isPending && <Loader2 size={13} className="animate-spin" />}
+          Créer la règle
+        </button>
+      </div>
+    </AdminDialog>
   )
 }
 
