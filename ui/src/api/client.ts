@@ -26,11 +26,13 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const errorBody = await res.json().catch(() => null);
-    throw new ApiError(
-      (errorBody as { error?: string } | null)?.error ?? `Request failed: ${res.status}`,
-      res.status,
-      errorBody,
-    );
+    const rawError = (errorBody as any)?.error;
+    const message = typeof rawError === "string"
+      ? rawError
+      : typeof rawError?.message === "string"
+      ? rawError.message
+      : `Request failed: ${res.status}`;
+    throw new ApiError(message, res.status, errorBody);
   }
   if (res.status === 204) return undefined as T;
   return res.json();
