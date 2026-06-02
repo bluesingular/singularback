@@ -266,13 +266,24 @@ export function adminRoutes(db: Db) {
         return;
       }
       const baseSlug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-      // Make slug unique by appending a timestamp suffix if needed
       let slug = baseSlug;
-      const existing = await (db as any).select({ id: companies.id }).from(companies).where(eq(companies.slug, baseSlug));
-      if (existing.length > 0) slug = `${baseSlug}-${Date.now().toString(36)}`;
+      const existingSlug = await (db as any).select({ id: companies.id }).from(companies).where(eq(companies.slug, baseSlug));
+      if (existingSlug.length > 0) slug = `${baseSlug}-${Date.now().toString(36)}`;
+
+      // Generate unique 3-letter issue prefix from company name
+      const words = name.trim().toUpperCase().replace(/[^A-Z0-9\s]/g, "").split(/\s+/).filter(Boolean);
+      let prefix = words.length >= 3
+        ? words[0][0] + words[1][0] + words[2][0]
+        : words.length === 2
+        ? words[0].slice(0, 2) + words[1][0]
+        : (words[0] ?? "NEW").slice(0, 3).padEnd(3, "X");
+      // Ensure unique prefix
+      const existingPrefix = await (db as any).select({ id: companies.id }).from(companies).where(eq(companies.issuePrefix, prefix));
+      if (existingPrefix.length > 0) prefix = prefix.slice(0, 2) + Date.now().toString(36).slice(-1).toUpperCase();
+
       const [company] = await (db as any)
         .insert(companies)
-        .values({ name: name.trim(), slug, plan, status: "active" })
+        .values({ name: name.trim(), slug, plan, status: "active", issuePrefix: prefix })
         .returning({ id: companies.id, name: companies.name, slug: companies.slug });
       log.info({ companyId: company.id, name: company.name }, "admin: tenant created");
       res.status(201).json({ ok: true, data: company });
