@@ -36,6 +36,7 @@ import { computeAndStoreEmbeddingMetrics } from "../analytics/embedding-depth.js
 import { financialAlertGenerator } from "../intelligence/financial-pulse.js";
 import { calendarAlertGenerator } from "../intelligence/calendar.js";
 import { ceoHealthCardGenerator } from "../intelligence/ceo-health.js";
+import { runApprovalEscalations } from "../intelligence/approval-escalation.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -61,6 +62,17 @@ export function initMorningIntelligenceWorker(db: Db) {
   const worker = new Worker(
     "system",
     async (job: Job) => {
+      // F3: Approval escalation — runs every 15 minutes
+      if (job.name === "approval.escalation") {
+        try {
+          const { escalated } = await runApprovalEscalations(db);
+          logger.info({ escalated }, "approval-escalation: sweep complete");
+        } catch (err) {
+          logger.error({ err }, "approval-escalation: sweep failed");
+        }
+        return;
+      }
+
       if (job.name !== "intelligence.sweep") return;
 
       // Fetch all active companies
@@ -149,6 +161,22 @@ export async function scheduleIntelligenceSweep() {
     },
   );
   logger.info("morning-intelligence: daily sweep scheduled at 08:00 UTC");
+}
+
+/**
+ * F3 — Register approval escalation as a 15-minute repeatable BullMQ job.
+ * Safe to call multiple times — BullMQ deduplicates by jobId.
+ */
+export async function scheduleApprovalEscalations() {
+  await systemQueue.add(
+    "approval.escalation",
+    {},
+    {
+      repeat: { every: 15 * 60 * 1000 }, // every 15 minutes
+      jobId: "approval-escalation-15m",
+    },
+  );
+  logger.info("approval-escalation: 15-minute sweep scheduled");
 }
 
 function getWeekStart(): Date {

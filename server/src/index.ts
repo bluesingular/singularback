@@ -50,6 +50,7 @@ import { createClarificationTimeoutWorker } from "./workers/clarificationTimeout
 import {
   initMorningIntelligenceWorker,
   scheduleIntelligenceSweep,
+  scheduleApprovalEscalations,
 } from "./workers/morningIntelligence.worker.js";
 import { initCostResetWorker } from "./workers/costReset.worker.js";
 import { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./workers/batchItem.worker.js";
@@ -639,6 +640,10 @@ export async function startServer(): Promise<StartedServer> {
     initMorningIntelligenceWorker(db as any);
     void scheduleIntelligenceSweep().catch((err) => {
       logger.error({ err }, "Morning intelligence sweep scheduling failed");
+    });
+    // F3: Approval escalation — 15-minute sweep
+    void scheduleApprovalEscalations().catch((err) => {
+      logger.error({ err }, "Approval escalation scheduling failed");
     });
 
     // Gap O: Fleet registry snapshot — every 6 hours
