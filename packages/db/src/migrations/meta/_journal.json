@@ -638,6 +638,48 @@
       "when": 1749168000000,
       "tag": "0090_50_customers",
       "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0091_100_customers",
+      "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0092_partner_client_contexts",
+      "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0093_t2_hnsw_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0094_eval_infrastructure",
+      "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0095_ag15_gap_o",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0096_skill_lineage",
+      "breakpoints": true
     }
   ]
 }
