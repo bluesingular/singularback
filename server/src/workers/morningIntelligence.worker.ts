@@ -37,6 +37,7 @@ import { financialAlertGenerator } from "../intelligence/financial-pulse.js";
 import { calendarAlertGenerator } from "../intelligence/calendar.js";
 import { ceoHealthCardGenerator } from "../intelligence/ceo-health.js";
 import { runApprovalEscalations } from "../intelligence/approval-escalation.js";
+import { runVarianceSweep } from "../evals/variance.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -103,6 +104,10 @@ export function initMorningIntelligenceWorker(db: Db) {
           // Gap M + §31.4 + §31.5: weekly jobs (Monday only)
           const isMonday = new Date().getUTCDay() === 1;
           if (isMonday) {
+            // Gap A: skill variance metrics (admin-only, non-determinism debugging)
+            await runVarianceSweep(db).catch((err) =>
+              logger.warn({ companyId: company.id, err }, "morning-intelligence: variance sweep failed"),
+            );
             await computeOptimalTiming(db, company.id).catch((err) =>
               logger.warn({ companyId: company.id, err }, "morning-intelligence: contact timing failed"),
             );
