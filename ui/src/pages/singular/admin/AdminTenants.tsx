@@ -70,29 +70,45 @@ function CreateTenantModal({ onClose }: { onClose: () => void }) {
           <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Nom de l'entreprise *</label>
+            <label htmlFor="tenant-name" className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom de l'entreprise *</label>
             <input
+              id="tenant-name"
+              type="text"
+              autoComplete="off"
               autoFocus
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={e => { setName(e.target.value); setError("") }}
+              onKeyDown={e => e.key === "Enter" && name.trim() && create.mutate()}
               placeholder="Ex : Acme SAS"
-              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 focus:border-[#1A9E68]"
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Plan</label>
-            <select
-              value={plan}
-              onChange={e => setPlan(e.target.value)}
-              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
-            >
-              <option value="solo">Solo</option>
-              <option value="growth">Croissance</option>
-              <option value="pro">Pro</option>
-              <option value="enterprise">Entreprise</option>
-            </select>
+            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Plan</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: "solo", label: "Solo" },
+                { value: "growth", label: "Croissance" },
+                { value: "pro", label: "Pro" },
+                { value: "enterprise", label: "Entreprise" },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setPlan(opt.value)}
+                  className={cn(
+                    "py-2 px-2 rounded-lg border text-xs font-medium transition-colors",
+                    plan === opt.value
+                      ? "border-[#1A9E68] bg-[#E8F5EE] text-[#1A9E68]"
+                      : "border-[#E8E4DC] text-[#4B4846] hover:border-[#CACAC8]"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
@@ -137,26 +153,44 @@ function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: 
           <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Nom</label>
+            <label htmlFor="edit-tenant-name" className="text-xs font-medium text-[#4B4846] mb-1.5 block">Nom</label>
             <input
+              id="edit-tenant-name"
+              type="text"
+              autoComplete="off"
               autoFocus
               value={name}
-              onChange={e => setName(e.target.value)}
-              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
+              onChange={e => { setName(e.target.value); setError("") }}
+              onKeyDown={e => e.key === "Enter" && name.trim() && update.mutate()}
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 focus:border-[#1A9E68]"
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Statut</label>
-            <select
-              value={status}
-              onChange={e => setStatus(e.target.value)}
-              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
-            >
-              <option value="active">Actif</option>
-              <option value="suspended">Suspendu</option>
-            </select>
+            <label className="text-xs font-medium text-[#4B4846] mb-1.5 block">Statut</label>
+            <div className="flex gap-2">
+              {[
+                { value: "active", label: "Actif" },
+                { value: "suspended", label: "Suspendu" },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setStatus(opt.value)}
+                  className={cn(
+                    "flex-1 py-2 rounded-lg border text-xs font-medium transition-colors",
+                    status === opt.value
+                      ? opt.value === "active"
+                        ? "border-[#1A9E68] bg-[#E8F5EE] text-[#1A9E68]"
+                        : "border-[#C97C0A] bg-[#FDF3E7] text-[#C97C0A]"
+                      : "border-[#E8E4DC] text-[#4B4846] hover:border-[#CACAC8]"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
