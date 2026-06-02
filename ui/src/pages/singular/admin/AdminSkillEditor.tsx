@@ -11,6 +11,7 @@ import { useParams, useSearchParams } from "react-router-dom"
 import {
   ArrowLeft, CheckCircle2, XCircle, RotateCcw, ChevronRight,
   Plus, Trash2, Loader2, GitBranch, Star, FileText, Database, GitCompare,
+  Play, AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { adminApi } from "../../../api/admin.js"
@@ -87,6 +88,365 @@ function DiffView({ current, parent }: { current: string; parent: string | null 
           </div>
         ))}
       </pre>
+    </div>
+  )
+}
+
+// ── Frontmatter structured panel ──────────────────────────────────────────────
+
+const MODEL_TIER_OPTIONS = [
+  { value: 0, label: "T0 — Micro" },
+  { value: 1, label: "T1 — Standard" },
+  { value: 2, label: "T2 — Avancé" },
+  { value: 3, label: "T3 — Frontier" },
+]
+
+const AI_ACT_OPTIONS = ["minimal", "limited", "high"]
+
+interface ZeroToleranceRule {
+  action_type: string
+  condition:   string
+}
+
+interface JudgeWeights {
+  relevance:       number
+  accuracy:        number
+  tone:            number
+  completeness:    number
+  scope_adherence: number
+}
+
+function sumWeights(w: JudgeWeights): number {
+  return w.relevance + w.accuracy + w.tone + w.completeness + w.scope_adherence
+}
+
+function FrontmatterPanel({
+  frontmatter,
+  onChange,
+  disabled,
+}: {
+  frontmatter: string
+  onChange: (newFm: string) => void
+  disabled: boolean
+}) {
+  // Parse current frontmatter
+  const parsed = React.useMemo(() => {
+    try { return JSON.parse(frontmatter) } catch { return {} }
+  }, [frontmatter])
+
+  // Local form state (controlled from parsed)
+  const [gdprRequired, setGdprRequired] = React.useState<boolean>(!!parsed.gdpr_required)
+  const [modelTier, setModelTier] = React.useState<number>(parsed.model_tier ?? 1)
+  const [aiActRisk, setAiActRisk] = React.useState<string>(parsed.ai_act?.risk_level ?? "minimal")
+  const [outputSchema, setOutputSchema] = React.useState<string>(
+    parsed.output_schema ? JSON.stringify(parsed.output_schema, null, 2) : "{}",
+  )
+  const [judgeWeights, setJudgeWeights] = React.useState<JudgeWeights>({
+    relevance:       parsed.judge_weights?.relevance       ?? 0.30,
+    accuracy:        parsed.judge_weights?.accuracy        ?? 0.25,
+    tone:            parsed.judge_weights?.tone            ?? 0.15,
+    completeness:    parsed.judge_weights?.completeness    ?? 0.20,
+    scope_adherence: parsed.judge_weights?.scope_adherence ?? 0.10,
+  })
+  const [ztRules, setZtRules] = React.useState<ZeroToleranceRule[]>(
+    parsed.zero_tolerance_actions ?? [],
+  )
+
+  // Rebuild frontmatter JSON whenever a field changes
+  function buildAndEmit(overrides: Partial<{
+    gdpr: boolean; tier: number; risk: string; schema: string; weights: JudgeWeights; zt: ZeroToleranceRule[]
+  }> = {}) {
+    const g   = overrides.gdpr    ?? gdprRequired
+    const t   = overrides.tier    ?? modelTier
+    const r   = overrides.risk    ?? aiActRisk
+    const s   = overrides.schema  ?? outputSchema
+    const w   = overrides.weights ?? judgeWeights
+    const zt  = overrides.zt      ?? ztRules
+
+    let schemaObj: unknown = {}
+    try { schemaObj = JSON.parse(s) } catch { /* keep empty */ }
+
+    const newFm = {
+      ...parsed,
+      gdpr_required: g,
+      model_tier:    t,
+      ai_act:        { ...(parsed.ai_act ?? {}), risk_level: r },
+      output_schema: schemaObj,
+      judge_weights: w,
+      zero_tolerance_actions: zt,
+    }
+    onChange(JSON.stringify(newFm, null, 2))
+  }
+
+  const weightsSum = sumWeights(judgeWeights)
+  const weightsBad = Math.abs(weightsSum - 1) > 0.001
+
+  function setWeight(key: keyof JudgeWeights, val: number) {
+    const next = { ...judgeWeights, [key]: val }
+    setJudgeWeights(next)
+    buildAndEmit({ weights: next })
+  }
+
+  function addZtRule() {
+    const next = [...ztRules, { action_type: "", condition: "always" }]
+    setZtRules(next)
+    buildAndEmit({ zt: next })
+  }
+
+  function removeZtRule(i: number) {
+    const next = ztRules.filter((_, idx) => idx !== i)
+    setZtRules(next)
+    buildAndEmit({ zt: next })
+  }
+
+  function updateZtRule(i: number, field: "action_type" | "condition", val: string) {
+    const next = ztRules.map((r, idx) => idx === i ? { ...r, [field]: val } : r)
+    setZtRules(next)
+    buildAndEmit({ zt: next })
+  }
+
+  const inputCls = "w-full text-sm border border-[#E8E4DC] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] disabled:bg-[#FAFAF8] disabled:text-[#8A8680]"
+  const labelCls = "text-xs font-medium text-[#8A8680] mb-1 block"
+
+  return (
+    <div className="bg-white border border-[#E8E4DC] rounded-2xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[#F0EDE6]">
+        <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">Paramètres structurés</p>
+      </div>
+
+      <div className="px-5 py-4 flex flex-col gap-5">
+        {/* GDPR + Model tier */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>RGPD requis</label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={gdprRequired}
+                disabled={disabled}
+                onChange={e => { setGdprRequired(e.target.checked); buildAndEmit({ gdpr: e.target.checked }) }}
+                className="w-4 h-4 rounded accent-[#1A9E68]"
+              />
+              <span className="text-sm text-[#0F0F0D]">
+                {gdprRequired ? "Oui — T1_FR uniquement" : "Non"}
+              </span>
+            </label>
+          </div>
+          <div>
+            <label className={labelCls}>Tier de modèle</label>
+            <select
+              value={modelTier}
+              disabled={disabled}
+              onChange={e => { const v = Number(e.target.value); setModelTier(v); buildAndEmit({ tier: v }) }}
+              className={inputCls}
+            >
+              {MODEL_TIER_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* AI Act risk */}
+        <div>
+          <label className={labelCls}>Risque AI Act</label>
+          <select
+            value={aiActRisk}
+            disabled={disabled}
+            onChange={e => { setAiActRisk(e.target.value); buildAndEmit({ risk: e.target.value }) }}
+            className={inputCls}
+          >
+            {AI_ACT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+        </div>
+
+        {/* Output schema */}
+        <div>
+          <label className={labelCls}>Schéma de sortie (JSON)</label>
+          <textarea
+            value={outputSchema}
+            disabled={disabled}
+            rows={5}
+            onChange={e => { setOutputSchema(e.target.value); buildAndEmit({ schema: e.target.value }) }}
+            className="w-full text-xs font-mono border border-[#E8E4DC] rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] resize-y disabled:bg-[#FAFAF8] disabled:text-[#8A8680]"
+          />
+        </div>
+
+        {/* Judge weights */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className={labelCls + " mb-0"}>Pondération juge</label>
+            {weightsBad && (
+              <span className="flex items-center gap-1 text-xs text-red-600">
+                <AlertCircle size={11} />
+                Somme : {weightsSum.toFixed(2)} (doit être 1.0)
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-5 gap-2">
+            {(Object.keys(judgeWeights) as (keyof JudgeWeights)[]).map(k => (
+              <div key={k}>
+                <label className="text-[10px] text-[#8A8680] mb-0.5 block capitalize">{k.replace("_", " ")}</label>
+                <input
+                  type="number"
+                  min={0} max={1} step={0.05}
+                  value={judgeWeights[k]}
+                  disabled={disabled}
+                  onChange={e => setWeight(k, parseFloat(e.target.value) || 0)}
+                  className="w-full text-sm border border-[#E8E4DC] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] disabled:bg-[#FAFAF8]"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Zero tolerance actions */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className={labelCls + " mb-0"}>Actions zéro tolérance</label>
+            {!disabled && (
+              <button
+                onClick={addZtRule}
+                className="flex items-center gap-1 text-xs text-[#1A9E68] hover:underline"
+              >
+                <Plus size={11} />
+                Ajouter
+              </button>
+            )}
+          </div>
+          {ztRules.length === 0 && (
+            <p className="text-xs text-[#8A8680]">Aucune règle — toutes les actions suivent la calibration de confiance normale.</p>
+          )}
+          {ztRules.map((rule, i) => (
+            <div key={i} className="flex items-center gap-2 mb-2">
+              <input
+                value={rule.action_type}
+                disabled={disabled}
+                onChange={e => updateZtRule(i, "action_type", e.target.value)}
+                placeholder="action_type (ex: send_email)"
+                className="flex-1 text-sm border border-[#E8E4DC] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] disabled:bg-[#FAFAF8]"
+              />
+              <input
+                value={rule.condition}
+                disabled={disabled}
+                onChange={e => updateZtRule(i, "condition", e.target.value)}
+                placeholder="condition (ex: always)"
+                className="flex-1 text-sm border border-[#E8E4DC] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1A9E68] disabled:bg-[#FAFAF8]"
+              />
+              {!disabled && (
+                <button onClick={() => removeZtRule(i)} className="text-[#8A8680] hover:text-red-600 transition-colors">
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Test runner ────────────────────────────────────────────────────────────────
+
+interface TestRunResult {
+  examplesRun:    number
+  passed:         number
+  avgJudgeScore:  number
+  failedExamples: { input: unknown; expected: unknown; actual: unknown; reason: string }[]
+}
+
+function TestRunner({
+  skillType,
+  versionId,
+  goldenCount,
+}: {
+  skillType: string
+  versionId: string
+  goldenCount: number
+}) {
+  const [result, setResult] = React.useState<TestRunResult | null>(null)
+  const [running, setRunning] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  async function runTests() {
+    setRunning(true)
+    setError(null)
+    setResult(null)
+    try {
+      const res = await adminApi.post<TestRunResult>(
+        `/admin/skills/${skillType}/versions/${versionId}/test`,
+      )
+      setResult(res)
+    } catch {
+      setError("L'endpoint de test n'est pas encore disponible.")
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  const canRun = goldenCount >= 1
+
+  return (
+    <div className="bg-white border border-[#E8E4DC] rounded-2xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[#F0EDE6] flex items-center justify-between">
+        <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">Test contre les exemples</p>
+        <button
+          onClick={runTests}
+          disabled={!canRun || running}
+          title={!canRun ? "Ajoutez au moins 1 exemple golden pour lancer les tests" : undefined}
+          className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#1A4E8C] hover:bg-[#153d6f] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+        >
+          {running ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
+          {running ? "Test en cours…" : "Tester contre les exemples"}
+        </button>
+      </div>
+
+      {!canRun && (
+        <p className="px-5 py-3 text-xs text-[#8A8680]">
+          Ajoutez au moins 1 exemple golden pour activer les tests.
+        </p>
+      )}
+
+      {error && (
+        <p className="px-5 py-3 text-xs text-[#C97C0A]">{error}</p>
+      )}
+
+      {result && (
+        <div className="px-5 py-4 flex flex-col gap-3">
+          <div className="flex items-center gap-6 text-sm">
+            <span>
+              <strong>{result.passed}/{result.examplesRun}</strong>
+              <span className="text-[#8A8680] ml-1">exemples passés</span>
+            </span>
+            <span>
+              <strong>{result.avgJudgeScore.toFixed(1)}</strong>
+              <span className="text-[#8A8680] ml-1">score juge moyen</span>
+            </span>
+            <span className={result.passed === result.examplesRun ? "text-[#1A9E68]" : "text-red-600"}>
+              {result.passed === result.examplesRun ? "Tous passés" : `${result.examplesRun - result.passed} échoué(s)`}
+            </span>
+          </div>
+
+          {result.failedExamples.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider mb-2">
+                Exemples échoués
+              </p>
+              {result.failedExamples.map((ex, i) => (
+                <div key={i} className="text-xs bg-[#FEF2F2] border border-red-100 rounded-lg p-3 mb-2">
+                  <p className="text-red-600 font-medium mb-1">{ex.reason}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <pre className="bg-white rounded p-1.5 overflow-x-auto max-h-16">
+                      {JSON.stringify(ex.expected, null, 2)}
+                    </pre>
+                    <pre className="bg-white rounded p-1.5 overflow-x-auto max-h-16">
+                      {JSON.stringify(ex.actual, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -292,6 +652,16 @@ export function AdminSkillEditor() {
 
   const version = versionQuery.data?.version
   const parent  = versionQuery.data?.parent
+
+  const effectiveCompanyId = companyId || version?.companyId || ""
+  const goldenCountQuery = useQuery({
+    queryKey: ["admin-golden", skillType, effectiveCompanyId],
+    queryFn: () => adminApi.get<{ items: unknown[] }>(
+      `/admin/skills/${skillType}/golden-datasets?companyId=${effectiveCompanyId}`,
+    ).then(r => r.items.length).catch(() => 0),
+    enabled: !!skillType && !!effectiveCompanyId,
+    staleTime: 30_000,
+  })
 
   // Seed editor when data loads
   React.useEffect(() => {
@@ -507,19 +877,31 @@ export function AdminSkillEditor() {
               />
             </div>
 
+            <FrontmatterPanel
+              frontmatter={frontmatter}
+              onChange={setFrontmatter}
+              disabled={!canEdit}
+            />
+
             <div className="bg-white border border-[#E8E4DC] rounded-2xl overflow-hidden">
               <div className="px-5 py-3 border-b border-[#F0EDE6]">
-                <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">Frontmatter (JSON)</p>
+                <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">Frontmatter brut (JSON)</p>
               </div>
               <textarea
                 value={frontmatter}
                 onChange={e => setFrontmatter(e.target.value)}
                 disabled={!canEdit}
-                rows={8}
+                rows={6}
                 className="w-full text-sm font-mono px-5 py-4 focus:outline-none resize-y disabled:bg-[#FAFAF8] disabled:text-[#8A8680]"
               />
               {fmError && <p className="px-5 pb-3 text-xs text-red-600">{fmError}</p>}
             </div>
+
+            <TestRunner
+              skillType={version.skillType}
+              versionId={versionId!}
+              goldenCount={goldenCountQuery.data ?? 0}
+            />
           </div>
         )}
 

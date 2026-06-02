@@ -1,23 +1,27 @@
 import * as React from "react"
 import { Outlet } from "react-router-dom"
 import { useNavigate, useLocation } from "@/lib/router"
-import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users, ShieldCheck, Bell, FileText } from "lucide-react"
+import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users, ShieldCheck, Bell, FileText, TrendingUp, Package, AlertTriangle, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV = [
   { to: "/instance/admin",               label: "Plateforme",   icon: BarChart3, exact: true  },
   { to: "/instance/admin/tenants",       label: "Tenants",      icon: Building2, exact: false },
-  { to: "/instance/admin/skills",        label: "Skills",  icon: GitBranch, exact: false },
-  { to: "/instance/admin/api-keys",      label: "API keys",     icon: Key,       exact: false },
-  { to: "/instance/admin/quality-gates", label: "Security",     icon: Shield,    exact: false },
-  { to: "/instance/admin/integrations",  label: "Integrations", icon: Plug,      exact: false },
+  { to: "/instance/admin/skills",            label: "Compétences",  icon: GitBranch,     exact: false },
+  { to: "/instance/admin/skill-performance", label: "Performance",   icon: TrendingUp,    exact: false },
+  { to: "/instance/admin/packs",             label: "Packs",         icon: Package,       exact: false },
+  { to: "/instance/admin/api-keys",          label: "Clés API",      icon: Key,           exact: false },
+  { to: "/instance/admin/quality-gates", label: "Sécurité",     icon: Shield,    exact: false },
+  { to: "/instance/admin/integrations",  label: "Intégrations", icon: Plug,      exact: false },
   { to: "/instance/admin/webhooks",      label: "Webhooks",     icon: Webhook,    exact: false },
-  { to: "/instance/admin/llm-models",   label: "LLM models",  icon: Cpu,        exact: false },
+  { to: "/instance/admin/llm-models",   label: "Modèles LLM",  icon: Cpu,        exact: false },
   { to: "/instance/admin/billing",      label: "Facturation",  icon: CreditCard, exact: false },
   { to: "/instance/admin/members",       label: "Membres",      icon: Users,      exact: false },
   { to: "/instance/admin/trust",         label: "Confiance",    icon: ShieldCheck, exact: false },
   { to: "/instance/admin/notifications", label: "Notifications", icon: Bell,       exact: false },
-  { to: "/instance/admin/gdpr",          label: "RGPD",         icon: FileText,   exact: false },
+  { to: "/instance/admin/gdpr",      label: "RGPD",      icon: FileText,      exact: false },
+  { to: "/instance/admin/anomalies", label: "Anomalies", icon: AlertTriangle, exact: false },
+  { to: "/instance/admin/variance",  label: "Variance",  icon: Activity,      exact: false },
 ];
 
 function NavItem({ to, label, icon: Icon, exact }: { to: string; label: string; icon: React.ElementType; exact: boolean }) {

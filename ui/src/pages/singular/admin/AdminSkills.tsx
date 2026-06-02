@@ -10,10 +10,21 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@/lib/router"
 import {
   CheckCircle2, XCircle, Clock, ChevronRight, Search, Loader2,
-  GitBranch, Star,
+  GitBranch, Star, Play, AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { adminApi } from "../../../api/admin.js"
+
+// ── Regression result type ────────────────────────────────────────────────────
+
+interface RegressionResult {
+  examplesRun:          number
+  passed:               number
+  avgJudgeCandidate:    number
+  avgJudgeBaseline:     number
+  delta:                number   // candidate - baseline
+  promoted:             boolean
+}
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 
@@ -55,43 +66,108 @@ function PendingRow({ v, onApprove, onReject, busy }: {
   onReject:  (id: string) => void
   busy: boolean
 }) {
+  const [regression, setRegression] = React.useState<RegressionResult | null>(null)
+  const [testRunning, setTestRunning] = React.useState(false)
+  const [testError, setTestError] = React.useState<string | null>(null)
+
+  async function runRegressionTest() {
+    setTestRunning(true)
+    setTestError(null)
+    try {
+      const res = await adminApi.post<RegressionResult>(
+        `/admin/skills/_/versions/${v.id}/regression-test`,
+      )
+      setRegression(res)
+    } catch {
+      setTestError("Tests non disponibles")
+    } finally {
+      setTestRunning(false)
+    }
+  }
+
+  const regressionBlocked = regression && regression.delta < -0.5
+
   return (
-    <div className="flex items-center gap-4 px-5 py-3.5 border-b border-[#F0EDE6] last:border-0 hover:bg-[#FAFAF8] transition-colors">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <GitBranch size={13} className="text-[#8A8680] flex-shrink-0" />
-          <span className="text-sm font-medium text-[#0F0F0D] truncate">{v.skillType}</span>
-          <span className="text-xs text-[#8A8680]">v{v.version}</span>
-          <StatusBadge status={v.status} />
-        </div>
-        <div className="flex items-center gap-3 mt-0.5 text-xs text-[#8A8680]">
-          <span>{v.companyName}</span>
-          {v.benchmarkScore != null && (
-            <span className="flex items-center gap-1">
-              <Star size={11} />
-              {parseFloat(v.benchmarkScore).toFixed(2)}
-            </span>
+    <div className="border-b border-[#F0EDE6] last:border-0">
+      <div className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#FAFAF8] transition-colors">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <GitBranch size={13} className="text-[#8A8680] flex-shrink-0" />
+            <span className="text-sm font-medium text-[#0F0F0D] truncate">{v.skillType}</span>
+            <span className="text-xs text-[#8A8680]">v{v.version}</span>
+            <StatusBadge status={v.status} />
+          </div>
+          <div className="flex items-center gap-3 mt-0.5 text-xs text-[#8A8680]">
+            <span>{v.companyName}</span>
+            {v.benchmarkScore != null && (
+              <span className="flex items-center gap-1">
+                <Star size={11} />
+                {parseFloat(v.benchmarkScore).toFixed(2)}
+              </span>
+            )}
+            <span>{v.triggerReason ?? "manual"}</span>
+          </div>
+
+          {/* Regression test results */}
+          {!regression && !testError && (
+            <button
+              onClick={runRegressionTest}
+              disabled={testRunning}
+              className="flex items-center gap-1 text-xs text-[#8A8680] hover:text-[#1A4E8C] mt-1.5 transition-colors"
+            >
+              {testRunning
+                ? <Loader2 size={11} className="animate-spin" />
+                : <Play size={11} />
+              }
+              {testRunning ? "Tests en cours…" : "Lancer les tests"}
+            </button>
           )}
-          <span>{v.triggerReason ?? "manual"}</span>
+          {testError && (
+            <span className="text-xs text-[#8A8680] mt-1 block">{testError}</span>
+          )}
+          {regression && (
+            <div className="flex items-center gap-3 mt-1.5 text-xs">
+              <span className="text-[#0F0F0D]">
+                Tests : <strong>{regression.passed}/{regression.examplesRun}</strong> passés
+                {" · "}score moyen : <strong>{regression.avgJudgeCandidate.toFixed(1)}</strong>
+              </span>
+              {regressionBlocked && (
+                <span className="flex items-center gap-1 text-red-600 font-medium">
+                  <AlertTriangle size={11} />
+                  Régression détectée — delta : {regression.delta.toFixed(2)}
+                </span>
+              )}
+              {!regressionBlocked && regression.delta !== 0 && (
+                <span className={cn("font-medium", regression.delta > 0 ? "text-[#1A9E68]" : "text-[#C97C0A]")}>
+                  delta : {regression.delta > 0 ? "+" : ""}{regression.delta.toFixed(2)}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <button
-          onClick={() => onApprove(v.id)}
-          disabled={busy}
-          className="flex items-center gap-1.5 text-xs font-medium text-[#1A9E68] hover:bg-[#E8F7F0] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
-        >
-          <CheckCircle2 size={13} />
-          Approuver
-        </button>
-        <button
-          onClick={() => onReject(v.id)}
-          disabled={busy}
-          className="flex items-center gap-1.5 text-xs font-medium text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
-        >
-          <XCircle size={13} />
-          Rejeter
-        </button>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div
+            title={regressionBlocked ? `Régression détectée — delta score : ${regression?.delta.toFixed(2)}` : undefined}
+          >
+            <button
+              onClick={() => onApprove(v.id)}
+              disabled={busy || !!regressionBlocked}
+              className="flex items-center gap-1.5 text-xs font-medium text-[#1A9E68] hover:bg-[#E8F7F0] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+            >
+              <CheckCircle2 size={13} />
+              Approuver
+            </button>
+          </div>
+          <button
+            onClick={() => onReject(v.id)}
+            disabled={busy}
+            className="flex items-center gap-1.5 text-xs font-medium text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          >
+            <XCircle size={13} />
+            Rejeter
+          </button>
+        </div>
       </div>
     </div>
   )

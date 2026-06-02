@@ -84,6 +84,10 @@ const AdminMembers     = lazy(() => import("./pages/singular/admin/AdminMembers"
 const AdminTrustConfig = lazy(() => import("./pages/singular/admin/AdminTrustConfig").then(m => ({ default: m.AdminTrustConfig })));
 const AdminNotifications = lazy(() => import("./pages/singular/admin/AdminNotifications").then(m => ({ default: m.AdminNotifications })));
 const AdminGdpr        = lazy(() => import("./pages/singular/admin/AdminGdpr").then(m => ({ default: m.AdminGdpr })));
+const AdminSkillPerformance    = lazy(() => import("./pages/singular/admin/AdminSkillPerformance").then(m => ({ default: m.AdminSkillPerformance })));
+const AdminBehavioralAnomalies = lazy(() => import("./pages/singular/admin/AdminBehavioralAnomalies").then(m => ({ default: m.AdminBehavioralAnomalies })));
+const AdminVarianceMetrics     = lazy(() => import("./pages/singular/admin/AdminVarianceMetrics").then(m => ({ default: m.AdminVarianceMetrics })));
+const AdminPackInstaller       = lazy(() => import("./pages/singular/admin/AdminPackInstaller").then(m => ({ default: m.AdminPackInstaller })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -423,6 +427,10 @@ export function App() {
             <Route path="trust" element={<Suspense fallback={null}><AdminTrustConfig /></Suspense>} />
             <Route path="notifications" element={<Suspense fallback={null}><AdminNotifications /></Suspense>} />
             <Route path="gdpr" element={<Suspense fallback={null}><AdminGdpr /></Suspense>} />
+            <Route path="skill-performance" element={<Suspense fallback={null}><AdminSkillPerformance /></Suspense>} />
+            <Route path="packs" element={<Suspense fallback={null}><AdminPackInstaller /></Suspense>} />
+            <Route path="anomalies" element={<Suspense fallback={null}><AdminBehavioralAnomalies /></Suspense>} />
+            <Route path="variance" element={<Suspense fallback={null}><AdminVarianceMetrics /></Suspense>} />
           </Route>
           <Route path="instance/settings" element={<Layout />}>
             <Route index element={<Navigate to="general" replace />} />
