@@ -151,4 +151,12 @@ export const adminApi = {
   restartWorkers(): Promise<{ ok: boolean }> {
     return request("/admin/workers/restart", { method: "POST" });
   },
+
+  createTenant(data: { name: string; plan?: string }): Promise<{ ok: true; data: { id: string; name: string; slug: string } }> {
+    return request("/admin/tenants", { method: "POST", body: JSON.stringify(data) });
+  },
+
+  updateTenant(companyId: string, data: { name?: string; status?: string }): Promise<{ ok: boolean }> {
+    return request(`/admin/tenants/${companyId}`, { method: "PATCH", body: JSON.stringify(data) });
+  },
 };

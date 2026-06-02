@@ -256,6 +256,40 @@ export function adminRoutes(db: Db) {
     });
   });
 
+  // ── POST /admin/tenants — create a new tenant ─────────────────────────────
+  router.post("/admin/tenants", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { name, plan = "solo" } = req.body as { name: string; plan?: string };
+      if (!name?.trim()) {
+        res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "Le nom de l'entreprise est requis." } });
+        return;
+      }
+      const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const [company] = await (db as any)
+        .insert(companies)
+        .values({ name: name.trim(), slug, plan, status: "active" })
+        .returning({ id: companies.id, name: companies.name, slug: companies.slug });
+      log.info({ companyId: company.id, name: company.name }, "admin: tenant created");
+      res.status(201).json({ ok: true, data: company });
+    } catch (err) { next(err); }
+  });
+
+  // ── PATCH /admin/tenants/:companyId — update tenant name/status ────────────
+  router.patch("/admin/tenants/:companyId", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { companyId } = req.params as { companyId: string };
+      const { name, status } = req.body as { name?: string; status?: string };
+      const updates: Record<string, unknown> = { updatedAt: new Date() };
+      if (name?.trim()) updates.name = name.trim();
+      if (status && ["active", "suspended", "deleted"].includes(status)) updates.status = status;
+      await (db as any).update(companies).set(updates).where(eq(companies.id, companyId));
+      log.info({ companyId, updates }, "admin: tenant updated");
+      res.json({ ok: true });
+    } catch (err) { next(err); }
+  });
+
   // ── POST /admin/tenants/:companyId/impersonate ────────────────────────────
   // Logs an audit entry and returns a signed token the UI can use to view
   // that tenant's dashboard in read-only mode.

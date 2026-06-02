@@ -1,9 +1,9 @@
 import * as React from "react"
 import { useState } from "react"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@/lib/router"
 import { adminApi, type TenantSummary, type EmbeddingMetric } from "@/api/admin"
-import { Users, Bot, CheckSquare, Euro, ExternalLink, Eye, AlertTriangle } from "lucide-react"
+import { Users, Bot, CheckSquare, Euro, ExternalLink, Eye, AlertTriangle, Plus, Pencil, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/hooks/useLocale"
 
@@ -39,26 +39,151 @@ function Metric({ icon: Icon, value, label }: { icon: React.ElementType; value: 
 }
 
 function EmbeddingPill({ metric }: { metric: EmbeddingMetric | undefined }) {
-  if (!metric) {
-    return <span className="text-xs text-[#CACAC8] font-mono">—</span>
-  }
+  if (!metric) return <span className="text-xs text-[#CACAC8] font-mono">—</span>
   const score = metric.embeddingScore
-  const color = score > 60
-    ? "bg-[#E8F5EE] text-[#1A9E68]"
-    : score >= 20
-    ? "bg-[#FEF3C7] text-[#C97C0A]"
-    : "bg-[#FEE2E2] text-[#DC2626]"
+  const color = score > 60 ? "bg-[#E8F5EE] text-[#1A9E68]" : score >= 20 ? "bg-[#FEF3C7] text-[#C97C0A]" : "bg-[#FEE2E2] text-[#DC2626]"
+  return <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums", color)}>{score}</span>
+}
+
+// ── Create tenant modal ───────────────────────────────────────────────────────
+
+function CreateTenantModal({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient()
+  const [name, setName] = useState("")
+  const [plan, setPlan] = useState("solo")
+  const [error, setError] = useState("")
+
+  const create = useMutation({
+    mutationFn: () => (adminApi as any).createTenant({ name, plan }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "tenants"] })
+      onClose()
+    },
+    onError: (err: any) => setError(err?.message ?? "Erreur lors de la création"),
+  })
+
   return (
-    <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums", color)}>
-      {score}
-    </span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Nouveau tenant</h2>
+          <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Nom de l'entreprise *</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Ex : Acme SAS"
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Plan</label>
+            <select
+              value={plan}
+              onChange={e => setPlan(e.target.value)}
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
+            >
+              <option value="solo">Solo</option>
+              <option value="growth">Croissance</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Entreprise</option>
+            </select>
+          </div>
+          {error && <p className="text-xs text-red-600">{error}</p>}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors">Annuler</button>
+          <button
+            onClick={() => create.mutate()}
+            disabled={!name.trim() || create.isPending}
+            className="px-4 py-2 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
+          >
+            {create.isPending ? "Création…" : "Créer"}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
+
+// ── Edit tenant modal ─────────────────────────────────────────────────────────
+
+function EditTenantModal({ tenant, onClose }: { tenant: TenantSummary; onClose: () => void }) {
+  const qc = useQueryClient()
+  const [name, setName] = useState(tenant.name)
+  const [status, setStatus] = useState(tenant.status)
+  const [error, setError] = useState("")
+
+  const update = useMutation({
+    mutationFn: () => (adminApi as any).updateTenant(tenant.id, { name, status }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "tenants"] })
+      onClose()
+    },
+    onError: (err: any) => setError(err?.message ?? "Erreur lors de la mise à jour"),
+  })
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">Modifier le tenant</h2>
+          <button onClick={onClose} className="text-[#8A8680] hover:text-[#0F0F0D]"><X size={18} /></button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Nom</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Statut</label>
+            <select
+              value={status}
+              onChange={e => setStatus(e.target.value)}
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A9E68]"
+            >
+              <option value="active">Actif</option>
+              <option value="suspended">Suspendu</option>
+            </select>
+          </div>
+          {error && <p className="text-xs text-red-600">{error}</p>}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors">Annuler</button>
+          <button
+            onClick={() => update.mutate()}
+            disabled={!name.trim() || update.isPending}
+            className="px-4 py-2 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
+          >
+            {update.isPending ? "Enregistrement…" : "Enregistrer"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 export function AdminTenants() {
   const navigate = useNavigate()
   const { formatEuros } = useLocale()
   const [impersonating, setImpersonating] = useState<string | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
+  const [editingTenant, setEditingTenant] = useState<TenantSummary | null>(null)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin", "tenants"],
@@ -74,26 +199,20 @@ export function AdminTenants() {
 
   const impersonateMutation = useMutation({
     mutationFn: (companyId: string) => adminApi.startImpersonation(companyId),
-    onSuccess: (session) => {
-      setImpersonating(session.companyId)
-    },
+    onSuccess: (session) => setImpersonating(session.companyId),
   })
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#1A9E68] border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
+  if (isLoading) return (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-[#1A9E68] border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
 
-  if (error) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-sm text-red-600">Accès refusé ou erreur serveur.</p>
-      </div>
-    )
-  }
+  if (error) return (
+    <div className="flex-1 flex items-center justify-center">
+      <p className="text-sm text-red-600">Accès refusé ou erreur serveur.</p>
+    </div>
+  )
 
   const tenants = data?.tenants ?? []
   const embeddingMap = new Map<string, EmbeddingMetric>(
@@ -106,19 +225,23 @@ export function AdminTenants() {
 
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Tenants</h1>
-          <span className="text-sm text-[#8A8680]">{tenants.length} entreprise{tenants.length !== 1 ? "s" : ""}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[#8A8680]">{tenants.length} entreprise{tenants.length !== 1 ? "s" : ""}</span>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[#0F0F0D] text-white rounded-lg hover:bg-[#333] transition-colors"
+            >
+              <Plus size={14} />
+              Nouveau tenant
+            </button>
+          </div>
         </div>
 
         {impersonating && (
           <div className="rounded-xl bg-[#FDF3E7] border border-[#C97C0A]/30 px-4 py-3 flex items-center justify-between gap-4">
-            <p className="text-sm text-[#C97C0A] font-medium">
-              Mode impersonation actif — vue lecture seule
-            </p>
+            <p className="text-sm text-[#C97C0A] font-medium">Mode impersonation actif — vue lecture seule</p>
             <button
-              onClick={async () => {
-                await adminApi.endImpersonation(impersonating)
-                setImpersonating(null)
-              }}
+              onClick={async () => { await adminApi.endImpersonation(impersonating); setImpersonating(null) }}
               className="text-xs text-[#C97C0A] underline underline-offset-2"
             >
               Terminer
@@ -128,7 +251,7 @@ export function AdminTenants() {
 
         <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm divide-y divide-[#F0EDE6]">
           {tenants.length === 0 && (
-            <div className="p-8 text-center text-sm text-[#8A8680]">Aucun tenant.</div>
+            <div className="p-8 text-center text-sm text-[#8A8680]">Aucun tenant. Créez le premier avec le bouton ci-dessus.</div>
           )}
           {tenants.map((t: TenantSummary) => {
             const em = embeddingMap.get(t.id)
@@ -152,9 +275,7 @@ export function AdminTenants() {
                       </span>
                     )}
                     <PlanBadge plan={t.plan} />
-                    {t.stripeCustomerId && (
-                      <span className="text-xs text-[#1A9E68]">Stripe ✓</span>
-                    )}
+                    {t.stripeCustomerId && <span className="text-xs text-[#1A9E68]">Stripe ✓</span>}
                   </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <Metric icon={Users} value={t.members} label="membres" />
@@ -166,6 +287,13 @@ export function AdminTenants() {
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <EmbeddingPill metric={em} />
+                  <button
+                    onClick={() => setEditingTenant(t)}
+                    className="flex items-center gap-1 text-xs text-[#8A8680] hover:text-[#0F0F0D] transition-colors px-2 py-1 rounded-lg hover:bg-[#F0EDE6]"
+                    title="Modifier"
+                  >
+                    <Pencil size={12} />
+                  </button>
                   <button
                     onClick={() => navigate(`/instance/admin/tenants/${t.id}`)}
                     className="flex items-center gap-1 text-xs text-[#8A8680] hover:text-[#0F0F0D] transition-colors px-2 py-1 rounded-lg hover:bg-[#F0EDE6]"
@@ -187,6 +315,9 @@ export function AdminTenants() {
           })}
         </div>
       </div>
+
+      {showCreate && <CreateTenantModal onClose={() => setShowCreate(false)} />}
+      {editingTenant && <EditTenantModal tenant={editingTenant} onClose={() => setEditingTenant(null)} />}
     </div>
   )
 }
