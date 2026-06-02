@@ -13,7 +13,7 @@ const AGENT_COLORS = [
   "#D97706", "#0EA5E9", "#EC4899",
 ];
 
-export function Rapports() {
+export function Reports() {
   const { t } = useTranslation("reports");
   const { t: tc } = useTranslation("common");
   const { selectedCompanyId } = useCompany();

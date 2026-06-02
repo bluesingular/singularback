@@ -100,7 +100,7 @@ export function SessionGapBriefing({ onDismiss }: { onDismiss: () => void }) {
         <button
           onClick={() => {
             onDismiss();
-            navigate("tableau-de-bord");
+            navigate("dashboard");
           }}
           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#1A9E68] text-white font-medium text-sm hover:bg-[#158A58] transition-colors"
         >

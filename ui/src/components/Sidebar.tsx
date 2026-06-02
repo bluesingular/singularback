@@ -75,7 +75,7 @@ export function Sidebar() {
         <div className="flex flex-col gap-0.5">
           {/* Link to Singular customer portal */}
           <SidebarNavItem
-            to={`/${selectedCompany?.issuePrefix ?? ""}/tableau-de-bord`}
+            to={`/${selectedCompany?.issuePrefix ?? ""}/dashboard`}
             label="Singular →"
             icon={ExternalLink}
           />

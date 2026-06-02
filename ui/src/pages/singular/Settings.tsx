@@ -26,7 +26,7 @@ type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue
 
 const tabLabels: { key: Tab; label: string }[] = [
   { key: "adn", label: "ADN de l'entreprise" },
-  { key: "integrations", label: "Intégrations" },
+  { key: "integrations", label: "Integrations" },
   { key: "facturation", label: "Facturation" },
   { key: "equipe", label: "Équipe" },
   { key: "packs", label: "Packs d'agents" },
@@ -37,10 +37,10 @@ const tabLabels: { key: Tab; label: string }[] = [
 const specialisations = [
   "Recrutement IT & Tech",
   "Recrutement Commerce & Marketing",
-  "Recrutement Finance & Comptabilité",
-  "Recrutement Industrie & Ingénierie",
-  "Recrutement Santé & Médical",
-  "Recrutement Généraliste",
+  "Recruitment — Finance & Accounting",
+  "Recruitment — Industry & Engineering",
+  "Recruitment — Health & Medical",
+  "Recruitment — Generalist",
 ];
 
 const zones = [
@@ -50,7 +50,7 @@ const zones = [
   "Nouvelle-Aquitaine",
   "Hauts-de-France",
   "Bretagne",
-  "France entière",
+  "All of France",
   "Europe",
 ];
 
@@ -80,12 +80,12 @@ const integrations = [
 function ADNTab() {
   const [nom, setNom] = useState("Cabinet Dupont Recrutement");
   const [description, setDescription] = useState(
-    "Cabinet de recrutement spécialisé IT fondé en 2018, basé à Paris. Nous accompagnons les scale-ups et PME dans leurs recrutements tech avec une approche personnalisée."
+    "Specialised IT recruitment firm founded in 2018, based in Paris. We help scale-ups and SMEs hire top tech talent with a personalised approach."
   );
   const [specialisation, setSpecialisation] = useState("Recrutement IT & Tech");
   const [zone, setZone] = useState("Île-de-France");
   const [ton, setTon] = useState("Professionnel et chaleureux");
-  const [interdits, setInterdits] = useState("Ne jamais promettre un délai précis de placement");
+  const [interdits, setInterdits] = useState("Never promise a specific placement deadline");
   const [rgpd, setRgpd] = useState(true);
   const [nonDisc, setNonDisc] = useState(true);
   const [conventions, setConventions] = useState(false);
@@ -224,7 +224,7 @@ function ADNTab() {
               value={interdits}
               onChange={(e) => setInterdits(e.target.value)}
               rows={2}
-              placeholder="Exemple : Ne jamais promettre un délai précis"
+              placeholder="E.g. Never promise a specific deadline"
               className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none resize-none transition-colors focus:border-[#1A9E68]"
               style={{ borderColor: "#E8E4DC", color: "#0F0F0D" }}
             />
@@ -247,7 +247,7 @@ function ADNTab() {
           {[
             { label: "RGPD candidats", value: rgpd, set: setRgpd },
             { label: "Loi non-discrimination", value: nonDisc, set: setNonDisc },
-            { label: "Conventions collectives spécifiques", value: conventions, set: setConventions },
+            { label: "Specific collective agreements", value: conventions, set: setConventions },
           ].map(({ label, value, set }) => (
             <label key={label} className="flex items-center gap-3 cursor-pointer">
               <input
@@ -311,7 +311,7 @@ function IntegrationsTab() {
               <p className="text-xs" style={{ color: "#8A8680" }}>
                 {integ.status === "connected"
                   ? `Connecté — ${integ.detail}`
-                  : "Non connecté"}
+                  : "Not connected"}
               </p>
             </div>
           </div>
@@ -356,7 +356,7 @@ function FacturationTab() {
 
       <div className="space-y-2 mb-6">
         {[
-          "2 000 tâches/mois",
+          "2,000 tasks/month",
           "6 agents",
           "20M tokens inclus",
         ].map((item) => (
@@ -381,9 +381,9 @@ function FacturationTab() {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  owner:    "Propriétaire",
+  owner:    "Owner",
   admin:    "Administrateur",
-  operator: "Opérateur",
+  operator: "Operator",
   viewer:   "Lecteur",
   api:      "API",
 };
@@ -407,16 +407,16 @@ function EquipeTab() {
       membersApi.updateRole(selectedCompanyId!, memberId, role),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["singular-members", selectedCompanyId] });
-      pushToast({ title: "Rôle mis à jour", tone: "success" });
+      pushToast({ title: "Role updated", tone: "success" });
     },
-    onError: () => pushToast({ title: "Erreur lors de la mise à jour", tone: "error" }),
+    onError: () => pushToast({ title: "Update failed", tone: "error" }),
   });
 
   const removeMutation = useMutation({
     mutationFn: (memberId: string) => membersApi.remove(selectedCompanyId!, memberId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["singular-members", selectedCompanyId] });
-      pushToast({ title: "Membre retiré", tone: "success" });
+      pushToast({ title: "Member removed", tone: "success" });
     },
     onError: (err: any) =>
       pushToast({ title: err?.message ?? "Erreur lors de la suppression", tone: "error" }),
@@ -518,7 +518,7 @@ function LangueTab() {
     mutationFn: (tz: string) =>
       companiesApi.update(selectedCompanyId!, { timezone: tz }),
     onSuccess: () =>
-      pushToast({ title: "Fuseau horaire enregistré", tone: "success" }),
+      pushToast({ title: "Timezone saved", tone: "success" }),
     onError: () =>
       pushToast({ title: "Erreur lors de l'enregistrement", tone: "error" }),
   });
@@ -599,7 +599,7 @@ function PacksTab() {
     mutationFn: (packSlug: string) => companiesApi.installPack(selectedCompanyId!, packSlug),
     onSuccess: () => {
       pushToast({
-        title: "Pack installé!",
+        title: "Pack installed!",
         body: "Les agents et compétences sont maintenant disponibles.",
         tone: "success",
       });
@@ -800,7 +800,7 @@ function NotificationsTab() {
   );
 }
 
-export function Parametres() {
+export function Settings() {
   const [activeTab, setActiveTab] = useState<Tab>("adn");
 
   return (

@@ -99,7 +99,7 @@ function ApprovalWidget({ onApprove }: { onApprove: (rating: number) => void }) 
 // Page
 // ---------------------------------------------------------------------------
 
-export default function FilDeTache() {
+export default function TaskThread() {
   const navigate = useNavigate()
   const { id: issueId } = useParams<{ id?: string }>()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -148,7 +148,7 @@ export default function FilDeTache() {
   const agentName    = "Agent"
   const agentInitial = agentName.charAt(0).toUpperCase()
   const output       = issue.description ?? ""
-  const isPending    = issue.status === "pending_approval"
+  const isPending    = ["pending_approval", "in_review"].includes(issue.status)
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">

@@ -213,7 +213,7 @@ export default function FinancialPulsePage() {
               </p>
             </div>
             <a
-              href="/parametres"
+              href="/settings"
               className="px-4 py-2 rounded-xl bg-[#1A4E8C] text-white text-sm font-medium hover:bg-[#153F70] transition-colors"
             >
               Connect a source →

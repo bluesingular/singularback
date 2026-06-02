@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "@/lib/router";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
-export function SuccessPaiement() {
+export function PaymentSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");

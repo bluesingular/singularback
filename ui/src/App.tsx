@@ -47,21 +47,21 @@ import { CliAuthPage } from "./pages/CliAuth";
 import { InviteLandingPage } from "./pages/InviteLanding";
 import { NotFoundPage } from "./pages/NotFound";
 import { lazy, Suspense } from "react";
-const TableauDeBord  = lazy(() => import("./pages/singular/TableauDeBord"));
-const MonEquipe      = lazy(() => import("./pages/singular/MonEquipe"));
-const FicheAgent     = lazy(() => import("./pages/singular/FicheAgent"));
-const CentreDeConfiance = lazy(() => import("./pages/singular/CentreDeConfiance"));
-const FilDeTache     = lazy(() => import("./pages/singular/FilDeTache"));
+const SingularDashboard = lazy(() => import("./pages/singular/Dashboard"));
+const Team = lazy(() => import("./pages/singular/Team"));
+const AgentProfile = lazy(() => import("./pages/singular/AgentProfile"));
+const TrustCentre = lazy(() => import("./pages/singular/TrustCentre"));
+const TaskThread = lazy(() => import("./pages/singular/TaskThread"));
 const MissionsArchive = lazy(() => import('./pages/singular/MissionsArchive').then(m => ({ default: m.MissionsArchive })));
 const ConsoleCEO     = lazy(() => import("./pages/singular/ConsoleCEO").then(m => ({ default: m.ConsoleCEO })));
-const Rapports       = lazy(() => import("./pages/singular/Rapports").then(m => ({ default: m.Rapports })));
+const Reports = lazy(() => import("./pages/singular/Reports").then(m => ({ default: m.Reports })));
 const Contacts       = lazy(() => import("./pages/singular/Contacts").then(m => ({ default: m.Contacts })));
-const Parametres     = lazy(() => import("./pages/singular/Parametres").then(m => ({ default: m.Parametres })));
+const Settings = lazy(() => import("./pages/singular/Settings").then(m => ({ default: m.Settings })));
 const SingularPreview = lazy(() => import("./pages/singular/Preview").then(m => ({ default: m.SingularPreview })));
 const AssistantInstallation = lazy(() => import("./pages/singular/AssistantInstallation").then(m => ({ default: m.AssistantInstallation })));
-const Inscription = lazy(() => import("./pages/singular/Inscription").then(m => ({ default: m.Inscription })));
+const Signup = lazy(() => import("./pages/singular/Signup").then(m => ({ default: m.Signup })));
 const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then(m => ({ default: m.CataloguePacks })));
-const SuccessPaiement = lazy(() => import("./pages/singular/SuccessPaiement").then(m => ({ default: m.SuccessPaiement })));
+const PaymentSuccess = lazy(() => import("./pages/singular/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const ConfigAgent    = lazy(() => import("./pages/singular/ConfigAgent").then(m => ({ default: m.ConfigAgent })));
 const AdminLayout       = lazy(() => import("./pages/singular/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
 const AdminHealth       = lazy(() => import("./pages/singular/admin/AdminHealth").then(m => ({ default: m.AdminHealth })));
@@ -163,22 +163,28 @@ function boardRoutes() {
       <Route index element={<SingularIndexRedirect />} />
       <Route path="catalogue" element={<Suspense fallback={null}><CataloguePacks /></Suspense>} />
       <Route path="installation" element={<Suspense fallback={null}><AssistantInstallation /></Suspense>} />
-      <Route path="tableau-de-bord" element={<Suspense fallback={null}><TableauDeBord /></Suspense>} />
-      <Route path="mon-equipe" element={<Suspense fallback={null}><MonEquipe /></Suspense>} />
-      <Route path="mon-equipe/:slug" element={<Suspense fallback={null}><FicheAgent /></Suspense>} />
-      <Route path="mon-equipe/:slug/config" element={<Suspense fallback={null}><ConfigAgent /></Suspense>} />
-      <Route path="confiance" element={<Suspense fallback={null}><CentreDeConfiance /></Suspense>} />
-      <Route path="taches/:taskId" element={<Suspense fallback={null}><FilDeTache /></Suspense>} />
+      <Route path="dashboard" element={<Suspense fallback={null}><SingularDashboard /></Suspense>} />
+      <Route path="team" element={<Suspense fallback={null}><Team /></Suspense>} />
+      <Route path="team/:slug" element={<Suspense fallback={null}><AgentProfile /></Suspense>} />
+      <Route path="team/:slug/config" element={<Suspense fallback={null}><ConfigAgent /></Suspense>} />
+      <Route path="trust" element={<Suspense fallback={null}><TrustCentre /></Suspense>} />
+      <Route path="tasks/:taskId" element={<Suspense fallback={null}><TaskThread /></Suspense>} />
       <Route path="console" element={<Suspense fallback={null}><ConsoleCEO /></Suspense>} />
-      <Route path="missions/archives" element={<Suspense fallback={null}><MissionsArchive /></Suspense>} />
-      <Route path="rapports" element={<Suspense fallback={null}><Rapports /></Suspense>} />
+      <Route path="missions/archive" element={<Suspense fallback={null}><MissionsArchive /></Suspense>} />
+      <Route path="reports" element={<Suspense fallback={null}><Reports /></Suspense>} />
       <Route path="contacts" element={<Suspense fallback={null}><Contacts /></Suspense>} />
-      <Route path="note-vocale" element={<Suspense fallback={null}><VoiceAgent /></Suspense>} />
-      <Route path="studio-documents" element={<Suspense fallback={null}><DocumentStudio /></Suspense>} />
-      <Route path="sante-financiere" element={<Suspense fallback={null}><FinancialPulsePage /></Suspense>} />
-      <Route path="ratio-ceo" element={<Suspense fallback={null}><CeoHealth /></Suspense>} />
-      <Route path="briefing-reunion" element={<Suspense fallback={null}><CalendarBriefing /></Suspense>} />
-      <Route path="parametres" element={<Suspense fallback={null}><Parametres /></Suspense>} />
+      <Route path="voice" element={<Suspense fallback={null}><VoiceAgent /></Suspense>} />
+      <Route path="documents" element={<Suspense fallback={null}><DocumentStudio /></Suspense>} />
+      <Route path="financial-pulse" element={<Suspense fallback={null}><FinancialPulsePage /></Suspense>} />
+      <Route path="ceo-health" element={<Suspense fallback={null}><CeoHealth /></Suspense>} />
+      <Route path="meeting-briefing" element={<Suspense fallback={null}><CalendarBriefing /></Suspense>} />
+      <Route path="settings" element={<Suspense fallback={null}><Settings /></Suspense>} />
+      {/* Approvals surfaced within the Singular layout so navigation stays consistent */}
+      <Route path="approbations" element={<Navigate to="/approvals/pending" replace />} />
+      <Route path="approvals" element={<Navigate to="/approvals/pending" replace />} />
+      <Route path="approvals/pending" element={<Approvals />} />
+      <Route path="approvals/all" element={<Approvals />} />
+      <Route path="approvals/:approvalId" element={<ApprovalDetail />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="onboarding" element={<OnboardingRoutePage />} />
       <Route path="companies" element={<Companies />} />
@@ -311,7 +317,7 @@ function SingularIndexRedirect() {
     return <Navigate to="installation" replace />;
   }
 
-  return <Navigate to="tableau-de-bord" replace />;
+  return <Navigate to="dashboard" replace />;
 }
 
 function CompanyRootRedirect() {
@@ -391,8 +397,8 @@ export function App() {
       <Routes>
         <Route path="preview/*" element={<SingularPreview />} />
         <Route path="auth" element={<AuthPage />} />
-        <Route path="inscription" element={<Suspense fallback={null}><Inscription /></Suspense>} />
-        <Route path="succes-paiement" element={<Suspense fallback={null}><SuccessPaiement /></Suspense>} />
+        <Route path="inscription" element={<Suspense fallback={null}><Signup /></Suspense>} />
+        <Route path="succes-paiement" element={<Suspense fallback={null}><PaymentSuccess /></Suspense>} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />

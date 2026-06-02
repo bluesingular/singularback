@@ -62,7 +62,7 @@ function BriefingView({ b }: { b: PreMeetingBriefing }) {
         <div className="flex items-center gap-2 text-sm text-stone-500">
           <Clock size={12} />
           {daysAgo !== null
-            ? `Last contact ${daysAgo} jour${daysAgo > 1 ? "s" : ""}`
+            ? `Last contact ${daysAgo} day${daysAgo !== 1 ? "s" : ""} ago`
             : "No contact on record"}
         </div>
 

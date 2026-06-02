@@ -35,10 +35,10 @@ export function SingularSidebar() {
 
       <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 px-2 py-3">
         {/* Core */}
-        <SidebarNavItem to={`${base}/tableau-de-bord`} label="Dashboard"    icon={LayoutDashboard} />
+        <SidebarNavItem to={`/dashboard`} label="Dashboard"    icon={LayoutDashboard} />
         <SidebarNavItem to={`${base}/console`}         label="CEO Console"  icon={MessageSquare} />
-        <SidebarNavItem to={`${base}/mon-equipe`}      label="My team"      icon={Users} />
-        <SidebarNavItem to={`${base}/confiance`}       label="Trust"        icon={ShieldCheck} />
+        <SidebarNavItem to={`/team`}      label="My team"      icon={Users} />
+        <SidebarNavItem to={`/trust`}       label="Trust"        icon={ShieldCheck} />
 
         <div className="my-1 mx-3 border-t border-[#E8E4DC]" />
 
@@ -46,11 +46,11 @@ export function SingularSidebar() {
         <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
           Intelligence
         </p>
-        <SidebarNavItem to={`${base}/rapports`}          label="Reports"           icon={BarChart2} />
+        <SidebarNavItem to={`/reports`}          label="Reports"           icon={BarChart2} />
         <SidebarNavItem to={`${base}/contacts`}          label="Contacts"          icon={BookUser} />
-        <SidebarNavItem to={`${base}/sante-financiere`}  label="Financial pulse"   icon={TrendingUp} />
-        <SidebarNavItem to={`${base}/ratio-ceo`}         label="CEO health"        icon={PieChart} />
-        <SidebarNavItem to={`${base}/briefing-reunion`}  label="Meeting briefing"  icon={Calendar} />
+        <SidebarNavItem to={`/financial-pulse`}  label="Financial pulse"   icon={TrendingUp} />
+        <SidebarNavItem to={`/ceo-health`}         label="CEO health"        icon={PieChart} />
+        <SidebarNavItem to={`/meeting-briefing`}  label="Meeting briefing"  icon={Calendar} />
 
         <div className="my-1 mx-3 border-t border-[#E8E4DC]" />
 
@@ -58,12 +58,12 @@ export function SingularSidebar() {
         <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
           Tools
         </p>
-        <SidebarNavItem to={`${base}/note-vocale`}      label="Voice note"       icon={Mic} />
-        <SidebarNavItem to={`${base}/studio-documents`} label="Document studio"  icon={FileText} />
+        <SidebarNavItem to={`/voice`}      label="Voice note"       icon={Mic} />
+        <SidebarNavItem to={`/documents`} label="Document studio"  icon={FileText} />
 
         <div className="my-1 mx-3 border-t border-[#E8E4DC]" />
 
-        <SidebarNavItem to={`${base}/parametres`} label="Settings" icon={Settings} />
+        <SidebarNavItem to={`/settings`} label="Settings" icon={Settings} />
       </nav>
 
       <SidebarFooter

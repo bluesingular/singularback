@@ -56,7 +56,7 @@ export default function VoiceAgent() {
       setState("result");
     },
     onError: () => {
-      setErrorMsg("La transcription a échoué. Vérifiez votre connexion et réessayez.");
+      setErrorMsg("Transcription failed. Check your connection and try again.");
       setState("error");
     },
   });
@@ -84,7 +84,7 @@ export default function VoiceAgent() {
 
       timerRef.current = setInterval(() => setElapsed((n) => n + 1), 1000);
     } catch {
-      setErrorMsg("Microphone inaccessible. Autorisez l'accès dans les paramètres.");
+      setErrorMsg("Microphone unavailable. Please allow access in your browser settings.");
       setState("error");
     }
   }, [selectedCompanyId, mutation]);
@@ -110,9 +110,9 @@ export default function VoiceAgent() {
 
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-[#0F0F0D]">Note vocale</h1>
+          <h1 className="text-2xl font-semibold text-[#0F0F0D]">Voice note</h1>
           <p className="mt-1 text-sm text-stone-500">
-            Parlez votre instruction — votre équipe s'en charge.
+            Speak your instruction — your team will handle it.
           </p>
         </div>
 
@@ -125,7 +125,7 @@ export default function VoiceAgent() {
             >
               <Mic size={36} className="text-white" />
             </button>
-            <p className="text-sm text-stone-400">Appuyez pour parler</p>
+            <p className="text-sm text-stone-400">Tap to speak</p>
           </div>
         )}
 
@@ -145,7 +145,7 @@ export default function VoiceAgent() {
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-sm font-mono text-stone-600">{fmtElapsed(elapsed)}</span>
             </div>
-            <p className="text-sm text-stone-400">Parlez… Appuyez pour arrêter</p>
+            <p className="text-sm text-stone-400">Speaking… tap to stop</p>
           </div>
         )}
 
@@ -155,7 +155,7 @@ export default function VoiceAgent() {
             <div className="w-24 h-24 rounded-full bg-[#1A4E8C]/10 flex items-center justify-center">
               <div className="w-8 h-8 border-2 border-[#1A4E8C] border-t-transparent rounded-full animate-spin" />
             </div>
-            <p className="text-sm text-stone-500">Analyse en cours…</p>
+            <p className="text-sm text-stone-500">Analysing…</p>
           </div>
         )}
 
@@ -167,9 +167,9 @@ export default function VoiceAgent() {
                 <div className="flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
                   <span className="text-sm font-semibold text-[#0F0F0D]">
-                    {result.type === "mission" ? "Mission créée" :
-                     result.type === "task"    ? "Tâche créée" :
-                                                 "À clarifier"}
+                    {result.type === "mission" ? "Mission created" :
+                     result.type === "task"    ? "Task created" :
+                                                 "Needs clarification"}
                   </span>
                 </div>
                 <ConfidenceBadge c={result.confidence} />
@@ -198,7 +198,7 @@ export default function VoiceAgent() {
                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-stone-200 text-stone-600 font-medium text-sm hover:bg-stone-50 transition-colors"
               >
                 <RotateCcw size={14} />
-                Nouvelle note
+                New note
               </button>
             </div>
           </div>

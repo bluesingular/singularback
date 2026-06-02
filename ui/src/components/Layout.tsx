@@ -76,7 +76,7 @@ export function Layout() {
   const location = useLocation();
   const navigationType = useNavigationType();
   const isInstanceSettingsRoute = location.pathname.startsWith("/instance/");
-  const isSingularRoute = /\/(tableau-de-bord|mon-equipe|confiance|taches|console|rapports|contacts|parametres)(\/|$)/.test(location.pathname);
+  const isSingularRoute = /\/(dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing|dashboard|team|trust|tasks|console|reports|contacts|settings|voice|documents|financial-pulse|ceo-health|meeting-briefing)(\/|$)/.test(location.pathname);
   const onboardingTriggered = useRef(false);
   const lastMainScrollTop = useRef(0);
   const previousPathname = useRef<string | null>(null);

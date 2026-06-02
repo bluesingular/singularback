@@ -4,28 +4,28 @@ import {
   LayoutDashboard, Users, ShieldCheck, MessageSquare,
   BarChart2, BookUser, Settings, Zap, Menu, X,
 } from "lucide-react";
-import TableauDeBord from "./TableauDeBord";
-import MonEquipe from "./MonEquipe";
-import FicheAgent from "./FicheAgent";
-import CentreDeConfiance from "./CentreDeConfiance";
-import FilDeTache from "./FilDeTache";
+import Dashboard from "./Dashboard";
+import Team from "./Team";
+import AgentProfile from "./AgentProfile";
+import TrustCentre from "./TrustCentre";
+import TaskThread from "./TaskThread";
 import { ConsoleCEO } from "./ConsoleCEO";
-import { Rapports } from "./Rapports";
+import { Reports } from "./Reports";
 import { Contacts } from "./Contacts";
-import { Parametres } from "./Parametres";
+import { Settings as SingularSettings } from "./Settings";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const NAV = [
-  { path: "/preview/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
-  { path: "/preview/mon-equipe",      label: "Mon équipe IA",   icon: Users },
-  { path: "/preview/confiance",       label: "Centre de confiance", icon: ShieldCheck },
+  { path: "/preview/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/preview/team",      label: "My AI team",   icon: Users },
+  { path: "/preview/trust",       label: "Trust centre", icon: ShieldCheck },
   { path: "/preview/console",         label: "Console CEO",     icon: MessageSquare },
   null, // divider
-  { path: "/preview/rapports",        label: "Rapports & ROI",  icon: BarChart2 },
+  { path: "/preview/reports",        label: "Reports & ROI",  icon: BarChart2 },
   { path: "/preview/contacts",        label: "Contacts",        icon: BookUser },
   null, // divider
-  { path: "/preview/parametres",      label: "Paramètres",      icon: Settings },
+  { path: "/preview/settings",      label: "Settings",      icon: Settings },
 ] as const;
 
 function PreviewNav({ onClose }: { onClose?: () => void }) {
@@ -118,16 +118,16 @@ export function SingularPreview() {
 
         <main className="flex-1 overflow-auto">
           <Routes>
-            <Route index element={<Navigate to="tableau-de-bord" replace />} />
-            <Route path="tableau-de-bord" element={<TableauDeBord />} />
-            <Route path="mon-equipe" element={<MonEquipe />} />
-            <Route path="mon-equipe/:agentSlug" element={<FicheAgent />} />
-            <Route path="confiance" element={<CentreDeConfiance />} />
-            <Route path="taches/:taskId" element={<FilDeTache />} />
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="team" element={<Team />} />
+            <Route path="team/:agentSlug" element={<AgentProfile />} />
+            <Route path="trust" element={<TrustCentre />} />
+            <Route path="taches/:taskId" element={<TaskThread />} />
             <Route path="console" element={<ConsoleCEO />} />
-            <Route path="rapports" element={<Rapports />} />
+            <Route path="rapports" element={<Reports />} />
             <Route path="contacts" element={<Contacts />} />
-            <Route path="parametres" element={<Parametres />} />
+            <Route path="parametres" element={<SingularSettings />} />
           </Routes>
         </main>
       </div>

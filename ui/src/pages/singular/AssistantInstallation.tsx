@@ -48,15 +48,15 @@ const STEPS: Step[] = [
     fields: [
       {
         id: "specialisation",
-        label: "Spécialisation principale",
+        label: "Main specialisation",
         type: "select",
-        options: ["Généraliste", "IT & Digital", "Finance & Comptabilité", "Marketing & Communication", "Fonctions supports (RH, juridique, achat)", "Cadres dirigeants (executive search)", "Santé & Médical", "Industrie & Ingénierie"],
+        options: ["Generalist", "IT & Digital", "Finance & Accounting", "Marketing & Communications", "Support functions (HR, legal, procurement)", "Executive search", "Health & Medical", "Industry & Engineering"],
         required: true,
         maps_to: "company_dna.specialisation",
       },
       {
         id: "zone_geo",
-        label: "Zone géographique principale",
+        label: "Primary geographic zone",
         type: "select",
         options: ["Île-de-France", "Auvergne-Rhône-Alpes", "Provence-Alpes-Côte d'Azur", "Occitanie", "Nouvelle-Aquitaine", "Hauts-de-France", "Grand Est", "Pays de la Loire", "National", "International"],
         required: true,
@@ -69,17 +69,17 @@ const STEPS: Step[] = [
     title: "Parlez-nous de votre cabinet.",
     fields: [
       { id: "cabinet_name", label: "Nom du cabinet", type: "text", placeholder: "Ex : Talentis RH, Cabinet Moreau, RecruitPro...", required: true, maps_to: "company_dna.name" },
-      { id: "nb_consultants", label: "Nombre de consultants dans l'équipe", type: "select", options: ["1 (solo)", "2-5", "6-15", "16-50"], required: true, maps_to: "config.team_size" },
-      { id: "founded_year", label: "Année de création du cabinet", type: "select", options: ["Moins d'1 an", "1-3 ans", "3-10 ans", "Plus de 10 ans"], required: false, maps_to: "company_dna.seniority" },
+      { id: "nb_consultants", label: "Number of consultants in the team", type: "select", options: ["1 (solo)", "2-5", "6-15", "16-50"], required: true, maps_to: "config.team_size" },
+      { id: "founded_year", label: "Year the firm was founded", type: "select", options: ["Less than 1 year", "1-3 years", "3-10 years", "More than 10 years"], required: false, maps_to: "company_dna.seniority" },
     ],
   },
   {
     step: 3,
     title: "Vos clients",
     fields: [
-      { id: "client_type", label: "Type de clients principaux", type: "multi_select", options: ["PME (10-250 salariés)", "ETI (250-5000 salariés)", "Grands groupes (>5000 salariés)", "Start-ups & scale-ups", "Secteur public & associatif"], required: true, maps_to: "company_dna.target_clients" },
-      { id: "avg_salary_range", label: "Fourchette de salaire des profils placés", type: "select", options: ["< 35k€", "35-55k€", "55-80k€", "80-120k€", "> 120k€"], required: true, maps_to: "config.salary_range" },
-      { id: "billing_model", label: "Modèle de facturation", type: "select", options: ["Succès (% du salaire annuel brut)", "Forfait mission", "Abonnement mensuel", "Mixte"], required: false, maps_to: "company_dna.billing_model" },
+      { id: "client_type", label: "Main client types", type: "multi_select", options: ["SMEs (10-250 employees)", "Mid-size companies (250-5000 employees)", "Large corporates (>5000 employees)", "Start-ups & scale-ups", "Public sector & non-profit"], required: true, maps_to: "company_dna.target_clients" },
+      { id: "avg_salary_range", label: "Salary range for placed profiles", type: "select", options: ["< 35k€", "35-55k€", "55-80k€", "80-120k€", "> 120k€"], required: true, maps_to: "config.salary_range" },
+      { id: "billing_model", label: "Billing model", type: "select", options: ["Success fee (% of gross annual salary)", "Fixed fee per assignment", "Monthly retainer", "Mixed"], required: false, maps_to: "company_dna.billing_model" },
     ],
   },
   {
@@ -90,8 +90,8 @@ const STEPS: Step[] = [
   },
   {
     step: 5,
-    title: "Voici votre équipe IA.",
-    description: "Voici les 5 membres de votre équipe. Ils commenceront à travailler dès que vous validerez.",
+    title: "Meet your AI team.",
+    description: "Here are your 5 team members. They will start working as soon as you confirm.",
     type: "team_preview",
   },
   {
@@ -100,14 +100,14 @@ const STEPS: Step[] = [
     fields: [
       {
         id: "primary_goal",
-        label: "Quel est votre défi principal en ce moment ?",
+        label: "What is your main challenge right now?",
         type: "select",
         options: [
-          { value: "volume_placements", label: "Trouver plus de candidats qualifiés" },
-          { value: "reduce_time_to_shortlist", label: "Réduire le temps de traitement des missions" },
-          { value: "improve_client_satisfaction", label: "Améliorer le suivi et la communication client" },
-          { value: "develop_visibility", label: "Développer ma visibilité et attirer de nouveaux clients" },
-          { value: "reduce_admin_load", label: "Réduire la charge administrative de mon équipe" },
+          { value: "volume_placements", label: "Find more qualified candidates" },
+          { value: "reduce_time_to_shortlist", label: "Reduce time-to-shortlist" },
+          { value: "improve_client_satisfaction", label: "Improve client follow-up and communication" },
+          { value: "develop_visibility", label: "Grow visibility and attract new clients" },
+          { value: "reduce_admin_load", label: "Reduce the admin load on my team" },
         ],
         required: true,
         maps_to: "initial_goal.type",
@@ -116,9 +116,9 @@ const STEPS: Step[] = [
   },
   {
     step: 7,
-    title: "Votre équipe est prête.",
+    title: "Your team is ready.",
     type: "confirmation",
-    headline: "Sophie est en train de lire votre boîte mail.",
+    headline: "Sophie is reading your inbox right now.",
     subline: "Elle aura quelque chose pour vous dans quelques minutes.",
     cta_primary: "Ouvrir la Console CEO",
   },
@@ -285,7 +285,7 @@ function CompletionStep({ headline, subline }: { headline?: string; subline?: st
         </div>
       </div>
       <div>
-        <p className="font-serif text-xl text-stone-900">{headline ?? "Votre équipe est prête."}</p>
+        <p className="font-serif text-xl text-stone-900">{headline ?? "Your team is ready."}</p>
         <p className="mt-1.5 text-sm text-stone-500">{subline ?? "Elle aura quelque chose pour vous dans quelques minutes."}</p>
       </div>
       <div className="rounded-xl bg-stone-50 border border-stone-100 px-4 py-3 text-sm text-stone-600">
@@ -377,7 +377,7 @@ export function AssistantInstallation() {
       setCurrentStep(STEPS.length - 1); // show completion
     },
     onError: (err) => {
-      setInstallError(err instanceof Error ? err.message : "Une erreur est survenue. Veuillez réessayer.");
+      setInstallError(err instanceof Error ? err.message : "An error occurred. Please try again.");
     },
   });
 
@@ -478,7 +478,7 @@ export function AssistantInstallation() {
                   {step.cta_primary ?? "Ouvrir la Console CEO"}
                 </Button>
                 <button
-                  onClick={() => navigate(`/${companyPrefix}/tableau-de-bord`)}
+                  onClick={() => navigate(`/${companyPrefix}/dashboard`)}
                   className="w-full text-sm text-stone-500 hover:text-stone-700 py-2"
                 >
                   Voir le tableau de bord

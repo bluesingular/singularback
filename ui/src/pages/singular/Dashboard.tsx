@@ -1,5 +1,4 @@
 import * as React from "react"
-import { useTranslation } from "react-i18next"
 import { useNavigate } from "@/lib/router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
@@ -46,16 +45,14 @@ function sseToActivity(event: { type: string; data: Record<string, unknown> }) {
   const outcome   = event.type === "task.completed" ? "approved" as const
                   : event.type === "task.blocked"   ? "pending"  as const
                   : undefined
-  return { isLive, agentName, action, time: "maintenant", outcome }
+  return { isLive, agentName, action, time: "now", outcome }
 }
 
 // ---------------------------------------------------------------------------
 // Dashboard
 // ---------------------------------------------------------------------------
 
-export default function TableauDeBord() {
-  const { t } = useTranslation("dashboard")
-  const { t: tc } = useTranslation("common")
+export default function Dashboard() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { selectedCompanyId, selectedCompany } = useCompany()
@@ -139,7 +136,8 @@ export default function TableauDeBord() {
     weekday: "long", day: "numeric", month: "long", timeZone: timezone,
   })
 
-  const taskTranslation = t("usage.taskSummary", { count: Math.max(0, taskLimit - tasksDone) })
+  const remaining = Math.max(0, taskLimit - tasksDone)
+  const taskTranslation = `${remaining} task${remaining !== 1 ? "s" : ""} remaining this month`
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -201,7 +199,7 @@ export default function TableauDeBord() {
                   type={cardTypeToIntelType(card.cardType)}
                   headline={card.title}
                   body={card.body}
-                  cta={tc("actions.view")}
+                  cta="View"
                   urgency={card.urgency}
                   onCta={() => {
                     markReadMutation.mutate({ cardId: card.id })
@@ -229,7 +227,7 @@ export default function TableauDeBord() {
               {connected && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-[#B91C1C] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C] animate-pulse" />
-                  {tc("status.live")}
+                  "Live"
                 </span>
               )}
             </div>
@@ -285,8 +283,8 @@ export default function TableauDeBord() {
                     <p className="text-sm font-semibold text-[#0F0F0D]">{agent.name}</p>
                     <p className="text-xs text-[#8A8680] truncate">
                       {agent.status === "active"
-                        ? tc("agentStatus.active")
-                        : tc("agentStatus.paused")}
+                        ? "Active"
+                        : "Paused"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">

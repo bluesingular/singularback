@@ -30,7 +30,7 @@ function trustDotLevel(level: string): "trusted" | "upgrade" | "building" {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function FicheAgent() {
+export default function AgentProfile() {
   const { t } = useTranslation("agents")
 
   function autonomyLabel(level: string): string {

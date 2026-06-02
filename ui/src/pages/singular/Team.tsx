@@ -56,7 +56,7 @@ function AgentCard({ agent, onClick }: { agent: Agent; onClick: () => void }) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function MonEquipe() {
+export default function Team() {
   const { t } = useTranslation("agents")
   const { t: tc } = useTranslation("common")
   const navigate = useNavigate()

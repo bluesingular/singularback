@@ -16,10 +16,10 @@ type AutonomyTier = "building" | "supervised" | "trusted" | "highlyTrusted"
 
 function autonomyLabel(level: string): string {
   switch (level) {
-    case "highlyTrusted": return "Très autonome"
-    case "trusted":       return "De confiance"
-    case "supervised":    return "Supervisée"
-    default:              return "En construction"
+    case "highlyTrusted": return "Highly autonomous"
+    case "trusted":       return "Trusted"
+    case "supervised":    return "Supervised"
+    default:              return "Building"
   }
 }
 
@@ -34,14 +34,14 @@ function autonomyColour(level: string) {
 
 function evidenceLine(p: TrustProposal) {
   const { avgRating, taskCount } = p.evidence
-  return `${avgRating?.toFixed(1).replace(".", ",") ?? "–"}/5 de moyenne · ${taskCount ?? "–"} tâches`
+  return `${avgRating?.toFixed(1).replace(".", ",") ?? "–"}/5 avg · ${taskCount ?? "–"} tasks`
 }
 
 function levelToHuman(level: string) {
   switch (level) {
-    case "highlyTrusted": return "très autonome — résumés uniquement"
-    case "trusted":       return "de confiance — contrôle aléatoire"
-    case "supervised":    return "supervisée — vous validez chaque lot"
+    case "highlyTrusted": return "highly autonomous — summaries only"
+    case "trusted":       return "trusted — spot-checked"
+    case "supervised":    return "supervised — you approve each batch"
     default:              return "en construction"
   }
 }
@@ -81,19 +81,19 @@ function ProposalCard({ proposal, onApprove, onReject, busy }: ProposalCardProps
 
       <div className="flex flex-col gap-3 text-sm">
         <div className="grid grid-cols-[120px_1fr] gap-x-3 gap-y-2">
-          <span className="text-[#8A8680] font-medium">{t("proposals.currentLevel")}</span>
+          <span className="text-[#8A8680] font-medium">Current</span>
           <span className="text-[#0F0F0D]">{levelToHuman(proposal.currentLevel)}</span>
 
-          <span className="text-[#8A8680] font-medium">{t("proposals.proposedLevel")}</span>
+          <span className="text-[#8A8680] font-medium">Proposed</span>
           <span className="text-[#0F0F0D] font-medium">{levelToHuman(proposal.proposedLevel)}</span>
 
-          <span className="text-[#8A8680] font-medium">{t("proposals.evidence")}</span>
+          <span className="text-[#8A8680] font-medium">Evidence</span>
           <span className="text-[#1A9E68] font-medium">{evidenceLine(proposal)}</span>
 
-          <span className="text-[#8A8680] font-medium">{t("proposals.changes")}</span>
+          <span className="text-[#8A8680] font-medium">Changes</span>
           <span className="text-[#0F0F0D]">Vous recevrez un résumé hebdomadaire des sélections.</span>
 
-          <span className="text-[#8A8680] font-medium">{t("proposals.remains")}</span>
+          <span className="text-[#8A8680] font-medium">What stays the same</span>
           <span className="text-[#0F0F0D]">Vous pouvez demander à voir n'importe quelle tâche à tout moment.</span>
         </div>
       </div>
@@ -106,7 +106,7 @@ function ProposalCard({ proposal, onApprove, onReject, busy }: ProposalCardProps
           className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white gap-1.5 text-sm"
         >
           <CheckCircle2 size={14} />
-          {busy ? "…" : t("proposals.approve")}
+          {busy ? "…" : "Approve"}
         </Button>
         <Button
           variant="outline"
@@ -115,7 +115,7 @@ function ProposalCard({ proposal, onApprove, onReject, busy }: ProposalCardProps
           disabled={busy}
         >
           <SlidersHorizontal size={14} />
-          {t("proposals.edit")}
+          Edit skill
         </Button>
         <Button
           onClick={onReject}
@@ -125,7 +125,7 @@ function ProposalCard({ proposal, onApprove, onReject, busy }: ProposalCardProps
           className="gap-1.5 text-sm text-[#8A8680] hover:text-[#B91C1C] hover:bg-[#FEF2F2]"
         >
           <X size={14} />
-          {t("proposals.reject")}
+          Reject
         </Button>
       </div>
     </div>
@@ -172,7 +172,7 @@ function TrustTableRow({ score }: { score: TrustScore }) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function CentreDeConfiance() {
+export default function TrustCentre() {
   const { t } = useTranslation("trust")
   const { selectedCompanyId } = useCompany()
   const queryClient = useQueryClient()
@@ -220,15 +220,15 @@ export default function CentreDeConfiance() {
 
         {/* Page header */}
         <div>
-          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("title")}</h1>
-          <p className="text-sm text-[#8A8680] mt-1">{t("subtitle")}</p>
+          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Trust centre</h1>
+          <p className="text-sm text-[#8A8680] mt-1">Manage how much autonomy your agents have.</p>
         </div>
 
         {/* Section 1 — Propositions */}
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-              {t("proposals.title")}
+              Autonomy proposals
             </h2>
             {proposals.length > 0 && (
               <span className="text-xs font-semibold bg-[#1A4E8C] text-white px-2 py-0.5 rounded-full">
@@ -240,7 +240,7 @@ export default function CentreDeConfiance() {
           {proposals.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-6 text-center">
               <CheckCircle2 size={24} className="mx-auto text-[#1A9E68] mb-2" />
-              <p className="text-sm text-[#8A8680]">{t("proposals.empty")}</p>
+              <p className="text-sm text-[#8A8680]">All caught up — no pending proposals.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -265,7 +265,7 @@ export default function CentreDeConfiance() {
           {approvedCount > 0 && (
             <div className="flex items-center gap-2 text-sm text-[#1A9E68] bg-[#ECFBF4] border border-[#1A9E68]/20 rounded-xl px-4 py-2.5">
               <CheckCircle2 size={14} />
-              {t("proposals.accepted", { agent: "votre agent" })}
+              Autonomy level updated. The agent will handle this type of task independently.
             </div>
           )}
         </section>
@@ -273,18 +273,18 @@ export default function CentreDeConfiance() {
         {/* Section 2 — Niveaux actifs */}
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-            {t("levels.title")}
+            Active trust levels
           </h2>
 
           <div className="flex flex-wrap gap-4 text-xs text-[#8A8680]">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> {t("legend.building")}
+              <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> Building
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#C97C0A]" /> {t("legend.supervised")}
+              <span className="w-2 h-2 rounded-sm bg-[#C97C0A]" /> Supervised
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#1A9E68]" /> {t("legend.trusted")}
+              <span className="w-2 h-2 rounded-sm bg-[#1A9E68]" /> Trusted
             </span>
           </div>
 

@@ -158,7 +158,7 @@ export function ConsoleCEO() {
           <h1 className="text-xl" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>CEO Console</h1>
           <p className="text-sm mt-0.5" style={{ color: "#8A8680" }}>Tell your team what to do in plain language</p>
         </div>
-        <button onClick={() => navigate("note-vocale")} title="Voice note"
+        <button onClick={() => navigate("voice")} title="Voice note"
           className="p-2.5 rounded-xl border border-[#E8E4DC] hover:bg-[#F0EDE8] transition-colors">
           <Mic size={16} style={{ color: "#8A8680" }} />
         </button>
@@ -214,7 +214,7 @@ export function ConsoleCEO() {
                   <div className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed" style={{ backgroundColor: "#FFFFFF", color: "#0F0F0D", border: "1px solid #E8E4DC" }}>
                     {msg.text}
                     {msg.missionId && (
-                      <button onClick={() => navigate("missions/archives")}
+                      <button onClick={() => navigate("missions/archive")}
                         className="mt-2 block text-xs text-[#1A4E8C] hover:underline">
                         View mission →
                       </button>

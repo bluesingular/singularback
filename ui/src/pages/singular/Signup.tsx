@@ -62,7 +62,7 @@ function Field({
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
-export function Inscription() {
+export function Signup() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
