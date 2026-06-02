@@ -6,6 +6,7 @@
  */
 
 import * as React from "react"
+import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@/lib/router"
 import {
@@ -14,6 +15,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { adminApi } from "../../../api/admin.js"
+import { AdminDialog } from "./AdminDialog"
 
 // ── Regression result type ────────────────────────────────────────────────────
 
@@ -175,12 +177,99 @@ function PendingRow({ v, onApprove, onReject, busy }: {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+// ── New version dialog ────────────────────────────────────────────────────────
+
+function NewVersionDialog({ onClose, onCreated }: {
+  onClose: () => void
+  onCreated: (skillType: string, versionId: string, companyId: string) => void
+}) {
+  const [companyId, setCompanyId]   = useState("")
+  const [skillType, setSkillType]   = useState("")
+  const [version, setVersion]       = useState("1.0.0")
+  const [promptBody, setPromptBody] = useState("# Instructions\n\n")
+  const [error, setError]           = useState("")
+
+  const create = useMutation({
+    mutationFn: () =>
+      adminApi.post<{ version: { id: string } }>(
+        `/admin/skills/${skillType.trim()}/versions?companyId=${companyId.trim()}`,
+        { version: version.trim(), promptBody: promptBody.trim(), triggerReason: "manual" },
+      ),
+    onSuccess: (data) => onCreated(skillType.trim(), data.version.id, companyId.trim()),
+    onError: (err: unknown) => setError(err instanceof Error ? err.message : "Erreur lors de la création"),
+  })
+
+  const valid = companyId.trim().length > 10 && skillType.trim().length > 1 && version.trim().length > 0
+
+  return (
+    <AdminDialog open title="Nouvelle version de compétence" onClose={onClose} maxWidth="max-w-lg">
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Company ID *</label>
+            <input
+              type="text"
+              value={companyId}
+              onChange={e => { setCompanyId(e.target.value); setError("") }}
+              placeholder="UUID de la company"
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Type de compétence *</label>
+            <input
+              type="text"
+              value={skillType}
+              onChange={e => { setSkillType(e.target.value); setError("") }}
+              placeholder="ex: qualification-cv"
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1 block">Version *</label>
+          <input
+            type="text"
+            value={version}
+            onChange={e => setVersion(e.target.value)}
+            placeholder="1.0.0"
+            className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1 block">Instructions initiales *</label>
+          <textarea
+            value={promptBody}
+            onChange={e => setPromptBody(e.target.value)}
+            rows={6}
+            className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#1A9E68] resize-none"
+          />
+        </div>
+        {error && <p className="text-xs text-red-600">{error}</p>}
+      </div>
+      <div className="flex justify-end gap-2 pt-4 border-t border-[#E8E4DC] mt-4">
+        <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
+        <button
+          onClick={() => create.mutate()}
+          disabled={!valid || create.isPending}
+          className="px-4 py-2 text-sm bg-[#1A9E68] text-white rounded-lg hover:bg-[#158a5a] disabled:opacity-50 transition-colors"
+        >
+          {create.isPending ? "Création…" : "Créer et éditer"}
+        </button>
+      </div>
+    </AdminDialog>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export function AdminSkills() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [searchCompanyId, setSearchCompanyId] = React.useState("")
   const [searchSkillType, setSearchSkillType] = React.useState("")
   const [busyId, setBusyId] = React.useState<string | null>(null)
+  const [showNewDialog, setShowNewDialog] = useState(false)
 
   const pendingQuery = useQuery({
     queryKey: ["admin-skills-pending"],
@@ -325,13 +414,23 @@ export function AdminSkills() {
         {/* New version CTA */}
         <div className="flex justify-end">
           <button
-            onClick={() => navigate(`/instance/admin/skills/new`)}
+            onClick={() => setShowNewDialog(true)}
             className="text-sm font-medium text-white bg-[#1A9E68] hover:bg-[#158a5a] px-4 py-2 rounded-xl transition-colors"
           >
             + Nouvelle version
           </button>
         </div>
       </div>
+
+      {showNewDialog && (
+        <NewVersionDialog
+          onClose={() => setShowNewDialog(false)}
+          onCreated={(skillType, versionId, companyId) => {
+            setShowNewDialog(false)
+            navigate(`/instance/admin/skills/${skillType}/versions/${versionId}?companyId=${companyId}`)
+          }}
+        />
+      )}
     </div>
   )
 }
