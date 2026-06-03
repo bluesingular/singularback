@@ -1,15 +1,25 @@
 /**
  * ui/src/pages/singular/TaskThread.tsx
  *
- * Task detail + approval view for Swwarm operators.
+ * Task detail + approval view.
  *
- * C8:   Judge score shown on every approval card ("Évaluation automatique: Bon — 7.8/10")
- * Gap B: Inline output editor — operator can edit before approving; creates training signal
- * §31:  Never show raw scores or model names — only plain-language labels
+ * C8  — Judge score shown on every approval card (Definition of Done gate).
+ *       Format per spec §C8:
+ *         "Évaluation automatique: 8.2/10
+ *          ├── Pertinence: 9/10 — Répond précisément à la demande
+ *          ├── Exactitude: 8/10 — Affirmations vérifiables
+ *          ..."
+ *
+ * Gap B — Inline output editor: operator edits before approving.
+ *         Uses PATCH /companies/:id/tasks/:taskId/inline-edit which creates a
+ *         golden_datasets row (weight 3.0, source 'inline_approval_edit').
+ *         INVARIANT: no training signal when no change.
  */
 
 import * as React from "react"
-import { ArrowLeft, AlertTriangle, Star, Loader2, FileText, Sparkles } from "lucide-react"
+import {
+  ArrowLeft, AlertTriangle, Star, Loader2, FileText, Sparkles,
+} from "lucide-react"
 import { useNavigate, useParams } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import { MicroReward, HandoffIndicator } from "@/components/singular"
@@ -23,80 +33,36 @@ import { useCompany } from "../../context/CompanyContext"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+interface DimensionRow {
+  key:   string
+  label: string  // already French from server
+  score: number  // 0–10
+  note:  string
+}
+
 interface JudgeContext {
-  hasJudge:       boolean;
-  scoreLabel?:    string;        // "Excellent" | "Bon" | "Moyen" | "À améliorer"
-  autoRecycled?:  boolean;
-  outputVersion?: number;
-  topNotes?:      string[];
-  approvalId?:    string | null;
-  hasExistingEdit?: boolean;
-  editCharCount?: number;
+  hasJudge:           boolean
+  overallScore?:      number        // e.g. 8.2
+  autoRecycled?:      boolean
+  outputVersion?:     number
+  dimensionBreakdown?: DimensionRow[]
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function StarDisplay({ score }: { score: number }) {
-  const full  = Math.floor(score)
-  const half  = score % 1 >= 0.5
-  const empty = 5 - full - (half ? 1 : 0)
-  return (
-    <span className="text-[#C97C0A] text-sm" title={`${score}/5`}>
-      {"★".repeat(full)}{half ? "½" : ""}{"☆".repeat(empty)}
-    </span>
-  )
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function StatusPill({ status }: { status: string }) {
-  const map: Record<string, { label: string; classes: string }> = {
-    pending_approval: { label: "En attente d'approbation", classes: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
-    in_review:        { label: "En révision",    classes: "bg-[#EFF3FA] text-[#1A4E8C] border-[#1A4E8C]/20" },
-    in_progress:      { label: "En cours",        classes: "bg-[#ECFBF4] text-[#1A9E68] border-[#1A9E68]/20" },
-    done:             { label: "Terminée",         classes: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]" },
-    cancelled:        { label: "Annulée",          classes: "bg-[#FEF2F2] text-[#B91C1C] border-[#B91C1C]/20" },
+  const map: Record<string, { label: string; cls: string }> = {
+    pending_approval: { label: "En attente d'approbation", cls: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
+    in_review:        { label: "En révision",              cls: "bg-[#EFF3FA] text-[#1A4E8C] border-[#1A4E8C]/20" },
+    in_progress:      { label: "En cours",                 cls: "bg-[#ECFBF4] text-[#1A9E68] border-[#1A9E68]/20" },
+    done:             { label: "Terminée",                 cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]"    },
+    cancelled:        { label: "Annulée",                  cls: "bg-[#FEF2F2] text-[#B91C1C] border-[#B91C1C]/20" },
   }
-  const cfg = map[status] ?? { label: status, classes: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]" }
+  const cfg = map[status] ?? { label: status, cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]" }
   return (
-    <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full border", cfg.classes)}>
+    <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full border", cfg.cls)}>
       {cfg.label}
     </span>
-  )
-}
-
-// C8 — Judge score badge
-function JudgeBadge({ ctx }: { ctx: JudgeContext }) {
-  if (!ctx.hasJudge || !ctx.scoreLabel) return null
-
-  const colorMap: Record<string, string> = {
-    "Excellent": "#1A9E68",
-    "Bon":       "#1A9E68",
-    "Moyen":     "#C97C0A",
-    "À améliorer": "#B91C1C",
-  }
-  const color = colorMap[ctx.scoreLabel] ?? "#8A8680"
-
-  return (
-    <div className="flex flex-col gap-1.5 p-3 rounded-xl border"
-      style={{ backgroundColor: color + "08", borderColor: color + "33" }}>
-      <div className="flex items-center gap-1.5">
-        <Sparkles size={12} style={{ color }} />
-        <span className="text-xs font-semibold" style={{ color }}>
-          Évaluation automatique : {ctx.scoreLabel}
-        </span>
-        {ctx.autoRecycled && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1A4E8C15] text-[#1A4E8C] font-medium">
-            révisé automatiquement
-          </span>
-        )}
-      </div>
-      {ctx.topNotes && ctx.topNotes.length > 0 && (
-        <ul className="flex flex-col gap-0.5">
-          {ctx.topNotes.slice(0, 2).map((note, i) => (
-            <li key={i} className="text-xs text-[#8A8680] leading-snug">• {note}</li>
-          ))}
-        </ul>
-      )}
-    </div>
   )
 }
 
@@ -110,34 +76,111 @@ function SkeletonTask() {
   )
 }
 
-// Gap B + C8 — Approval widget
+// ── C8: Judge score breakdown ─────────────────────────────────────────────────
+// Spec format:
+//   Évaluation automatique: 8.2/10
+//   ├── Pertinence: 9/10 — Répond précisément à la demande
+//   └── Ton: 7/10 — Ton légèrement trop formel
+
+function JudgeCard({ ctx }: { ctx: JudgeContext }) {
+  if (!ctx.hasJudge || ctx.overallScore === undefined) return null
+
+  const score = ctx.overallScore
+  const scoreColor =
+    score >= 8.0 ? "#1A9E68" :
+    score >= 6.0 ? "#C97C0A" : "#B91C1C"
+
+  const dims = ctx.dimensionBreakdown ?? []
+  const lastIdx = dims.length - 1
+
+  return (
+    <div
+      className="rounded-xl border p-4 flex flex-col gap-3"
+      style={{ backgroundColor: scoreColor + "08", borderColor: scoreColor + "33" }}
+    >
+      {/* Header row */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Sparkles size={13} style={{ color: scoreColor }} />
+          <span className="text-xs font-semibold" style={{ color: scoreColor }}>
+            Évaluation automatique
+          </span>
+          {ctx.autoRecycled && (
+            <span
+              className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+              style={{ backgroundColor: "#1A4E8C15", color: "#1A4E8C" }}
+            >
+              révisé automatiquement
+            </span>
+          )}
+        </div>
+        {/* Overall score per spec: "8.2/10" */}
+        <span className="text-sm font-bold tabular-nums" style={{ color: scoreColor }}>
+          {score.toFixed(1).replace(".", ",")}/10
+        </span>
+      </div>
+
+      {/* Dimension breakdown — tree format */}
+      {dims.length > 0 && (
+        <div className="flex flex-col gap-1 pl-1">
+          {dims.map((d, i) => (
+            <div key={d.key} className="flex items-start gap-1.5 text-xs text-[#4B4846]">
+              <span className="font-mono text-[#8A8680] flex-shrink-0 select-none">
+                {i === lastIdx ? "└──" : "├──"}
+              </span>
+              <span>
+                <span className="font-semibold">{d.label}&nbsp;:&nbsp;</span>
+                <span className="font-semibold tabular-nums" style={{ color: scoreColor }}>
+                  {d.score}/10
+                </span>
+                {d.note && (
+                  <span className="text-[#8A8680]"> — {d.note}</span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Approval section: C8 score + Gap B editor + star rating ──────────────────
+
 function ApprovalSection({
-  onApprove,
+  issueId,
+  companyId,
   output,
   judgeCtx,
+  onApprove,
 }: {
-  onApprove: (rating: number) => void;
-  output: string;
-  judgeCtx: JudgeContext | null;
+  issueId:   string
+  companyId: string
+  output:    string
+  judgeCtx:  JudgeContext | null
+  onApprove: (rating: number) => void
 }) {
-  const [hovered,  setHovered]  = React.useState(0)
-  const [selected, setSelected] = React.useState(0)
-  const [editedOutput, setEditedOutput] = React.useState<string | null>(null)
+  const [hovered,       setHovered]       = React.useState(0)
+  const [selected,      setSelected]      = React.useState(0)
+  const [editedOutput,  setEditedOutput]  = React.useState<string | null>(null)
 
   return (
     <div className="bg-white border border-[#E8E4DC] rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
       <div>
         <p className="text-sm font-semibold text-[#0F0F0D]">Votre avis sur ce résultat</p>
-        <p className="text-xs text-[#8A8680] mt-0.5">Évaluez la qualité du travail de l'agent</p>
+        <p className="text-xs text-[#8A8680] mt-0.5">
+          Évaluez la qualité du travail de l'agent
+        </p>
       </div>
 
-      {/* C8: Judge score */}
-      {judgeCtx && <JudgeBadge ctx={judgeCtx} />}
+      {/* C8: full judge breakdown */}
+      {judgeCtx && <JudgeCard ctx={judgeCtx} />}
 
-      {/* Gap B: Inline editor */}
-      {output && judgeCtx?.approvalId && (
+      {/* Gap B: inline editor — uses taskId directly */}
+      {output && (
         <InlineOutputEditor
-          approvalId={judgeCtx.approvalId}
+          taskId={issueId}
+          companyId={companyId}
           originalOutput={editedOutput ?? output}
           onEditSaved={(edited) => setEditedOutput(edited)}
         />
@@ -146,14 +189,27 @@ function ApprovalSection({
       {/* Star rating */}
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} onMouseEnter={() => setHovered(n)} onMouseLeave={() => setHovered(0)}
-            onClick={() => setSelected(n)} className="p-0.5 transition-transform hover:scale-110">
-            <Star size={24} className={cn("transition-colors",
-              n <= (hovered || selected) ? "fill-[#C97C0A] text-[#C97C0A]" : "text-[#E8E4DC] fill-[#E8E4DC]"
-            )} />
+          <button
+            key={n}
+            onMouseEnter={() => setHovered(n)}
+            onMouseLeave={() => setHovered(0)}
+            onClick={() => setSelected(n)}
+            className="p-0.5 transition-transform hover:scale-110"
+          >
+            <Star
+              size={24}
+              className={cn(
+                "transition-colors",
+                n <= (hovered || selected)
+                  ? "fill-[#C97C0A] text-[#C97C0A]"
+                  : "fill-[#E8E4DC] text-[#E8E4DC]",
+              )}
+            />
           </button>
         ))}
-        {selected > 0 && <span className="ml-2 text-sm text-[#8A8680]">{selected}/5</span>}
+        {selected > 0 && (
+          <span className="ml-2 text-sm text-[#8A8680]">{selected}/5</span>
+        )}
       </div>
 
       <Button
@@ -164,8 +220,10 @@ function ApprovalSection({
           }
           onApprove(selected || 5)
         }}
+        disabled={selected === 0}
         className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white w-full sm:w-fit"
-        disabled={selected === 0} size="sm">
+        size="sm"
+      >
         Valider
       </Button>
     </div>
@@ -178,22 +236,25 @@ export default function TaskThread() {
   const navigate = useNavigate()
   const { id: issueId } = useParams<{ id?: string }>()
   const { selectedCompanyId } = useCompany()
+
   const [approved,       setApproved]       = React.useState(false)
   const [microRewardMsg, setMicroRewardMsg] = React.useState<string | null>(null)
   const { streamingText, isStreaming }      = useStreamingTask(issueId)
 
+  // Task data
   const { data: issue, isLoading, isError } = useQuery({
-    queryKey: ["issue", issueId],
-    queryFn:  () => issuesApi.get(issueId!),
-    enabled:  !!issueId,
+    queryKey:  ["issue", issueId],
+    queryFn:   () => issuesApi.get(issueId!),
+    enabled:   !!issueId,
     staleTime: 30_000,
   })
 
-  // C8 + Gap B: fetch judge context when task is in approval state
   const isPending = ["pending_approval", "in_review"].includes(issue?.status ?? "")
+
+  // C8: fetch judge score only while task needs approval
   const { data: judgeCtx } = useQuery<JudgeContext>({
     queryKey: ["judge-context", selectedCompanyId, issueId],
-    queryFn: async () => {
+    queryFn:  async () => {
       const res = await fetch(
         `/api/companies/${selectedCompanyId}/tasks/${issueId}/approval-context`,
         { credentials: "include" },
@@ -201,7 +262,7 @@ export default function TaskThread() {
       if (!res.ok) return { hasJudge: false }
       return res.json()
     },
-    enabled: !!selectedCompanyId && !!issueId && isPending,
+    enabled:   !!selectedCompanyId && !!issueId && isPending,
     staleTime: 60_000,
   })
 
@@ -210,18 +271,30 @@ export default function TaskThread() {
       try {
         const result = await issuesApi.rate(issueId, rating)
         if (result.trust?.proposalCreated) {
-          setMicroRewardMsg("Proposition de confiance créée — consultez le Centre de confiance.")
-        } else if (result.trust && result.trust.newStreak > 0 && result.trust.newStreak % 5 === 0) {
-          setMicroRewardMsg(`${result.trust.newStreak} validations consécutives — l'agent apprend vos préférences.`)
+          setMicroRewardMsg(
+            "Proposition de confiance créée — consultez le Centre de confiance.",
+          )
+        } else if (
+          result.trust &&
+          result.trust.newStreak > 0 &&
+          result.trust.newStreak % 5 === 0
+        ) {
+          setMicroRewardMsg(
+            `${result.trust.newStreak} validations consécutives — l'agent apprend vos préférences.`,
+          )
         }
       } catch {
-        // Graceful degradation
+        /* graceful degradation */
       }
     }
     setApproved(true)
   }
 
-  if (isLoading) return <div className="min-h-screen bg-[#FAFAF8]"><SkeletonTask /></div>
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-[#FAFAF8]"><SkeletonTask /></div>
+  }
 
   if (isError || !issue) {
     return (
@@ -229,7 +302,12 @@ export default function TaskThread() {
         <div className="text-center flex flex-col items-center gap-3">
           <FileText size={32} className="text-[#E8E4DC]" />
           <p className="text-sm text-[#8A8680]">Tâche introuvable.</p>
-          <button onClick={() => navigate(-1)} className="text-sm text-[#1A4E8C] hover:underline">Retour</button>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-sm text-[#1A4E8C] hover:underline"
+          >
+            Retour
+          </button>
         </div>
       </div>
     )
@@ -243,8 +321,10 @@ export default function TaskThread() {
     <div className="min-h-screen bg-[#FAFAF8]">
       <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-5">
 
-        <button onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
+        >
           <ArrowLeft size={14} /> Retour
         </button>
 
@@ -252,16 +332,19 @@ export default function TaskThread() {
         <section className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">{issue.title}</h1>
+              <h1 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
+                {issue.title}
+              </h1>
               <p className="text-sm text-[#8A8680] mt-0.5">
-                {agentName}{issue.identifier ? ` · ${issue.identifier}` : ""}
+                {agentName}
+                {issue.identifier ? ` · ${issue.identifier}` : ""}
               </p>
             </div>
             <StatusPill status={issue.status} />
           </div>
         </section>
 
-        {/* Agent output */}
+        {/* Agent output bubble */}
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-full bg-[#1A9E68] flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 mt-0.5">
             {agentInitial}
@@ -269,13 +352,20 @@ export default function TaskThread() {
           <div className="flex-1 bg-white border border-[#E8E4DC] rounded-2xl rounded-tl-sm p-4 shadow-sm">
             <p className="text-xs font-semibold text-[#1A9E68] mb-1.5">{agentName}</p>
             {output ? (
-              <p className="text-sm text-[#0F0F0D] leading-relaxed whitespace-pre-wrap">{output}</p>
+              <p className="text-sm text-[#0F0F0D] leading-relaxed whitespace-pre-wrap">
+                {output}
+              </p>
             ) : (
-              <p className="text-sm text-[#8A8680] italic">Pas encore de résultat — l'agent travaille.</p>
+              <p className="text-sm text-[#8A8680] italic">
+                Pas encore de résultat — l'agent travaille.
+              </p>
             )}
             {issue.completedAt && (
               <p className="text-xs text-[#8A8680] mt-2">
-                {new Date(issue.completedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                {new Date(issue.completedAt).toLocaleString("fr-FR", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
               </p>
             )}
           </div>
@@ -290,7 +380,9 @@ export default function TaskThread() {
             <div className="flex-1 bg-white border border-[#1A9E68]/30 rounded-2xl rounded-tl-sm p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <Loader2 size={12} className="animate-spin text-[#1A9E68]" />
-                <p className="text-xs font-semibold text-[#1A9E68]">{agentName} · en cours…</p>
+                <p className="text-xs font-semibold text-[#1A9E68]">
+                  {agentName} · en cours…
+                </p>
               </div>
               <p className="text-sm text-[#0F0F0D] leading-relaxed whitespace-pre-wrap font-mono">
                 {streamingText}
@@ -306,11 +398,14 @@ export default function TaskThread() {
             <div className="w-8 flex-shrink-0" />
             <div className="flex-1 flex flex-col gap-2">
               {issue.workProducts!.map((wp) => (
-                <div key={wp.id} className="bg-[#FAFAF8] border border-[#E8E4DC] rounded-xl p-3 flex items-center gap-3">
+                <div
+                  key={wp.id}
+                  className="bg-[#FAFAF8] border border-[#E8E4DC] rounded-xl p-3 flex items-center gap-3"
+                >
                   <FileText size={14} className="text-[#8A8680] flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#0F0F0D] truncate">{wp.title ?? "Document"}</p>
-                  </div>
+                  <p className="flex-1 text-sm font-medium text-[#0F0F0D] truncate">
+                    {wp.title ?? "Document"}
+                  </p>
                 </div>
               ))}
             </div>
@@ -328,27 +423,39 @@ export default function TaskThread() {
           </div>
         )}
 
-        {/* C8 + Gap B: Approval section with judge score + inline editor */}
+        {/* C8 + Gap B: approval section */}
         {isPending && !approved && !isStreaming && (
           <div className="flex items-start gap-3">
             <div className="hidden sm:block w-8 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <ApprovalSection
-                onApprove={handleApprove}
+                issueId={issueId!}
+                companyId={selectedCompanyId!}
                 output={output}
                 judgeCtx={judgeCtx ?? null}
+                onApprove={handleApprove}
               />
             </div>
           </div>
         )}
 
         {approved && (
-          <MicroReward message={microRewardMsg ?? "Merci. L'agent a enregistré votre retour."} />
+          <MicroReward
+            message={
+              microRewardMsg ??
+              "Merci. L'agent a enregistré votre retour."
+            }
+          />
         )}
 
         {issue.status === "done" && issue.assigneeAgentId && (
-          <HandoffIndicator from={agentName} to="Prochain agent" summary="Tâche terminée et transmise." />
+          <HandoffIndicator
+            from={agentName}
+            to="Prochain agent"
+            summary="Tâche terminée et transmise."
+          />
         )}
+
       </div>
     </div>
   )

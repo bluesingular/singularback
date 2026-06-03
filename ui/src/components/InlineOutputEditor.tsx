@@ -3,14 +3,17 @@
  *
  * Gap B — Inline output editing before approval.
  *
- * Operator edits agent output directly in the approval card → approves edited version.
- * The diff is the highest-signal training data per interaction.
+ * Operator edits the agent's output directly in the task approval card
+ * before approving. The corrected version is the highest-signal training
+ * data (weight 3.0 in golden_datasets).
  *
- * INVARIANT: Only creates a training example when operator CHANGED content.
- * Approving as-is produces no training signal.
+ * INVARIANT: Only creates a training example when content was CHANGED.
+ * Approving as-is produces no training signal — this is enforced server-side.
  *
- * UI: plain textarea only — no markdown preview, no formatting tools (spec).
- * Shows "Sophie a révisé X caractères — Sophie apprend." after approval with edit.
+ * UI spec:
+ *   - Plain textarea only (no markdown preview, no formatting toolbar)
+ *   - "Modifier avant approbation" trigger link
+ *   - "Vous avez modifié N caractères — Sophie apprend." after save
  */
 
 import { useState } from "react";
@@ -19,47 +22,72 @@ import { Edit3, CheckCircle2 } from "lucide-react";
 import { cn } from "../lib/utils";
 
 interface Props {
-  approvalId:     string;
+  /** Task ID — used for the new inline-edit endpoint */
+  taskId:         string;
+  companyId:      string;
   originalOutput: string;
   onEditSaved?:   (edited: string) => void;
 }
 
-async function patchEdit(approvalId: string, operatorEdit: string, originalOutput: string) {
-  const res = await fetch(`/api/approvals/${approvalId}/edit`, {
-    method: "PATCH",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ operatorEdit, originalOutput }),
-  });
-  if (!res.ok) throw new Error("Impossible d'enregistrer la modification.");
-  return res.json() as Promise<{ ok: boolean; recorded: boolean; charCount: number }>;
+async function patchTaskEdit(
+  companyId: string,
+  taskId: string,
+  operatorEdit: string,
+  originalOutput: string,
+): Promise<{ ok: boolean; recorded: boolean; charCount: number }> {
+  const res = await fetch(
+    `/api/companies/${companyId}/tasks/${taskId}/inline-edit`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorEdit, originalOutput }),
+    },
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? "Impossible d'enregistrer la modification.");
+  }
+  return res.json();
 }
 
-export function InlineOutputEditor({ approvalId, originalOutput, onEditSaved }: Props) {
-  const [editing, setEditing]   = useState(false);
-  const [draft, setDraft]       = useState(originalOutput);
-  const [saved, setSaved]       = useState<{ charCount: number } | null>(null);
+export function InlineOutputEditor({
+  taskId,
+  companyId,
+  originalOutput,
+  onEditSaved,
+}: Props) {
+  const [editing, setEditing] = useState(false);
+  const [draft,   setDraft]   = useState(originalOutput);
+  const [saved,   setSaved]   = useState<{ charCount: number } | null>(null);
 
   const mutation = useMutation({
-    mutationFn: () => patchEdit(approvalId, draft, originalOutput),
+    mutationFn: () => patchTaskEdit(companyId, taskId, draft, originalOutput),
     onSuccess: (data) => {
       if (data.recorded) {
         setSaved({ charCount: data.charCount });
         onEditSaved?.(draft);
+      } else {
+        // No change detected — close editor silently
+        setEditing(false);
       }
-      setEditing(false);
     },
   });
 
+  // After save: show confirmation
   if (saved) {
     return (
       <div className="flex items-center gap-1.5 text-xs text-[#1A9E68] mt-2">
         <CheckCircle2 size={12} />
-        <span>Vous avez modifié {saved.charCount} caractère{saved.charCount !== 1 ? "s" : ""} — Sophie apprend.</span>
+        <span>
+          Vous avez modifié {saved.charCount} caractère
+          {saved.charCount !== 1 ? "s" : ""} — Sophie apprend.
+        </span>
       </div>
     );
   }
 
+  // Collapsed: show "Modifier avant approbation" link
   if (!editing) {
     return (
       <button
@@ -72,13 +100,14 @@ export function InlineOutputEditor({ approvalId, originalOutput, onEditSaved }: 
     );
   }
 
+  // Expanded: plain textarea (no markdown, no toolbar per spec)
   return (
     <div className="mt-3 flex flex-col gap-2">
       <textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={6}
-        className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 resize-y font-mono"
+        className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#1A9E68]/30 resize-y"
         autoFocus
       />
       <div className="flex items-center gap-2">
@@ -102,7 +131,9 @@ export function InlineOutputEditor({ approvalId, originalOutput, onEditSaved }: 
         </button>
       </div>
       {mutation.isError && (
-        <p className="text-xs text-red-500">{(mutation.error as Error).message}</p>
+        <p className="text-xs text-red-500">
+          {(mutation.error as Error).message}
+        </p>
       )}
     </div>
   );

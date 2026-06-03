@@ -18,9 +18,11 @@ import {
   timestamp,
   jsonb,
   index,
+  decimal,
 } from "drizzle-orm/pg-core";
 import { companies } from "./companies.js";
 import { agents } from "./agents.js";
+import { issues } from "./issues.js";
 
 // ── skill_versions ────────────────────────────────────────────────────────────
 
@@ -80,6 +82,15 @@ export const goldenDatasets = pgTable(
     // Human quality rating assigned to this example (1–5)
     qualityScore: integer("quality_score"),
     notes: text("notes"),
+    // Gap B / M10: training signal metadata
+    // weight: 3.0 = operator inline edit, 2.0 = live teaching, 1.0 = outcome, 1.0 = manual
+    weight:      numeric("weight", { precision: 4, scale: 2 }).notNull().default("1.0"),
+    // 'inline_approval_edit' | 'live_teaching' | 'outcome_attribution' | 'manual'
+    source:      text("source").notNull().default("manual"),
+    // The task this example was derived from (null for manually curated examples)
+    taskId:      uuid("task_id").references(() => issues.id, { onDelete: "set null" }),
+    // The original agent output (before operator correction) — Gap B highest-signal data
+    agentOutput: text("agent_output"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -88,6 +99,11 @@ export const goldenDatasets = pgTable(
     companySkillIdx: index("golden_datasets_company_skill_idx").on(
       t.companyId,
       t.skillType,
+    ),
+    sourceIdx: index("golden_datasets_source_idx").on(
+      t.companyId,
+      t.skillType,
+      t.source,
     ),
   }),
 );
