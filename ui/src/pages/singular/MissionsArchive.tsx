@@ -59,9 +59,9 @@ export function MissionsArchive() {
     <div className="flex-1 overflow-y-auto bg-[#FAFAF8]">
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Missions passées</h1>
+          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Past missions</h1>
           <p className="text-sm text-stone-500 mt-1">
-            Missions terminées et archivées — l'historique de votre équipe.
+            Completed and archived missions — your team's full history.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export function MissionsArchive() {
         ) : missions.length === 0 ? (
           <div className="text-center py-16">
             <Archive size={32} className="mx-auto text-stone-300 mb-3" />
-            <p className="text-stone-500 text-sm">No archived missions.pour le moment.</p>
+            <p className="text-stone-500 text-sm">No archived missions yet.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">

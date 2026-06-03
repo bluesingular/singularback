@@ -25,12 +25,12 @@ const EU_TIMEZONES = [
 type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue" | "notifications";
 
 const tabLabels: { key: Tab; label: string }[] = [
-  { key: "adn", label: "ADN de l'entreprise" },
+  { key: "adn", label: "Company DNA" },
   { key: "integrations", label: "Integrations" },
-  { key: "facturation", label: "Facturation" },
-  { key: "equipe", label: "Équipe" },
-  { key: "packs", label: "Packs d'agents" },
-  { key: "langue", label: "Langue" },
+  { key: "facturation", label: "Billing" },
+  { key: "equipe", label: "Team" },
+  { key: "packs", label: "Agent packs" },
+  { key: "langue", label: "Language" },
   { key: "notifications", label: "Notifications" },
 ];
 
@@ -98,18 +98,18 @@ function ADNTab() {
 
   return (
     <div className="space-y-8">
-      {/* Section — Votre cabinet */}
+      {/* Section — Your company */}
       <div>
         <h2
           className="text-base font-semibold mb-4"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Votre cabinet
+          Your company
         </h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: "#0F0F0D" }}>
-              Nom du cabinet
+              Company name
             </label>
             <input
               type="text"
@@ -125,7 +125,7 @@ function ADNTab() {
               Description
             </label>
             <p className="text-xs mb-1.5" style={{ color: "#8A8680" }}>
-              Comment présenteriez-vous votre cabinet en 2 phrases ?
+              Describe your company in 2 sentences.
             </p>
             <textarea
               value={description}
@@ -143,7 +143,7 @@ function ADNTab() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "#0F0F0D" }}>
-                Spécialisation
+                Specialisation
               </label>
               <select
                 value={specialisation}
@@ -161,7 +161,7 @@ function ADNTab() {
 
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "#0F0F0D" }}>
-                Zone géographique
+                Geographic area
               </label>
               <select
                 value={zone}
@@ -189,7 +189,7 @@ function ADNTab() {
           className="text-base font-semibold mb-4"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Votre ton de communication
+          Your communication tone
         </h2>
         <div className="space-y-4">
           <div>
@@ -330,7 +330,7 @@ function IntegrationsTab() {
   );
 }
 
-function FacturationTab() {
+function BillingTab() {
   return (
     <div
       className="rounded-xl border p-6"
@@ -507,7 +507,7 @@ function EquipeTab() {
   );
 }
 
-function LangueTab() {
+function LanguageTab() {
   const { selectedCompanyId, selectedCompany } = useCompany();
   const { pushToast } = useToastActions();
   const [timezone, setTimezone] = useState(
@@ -535,7 +535,7 @@ function LangueTab() {
           className="text-base font-semibold mb-1"
           style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
         >
-          Langue d'affichage
+          Language d'affichage
         </h2>
         <p className="text-sm mb-4" style={{ color: "#8A8680" }}>
           Choisissez la langue de votre interface
@@ -624,7 +624,7 @@ function PacksTab() {
   return (
     <div className="space-y-6">
       <h2 className="text-base font-semibold" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
-        Packs d'agents disponibles
+        Agent packs disponibles
       </h2>
 
       {packs.length === 0 ? (
@@ -813,7 +813,7 @@ export function Settings() {
         className="text-2xl mb-6"
         style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}
       >
-        Paramètres
+        Settings
       </h1>
 
       {/* Tabs */}
@@ -849,10 +849,10 @@ export function Settings() {
       <div className="max-w-2xl">
         {activeTab === "adn" && <ADNTab />}
         {activeTab === "integrations" && <IntegrationsTab />}
-        {activeTab === "facturation" && <FacturationTab />}
+        {activeTab === "facturation" && <BillingTab />}
         {activeTab === "equipe" && <EquipeTab />}
         {activeTab === "packs" && <PacksTab />}
-        {activeTab === "langue" && <LangueTab />}
+        {activeTab === "langue" && <LanguageTab />}
         {activeTab === "notifications" && <NotificationsTab />}
       </div>
     </div>
