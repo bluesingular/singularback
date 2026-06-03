@@ -12,8 +12,8 @@
  *
  * UI spec:
  *   - Plain textarea only (no markdown preview, no formatting toolbar)
- *   - "Modifier avant approbation" trigger link
- *   - "Vous avez modifié N caractères — Sophie apprend." after save
+ *   - "Edit before approving" trigger link
+ *   - "You changed N characters — the agent is learning." after save
  */
 
 import { useState } from "react";
@@ -46,7 +46,7 @@ async function patchTaskEdit(
   );
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as { error?: string };
-    throw new Error(body.error ?? "Impossible d'enregistrer la modification.");
+    throw new Error(body.error ?? "Unable to save the edit.");
   }
   return res.json();
 }
@@ -80,14 +80,14 @@ export function InlineOutputEditor({
       <div className="flex items-center gap-1.5 text-xs text-[#1A9E68] mt-2">
         <CheckCircle2 size={12} />
         <span>
-          Vous avez modifié {saved.charCount} caractère
-          {saved.charCount !== 1 ? "s" : ""} — Sophie apprend.
+          You changed {saved.charCount} character
+          {saved.charCount !== 1 ? "s" : ""} — the agent is learning.
         </span>
       </div>
     );
   }
 
-  // Collapsed: show "Modifier avant approbation" link
+  // Collapsed: show "Edit before approving" link
   if (!editing) {
     return (
       <button
@@ -95,7 +95,7 @@ export function InlineOutputEditor({
         className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-600 transition-colors mt-2"
       >
         <Edit3 size={11} />
-        Modifier avant approbation
+        Edit before approving
       </button>
     );
   }
@@ -121,13 +121,13 @@ export function InlineOutputEditor({
               : "bg-stone-100 text-stone-400 cursor-not-allowed",
           )}
         >
-          {mutation.isPending ? "Enregistrement…" : "Enregistrer les modifications"}
+          {mutation.isPending ? "Saving..." : "Save changes"}
         </button>
         <button
           onClick={() => { setDraft(originalOutput); setEditing(false); }}
           className="text-xs text-stone-400 hover:text-stone-600"
         >
-          Annuler
+          Cancel
         </button>
       </div>
       {mutation.isError && (

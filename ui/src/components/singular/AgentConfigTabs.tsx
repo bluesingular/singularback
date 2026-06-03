@@ -98,9 +98,9 @@ function SoulTab({ agentId, agentName }: { agentId: string; agentName: string })
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-stone-700">soul.md — Identité de {agentName}</p>
+          <p className="text-sm font-medium text-stone-700">soul.md — Identity for {agentName}</p>
           <p className="text-xs text-stone-500 mt-0.5">
-            Définit le ton, les contraintes et la constitution de l'agent. Distinct des compétences.
+            Defines the agent's tone, constraints and constitution. Separate from capabilities.
           </p>
         </div>
         <button
@@ -115,7 +115,7 @@ function SoulTab({ agentId, agentName }: { agentId: string; agentName: string })
               : "bg-[#1A9E68] text-white hover:bg-[#158A58]",
           )}
         >
-          {saved ? <><CheckCircle size={13} /> Enregistré</> : <><Save size={13} /> Enregistrer</>}
+          {saved ? <><CheckCircle size={13} /> Saved</> : <><Save size={13} /> Save</>}
         </button>
       </div>
 
@@ -128,7 +128,7 @@ function SoulTab({ agentId, agentName }: { agentId: string; agentName: string })
       />
 
       <p className="text-xs text-stone-400">
-        Le bloc <code className="bg-stone-100 px-1 rounded">[[CONSTITUTION]]</code> est
+        The <code className="bg-stone-100 px-1 rounded">[[CONSTITUTION]]</code> est
         automatiquement injecté si absent. Les modifications s'appliquent à la prochaine tâche.
       </p>
     </div>

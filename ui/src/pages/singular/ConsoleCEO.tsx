@@ -42,7 +42,7 @@ interface DispatcherHealth {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function now() {
-  return new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 }
 
 function urgencyColor(urgency: number) {
@@ -68,7 +68,7 @@ function DispatcherLed({ companyId }: { companyId: string }) {
   });
 
   const isWorking = data?.status === "working";
-  const label = data?.message ?? "Tout fonctionne normalement";
+  const label = data?.message ?? "All systems running";
 
   return (
     <div className="flex items-center gap-1.5">
@@ -107,7 +107,7 @@ function CardRow({
         <button onClick={() => onApprove(card)} disabled={approving}
           className="flex-none text-xs font-semibold px-2.5 py-1 rounded-lg disabled:opacity-50"
           style={{ backgroundColor: "#1A9E68", color: "#FFFFFF" }}>
-          {approving ? "…" : "Valider"}
+          {approving ? "…" : "Approve"}
         </button>
       )}
       {approved && <CheckCircle2 size={16} className="flex-none text-[#1A9E68]" />}
@@ -124,9 +124,9 @@ function EmptyChat() {
         <Send size={20} color="#1A9E68" />
       </div>
       <div>
-        <p className="font-medium text-[#0F0F0D] text-sm">Dites à votre équipe quoi faire</p>
+        <p className="font-medium text-[#0F0F0D] text-sm">Tell your team what to do</p>
         <p className="text-sm text-[#8A8680] mt-1 max-w-xs">
-          Tapez une instruction et vos agents s'en chargent. Utilisez la voix pour dicter.
+          Type an instruction and your agents will handle it.
         </p>
       </div>
     </div>
@@ -186,7 +186,7 @@ export function ConsoleCEO() {
         id:        Date.now().toString(),
         role:      "assistant",
         missionId: mission.id,
-        text:      `Mission créée : "${mission.title}". Votre équipe s'en occupe — vous verrez les mises à jour en temps réel.`,
+        text:      `Mission created: "${mission.title}". Your team is on it — you'll see updates in real time.`,
         timestamp: now(),
       }]);
     },
@@ -194,7 +194,7 @@ export function ConsoleCEO() {
       setMessages((prev) => [...prev, {
         id:        Date.now().toString(),
         role:      "assistant",
-        text:      "Une erreur s'est produite. Réessayez dans un instant.",
+        text:      "Something went wrong. Please try again.",
         timestamp: now(),
       }]);
     },
@@ -210,7 +210,7 @@ export function ConsoleCEO() {
       queryClient.invalidateQueries({ queryKey: ["console-context"] });
       setMessages((prev) => [...prev, {
         id: Date.now().toString(), role: "assistant",
-        text: "Validé. L'équipe continue.", timestamp: now(),
+        text: "Approved. The team will continue.", timestamp: now(),
       }]);
     },
     onError: () => setApprovingId(null),
@@ -233,9 +233,9 @@ export function ConsoleCEO() {
   }
 
   const suggestions = [
-    "Qu'a accompli l'équipe cette semaine ?",
-    "Rédige une proposition pour un nouveau client",
-    "Montre-moi les approbations en attente",
+    "What did the team accomplish this week?",
+    "Draft a proposal for a new client",
+    "Show me pending approvals",
   ];
 
   return (
@@ -266,11 +266,11 @@ export function ConsoleCEO() {
             className="w-full flex items-center justify-between px-5 py-2 text-xs font-semibold text-[#8A8680] hover:text-[#0F0F0D] transition-colors"
           >
             <span>
-              Votre équipe
+              Your team
               {floorAgents.filter((a) => a.currentTask).length > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold"
                   style={{ backgroundColor: "#1A9E6815", color: "#1A9E68" }}>
-                  {floorAgents.filter((a) => a.currentTask).length} en cours
+                  {floorAgents.filter((a) => a.currentTask).length} active
                 </span>
               )}
             </span>
@@ -293,7 +293,7 @@ export function ConsoleCEO() {
               <Lightbulb size={17} className="flex-none mt-0.5" style={{ color: "#1A4E8C" }} />
               <div className="flex-1">
                 <p className="text-sm font-semibold mb-2" style={{ color: "#1A4E8C" }}>
-                  {liveCards.length} point{liveCards.length !== 1 ? "s" : ""} demandent votre attention
+                  {liveCards.length} point{liveCards.length !== 1 ? "s" : ""} need your attention
                 </p>
                 <div className="w-full mb-3" style={{ height: "1px", backgroundColor: "#1A4E8C22" }} />
                 <ul className="divide-y" style={{ borderColor: "#1A4E8C22" }}>
@@ -308,12 +308,12 @@ export function ConsoleCEO() {
                   <button className="text-xs font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 w-full sm:w-auto"
                     style={{ backgroundColor: "#1A4E8C", color: "#FFFFFF" }}
                     onClick={() => { setShowIntelligence(false); navigate("/approvals/pending"); }}>
-                    Tout revoir
+                    Review all
                   </button>
                   <button className="text-xs font-semibold px-3 py-1.5 rounded-lg hover:opacity-80 w-full sm:w-auto"
                     style={{ backgroundColor: "transparent", color: "#1A4E8C", border: "1px solid #1A4E8C44" }}
                     onClick={() => setShowIntelligence(false)}>
-                    Plus tard
+                    Later
                   </button>
                 </div>
               </div>
@@ -341,7 +341,7 @@ export function ConsoleCEO() {
                     {msg.missionId && (
                       <button onClick={() => navigate("missions/archive")}
                         className="mt-2 block text-xs text-[#1A4E8C] hover:underline">
-                        Voir la mission →
+                        View mission →
                       </button>
                     )}
                   </div>
@@ -395,7 +395,7 @@ export function ConsoleCEO() {
           style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
           <textarea ref={textareaRef} value={inputValue}
             onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown}
-            placeholder="Dites à votre équipe quoi faire…" rows={1}
+            placeholder="Tell your team what to do…" rows={1}
             className="flex-1 resize-none text-sm outline-none bg-transparent leading-relaxed"
             style={{ color: "#0F0F0D", maxHeight: "120px" }} />
           <button onClick={handleSend} disabled={!inputValue.trim() || sendMutation.isPending}

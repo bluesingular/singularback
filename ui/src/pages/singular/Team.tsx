@@ -90,7 +90,7 @@ export default function Team() {
             className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl border border-[#E8E4DC] hover:border-[#1A9E68]/30 hover:text-[#1A9E68] text-[#8A8680] transition-colors flex-shrink-0"
           >
             <BarChart2 size={14} />
-            Performances
+            Performance
           </button>
         </div>
 

@@ -85,7 +85,7 @@ function SkillCard({ skill }: { skill: SkillStat }) {
             {skill.hasUpdate && (
               <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
                 style={{ backgroundColor: "#1A4E8C15", color: "#1A4E8C" }}>
-                <ArrowUpCircle size={10} /> Mise à jour disponible
+                <ArrowUpCircle size={10} /> Update available
               </span>
             )}
             {skill.gdprRequired && (
@@ -100,7 +100,7 @@ function SkillCard({ skill }: { skill: SkillStat }) {
           <div className="flex flex-wrap gap-4 mt-2">
             <span className="text-xs text-[#8A8680]">
               <span className="font-semibold text-[#0F0F0D]">{skill.taskCount}</span>{" "}
-              tâche{skill.taskCount !== 1 ? "s" : ""} ce mois
+              tasks this month
             </span>
 
             {skill.avgJudgeScore !== null && (
@@ -116,7 +116,7 @@ function SkillCard({ skill }: { skill: SkillStat }) {
             )}
 
             {skill.taskCount === 0 && skill.avgJudgeScore === null && (
-              <span className="text-xs text-[#8A8680]">Aucune tâche ce mois</span>
+              <span className="text-xs text-[#8A8680]">Aucune tasks this month</span>
             )}
           </div>
         </div>
@@ -134,14 +134,14 @@ function SkillCard({ skill }: { skill: SkillStat }) {
       {expanded && (
         <div className="border-t border-[#F0EDE6] px-5 py-4 flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
-            <Metric label="Tâches complétées" value={`${skill.completedCount} / ${skill.taskCount}`} />
+            <Metric label="Tasks completed" value={`${skill.completedCount} / ${skill.taskCount}`} />
             <Metric
-              label="Qualité moyenne"
+              label="Average quality"
               value={skill.avgJudgeScore !== null ? `${skill.avgJudgeScore.toFixed(1).replace(".", ",")} / 10` : "Pas encore évaluée"}
             />
             <Metric label="Exemples d'entraînement" value={`${skill.goldenCount}`} />
             {skill.installedVersion && (
-              <Metric label="Version installée" value={`v${skill.installedVersion}`} />
+              <Metric label="Installed version" value={`v${skill.installedVersion}`} />
             )}
           </div>
 
@@ -151,14 +151,14 @@ function SkillCard({ skill }: { skill: SkillStat }) {
               <AlertCircle size={14} className="flex-none mt-0.5" style={{ color: "#1A4E8C" }} />
               <div>
                 <p className="text-xs font-semibold text-[#1A4E8C]">
-                  Une mise à jour est disponible pour cette compétence.
+                  An update is available for this skill.
                 </p>
                 <p className="text-xs text-[#8A8680] mt-0.5">
-                  La mise à jour améliore les instructions de base.{" "}
-                  Vos exemples et apprentissages sont préservés.
+                  The update improves the base instructions.{" "}
+                  Your examples and learning are preserved.
                 </p>
                 <p className="text-xs text-[#1A4E8C] mt-1">
-                  Pour l'installer : Paramètres → Compétences → {skill.name}
+                  To install: Settings → Skills → {skill.name}
                 </p>
               </div>
             </div>
@@ -169,7 +169,7 @@ function SkillCard({ skill }: { skill: SkillStat }) {
               style={{ backgroundColor: "#C97C0A08", border: "1px solid #C97C0A22" }}>
               <AlertCircle size={14} className="flex-none mt-0.5" style={{ color: "#C97C0A" }} />
               <p className="text-xs text-[#8A8680]">
-                Ajoutez des exemples d'entraînement pour améliorer la qualité de cette compétence.
+                Add training examples to improve the quality of this skill.
               </p>
             </div>
           )}
@@ -213,16 +213,16 @@ export function SkillPerformance() {
           className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
         >
           <ArrowLeft size={14} />
-          Retour
+          Back
         </button>
 
         {/* Title */}
         <div>
           <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">
-            Performances de votre équipe
+            Team skill performance
           </h1>
           <p className="text-sm text-[#8A8680] mt-1">
-            Ce que votre équipe a accompli ce mois — 30 derniers jours.
+            What your team accomplished this month — last 30 days.
           </p>
         </div>
 
@@ -231,11 +231,11 @@ export function SkillPerformance() {
           <div className="rounded-2xl border border-[#E8E4DC] bg-white p-5 flex flex-wrap gap-6">
             <div className="flex flex-col gap-0.5">
               <span className="text-2xl font-semibold text-[#0F0F0D]">{totalTasks}</span>
-              <span className="text-xs text-[#8A8680]">tâches ce mois</span>
+              <span className="text-xs text-[#8A8680]">tasks this month</span>
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-2xl font-semibold text-[#0F0F0D]">{skills.length}</span>
-              <span className="text-xs text-[#8A8680]">compétences actives</span>
+              <span className="text-xs text-[#8A8680]">active skills</span>
             </div>
             {hasUpdates && (
               <div className="flex flex-col gap-0.5">
@@ -256,9 +256,9 @@ export function SkillPerformance() {
         ) : skills.length === 0 ? (
           <div className="bg-white rounded-2xl border border-[#E8E4DC] p-10 text-center">
             <Sparkles size={32} className="mx-auto mb-3" style={{ color: "#E8E4DC" }} />
-            <p className="text-sm font-medium text-[#0F0F0D]">Aucune compétence installée</p>
+            <p className="text-sm font-medium text-[#0F0F0D]">No skills installed</p>
             <p className="text-sm text-[#8A8680] mt-1">
-              Installez un pack pour commencer.
+              Install a pack to get started.
             </p>
           </div>
         ) : (

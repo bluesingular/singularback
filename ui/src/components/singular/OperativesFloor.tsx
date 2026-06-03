@@ -140,7 +140,7 @@ function DrillDownPanel({ agent, onClose }: { agent: Agent; onClose: () => void 
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-stone-900 truncate">{agent.displayName}</p>
           <p className="text-xs text-stone-500">
-            {agent.status === "paused" ? "En pause" : agent.currentTask ? "En cours de travail" : "Disponible"}
+            {agent.status === "paused" ? "Paused" : agent.currentTask ? "Working" : "Available"}
           </p>
         </div>
         <button onClick={onClose} className="p-1 rounded hover:bg-stone-100 text-stone-400">

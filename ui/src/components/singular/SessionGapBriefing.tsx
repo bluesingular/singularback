@@ -4,7 +4,7 @@
  * Gap K — Session gap awareness overlay.
  *
  * Shows when operator opens app after ≥6h absence.
- * One screen max — "Voir le tableau de bord →" dismisses to normal console.
+ * One screen max — "Go to dashboard →" dismisses to normal console.
  * NOT the same as morning intelligence (daily). Fires any time of day after absence.
  */
 
@@ -57,8 +57,8 @@ export function SessionGapBriefing({ onDismiss }: { onDismiss: () => void }) {
             <Clock size={18} className="text-[#1A4E8C]" />
           </div>
           <div>
-            <p className="font-semibold text-[#0F0F0D]">Bienvenue de retour</p>
-            <p className="text-sm text-stone-500">Absent depuis {label}</p>
+            <p className="font-semibold text-[#0F0F0D]">Welcome back</p>
+            <p className="text-sm text-stone-500">Away for {label}</p>
           </div>
         </div>
 
@@ -67,16 +67,16 @@ export function SessionGapBriefing({ onDismiss }: { onDismiss: () => void }) {
           <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <CheckCircle2 size={13} className="text-emerald-600" />
-              <span className="text-xs font-medium text-emerald-700">Terminées</span>
+              <span className="text-xs font-medium text-emerald-700">Completed</span>
             </div>
             <p className="text-2xl font-semibold text-emerald-700">{data.tasksCompleted}</p>
-            <p className="text-xs text-emerald-600">tâche{data.tasksCompleted !== 1 ? "s" : ""}</p>
+            <p className="text-xs text-emerald-600">task{data.tasksCompleted !== 1 ? "s" : ""}</p>
           </div>
 
           <div className="rounded-xl bg-amber-50 border border-amber-100 p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <AlertCircle size={13} className="text-amber-600" />
-              <span className="text-xs font-medium text-amber-700">Votre attention</span>
+              <span className="text-xs font-medium text-amber-700">Needs attention</span>
             </div>
             <p className="text-2xl font-semibold text-amber-700">{data.tasksPending}</p>
             <p className="text-xs text-amber-600">en attente</p>
@@ -86,7 +86,7 @@ export function SessionGapBriefing({ onDismiss }: { onDismiss: () => void }) {
         {/* Notable events */}
         {data.notableEvents.length > 0 && (
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-medium text-stone-500 uppercase tracking-wide">Événements notables</p>
+            <p className="text-xs font-medium text-stone-500 uppercase tracking-wide">Notable events</p>
             {data.notableEvents.map((event, i) => (
               <div key={i} className="text-sm text-stone-700 flex items-start gap-2">
                 <span className="mt-1 w-1 h-1 rounded-full bg-[#1A4E8C] flex-shrink-0" />
@@ -104,7 +104,7 @@ export function SessionGapBriefing({ onDismiss }: { onDismiss: () => void }) {
           }}
           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#1A9E68] text-white font-medium text-sm hover:bg-[#158A58] transition-colors"
         >
-          Voir le tableau de bord
+          Go to dashboard
           <ChevronRight size={16} />
         </button>
       </div>

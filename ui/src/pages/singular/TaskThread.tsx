@@ -5,7 +5,7 @@
  *
  * C8  — Judge score shown on every approval card (Definition of Done gate).
  *       Format per spec §C8:
- *         "Évaluation automatique: 8.2/10
+ *         "Automatic evaluation: 8.2/10
  *          ├── Pertinence: 9/10 — Répond précisément à la demande
  *          ├── Exactitude: 8/10 — Affirmations vérifiables
  *          ..."
@@ -35,7 +35,7 @@ import { useCompany } from "../../context/CompanyContext"
 
 interface DimensionRow {
   key:   string
-  label: string  // already French from server
+  label: string  // from server
   score: number  // 0–10
   note:  string
 }
@@ -52,11 +52,11 @@ interface JudgeContext {
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    pending_approval: { label: "En attente d'approbation", cls: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
-    in_review:        { label: "En révision",              cls: "bg-[#EFF3FA] text-[#1A4E8C] border-[#1A4E8C]/20" },
-    in_progress:      { label: "En cours",                 cls: "bg-[#ECFBF4] text-[#1A9E68] border-[#1A9E68]/20" },
-    done:             { label: "Terminée",                 cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]"    },
-    cancelled:        { label: "Annulée",                  cls: "bg-[#FEF2F2] text-[#B91C1C] border-[#B91C1C]/20" },
+    pending_approval: { label: "Pending approval", cls: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
+    in_review:        { label: "In review",              cls: "bg-[#EFF3FA] text-[#1A4E8C] border-[#1A4E8C]/20" },
+    in_progress:      { label: "In progress",                 cls: "bg-[#ECFBF4] text-[#1A9E68] border-[#1A9E68]/20" },
+    done:             { label: "Done",                 cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]"    },
+    cancelled:        { label: "Cancelled",                  cls: "bg-[#FEF2F2] text-[#B91C1C] border-[#B91C1C]/20" },
   }
   const cfg = map[status] ?? { label: status, cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]" }
   return (
@@ -78,7 +78,7 @@ function SkeletonTask() {
 
 // ── C8: Judge score breakdown ─────────────────────────────────────────────────
 // Spec format:
-//   Évaluation automatique: 8.2/10
+//   Automatic evaluation: 8.2/10
 //   ├── Pertinence: 9/10 — Répond précisément à la demande
 //   └── Ton: 7/10 — Ton légèrement trop formel
 
@@ -103,14 +103,14 @@ function JudgeCard({ ctx }: { ctx: JudgeContext }) {
         <div className="flex items-center gap-2">
           <Sparkles size={13} style={{ color: scoreColor }} />
           <span className="text-xs font-semibold" style={{ color: scoreColor }}>
-            Évaluation automatique
+            Automatic evaluation
           </span>
           {ctx.autoRecycled && (
             <span
               className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
               style={{ backgroundColor: "#1A4E8C15", color: "#1A4E8C" }}
             >
-              révisé automatiquement
+              auto-revised
             </span>
           )}
         </div>
@@ -167,9 +167,9 @@ function ApprovalSection({
   return (
     <div className="bg-white border border-[#E8E4DC] rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
       <div>
-        <p className="text-sm font-semibold text-[#0F0F0D]">Votre avis sur ce résultat</p>
+        <p className="text-sm font-semibold text-[#0F0F0D]">Review this output</p>
         <p className="text-xs text-[#8A8680] mt-0.5">
-          Évaluez la qualité du travail de l'agent
+          Rate the quality of the agent's work
         </p>
       </div>
 
@@ -224,7 +224,7 @@ function ApprovalSection({
         className="bg-[#1A9E68] hover:bg-[#1A9E68]/90 text-white w-full sm:w-fit"
         size="sm"
       >
-        Valider
+        Approve
       </Button>
     </div>
   )
@@ -280,7 +280,7 @@ export default function TaskThread() {
           result.trust.newStreak % 5 === 0
         ) {
           setMicroRewardMsg(
-            `${result.trust.newStreak} validations consécutives — l'agent apprend vos préférences.`,
+            `${result.trust.newStreak} approvals in a row — the agent is learning your preferences.`,
           )
         }
       } catch {
@@ -301,12 +301,12 @@ export default function TaskThread() {
       <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
         <div className="text-center flex flex-col items-center gap-3">
           <FileText size={32} className="text-[#E8E4DC]" />
-          <p className="text-sm text-[#8A8680]">Tâche introuvable.</p>
+          <p className="text-sm text-[#8A8680]">Task not found.</p>
           <button
             onClick={() => navigate(-1)}
             className="text-sm text-[#1A4E8C] hover:underline"
           >
-            Retour
+            Back
           </button>
         </div>
       </div>
@@ -325,7 +325,7 @@ export default function TaskThread() {
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-sm text-[#8A8680] hover:text-[#0F0F0D] transition-colors w-fit"
         >
-          <ArrowLeft size={14} /> Retour
+          <ArrowLeft size={14} /> Back
         </button>
 
         {/* Task header */}
@@ -357,12 +357,12 @@ export default function TaskThread() {
               </p>
             ) : (
               <p className="text-sm text-[#8A8680] italic">
-                Pas encore de résultat — l'agent travaille.
+                No output yet — the agent is still working.
               </p>
             )}
             {issue.completedAt && (
               <p className="text-xs text-[#8A8680] mt-2">
-                {new Date(issue.completedAt).toLocaleString("fr-FR", {
+                {new Date(issue.completedAt).toLocaleString("en-GB", {
                   dateStyle: "short",
                   timeStyle: "short",
                 })}
@@ -381,7 +381,7 @@ export default function TaskThread() {
               <div className="flex items-center gap-2 mb-2">
                 <Loader2 size={12} className="animate-spin text-[#1A9E68]" />
                 <p className="text-xs font-semibold text-[#1A9E68]">
-                  {agentName} · en cours…
+                  {agentName} · writing...
                 </p>
               </div>
               <p className="text-sm text-[#0F0F0D] leading-relaxed whitespace-pre-wrap font-mono">
@@ -417,8 +417,8 @@ export default function TaskThread() {
           <div className="bg-[#FFF8EC] border border-[#C97C0A]/30 rounded-xl px-4 py-3 flex items-start gap-2.5">
             <AlertTriangle size={15} className="text-[#C97C0A] flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#8A8680]">
-              <span className="font-medium text-[#0F0F0D]">Attention : </span>
-              L'agent a terminé la tâche sans produire de résultat. Vérifiez la configuration de la compétence.
+              <span className="font-medium text-[#0F0F0D]">Heads up: </span>
+              The agent completed the task but produced no output. Check the skill configuration.
             </p>
           </div>
         )}
@@ -443,7 +443,7 @@ export default function TaskThread() {
           <MicroReward
             message={
               microRewardMsg ??
-              "Merci. L'agent a enregistré votre retour."
+              "Thank you. The agent has recorded your feedback."
             }
           />
         )}
@@ -451,8 +451,8 @@ export default function TaskThread() {
         {issue.status === "done" && issue.assigneeAgentId && (
           <HandoffIndicator
             from={agentName}
-            to="Prochain agent"
-            summary="Tâche terminée et transmise."
+            to="Next agent"
+            summary="Task completed and handed off."
           />
         )}
 

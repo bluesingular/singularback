@@ -56,29 +56,29 @@ export interface JudgeResult {
 // ── Judge prompt ──────────────────────────────────────────────────────────────
 
 function buildJudgePrompt(taskBrief: string, output: string): string {
-  return `Tu es un évaluateur qualité strict. Évalue la sortie suivante d'un agent IA.
+  return `You are a strict quality evaluator. Evaluate the following AI agent output.
 
-TÂCHE DEMANDÉE:
+TASK:
 ${taskBrief}
 
-SORTIE DE L'AGENT:
+AGENT OUTPUT:
 ${output}
 
-Évalue sur 5 dimensions, chacune notée de 0 à 10:
-1. PERTINENCE: La sortie répond-elle exactement à la tâche demandée?
-2. EXACTITUDE: Les informations sont-elles factuellement correctes et soutenues par le contexte?
-3. TON: Le ton est-il approprié et professionnel?
-4. COMPLÉTUDE: La sortie est-elle complète et ne manque-t-il rien d'important?
-5. PÉRIMÈTRE: L'agent s'est-il limité à son périmètre de responsabilité?
+Evaluate on 5 dimensions, each scored 0-10:
+1. RELEVANCE: Does the output exactly answer what was asked?
+2. ACCURACY: Are the facts correct and supported by context?
+3. TONE: Is the tone appropriate and professional?
+4. COMPLETENESS: Is the output complete with nothing important missing?
+5. SCOPE: Did the agent stay within its area of responsibility?
 
-Réponds UNIQUEMENT en JSON valide, format exact:
+Respond ONLY in valid JSON, exact format:
 {
-  "relevance":       { "score": <0-10>, "note": "<une phrase>" },
-  "accuracy":        { "score": <0-10>, "note": "<une phrase>" },
-  "tone":            { "score": <0-10>, "note": "<une phrase>" },
-  "completeness":    { "score": <0-10>, "note": "<une phrase>" },
-  "scope_adherence": { "score": <0-10>, "note": "<une phrase>" },
-  "explanation":     "<résumé en une phrase pour l'opérateur>"
+  "relevance":       { "score": <0-10>, "note": "<one sentence>" },
+  "accuracy":        { "score": <0-10>, "note": "<one sentence>" },
+  "tone":            { "score": <0-10>, "note": "<one sentence>" },
+  "completeness":    { "score": <0-10>, "note": "<one sentence>" },
+  "scope_adherence": { "score": <0-10>, "note": "<one sentence>" },
+  "explanation":     "<one-sentence summary for the operator>"
 }`;
 }
 
@@ -155,7 +155,7 @@ export async function runJudge(
 
   const roundedScore = Math.round(overallScore * 10) / 10;
   const autoRecycle  = roundedScore < AUTO_RECYCLE_THRESHOLD;
-  const explanation  = String(parsed.explanation ?? "Évaluation automatique effectuée.");
+  const explanation  = String(parsed.explanation ?? "Automatic evaluation completed.");
 
   // Persist to judge_results
   await db.insert(judgeResults).values({
@@ -185,12 +185,12 @@ export async function runJudge(
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function buildFallbackResult(taskId: string, outputVersion: number): JudgeResult {
-  const neutral: JudgeDimension = { score: 7, note: "Évaluation non disponible." };
+  const neutral: JudgeDimension = { score: 7, note: "Evaluation not available." };
   return {
     outputId:     taskId,
     overallScore: 7.0,
     autoRecycle:  false,
-    explanation:  "Évaluation automatique non disponible — sortie transmise à l'opérateur.",
+    explanation:  "Automatic evaluation unavailable — output passed to operator.",
     dimensions: {
       relevance:      neutral,
       accuracy:       neutral,

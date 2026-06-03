@@ -263,8 +263,8 @@ export function missionRoutes(db: Db): Router {
     // Plain-language status per spec — never expose queue depth numbers to operators
     const status = activeTasks > 0 ? "working" : "idle";
     const message = activeTasks > 0
-      ? `${activeTasks} tâche${activeTasks > 1 ? "s" : ""} en cours`
-      : "Tout fonctionne normalement";
+      ? `${activeTasks} task${activeTasks > 1 ? "s" : ""} running`
+      : "All agents active";
 
     res.json({ status, message, activeTasks });
   });
@@ -464,12 +464,12 @@ export function missionRoutes(db: Db): Router {
 
       // French label map for dimension keys
       const DIM_LABELS: Record<string, string> = {
-        relevance:       "Pertinence",
-        accuracy:        "Exactitude",
-        tone:            "Ton",
-        completeness:    "Complétude",
-        scopeAdherence:  "Périmètre",
-        scope_adherence: "Périmètre",
+        relevance:       "Relevance",
+        accuracy:        "Accuracy",
+        tone:            "Tone",
+        completeness:    "Completeness",
+        scopeAdherence:  "Scope",
+        scope_adherence: "Scope",
       };
 
       const dims = judgeRow.dimensions as Record<

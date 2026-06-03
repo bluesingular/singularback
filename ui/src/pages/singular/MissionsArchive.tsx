@@ -40,7 +40,7 @@ function StatusChip({ status }: { status: string }) {
   return (
     <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">
       <Archive size={10} />
-      Archivée
+      Archived
     </span>
   );
 }
@@ -72,7 +72,7 @@ export function MissionsArchive() {
         ) : missions.length === 0 ? (
           <div className="text-center py-16">
             <Archive size={32} className="mx-auto text-stone-300 mb-3" />
-            <p className="text-stone-500 text-sm">Aucune mission archivée pour le moment.</p>
+            <p className="text-stone-500 text-sm">No archived missions.pour le moment.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -96,7 +96,7 @@ export function MissionsArchive() {
                   <Clock size={11} />
                   <span>
                     {mission.completedAt
-                      ? `Terminée le ${formatDate(new Date(mission.completedAt))}`
+                      ? `Completed on ${formatDate(new Date(mission.completedAt))}`
                       : `Créée le ${formatDate(new Date(mission.createdAt))}`}
                   </span>
                 </div>

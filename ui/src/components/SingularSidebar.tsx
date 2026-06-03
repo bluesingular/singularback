@@ -72,17 +72,17 @@ export function SingularSidebar() {
         <div className="flex items-center gap-2 px-4 h-12 shrink-0 border-b border-[#E8E4DC]">
           <div className="w-2 h-2 rounded-full bg-[#1A9E68] shrink-0" />
           <span className="flex-1 text-sm font-semibold text-[#0F0F0D] truncate font-[Georgia,serif]">
-            {selectedCompany?.name ?? "Mon entreprise"}
+            {selectedCompany?.name ?? "My company"}
           </span>
           <NotificationBell />
         </div>
 
         <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-0.5 px-2 py-3">
           {/* Core */}
-          <SingularNavItem to={`${base}/dashboard`}        label="Tableau de bord" icon={LayoutDashboard} />
-          <SingularNavItem to={`${base}/console`}         label="Console CEO"     icon={MessageSquare} />
-          <SingularNavItem to={`${base}/team`}            label="Mon équipe"      icon={Users} />
-          <SingularNavItem to={`${base}/trust`}           label="Confiance"       icon={ShieldCheck} />
+          <SingularNavItem to={`${base}/dashboard`}        label="Dashboard"      icon={LayoutDashboard} />
+          <SingularNavItem to={`${base}/console`}         label="CEO Console"    icon={MessageSquare} />
+          <SingularNavItem to={`${base}/team`}            label="My team"        icon={Users} />
+          <SingularNavItem to={`${base}/trust`}           label="Trust"          icon={ShieldCheck} />
 
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
@@ -90,24 +90,24 @@ export function SingularSidebar() {
           <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
             Intelligence
           </p>
-          <SingularNavItem to={`${base}/reports`}          label="Rapports"         icon={BarChart2} />
+          <SingularNavItem to={`${base}/reports`}          label="Reports"          icon={BarChart2} />
           <SingularNavItem to={`${base}/contacts`}         label="Contacts"         icon={BookUser} />
-          <SingularNavItem to={`${base}/financial-pulse`}  label="Santé financière" icon={TrendingUp} />
-          <SingularNavItem to={`${base}/ceo-health`}       label="Score CEO"        icon={PieChart} />
-          <SingularNavItem to={`${base}/meeting-briefing`} label="Briefing réunion" icon={Calendar} />
+          <SingularNavItem to={`${base}/financial-pulse`}  label="Financial health" icon={TrendingUp} />
+          <SingularNavItem to={`${base}/ceo-health`}       label="CEO health"       icon={PieChart} />
+          <SingularNavItem to={`${base}/meeting-briefing`} label="Meeting briefing" icon={Calendar} />
 
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
-          {/* Outils */}
+          {/* Tools */}
           <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
-            Outils
+            Tools
           </p>
-          <SingularNavItem to={`${base}/voice`}     label="Note vocale"      icon={Mic} />
-          <SingularNavItem to={`${base}/documents`} label="Studio documents"  icon={FileText} />
+          <SingularNavItem to={`${base}/voice`}     label="Voice note"       icon={Mic} />
+          <SingularNavItem to={`${base}/documents`} label="Document studio"  icon={FileText} />
 
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
-          <SingularNavItem to={`${base}/settings`} label="Paramètres" icon={Settings} />
+          <SingularNavItem to={`${base}/settings`} label="Settings" icon={Settings} />
         </nav>
 
         <SidebarFooter

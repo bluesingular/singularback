@@ -171,7 +171,7 @@ export default function AgentProfile() {
               className="text-xs gap-1.5 border-[#E8E4DC]"
             >
               <BarChart2 size={12} />
-              Performances
+              Performance
             </Button>
             <Button
               variant="outline"
