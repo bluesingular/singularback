@@ -63,6 +63,7 @@ const Signup = lazy(() => import("./pages/singular/Signup").then(m => ({ default
 const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then(m => ({ default: m.CataloguePacks })));
 const PaymentSuccess = lazy(() => import("./pages/singular/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const ConfigAgent    = lazy(() => import("./pages/singular/ConfigAgent").then(m => ({ default: m.ConfigAgent })));
+const SkillPerformance = lazy(() => import("./pages/singular/SkillPerformance").then(m => ({ default: m.SkillPerformance })));
 const AdminLayout       = lazy(() => import("./pages/singular/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
 const AdminHealth       = lazy(() => import("./pages/singular/admin/AdminHealth").then(m => ({ default: m.AdminHealth })));
 const AdminTenants      = lazy(() => import("./pages/singular/admin/AdminTenants").then(m => ({ default: m.AdminTenants })));
@@ -171,6 +172,7 @@ function boardRoutes() {
       <Route path="team" element={<Suspense fallback={null}><Team /></Suspense>} />
       <Route path="team/:slug" element={<Suspense fallback={null}><AgentProfile /></Suspense>} />
       <Route path="team/:slug/config" element={<Suspense fallback={null}><ConfigAgent /></Suspense>} />
+      <Route path="performances" element={<Suspense fallback={null}><SkillPerformance /></Suspense>} />
       <Route path="trust" element={<Suspense fallback={null}><TrustCentre /></Suspense>} />
       <Route path="tasks/:taskId" element={<Suspense fallback={null}><TaskThread /></Suspense>} />
       <Route path="console" element={<Suspense fallback={null}><ConsoleCEO /></Suspense>} />

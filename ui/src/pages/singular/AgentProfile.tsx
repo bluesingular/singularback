@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { ArrowLeft, Pause, Play, ArrowRight, Settings } from "lucide-react"
+import { ArrowLeft, Pause, Play, ArrowRight, Settings, BarChart2 } from "lucide-react"
 import { useParams, useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -164,6 +164,15 @@ export default function AgentProfile() {
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/performances")}
+              className="text-xs gap-1.5 border-[#E8E4DC]"
+            >
+              <BarChart2 size={12} />
+              Performances
+            </Button>
             <Button
               variant="outline"
               size="sm"

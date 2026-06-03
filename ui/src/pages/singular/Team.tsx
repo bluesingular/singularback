@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, BarChart2 } from "lucide-react"
 import { useNavigate } from "@/lib/router"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
@@ -76,13 +76,22 @@ export default function Team() {
     <div className="min-h-screen bg-[#FAFAF8]">
       <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-6">
 
-        <div>
-          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("team.titleAI")}</h1>
-          <p className="text-sm text-[#8A8680] mt-1">
-            {isLoading
-              ? "…"
-              : t("team.activeCount", { count: activeCount, tasks: agents.length })}
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("team.titleAI")}</h1>
+            <p className="text-sm text-[#8A8680] mt-1">
+              {isLoading
+                ? "…"
+                : t("team.activeCount", { count: activeCount, tasks: agents.length })}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/performances")}
+            className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl border border-[#E8E4DC] hover:border-[#1A9E68]/30 hover:text-[#1A9E68] text-[#8A8680] transition-colors flex-shrink-0"
+          >
+            <BarChart2 size={14} />
+            Performances
+          </button>
         </div>
 
         {isLoading ? (

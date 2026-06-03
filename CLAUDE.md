@@ -165,20 +165,14 @@ BUILT (M0–M12):
   ✓ Quality gates — M6 thresholds enforced per skill
   ✓ Self-improvement — M10 golden dataset accumulation + new skill versions
 
-NOT BUILT (Gap D — 5 sessions, not blocking first customer):
-  ✗ source_company_id / source_skill_id columns on skills table
-  ✗ Skill copy function at pack install (currently skills are referenced, not copied)
-  ✗ Skill editor UI (admin.swwarm.com) — requires raw SKILL.md file editing
-  ✗ Golden dataset manager UI
-  ✗ Master update notification + merge flow
-  ✗ Tenant skill performance dashboard (app.swwarm.com)
-  ✗ client_skill_overlays table + overlay context assembly
-
-WORKAROUND until Gap D is built:
-  → Edit SKILL.md files directly in the codebase (Swwarm team only)
-  → Golden datasets managed via direct DB inserts
-  → Skills are copied at pack install only if copyMasterSkillToTenant() is called
-    (may currently be referenced instead of copied — verify in M12 pack installer)
+BUILT (Gap D — all items complete as of §20 + §20.8):
+  ✓ source_company_id / source_skill_id columns on skills table
+  ✓ Skill copy function at pack install (copyMasterSkillToTenant() called in installer)
+  ✓ Skill editor UI (admin.swwarm.com) — AdminSkillEditor.tsx
+  ✓ Golden dataset manager UI — GoldenDatasets component in AdminSkillEditor
+  ✓ Master update notification + merge flow — skill_update_notifications + AdminSkills
+  ✓ Tenant skill performance dashboard (app.swwarm.com) — SkillPerformance.tsx
+  ✓ client_skill_overlays table + overlay context assembly — client-assembly.ts
 ```
 
 **C1 — Task state machine (prevents corrupted states)**

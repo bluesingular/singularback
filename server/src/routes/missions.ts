@@ -18,7 +18,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { and, eq, desc, ne, count, inArray, sql } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
-import { missions, missionMessages, missionTasks, issues, costRecords } from "@paperclipai/db";
+import { missions, missionMessages, missionTasks, issues, costRecords, agents } from "@paperclipai/db";
 import { assertCompanyAccess } from "./authz.js";
 import { approvePartialOutput, requestPartialCompletion } from "../tasks/partial-output.js";
 import { recordOutcome } from "../learning/outcome-attribution.js";
@@ -338,6 +338,87 @@ export function missionRoutes(db: Db): Router {
     const result = await recordOutcome({ db, companyId, missionId, outcome });
     logger.info({ companyId, missionId, outcome, ...result }, "missions: outcome recorded");
     res.json({ ok: true, ...result });
+  });
+
+  // ── WAR-6: Operatives floor — agents with current task status ─────────────
+  // GET /companies/:companyId/agents-floor
+  // Returns all non-deactivated agents with their current running task (if any).
+  // Polled every 10s by the CEO Console for live floor display.
+  router.get("/companies/:companyId/agents-floor", async (req, res, next) => {
+    try {
+      const { companyId } = req.params as { companyId: string };
+      assertCompanyAccess(req, companyId);
+
+      // Fetch agents
+      const agentRows = await db
+        .select({
+          id:          agents.id,
+          slug:        agents.slug,
+          displayName: agents.displayName,
+          colour:      agents.colour,
+          status:      agents.status,
+        })
+        .from(agents)
+        .where(
+          and(
+            eq(agents.companyId, companyId),
+            ne(agents.status, "deactivated"),
+          ),
+        )
+        .orderBy(agents.displayName);
+
+      if (agentRows.length === 0) {
+        return res.json({ agents: [] });
+      }
+
+      // Fetch current running task per agent
+      const runningTasks = await db
+        .select({
+          assigneeId: issues.assigneeAgentId,
+          taskId:     issues.id,
+          title:      issues.title,
+          status:     issues.status,
+        })
+        .from(issues)
+        .where(
+          and(
+            eq(issues.companyId, companyId),
+            inArray(issues.status, ["in_progress", "in_review", "awaiting_clarification"]),
+            inArray(issues.assigneeAgentId, agentRows.map((a) => a.id)),
+          ),
+        )
+        .orderBy(desc(issues.updatedAt))
+        .limit(agentRows.length * 2); // at most 2 tasks per agent
+
+      // Build lookup: agentId → most recent active task
+      const taskByAgent = new Map<string, typeof runningTasks[number]>();
+      for (const task of runningTasks) {
+        if (task.assigneeId && !taskByAgent.has(task.assigneeId)) {
+          taskByAgent.set(task.assigneeId, task);
+        }
+      }
+
+      const floor = agentRows.map((agent) => {
+        const task = taskByAgent.get(agent.id) ?? null;
+        return {
+          id:          agent.id,
+          slug:        agent.slug,
+          displayName: agent.displayName,
+          colour:      agent.colour,
+          status:      agent.status,
+          currentTask: task ? {
+            id:       task.taskId,
+            title:    task.title ?? "Tâche en cours",
+            status:   task.status,
+            fragment: null,
+          } : null,
+        };
+      });
+
+      res.json({ agents: floor });
+    } catch (err) {
+      next(err);
+    }
   });
 
   return router;
