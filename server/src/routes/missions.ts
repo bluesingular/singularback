@@ -18,7 +18,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { and, eq, desc, ne, count, inArray, sql } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
-import { missions, missionMessages, missionTasks, issues, costRecords, agents } from "@paperclipai/db";
+import { missions, missionMessages, missionTasks, issues, costRecords, agents, judgeResults, approvals } from "@paperclipai/db";
 import { assertCompanyAccess } from "./authz.js";
 import { approvePartialOutput, requestPartialCompletion } from "../tasks/partial-output.js";
 import { recordOutcome } from "../learning/outcome-attribution.js";
@@ -416,6 +416,98 @@ export function missionRoutes(db: Db): Router {
       });
 
       res.json({ agents: floor });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── C8 + Gap B: Task approval context (judge score + inline edit) ──────────
+  // GET /companies/:companyId/tasks/:taskId/approval-context
+  //
+  // Returns judge evaluation + confidence flag for the task's latest output.
+  // Used by TaskThread.tsx to show judge score on approval card (C8) and to
+  // pass the approvalId into InlineOutputEditor (Gap B).
+  //
+  // Operator-facing copy rules (§31 — cognitive compression):
+  //   - Never show raw scores → use label (Excellent / Bon / Moyen / À améliorer)
+  //   - Never show model name or technical identifiers
+  //   - "Confiance: élevée / moyenne / faible" only
+  router.get("/companies/:companyId/tasks/:taskId/approval-context", async (req, res, next) => {
+    try {
+      const { companyId, taskId } = req.params as { companyId: string; taskId: string };
+      assertCompanyAccess(req, companyId);
+
+      // Latest judge result for this task
+      const judgeRow = await db
+        .select({
+          overallScore:  judgeResults.overallScore,
+          dimensions:    judgeResults.dimensions,
+          autoRecycled:  judgeResults.autoRecycled,
+          outputVersion: judgeResults.outputVersion,
+        })
+        .from(judgeResults)
+        .where(
+          and(
+            eq(judgeResults.taskId, taskId),
+            eq(judgeResults.companyId, companyId),
+          ),
+        )
+        .orderBy(desc(judgeResults.outputVersion))
+        .limit(1)
+        .then((rows) => rows[0] ?? null);
+
+      // Latest approval record linked to this task (if any)
+      const approvalRow = await db
+        .select({
+          id:          approvals.id,
+          status:      approvals.status,
+          operatorEdit: approvals.operatorEdit,
+          editCharCount: approvals.editCharCount,
+        })
+        .from(approvals)
+        .where(
+          and(
+            eq(approvals.companyId, companyId),
+            sql`${approvals.payload}->>'taskId' = ${taskId}`,
+          ),
+        )
+        .orderBy(desc(approvals.createdAt))
+        .limit(1)
+        .then((rows) => rows[0] ?? null);
+
+      if (!judgeRow) {
+        return res.json({ hasJudge: false, approvalId: approvalRow?.id ?? null });
+      }
+
+      const score = Number(judgeRow.overallScore);
+
+      // Plain-language score label per spec (never raw numbers to operators)
+      const scoreLabel =
+        score >= 8.5 ? "Excellent" :
+        score >= 7.0 ? "Bon" :
+        score >= 5.5 ? "Moyen" :
+        "À améliorer";
+
+      // Dimensions — max 3 notable notes for operator card
+      const dims = judgeRow.dimensions as Record<string, { score: number; note: string }> | null;
+      const topNotes = dims
+        ? Object.entries(dims)
+            .sort(([, a], [, b]) => a.score - b.score)   // worst first
+            .slice(0, 3)
+            .map(([key, v]) => `${key}: ${v.note}`)
+        : [];
+
+      res.json({
+        hasJudge:      true,
+        scoreLabel,
+        scoreRaw:      score,              // never shown to operators — for internal use only
+        autoRecycled:  judgeRow.autoRecycled,
+        outputVersion: judgeRow.outputVersion,
+        topNotes,
+        approvalId:    approvalRow?.id ?? null,
+        hasExistingEdit: !!approvalRow?.operatorEdit,
+        editCharCount: approvalRow?.editCharCount ?? 0,
+      });
     } catch (err) {
       next(err);
     }
