@@ -12,24 +12,57 @@ import {
   TrendingUp,
   PieChart,
   Calendar,
+  type LucideIcon,
 } from "lucide-react";
+import { NavLink } from "@/lib/router";
 import { useCompany } from "../context/CompanyContext";
-import { SidebarNavItem } from "./SidebarNavItem";
 import { NotificationBell } from "./NotificationBell";
 import { SidebarFooter } from "./SidebarFooter";
 import { SessionGapBriefing } from "./singular/SessionGapBriefing";
+
+// ── Swwarm nav item — hardcoded light-theme colors (never inherits dark mode) ──
+// SidebarNavItem uses CSS vars that resolve to near-white in dark mode,
+// making items invisible on the light #FAFAF8 sidebar background.
+// This component uses explicit Swwarm design tokens instead.
+
+function SingularNavItem({
+  to,
+  label,
+  icon: Icon,
+}: {
+  to:    string
+  label: string
+  icon:  LucideIcon
+}) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        [
+          "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors",
+          isActive
+            ? "bg-[#0F0F0D]/8 text-[#0F0F0D]"
+            : "text-[#8A8680] hover:text-[#0F0F0D] hover:bg-[#0F0F0D]/5",
+        ].join(" ")
+      }
+    >
+      <Icon className="h-4 w-4 flex-shrink-0" />
+      <span className="truncate">{label}</span>
+    </NavLink>
+  )
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
 
 export function SingularSidebar() {
   const { selectedCompany } = useCompany();
   const prefix = selectedCompany?.issuePrefix ?? "";
   const base = `/${prefix}`;
 
-  // Gap K — session gap briefing: shown once per session mount, dismissed by operator
   const [showGap, setShowGap] = useState(true);
 
   return (
     <>
-      {/* Gap K overlay fires when operator returns after ≥6h (component self-gates) */}
       {showGap && selectedCompany && (
         <SessionGapBriefing onDismiss={() => setShowGap(false)} />
       )}
@@ -44,37 +77,37 @@ export function SingularSidebar() {
           <NotificationBell />
         </div>
 
-        <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 px-2 py-3">
+        <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-0.5 px-2 py-3">
           {/* Core */}
-          <SidebarNavItem to={`/dashboard`}           label="Tableau de bord"  icon={LayoutDashboard} />
-          <SidebarNavItem to={`${base}/console`}      label="Console CEO"      icon={MessageSquare} />
-          <SidebarNavItem to={`/team`}                label="Mon équipe"       icon={Users} />
-          <SidebarNavItem to={`/trust`}               label="Confiance"        icon={ShieldCheck} />
+          <SingularNavItem to={`${base}/dashboard`}        label="Tableau de bord" icon={LayoutDashboard} />
+          <SingularNavItem to={`${base}/console`}         label="Console CEO"     icon={MessageSquare} />
+          <SingularNavItem to={`${base}/team`}            label="Mon équipe"      icon={Users} />
+          <SingularNavItem to={`${base}/trust`}           label="Confiance"       icon={ShieldCheck} />
 
-          <div className="my-1 mx-3 border-t border-[#E8E4DC]" />
+          <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
           {/* Intelligence */}
-          <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
+          <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
             Intelligence
           </p>
-          <SidebarNavItem to={`/reports`}             label="Rapports"          icon={BarChart2} />
-          <SidebarNavItem to={`${base}/contacts`}     label="Contacts"          icon={BookUser} />
-          <SidebarNavItem to={`/financial-pulse`}     label="Santé financière"  icon={TrendingUp} />
-          <SidebarNavItem to={`/ceo-health`}          label="Score CEO"         icon={PieChart} />
-          <SidebarNavItem to={`/meeting-briefing`}    label="Briefing réunion"  icon={Calendar} />
+          <SingularNavItem to={`${base}/reports`}          label="Rapports"         icon={BarChart2} />
+          <SingularNavItem to={`${base}/contacts`}         label="Contacts"         icon={BookUser} />
+          <SingularNavItem to={`${base}/financial-pulse`}  label="Santé financière" icon={TrendingUp} />
+          <SingularNavItem to={`${base}/ceo-health`}       label="Score CEO"        icon={PieChart} />
+          <SingularNavItem to={`${base}/meeting-briefing`} label="Briefing réunion" icon={Calendar} />
 
-          <div className="my-1 mx-3 border-t border-[#E8E4DC]" />
+          <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
           {/* Outils */}
-          <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
+          <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
             Outils
           </p>
-          <SidebarNavItem to={`/voice`}               label="Note vocale"       icon={Mic} />
-          <SidebarNavItem to={`/documents`}           label="Studio documents"  icon={FileText} />
+          <SingularNavItem to={`${base}/voice`}     label="Note vocale"      icon={Mic} />
+          <SingularNavItem to={`${base}/documents`} label="Studio documents"  icon={FileText} />
 
-          <div className="my-1 mx-3 border-t border-[#E8E4DC]" />
+          <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
-          <SidebarNavItem to={`/settings`}            label="Paramètres"        icon={Settings} />
+          <SingularNavItem to={`${base}/settings`} label="Paramètres" icon={Settings} />
         </nav>
 
         <SidebarFooter
