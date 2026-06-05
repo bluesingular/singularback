@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, AlertTriangle, ChevronRight, Save, Package, Loader2, Trash2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ChevronRight, Save, Package, Loader2, Trash2, Copy, Check, Key, Globe, Plug } from "lucide-react";
 import { useCompany } from "../../context/CompanyContext";
 import { companiesApi } from "../../api/companies";
 import { useToastActions } from "../../context/ToastContext";
@@ -8,6 +8,7 @@ import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 import { membersApi, type Member, type MemberRole } from "@/api/members";
 import { useLocale } from "@/hooks/useLocale";
 import { notificationsApi, type NotificationPreferences } from "@/api/notifications";
+import { mcpKeysApi, type McpKey, type CreatedMcpKey } from "@/api/mcpKeys";
 
 const EU_TIMEZONES = [
   { value: "Europe/Paris",    label: "Paris (CET/CEST)" },
@@ -22,7 +23,7 @@ const EU_TIMEZONES = [
   { value: "Europe/Stockholm",label: "Stockholm (CET/CEST)" },
 ];
 
-type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue" | "notifications";
+type Tab = "adn" | "integrations" | "facturation" | "equipe" | "packs" | "langue" | "notifications" | "mcp" | "a2a";
 
 const tabLabels: { key: Tab; label: string }[] = [
   { key: "adn", label: "Company DNA" },
@@ -32,6 +33,8 @@ const tabLabels: { key: Tab; label: string }[] = [
   { key: "packs", label: "Agent packs" },
   { key: "langue", label: "Language" },
   { key: "notifications", label: "Notifications" },
+  { key: "mcp", label: "MCP" },
+  { key: "a2a", label: "A2A" },
 ];
 
 const specialisations = [
@@ -800,6 +803,319 @@ function NotificationsTab() {
   );
 }
 
+// ── CopyField ────────────────────────────────────────────────────────────────
+
+function CopyField({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  function copy() {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+  return (
+    <div>
+      <p className="text-xs font-medium mb-1.5" style={{ color: "#8A8680" }}>{label}</p>
+      <div
+        className="flex items-center gap-2 rounded-xl border px-3 py-2.5"
+        style={{ backgroundColor: "#F5F3F0", borderColor: "#E8E4DC" }}
+      >
+        <code className="flex-1 text-xs font-mono truncate" style={{ color: "#4B4846" }}>
+          {value}
+        </code>
+        <button
+          onClick={copy}
+          className="flex-shrink-0 p-1 rounded transition-colors hover:bg-[#E8E4DC]"
+          title="Copy"
+        >
+          {copied
+            ? <Check size={13} style={{ color: "#1A9E68" }} />
+            : <Copy size={13} style={{ color: "#8A8680" }} />}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── McpTab ────────────────────────────────────────────────────────────────────
+
+function McpTab() {
+  const { selectedCompanyId } = useCompany();
+  const { pushToast } = useToastActions();
+  const qc = useQueryClient();
+
+  const [newKeyName, setNewKeyName] = useState("");
+  const [revealedKey, setRevealedKey] = useState<CreatedMcpKey | null>(null);
+
+  const baseUrl = window.location.origin;
+  const mcpEndpoint = `${baseUrl}/mcp/${selectedCompanyId}`;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["mcp-keys", selectedCompanyId],
+    queryFn: () => mcpKeysApi.list(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (name: string) => mcpKeysApi.create(selectedCompanyId!, name),
+    onSuccess: (created) => {
+      setRevealedKey(created);
+      setNewKeyName("");
+      qc.invalidateQueries({ queryKey: ["mcp-keys", selectedCompanyId] });
+    },
+    onError: () => pushToast({ title: "Failed to create key", tone: "error" }),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: (keyId: string) => mcpKeysApi.revoke(selectedCompanyId!, keyId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["mcp-keys", selectedCompanyId] });
+      pushToast({ title: "Key revoked", tone: "success" });
+    },
+    onError: () => pushToast({ title: "Failed to revoke key", tone: "error" }),
+  });
+
+  const activeKeys: McpKey[] = (data?.keys ?? []).filter((k) => !k.revokedAt);
+
+  return (
+    <div className="space-y-8">
+
+      {/* What is MCP */}
+      <div
+        className="rounded-xl border p-5 flex gap-4"
+        style={{ backgroundColor: "#F0F9F4", borderColor: "#C6E9D8" }}
+      >
+        <Plug size={18} className="flex-shrink-0 mt-0.5" style={{ color: "#1A9E68" }} />
+        <div>
+          <p className="text-sm font-medium mb-1" style={{ color: "#0F0F0D" }}>
+            Model Context Protocol (MCP)
+          </p>
+          <p className="text-sm" style={{ color: "#4B4846" }}>
+            MCP lets external AI systems (Claude, ChatGPT, Dust…) call your agents as tools.
+            Each agent × skill pair becomes a callable tool, discoverable via <code className="text-xs bg-[#E8F5EE] px-1 rounded">tools/list</code>.
+          </p>
+        </div>
+      </div>
+
+      {/* Endpoint */}
+      <div>
+        <h2 className="text-base font-semibold mb-3" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
+          MCP endpoint
+        </h2>
+        <CopyField value={mcpEndpoint} label="JSON-RPC 2.0 — POST" />
+        <p className="text-xs mt-2" style={{ color: "#8A8680" }}>
+          Authenticate with <code className="bg-[#F5F3F0] px-1 rounded">Authorization: Bearer &lt;key&gt;</code>
+        </p>
+      </div>
+
+      <div style={{ height: "1px", backgroundColor: "#E8E4DC" }} />
+
+      {/* Revealed key banner — shown once after creation */}
+      {revealedKey && (
+        <div
+          className="rounded-xl border p-4 space-y-2"
+          style={{ backgroundColor: "#FFFBEB", borderColor: "#F0D070" }}
+        >
+          <p className="text-sm font-medium flex items-center gap-2" style={{ color: "#92600A" }}>
+            <Key size={14} />
+            Copy this key now — it will not be shown again
+          </p>
+          <CopyField value={revealedKey.key} label={revealedKey.name} />
+          <button
+            onClick={() => setRevealedKey(null)}
+            className="text-xs underline"
+            style={{ color: "#8A8680" }}
+          >
+            I've saved it, dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Create key */}
+      <div>
+        <h2 className="text-base font-semibold mb-3" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
+          API keys
+        </h2>
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={newKeyName}
+            onChange={(e) => setNewKeyName(e.target.value)}
+            placeholder="Key name (e.g. Claude Desktop)"
+            className="flex-1 px-3 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#1A9E68]"
+            style={{ borderColor: "#E8E4DC", color: "#0F0F0D" }}
+            onKeyDown={(e) => { if (e.key === "Enter" && newKeyName.trim()) createMutation.mutate(newKeyName.trim()); }}
+          />
+          <button
+            onClick={() => { if (newKeyName.trim()) createMutation.mutate(newKeyName.trim()); }}
+            disabled={!newKeyName.trim() || createMutation.isPending}
+            className="px-4 py-2.5 rounded-xl text-sm font-medium transition-opacity disabled:opacity-50"
+            style={{ backgroundColor: "#1A9E68", color: "#FFFFFF" }}
+          >
+            {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : "Create"}
+          </button>
+        </div>
+
+        {/* Key list */}
+        {isLoading ? (
+          <div className="flex items-center gap-2 py-4 text-sm" style={{ color: "#8A8680" }}>
+            <Loader2 size={14} className="animate-spin" /> Loading…
+          </div>
+        ) : activeKeys.length === 0 ? (
+          <p className="text-sm py-4" style={{ color: "#8A8680" }}>No active keys.</p>
+        ) : (
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: "#E8E4DC" }}>
+            {activeKeys.map((k, i) => (
+              <div
+                key={k.id}
+                className="flex items-center gap-3 px-4 py-3"
+                style={{ borderBottom: i < activeKeys.length - 1 ? "1px solid #F0EDE6" : undefined }}
+              >
+                <Key size={14} className="flex-shrink-0" style={{ color: "#8A8680" }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium" style={{ color: "#0F0F0D" }}>{k.name}</p>
+                  <p className="text-xs" style={{ color: "#8A8680" }}>
+                    Created {new Date(k.createdAt).toLocaleDateString()}
+                    {k.lastUsedAt && ` · Last used ${new Date(k.lastUsedAt).toLocaleDateString()}`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (confirm(`Revoke key "${k.name}"? This cannot be undone.`)) {
+                      revokeMutation.mutate(k.id);
+                    }
+                  }}
+                  disabled={revokeMutation.isPending}
+                  className="text-xs px-2.5 py-1.5 rounded-lg border transition-colors hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                  style={{ borderColor: "#E8E4DC", color: "#8A8680" }}
+                >
+                  Revoke
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── A2aTab ────────────────────────────────────────────────────────────────────
+
+function A2aTab() {
+  const { selectedCompanyId } = useCompany();
+  const baseUrl = window.location.origin;
+  const agentCardUrl  = `${baseUrl}/a2a/${selectedCompanyId}/agent.json`;
+  const a2aEndpoint   = `${baseUrl}/a2a/${selectedCompanyId}`;
+
+  const steps = [
+    {
+      n: "1",
+      title: "Share your agent card",
+      body: "Give the URL below to any A2A-compatible system. It describes your agents and their capabilities.",
+    },
+    {
+      n: "2",
+      title: "Create an API key",
+      body: "Generate a Public API key in the MCP tab or your admin panel. The caller uses it as a Bearer token.",
+    },
+    {
+      n: "3",
+      title: "Send tasks via JSON-RPC",
+      body: "The remote agent calls tasks/send on your endpoint. The task is routed to the right agent automatically.",
+    },
+  ];
+
+  return (
+    <div className="space-y-8">
+
+      {/* What is A2A */}
+      <div
+        className="rounded-xl border p-5 flex gap-4"
+        style={{ backgroundColor: "#F0F9F4", borderColor: "#C6E9D8" }}
+      >
+        <Globe size={18} className="flex-shrink-0 mt-0.5" style={{ color: "#1A9E68" }} />
+        <div>
+          <p className="text-sm font-medium mb-1" style={{ color: "#0F0F0D" }}>
+            Agent-to-Agent Protocol (A2A)
+          </p>
+          <p className="text-sm" style={{ color: "#4B4846" }}>
+            A2A lets external AI agents delegate tasks to your Swwarm team. Based on Google's open A2A specification (v1.0), it enables interoperability between different AI platforms.
+          </p>
+        </div>
+      </div>
+
+      {/* URLs */}
+      <div className="space-y-4">
+        <h2 className="text-base font-semibold" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
+          Your endpoints
+        </h2>
+        <CopyField value={agentCardUrl} label="Agent card (public — no auth required)" />
+        <CopyField value={a2aEndpoint}  label="A2A JSON-RPC endpoint — POST" />
+      </div>
+
+      <div style={{ height: "1px", backgroundColor: "#E8E4DC" }} />
+
+      {/* How to connect */}
+      <div>
+        <h2 className="text-base font-semibold mb-4" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
+          How to connect an external agent
+        </h2>
+        <div className="space-y-4">
+          {steps.map((s) => (
+            <div key={s.n} className="flex gap-4">
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5"
+                style={{ backgroundColor: "#E8F5EE", color: "#1A9E68" }}
+              >
+                {s.n}
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-0.5" style={{ color: "#0F0F0D" }}>{s.title}</p>
+                <p className="text-sm" style={{ color: "#8A8680" }}>{s.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ height: "1px", backgroundColor: "#E8E4DC" }} />
+
+      {/* Supported methods */}
+      <div>
+        <h2 className="text-base font-semibold mb-3" style={{ fontFamily: "Georgia, serif", color: "#0F0F0D" }}>
+          Supported JSON-RPC methods
+        </h2>
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "#E8E4DC" }}>
+          {[
+            { method: "tasks/send",   desc: "Create or continue a task" },
+            { method: "tasks/get",    desc: "Get task status and output" },
+            { method: "tasks/cancel", desc: "Cancel a running task" },
+          ].map((m, i) => (
+            <div
+              key={m.method}
+              className="flex items-center gap-4 px-4 py-3"
+              style={{ borderBottom: i < 2 ? "1px solid #F0EDE6" : undefined }}
+            >
+              <code
+                className="text-xs font-mono px-2 py-1 rounded"
+                style={{ backgroundColor: "#F5F3F0", color: "#4B4846", minWidth: 120 }}
+              >
+                {m.method}
+              </code>
+              <p className="text-sm" style={{ color: "#8A8680" }}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs mt-3" style={{ color: "#8A8680" }}>
+          Auth: <code className="bg-[#F5F3F0] px-1 rounded">Authorization: Bearer &lt;public-api-key&gt;</code>
+          — same key format as the Public API (G13).
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function Settings() {
   const [activeTab, setActiveTab] = useState<Tab>("adn");
 
@@ -854,6 +1170,8 @@ export function Settings() {
         {activeTab === "packs" && <PacksTab />}
         {activeTab === "langue" && <LanguageTab />}
         {activeTab === "notifications" && <NotificationsTab />}
+        {activeTab === "mcp" && <McpTab />}
+        {activeTab === "a2a" && <A2aTab />}
       </div>
     </div>
   );
