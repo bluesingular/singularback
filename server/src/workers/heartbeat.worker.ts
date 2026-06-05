@@ -40,7 +40,7 @@ export function initHeartbeatWorker(db: Db): Worker {
   const svc = heartbeatService(db);
 
   const worker = new Worker<HeartbeatJob>(
-    "heartbeats",
+    "agents",
     async (job: Job<HeartbeatJob>) => {
       const { agentId, companyId, triggeredBy, traceId } = job.data;
       const log = logger.child({ traceId, agentId, companyId });

@@ -14,11 +14,15 @@
 
 import { Worker, type Job } from "bullmq";
 import pino from "pino";
+import { eq, and } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
+import { trustScores, issues as issuesTable } from "@paperclipai/db";
 import { redisConnectionBlocking } from "../queue/redis.js";
 import { emit } from "../queue/emit.js";
 import type { TaskApprovedJob } from "../queue/jobs.js";
 import { releaseBlockedTasks } from "../tasks/dag.js";
+import { recordApproval } from "../trust/service.js";
+import type { AutonomyLevel } from "../trust/calculator.js";
 
 const logger = pino({ name: "task-approved-worker" });
 
@@ -40,6 +44,45 @@ export function initTaskApprovedWorker(db: Db): Worker {
       const released = await releaseBlockedTasks(db, taskId, companyId);
       if (released.length > 0) {
         log.info({ released }, "dag: released downstream tasks");
+      }
+
+      // ITEM 5: Record implicit approval rating (operator clicked approve = positive signal)
+      // Uses the same logic as POST /issues/:id/rate but with implicit rating=5
+      try {
+        const [issue] = await db
+          .select({ assigneeAgentId: issuesTable.assigneeAgentId, skillType: issuesTable.skillType })
+          .from(issuesTable)
+          .where(and(eq(issuesTable.id, taskId), eq(issuesTable.companyId, companyId)))
+          .limit(1);
+
+        if (issue?.assigneeAgentId) {
+          const skillType: string = (issue as any).skillType ?? "general";
+          const [existing] = await db
+            .select()
+            .from(trustScores)
+            .where(and(eq(trustScores.agentId, issue.assigneeAgentId), eq(trustScores.skillType, skillType)))
+            .limit(1);
+
+          const currentStreak   = existing?.approvalStreak   ?? 0;
+          const currentLevel    = (existing?.autonomyLevel   ?? "building") as AutonomyLevel;
+          const taskCountWindow = (existing?.taskCountWindow ?? 0) + 1;
+          const prevAvg         = parseFloat(existing?.qualityRatingAvg ?? "0") || 0;
+          const prevCount       = existing?.taskCountWindow ?? 0;
+          const qualityRatingAvg = prevCount > 0 ? (prevAvg * prevCount + 5) / taskCountWindow : 5;
+
+          await recordApproval(db, {
+            companyId, agentId: issue.assigneeAgentId, skillType,
+            skillAutonomyTier: "A",
+            rating: 5, gatePassed: true, schemaPassed: true,
+            qualityRatingAvg,
+            gatePassRate:   parseFloat(existing?.gatePassRate   ?? "1") || 1,
+            schemaPassRate: parseFloat(existing?.schemaPassRate ?? "1") || 1,
+            taskCountWindow, currentStreak, currentLevel,
+          });
+          log.info({ skillType, newStreak: currentStreak + 1 }, "trust: approval streak updated");
+        }
+      } catch (err) {
+        log.warn({ err }, "trust: recordApproval failed — non-fatal");
       }
     },
     {

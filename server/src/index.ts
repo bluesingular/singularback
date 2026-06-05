@@ -55,6 +55,10 @@ import {
 import { initCostResetWorker } from "./workers/costReset.worker.js";
 import { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./workers/batchItem.worker.js";
 import { initFleetSnapshotWorker, scheduleFleetSnapshot } from "./workers/fleetSnapshot.worker.js";
+import { initHeartbeatWorker } from "./workers/heartbeat.worker.js";
+import { startOutboxWorker } from "./workers/outbox.worker.js";
+import { initSeedTaskWorker } from "./workers/seedTask.worker.js";
+import { initMemoryDecayWorker, scheduleMemoryDecaySweep } from "./workers/memoryDecay.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -650,6 +654,18 @@ export async function startServer(): Promise<StartedServer> {
     initFleetSnapshotWorker(db as any);
     void scheduleFleetSnapshot().catch((err) => {
       logger.error({ err }, "Fleet snapshot scheduling failed");
+    });
+
+    // ITEM 3/4: Heartbeat worker — processes "heartbeat" jobs on the "agents" queue
+    initHeartbeatWorker(db as any);
+    // P5: Outbox worker — drains pending_jobs → BullMQ (seed tasks, activation triggers)
+    startOutboxWorker(db as any);
+    // Pack install: seed task worker — processes "seed.task" jobs on the "install" queue
+    initSeedTaskWorker(db as any);
+    // F2: Memory decay worker — daily confidence decay sweep
+    initMemoryDecayWorker(db as any);
+    void scheduleMemoryDecaySweep().catch((err) => {
+      logger.error({ err }, "Memory decay sweep scheduling failed");
     });
 
     // Routine scheduler still uses setInterval for now — will be migrated

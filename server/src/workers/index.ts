@@ -14,3 +14,7 @@ export { initMorningIntelligenceWorker, scheduleIntelligenceSweep } from "./morn
 export { initCostResetWorker } from "./costReset.worker.js";
 export { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./batchItem.worker.js";
 export { initFleetSnapshotWorker, scheduleFleetSnapshot } from "./fleetSnapshot.worker.js";
+export { initHeartbeatWorker } from "./heartbeat.worker.js";
+export { startOutboxWorker } from "./outbox.worker.js";
+export { initSeedTaskWorker } from "./seedTask.worker.js";
+export { initMemoryDecayWorker, scheduleMemoryDecaySweep } from "./memoryDecay.worker.js";
