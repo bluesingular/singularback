@@ -149,12 +149,14 @@ export function packInstallService(db: Db) {
     companyId: string,
     packSlug: string,
     variables?: Record<string, string>,
+    serverBaseUrl?: string,
   ) {
     const pack = await loadPackManifest(packSlug);
     return await installPack(db, {
       companyId,
       pack,
       variables: variables ?? {},
+      serverBaseUrl,
     });
   }
 

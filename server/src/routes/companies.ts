@@ -442,7 +442,8 @@ export function companyRoutes(db: Db, storage?: StorageService) {
 
     try {
       const variables = (req.body as { variables?: Record<string, string> }).variables ?? {};
-      const result = await packs.install(companyId, packSlug, variables);
+      const serverBaseUrl = `${req.protocol}://${req.get("host")}`;
+      const result = await packs.install(companyId, packSlug, variables, serverBaseUrl);
       const actor = getActorInfo(req);
       await logActivity(db, {
         companyId,

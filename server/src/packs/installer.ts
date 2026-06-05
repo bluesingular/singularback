@@ -155,6 +155,7 @@ async function installAgents(
   companyId: string,
   agentDefs: PackManifest["agents"],
   variables: Record<string, string> = {},
+  serverBaseUrl: string = "http://127.0.0.1:3210",
 ): Promise<string[]> {
   const ids: string[] = [];
   for (let i = 0; i < agentDefs.length; i++) {
@@ -175,6 +176,9 @@ async function installAgents(
     // Build heartbeat runtimeConfig from pack agent definition
     // heartbeat_frequency_ms from pack.json → intervalSec for heartbeatService
     const heartbeatIntervalMs = (def as any).heartbeat_frequency_ms ?? 14_400_000; // 4h default
+    // Use HTTP adapter pointing to our internal execute endpoint so the
+    // heartbeat service can trigger agent runs via the Swwarm LLM pipeline.
+    const executeUrl = `${serverBaseUrl}/internal/agent/execute`;
     const runtimeConfig = {
       heartbeat: {
         enabled:           true,
@@ -183,6 +187,10 @@ async function installAgents(
         wakeOnAssignment:  true,
         maxConcurrentRuns: 3,
         cooldownSec:       10,
+      },
+      adapter: {
+        url:    executeUrl,
+        method: "POST",
       },
     };
 
@@ -196,6 +204,7 @@ async function installAgents(
         colour,
         soulMd,
         teamRosterVisible: true,
+        adapterType:       "http",
         runtimeConfig,
         metadata: agentMeta,
       })
@@ -204,6 +213,7 @@ async function installAgents(
         set: {
           displayName:   def.displayName ?? def.name,
           soulMd,
+          adapterType:   "http",
           runtimeConfig,
           metadata:      agentMeta,
         },
@@ -424,7 +434,7 @@ export async function installPack(
   db: Db,
   params: InstallPackParams,
 ): Promise<InstallPackResult> {
-  const { companyId, pack, variables } = params;
+  const { companyId, pack, variables, serverBaseUrl = "http://127.0.0.1:3210" } = params;
 
   logger.info({ companyId, packSlug: pack.slug }, "pack-installer: starting");
 
@@ -437,7 +447,7 @@ export async function installPack(
       validatePackManifest(pack);
 
       // Step 2: Install agents
-      agentIds = await installAgents(tx, companyId, pack.agents, variables);
+      agentIds = await installAgents(tx, companyId, pack.agents, variables, serverBaseUrl);
 
       // Step 3: Install skills
       await installSkills(tx, companyId, pack.skills, variables);

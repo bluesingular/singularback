@@ -632,7 +632,8 @@ export function adminRoutes(db: Db) {
       if (!packSlug) { res.status(400).json({ ok: false, error: "packSlug is required" }); return; }
 
       const svc = packInstallService(db);
-      const result = await svc.install(companyId, packSlug, dnaExtensions ?? {});
+      const serverBaseUrl = `${req.protocol}://${req.get("host")}`;
+      const result = await svc.install(companyId, packSlug, dnaExtensions ?? {}, serverBaseUrl);
 
       await (db as any).insert(auditEntries).values({
         companyId,

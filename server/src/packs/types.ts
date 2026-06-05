@@ -116,6 +116,13 @@ export interface InstallPackParams {
   /** Template variable values, e.g. { company_name: "Agence Dupont RH" } */
   variables:  Record<string, string>;
   /**
+   * Base URL of this server (e.g. "http://127.0.0.1:3102").
+   * Used to configure the HTTP adapter URL on installed agents so they can
+   * be executed via POST /internal/agent/execute.
+   * Defaults to http://127.0.0.1:3210 if not provided.
+   */
+  serverBaseUrl?: string;
+  /**
    * @deprecated No longer used — seed tasks and activation triggers are now
    * written to the pending_jobs outbox inside the DB transaction (P5).
    * The outbox worker dispatches to BullMQ after commit. Kept for call-site
