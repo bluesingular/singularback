@@ -28,9 +28,10 @@ export function initTaskApprovedWorker(db: Db): Worker {
     async (job: Job<TaskApprovedJob>) => {
       if (job.name !== "task.approved") return;
 
-      const { taskId, agentId, companyId, approvedBy } = job.data;
+      const { taskId, agentId, companyId, approvedBy, traceId } = job.data;
+      const log = logger.child({ traceId, taskId, agentId, companyId });
 
-      logger.info({ taskId, agentId, approvedBy }, "task approved: triggering immediate execution");
+      log.info({ approvedBy }, "task approved: triggering immediate execution");
 
       // Trigger immediate heartbeat so the agent acts on the approval
       await emit.heartbeat({ agentId, companyId, triggeredBy: "approval" }, 0);
@@ -38,7 +39,7 @@ export function initTaskApprovedWorker(db: Db): Worker {
       // G8: Release any downstream tasks that were blocked waiting on this task
       const released = await releaseBlockedTasks(db, taskId, companyId);
       if (released.length > 0) {
-        logger.info({ taskId, released }, "dag: released downstream tasks");
+        log.info({ released }, "dag: released downstream tasks");
       }
     },
     {
@@ -48,10 +49,7 @@ export function initTaskApprovedWorker(db: Db): Worker {
   );
 
   worker.on("failed", (job, err) => {
-    logger.error(
-      { taskId: job?.data?.taskId, agentId: job?.data?.agentId, err },
-      "task.approved job failed",
-    );
+    logger.error({ traceId: job?.data?.traceId, taskId: job?.data?.taskId, agentId: job?.data?.agentId, err }, "task.approved job failed");
   });
 
   worker.on("error", (err) => {

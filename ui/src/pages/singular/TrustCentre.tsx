@@ -16,10 +16,10 @@ type AutonomyTier = "building" | "supervised" | "trusted" | "highlyTrusted"
 
 function autonomyLabel(level: string): string {
   switch (level) {
-    case "highlyTrusted": return "Highly autonomous"
-    case "trusted":       return "Trusted"
-    case "supervised":    return "Supervised"
-    default:              return "Building"
+    case "highlyTrusted": return "Très autonome"
+    case "trusted":       return "De confiance"
+    case "supervised":    return "Supervisé"
+    default:              return "En apprentissage"
   }
 }
 
@@ -39,10 +39,10 @@ function evidenceLine(p: TrustProposal) {
 
 function levelToHuman(level: string) {
   switch (level) {
-    case "highlyTrusted": return "highly autonomous — summaries only"
-    case "trusted":       return "trusted — spot-checked"
-    case "supervised":    return "supervised — you approve each batch"
-    default:              return "en construction"
+    case "highlyTrusted": return "très autonome — résumé hebdomadaire"
+    case "trusted":       return "de confiance — contrôle aléatoire"
+    case "supervised":    return "supervisé — vous validez chaque action"
+    default:              return "en apprentissage"
   }
 }
 
@@ -220,15 +220,15 @@ export default function TrustCentre() {
 
         {/* Page header */}
         <div>
-          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">Trust centre</h1>
-          <p className="text-sm text-[#8A8680] mt-1">Manage how much autonomy your agents have.</p>
+          <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">{t("title")}</h1>
+          <p className="text-sm text-[#8A8680] mt-1">{t("subtitle")}</p>
         </div>
 
         {/* Section 1 — Propositions */}
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-              Autonomy proposals
+              {t("proposals.title")}
             </h2>
             {proposals.length > 0 && (
               <span className="text-xs font-semibold bg-[#1A4E8C] text-white px-2 py-0.5 rounded-full">
@@ -240,7 +240,7 @@ export default function TrustCentre() {
           {proposals.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-6 text-center">
               <CheckCircle2 size={24} className="mx-auto text-[#1A9E68] mb-2" />
-              <p className="text-sm text-[#8A8680]">All caught up — no pending proposals.</p>
+              <p className="text-sm text-[#8A8680]">{t("proposals.empty")}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -265,7 +265,7 @@ export default function TrustCentre() {
           {approvedCount > 0 && (
             <div className="flex items-center gap-2 text-sm text-[#1A9E68] bg-[#ECFBF4] border border-[#1A9E68]/20 rounded-xl px-4 py-2.5">
               <CheckCircle2 size={14} />
-              Autonomy level updated. The agent will handle this type of task independently.
+              {t("proposals.accepted", { agent: "" }).replace(" — ", "")}
             </div>
           )}
         </section>
@@ -273,18 +273,18 @@ export default function TrustCentre() {
         {/* Section 2 — Niveaux actifs */}
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-            Active trust levels
+            {t("levels.title")}
           </h2>
 
           <div className="flex flex-wrap gap-4 text-xs text-[#8A8680]">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> Building
+              <span className="w-2 h-2 rounded-sm bg-[#8A8680]" /> {t("legend.building")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#C97C0A]" /> Supervised
+              <span className="w-2 h-2 rounded-sm bg-[#C97C0A]" /> {t("legend.supervised")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm bg-[#1A9E68]" /> Trusted
+              <span className="w-2 h-2 rounded-sm bg-[#1A9E68]" /> {t("legend.trusted")}
             </span>
           </div>
 

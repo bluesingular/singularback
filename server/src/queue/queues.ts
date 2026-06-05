@@ -41,3 +41,25 @@ export const systemQueue = new Queue("system", {
     attempts: 3,
   },
 });
+
+// Pack install queue — seed tasks created at pack install time
+export const installQueue = new Queue("install", {
+  ...defaultOpts,
+  defaultJobOptions: {
+    removeOnComplete: { age: 86400 },
+    removeOnFail: { age: 604800 },
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+  },
+});
+
+// Heartbeat queue — agent wakeup signals (separate from agents to avoid starvation)
+export const heartbeatQueue = new Queue("heartbeats", {
+  ...defaultOpts,
+  defaultJobOptions: {
+    removeOnComplete: { age: 3600, count: 500 },
+    removeOnFail: { age: 86400 },
+    attempts: 3,
+    backoff: { type: "exponential", delay: 2000 },
+  },
+});

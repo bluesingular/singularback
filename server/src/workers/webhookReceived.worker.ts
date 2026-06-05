@@ -60,9 +60,10 @@ export function initWebhookReceivedWorker(db: Db): Worker {
   async (job: Job<WebhookReceivedJob>) => {
     if (job.name !== "webhook.received") return;
 
-    const { endpointId, companyId, routingRules, payload, source } = job.data;
+    const { endpointId, companyId, routingRules, payload, source, traceId } = job.data;
+    const log = logger.child({ traceId, companyId, endpointId });
 
-    logger.info({ endpointId, companyId, source, ruleCount: routingRules.length }, "webhook: processing job");
+    log.info({ source, ruleCount: routingRules.length }, "webhook: processing job");
     let dispatched = false;
 
     for (const rule of routingRules) {
@@ -70,35 +71,30 @@ export function initWebhookReceivedWorker(db: Db): Worker {
 
       if (rule.action.type === "heartbeat") {
         if (!rule.action.agentId) {
-          logger.warn({ endpointId, companyId }, "webhook: heartbeat rule missing agentId — skipping");
+          log.warn("webhook: heartbeat rule missing agentId — skipping");
           continue;
         }
-        await emit.heartbeat(
-          { agentId: rule.action.agentId, companyId, triggeredBy: "webhook" },
-          0,
-        );
-        logger.info({ agentId: rule.action.agentId, endpointId }, "webhook: heartbeat dispatched");
+        await emit.heartbeat({ agentId: rule.action.agentId, companyId, triggeredBy: "webhook" }, 0);
+        log.info({ agentId: rule.action.agentId }, "webhook: heartbeat dispatched");
       } else {
-        logger.info({ endpointId, companyId, action: rule.action.type }, "webhook: log_only rule matched");
+        log.info({ action: rule.action.type }, "webhook: log_only rule matched");
       }
 
       dispatched = true;
-      break; // first matching rule wins
+      break;
     }
 
     if (!dispatched && routingRules.length > 0) {
-      logger.info({ endpointId, companyId }, "webhook: no rule matched — event stored only");
+      log.info("webhook: no rule matched — event stored only");
     }
 
-    // Mark the most recent queued event for this company+source as processed.
-    // We use a best-effort update; failing here doesn't block the job.
     try {
       await db
         .update(webhookEvents)
         .set({ status: "processed", processedAt: new Date() })
         .where(eq(webhookEvents.companyId, companyId));
     } catch (err) {
-      logger.warn({ err, companyId }, "webhook: could not update event status");
+      log.warn({ err }, "webhook: could not update event status");
     }
   },
   {
@@ -108,10 +104,7 @@ export function initWebhookReceivedWorker(db: Db): Worker {
 );
 
   worker.on("failed", (job, err) => {
-    logger.error(
-      { endpointId: job?.data?.endpointId, companyId: job?.data?.companyId, err },
-      "webhook.received job failed",
-    );
+    logger.error({ traceId: job?.data?.traceId, endpointId: job?.data?.endpointId, companyId: job?.data?.companyId, err }, "webhook.received job failed");
   });
 
   worker.on("error", (err) => {

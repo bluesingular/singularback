@@ -68,6 +68,7 @@ import { skillVersionRoutes } from "./routes/skill-version.js";
 import { batchRoutes } from "./routes/batch.js";
 import { multimodalRoutes } from "./routes/multimodal.js";
 import { mcpServerRoutes } from "./routes/mcp-server.js";
+import { internalExecuteRoutes } from "./routes/internal-execute.js";
 import { publicApiRoutes } from "./routes/public-api.js";
 import { a2aRoutes } from "./routes/a2a.js";
 import { extensionRoutes } from "./routes/extensions.js";
@@ -418,6 +419,8 @@ export async function createApp(
 
   // Internal queue monitoring — protected by INTERNAL_AUTH_TOKEN
   app.use("/internal/queues", internalAuthMiddleware, bullBoardRouter);
+  // Internal agent execution endpoint — called by the HTTP adapter on heartbeat
+  app.use("/internal", internalExecuteRoutes(db));
   app.use(pluginUiStaticRoutes(db, {
     localPluginDir: opts.localPluginDir ?? DEFAULT_LOCAL_PLUGIN_DIR,
   }));

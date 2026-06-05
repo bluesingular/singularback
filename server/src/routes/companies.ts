@@ -26,7 +26,6 @@ import {
 } from "../services/index.js";
 import type { StorageService } from "../storage/types.js";
 import { assertBoard, assertCompanyAccess, assertInstanceAdmin, getActorInfo } from "./authz.js";
-import { agentQueue, systemQueue } from "../queue/queues.js";
 
 export function companyRoutes(db: Db, storage?: StorageService) {
   const router = Router();
@@ -36,7 +35,7 @@ export function companyRoutes(db: Db, storage?: StorageService) {
   const access = accessService(db);
   const budgets = budgetService(db);
   const feedback = feedbackService(db);
-  const packs = packInstallService(db, agentQueue, systemQueue);
+  const packs = packInstallService(db);
 
   function parseBooleanQuery(value: unknown) {
     return value === true || value === "true" || value === "1";

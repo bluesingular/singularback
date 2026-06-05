@@ -119,44 +119,36 @@ export function createActivationCheckWorker(db: Db) {
     async (job: Job<ActivationCheckJob>) => {
       if (job.name !== "activation.check") return;
 
-      const { companyId, packSlug, triggerKey } = job.data;
+      const { companyId, packSlug, triggerKey, traceId } = job.data;
+      const log = logger.child({ traceId, companyId, packSlug });
 
-      logger.info({ companyId, packSlug, triggerKey }, "activation-check: evaluating");
+      log.info({ triggerKey }, "activation-check: evaluating");
 
-      // Guard: already fired?
       const fired = await getFiredTriggers(db, companyId, packSlug);
       if (fired.has(triggerKey as TriggerKey)) {
-        logger.info({ companyId, triggerKey }, "activation-check: already fired, skipping");
+        log.info({ triggerKey }, "activation-check: already fired, skipping");
         return;
       }
 
-      // Resolve current activation state
       const state = await resolveActivationState(db, companyId);
 
-      // Find trigger definition
       const trigger = STANDARD_TRIGGERS.find((t) => t.key === triggerKey);
       if (!trigger) {
-        logger.warn({ triggerKey }, "activation-check: unknown trigger key");
+        log.warn({ triggerKey }, "activation-check: unknown trigger key");
         return;
       }
 
-      // Evaluate condition
       const shouldFire = trigger.condition(state);
       if (!shouldFire) {
-        logger.info(
-          { companyId, triggerKey, state },
-          "activation-check: condition not met, skipping",
-        );
+        log.info({ triggerKey, state }, "activation-check: condition not met, skipping");
         return;
       }
 
-      // Record trigger fired (idempotent)
       await recordActivationFired(db, companyId, packSlug, triggerKey as TriggerKey);
 
-      // Insert intelligence card
       const card = ACTIVATION_CARDS[triggerKey as TriggerKey];
       if (card) {
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         await (db as any)
           .insert(intelligenceCards)
           .values({
@@ -170,10 +162,7 @@ export function createActivationCheckWorker(db: Db) {
           })
           .onConflictDoNothing();
 
-        logger.info(
-          { companyId, triggerKey, cardTitle: card.title },
-          "activation-check: intelligence card inserted",
-        );
+        log.info({ triggerKey, cardTitle: card.title }, "activation-check: intelligence card inserted");
       }
     },
     {
@@ -192,10 +181,7 @@ export function initActivationCheckWorker(db: Db) {
   _worker = createActivationCheckWorker(db);
 
   _worker.on("failed", (job, err) => {
-    logger.error(
-      { companyId: job?.data?.companyId, triggerKey: job?.data?.triggerKey, err },
-      "activation.check job failed",
-    );
+    logger.error({ traceId: job?.data?.traceId, companyId: job?.data?.companyId, triggerKey: job?.data?.triggerKey, err }, "activation.check job failed");
   });
 
   _worker.on("error", (err) => {

@@ -10,7 +10,7 @@
 
 import { Router } from "express";
 import { eq, and } from "drizzle-orm";
-import { trustScores, trustProposals } from "@paperclipai/db";
+import { trustScores, trustProposals, agents } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { assertCompanyAccess, requireRole } from "./authz.js";
 import pino from "pino";
@@ -28,12 +28,36 @@ export function trustRoutes(db: Db) {
 
     const [scores, proposals] = await Promise.all([
       (db as any)
-        .select()
+        .select({
+          agentId:          trustScores.agentId,
+          agentName:        agents.displayName,
+          skillType:        trustScores.skillType,
+          score:            trustScores.score,
+          autonomyLevel:    trustScores.autonomyLevel,
+          approvalStreak:   trustScores.approvalStreak,
+          taskCountWindow:  trustScores.taskCountWindow,
+          qualityRatingAvg: trustScores.qualityRatingAvg,
+          updatedAt:        trustScores.updatedAt,
+        })
         .from(trustScores)
+        .leftJoin(agents, eq(agents.id, trustScores.agentId))
         .where(eq(trustScores.companyId, companyId)),
       (db as any)
-        .select()
+        .select({
+          id:            trustProposals.id,
+          agentId:       trustProposals.agentId,
+          agentName:     agents.displayName,
+          skillType:     trustProposals.skillType,
+          currentLevel:  trustProposals.currentLevel,
+          proposedLevel: trustProposals.proposedLevel,
+          trustScore:    trustProposals.trustScore,
+          approvalStreak: trustProposals.approvalStreak,
+          evidence:      trustProposals.evidence,
+          status:        trustProposals.status,
+          createdAt:     trustProposals.createdAt,
+        })
         .from(trustProposals)
+        .leftJoin(agents, eq(agents.id, trustProposals.agentId))
         .where(
           and(
             eq(trustProposals.companyId, companyId),

@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@/lib/router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
@@ -53,6 +54,7 @@ function sseToActivity(event: { type: string; data: Record<string, unknown> }) {
 // ---------------------------------------------------------------------------
 
 export default function Dashboard() {
+  const { t } = useTranslation("dashboard")
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { selectedCompanyId, selectedCompany } = useCompany()
@@ -137,7 +139,7 @@ export default function Dashboard() {
   })
 
   const remaining = Math.max(0, taskLimit - tasksDone)
-  const taskTranslation = `${remaining} task${remaining !== 1 ? "s" : ""} remaining this month`
+  const taskTranslation = t("usage.taskSummary", { count: remaining })
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -155,22 +157,22 @@ export default function Dashboard() {
         <section className="flex flex-col gap-3">
           <div>
             <h1 className="text-2xl font-[Georgia,serif] text-[#0F0F0D]">
-              {firstName ? `Good morning, ${firstName}` : "Good morning"}
+              {firstName ? `${t("title")}, ${firstName}` : t("title")}
             </h1>
             <p className="text-sm text-[#8A8680] mt-0.5">{dateLabel}</p>
           </div>
           {tasksDone > 0 ? (
             <p className="text-base text-[#0F0F0D]">
-              Your team completed{" "}
+              {t("summaryBefore")}{" "}
               <span className="font-semibold text-[#1A9E68]">
-                {tasksDone} task{tasksDone !== 1 ? "s" : ""}
+                {tasksDone} {tasksDone !== 1 ? t("task_plural") : t("task")}
               </span>{" "}
-              this month.
+              {t("summaryAfter")}
             </p>
           ) : (
             <p className="text-base text-[#8A8680]">
-              No tasks completed yet this month.{" "}
-              <a href="console" className="text-[#1A4E8C] hover:underline">Give your team an instruction →</a>
+              {t("feed.noActivity")}{" "}
+              <a href="console" className="text-[#1A4E8C] hover:underline">{t("intelligence.empty")} →</a>
             </p>
           )}
           <UsageGauge
@@ -186,10 +188,10 @@ export default function Dashboard() {
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-                This morning
+                {t("morning.title")}
               </h2>
               <span className="text-xs text-[#8A8680]">
-                {intelCards.length} insight{intelCards.length !== 1 ? "s" : ""}
+                {t(intelCards.length !== 1 ? "morning.count_plural" : "morning.count", { count: intelCards.length })}
               </span>
             </div>
             <div className="flex flex-col gap-3">
@@ -199,7 +201,7 @@ export default function Dashboard() {
                   type={cardTypeToIntelType(card.cardType)}
                   headline={card.title}
                   body={card.body}
-                  cta="View"
+                  cta={t("team.working")}
                   urgency={card.urgency}
                   onCta={() => {
                     markReadMutation.mutate({ cardId: card.id })
@@ -222,12 +224,12 @@ export default function Dashboard() {
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">
-                Recent activity
+                {t("activity.title")}
               </h2>
               {connected && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-[#B91C1C] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B91C1C] animate-pulse" />
-                  "Live"
+                  {t("feed.title")}
                 </span>
               )}
             </div>
@@ -255,7 +257,7 @@ export default function Dashboard() {
               ))}
               {!liveActivity && activities.length === 0 && (
                 <p className="px-4 py-6 text-sm text-[#8A8680] text-center">
-                  No activity yet. Your team's work will appear here in real time.
+                  {t("feed.empty")}
                 </p>
               )}
             </div>
@@ -263,12 +265,12 @@ export default function Dashboard() {
 
           {/* Right: My team */}
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">My team</h2>
+            <h2 className="text-lg font-[Georgia,serif] text-[#0F0F0D]">{t("team.title")}</h2>
             <div className="bg-white rounded-xl border border-[#E8E4DC] shadow-sm divide-y divide-[#E8E4DC]">
               {agents.map((agent) => (
                 <button
                   key={agent.id}
-                  onClick={() => navigate(`/agents/${agent.urlKey}`)}
+                  onClick={() => navigate(`/team/${agent.urlKey}`)}
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8] transition-colors text-left"
                 >
                   <div
@@ -282,9 +284,7 @@ export default function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#0F0F0D]">{agent.name}</p>
                     <p className="text-xs text-[#8A8680] truncate">
-                      {agent.status === "active"
-                        ? "Active"
-                        : "Paused"}
+                      {agent.status === "active" ? t("team.working") : t("team.waiting")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -295,7 +295,7 @@ export default function Dashboard() {
               ))}
               {agents.length === 0 && (
                 <p className="px-4 py-6 text-sm text-[#8A8680] text-center">
-                  No agents yet. Install a pack to get started.
+                  {t("feed.noActivity")}
                 </p>
               )}
             </div>

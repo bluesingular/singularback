@@ -1,7 +1,7 @@
 import { Router, type Request } from "express";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
-import { approvals } from "@paperclipai/db";
+import { approvals, issues, skillVersions } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import {
   addApprovalCommentSchema,
@@ -29,6 +29,58 @@ function redactApprovalPayload<T extends { payload: Record<string, unknown> }>(a
   };
 }
 
+/**
+ * F8 — Fetch skill version data for an approval that is linked to a task.
+ *
+ * If the approval payload contains `issueId` or `taskId`, looks up the issue's
+ * pinned skill version and the current active version for that skill type.
+ * Returns { taskSkillVersion, latestSkillVersion } or empty object when not applicable.
+ */
+async function getSkillVersionContext(
+  db: Db,
+  payload: Record<string, unknown>,
+  companyId: string,
+): Promise<{ taskSkillVersion?: string; latestSkillVersion?: string }> {
+  const issueId = (payload.issueId ?? payload.taskId) as string | undefined;
+  if (!issueId) return {};
+
+  const [issue] = await db
+    .select({ skillVersionId: issues.skillVersionId, skillType: issues.skillType })
+    .from(issues)
+    .where(and(eq(issues.id, issueId), eq(issues.companyId, companyId)))
+    .limit(1);
+
+  if (!issue?.skillType) return {};
+
+  // Pinned version (what was active when task ran)
+  let taskSkillVersion: string | undefined;
+  if (issue.skillVersionId) {
+    const [pinned] = await (db as any)
+      .select({ version: skillVersions.version })
+      .from(skillVersions)
+      .where(eq(skillVersions.id, issue.skillVersionId))
+      .limit(1);
+    taskSkillVersion = pinned?.version;
+  }
+
+  // Current active version
+  const [active] = await (db as any)
+    .select({ version: skillVersions.version })
+    .from(skillVersions)
+    .where(
+      and(
+        eq(skillVersions.companyId, companyId),
+        eq(skillVersions.skillType, issue.skillType),
+        eq(skillVersions.status, "active"),
+      ),
+    )
+    .limit(1);
+  const latestSkillVersion = active?.version;
+
+  if (!taskSkillVersion && !latestSkillVersion) return {};
+  return { taskSkillVersion, latestSkillVersion };
+}
+
 export function approvalRoutes(db: Db) {
   const router = Router();
   const svc = approvalService(db);
@@ -51,7 +103,13 @@ export function approvalRoutes(db: Db) {
     assertCompanyAccess(req, companyId);
     const status = req.query.status as string | undefined;
     const result = await svc.list(companyId, status);
-    res.json(result.map((approval) => redactApprovalPayload(approval)));
+    const enriched = await Promise.all(
+      result.map(async (approval) => {
+        const skillVersionCtx = await getSkillVersionContext(db, approval.payload, companyId);
+        return { ...redactApprovalPayload(approval), ...skillVersionCtx };
+      }),
+    );
+    res.json(enriched);
   });
 
   router.get("/approvals/:id", async (req, res) => {
@@ -62,7 +120,8 @@ export function approvalRoutes(db: Db) {
       return;
     }
     assertCompanyAccess(req, approval.companyId);
-    res.json(redactApprovalPayload(approval));
+    const skillVersionCtx = await getSkillVersionContext(db, approval.payload, approval.companyId);
+    res.json({ ...redactApprovalPayload(approval), ...skillVersionCtx });
   });
 
   router.post("/companies/:companyId/approvals", validate(createApprovalSchema), async (req, res) => {

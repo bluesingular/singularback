@@ -4,7 +4,7 @@
  * P3 — Three-tier rate limiting.
  *
  * Tier 1 — Per-IP:      1 000 req/hour  (blocks bots and scrapers)
- * Tier 2 — Per-user:    100 req/minute  (blocks brute force on authenticated routes)
+ * Tier 2 — Per-user:    1 000 req/minute (blocks brute force; high enough for SPA multi-request page loads + polling)
  * Tier 3 — Per-company: 10 000 req/hour (prevents tenant abuse at scale)
  * Auth tier — Per-IP:   20 attempts/15 minutes (stricter on auth endpoints)
  *
@@ -52,7 +52,7 @@ class SlidingWindow {
 // ── Rate limit windows ────────────────────────────────────────────────────────
 
 const ipWindow      = new SlidingWindow(3_600_000, 1_000);   // 1h, 1000 req
-const userWindow    = new SlidingWindow(60_000,    100);      // 1m, 100 req
+const userWindow    = new SlidingWindow(60_000,    1_000);    // 1m, 1000 req — SPA fires 5-10 parallel reqs per page + polling
 const companyWindow = new SlidingWindow(3_600_000, 10_000);   // 1h, 10000 req
 const authWindow    = new SlidingWindow(900_000,   20);       // 15m, 20 req
 

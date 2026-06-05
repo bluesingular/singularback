@@ -31,6 +31,11 @@ vi.mock("../queue/queues.js", () => ({
     getJob: mockAgentQueueGetJob,
     close: vi.fn().mockResolvedValue(undefined),
   },
+  heartbeatQueue: {
+    add: mockAgentQueueAdd,
+    getJob: mockAgentQueueGetJob,
+    close: vi.fn().mockResolvedValue(undefined),
+  },
   backgroundQueue: {
     add: mockBackgroundQueueAdd,
     close: vi.fn().mockResolvedValue(undefined),

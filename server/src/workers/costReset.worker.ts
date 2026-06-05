@@ -35,7 +35,8 @@ export function initCostResetWorker(db: Db): Worker {
     async (job: Job<CostResetJob>) => {
       if (job.name !== "cost.reset") return;
 
-      const { companyId } = job.data;
+      const { companyId, traceId } = job.data as CostResetJob & { traceId?: string };
+      const log = logger.child({ traceId, companyId });
 
       await db
         .update(companies)
@@ -47,13 +48,13 @@ export function initCostResetWorker(db: Db): Worker {
         })
         .where(eq(companies.id, companyId));
 
-      logger.info({ companyId }, "cost-reset: monthly usage counters reset");
+      log.info("cost-reset: monthly usage counters reset");
     },
     { connection: redisConnectionBlocking, concurrency: 5 },
   );
 
   worker.on("failed", (job, err) => {
-    logger.error({ jobId: job?.id, companyId: job?.data?.companyId, err }, "cost-reset: job failed");
+    logger.error({ jobId: job?.id, traceId: (job?.data as any)?.traceId, companyId: job?.data?.companyId, err }, "cost-reset: job failed");
   });
 
   return worker;

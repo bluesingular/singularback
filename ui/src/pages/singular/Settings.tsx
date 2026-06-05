@@ -805,7 +805,7 @@ export function Settings() {
 
   return (
     <div
-      className="min-h-screen px-6 py-6"
+      className="min-h-full px-6 py-6"
       style={{ backgroundColor: "#FAFAF8" }}
     >
       {/* Header */}

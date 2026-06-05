@@ -101,6 +101,15 @@ export function ApprovalCard({
         />
       </div>
 
+      {/* F8 — Skill version notice */}
+      {approval.taskSkillVersion && approval.latestSkillVersion &&
+        approval.taskSkillVersion !== approval.latestSkillVersion && (
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs leading-5 text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/30 dark:text-amber-300">
+          Cette tâche a été générée avec la version {approval.taskSkillVersion}.
+          La version {approval.latestSkillVersion} est maintenant disponible.
+        </div>
+      )}
+
       {approval.decisionNote && (
         <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 px-3.5 py-3 text-xs leading-5 text-muted-foreground">
           <span className="font-medium text-foreground">Decision note.</span> {approval.decisionNote}

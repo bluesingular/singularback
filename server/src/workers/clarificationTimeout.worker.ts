@@ -24,7 +24,8 @@ export function createClarificationTimeoutWorker(db: Db) {
     async (job: Job<ClarificationTimedOutJob>) => {
       if (job.name !== "clarification.timeout") return;
 
-      const { clarificationId, companyId, issueId } = job.data;
+      const { clarificationId, companyId, issueId, traceId } = job.data;
+      const log = logger.child({ traceId, clarificationId, companyId });
 
       // Only act if still pending — a concurrent reply may have already resolved it
       const [request] = await db
@@ -39,7 +40,7 @@ export function createClarificationTimeoutWorker(db: Db) {
         .limit(1);
 
       if (!request || request.status !== "pending") {
-        logger.info({ clarificationId }, "clarification: already resolved — timeout is a no-op");
+        log.info("clarification: already resolved — timeout is a no-op");
         return;
       }
 
@@ -53,10 +54,7 @@ export function createClarificationTimeoutWorker(db: Db) {
         .set({ status: "blocked" })
         .where(and(eq(issues.id, issueId), eq(issues.companyId, companyId)));
 
-      logger.warn(
-        { clarificationId, issueId, companyId },
-        "clarification: timed out — issue set to blocked",
-      );
+      log.warn({ issueId }, "clarification: timed out — issue set to blocked");
     },
     {
       connection: redisConnectionBlocking,
@@ -65,10 +63,7 @@ export function createClarificationTimeoutWorker(db: Db) {
   );
 
   worker.on("failed", (job, err) => {
-    logger.error(
-      { clarificationId: job?.data?.clarificationId, err },
-      "clarification.timeout job failed",
-    );
+    logger.error({ traceId: job?.data?.traceId, clarificationId: job?.data?.clarificationId, err }, "clarification.timeout job failed");
   });
 
   worker.on("error", (err) => {

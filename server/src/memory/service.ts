@@ -86,6 +86,11 @@ export async function storeMemory(
  * Semantic search over org memory using pgvector cosine similarity.
  * Only entries with similarity > SIMILARITY_THRESHOLD (0.72) are returned.
  *
+ * F1 — Recency-weighted re-ranking after retrieval:
+ *   combined = similarity * 0.6 + recency_factor * 0.4
+ *   recency_factor = 1 / (1 + days_since_created / 30)
+ *
+ * Entries with confidence_score < 0.2 are excluded (staleness threshold per F2).
  * Falls back to empty result (no crash) if embedding column is null on a row.
  */
 export async function searchMemory(
@@ -96,27 +101,40 @@ export async function searchMemory(
   const vectorLiteral  = `[${queryEmbedding.join(",")}]`;
 
   // Raw SQL needed for pgvector <=> cosine distance operator
+  // Fetch 3× the limit so re-ranking has enough candidates to work with
   const rows = await (db as any).execute(sql`
     SELECT
       id,
       title,
       content,
       importance,
+      confidence_score,
+      created_at,
       CAST(1 - (embedding <=> ${sql.raw(`'${vectorLiteral}'`)}::vector) AS float8) AS similarity
     FROM memory_entries
     WHERE company_id  = ${params.companyId}
       AND archived    = false
       AND embedding   IS NOT NULL
+      AND confidence_score > 0.2
     ORDER BY embedding <=> ${sql.raw(`'${vectorLiteral}'`)}::vector
-    LIMIT ${params.maxChunks * 2}
+    LIMIT ${params.maxChunks * 3}
   `);
 
-  // Application-level threshold guard (belt + braces over the SQL ordering)
+  const now = Date.now();
+
+  // F1: recency-weighted re-ranking + similarity threshold guard
   const relevant: MemorySearchResult[] = (
     Array.isArray(rows) ? rows : (rows as any).rows ?? []
   )
-    .map((r: any) => ({ ...r, similarity: Number(r.similarity) }))
+    .map((r: any) => {
+      const similarity    = Number(r.similarity);
+      const daysSince     = (now - new Date(r.created_at).getTime()) / 86_400_000;
+      const recencyFactor = 1 / (1 + daysSince / 30);
+      const combined      = similarity * 0.6 + recencyFactor * 0.4;
+      return { ...r, similarity, combined };
+    })
     .filter((r: any) => r.similarity > SIMILARITY_THRESHOLD)
+    .sort((a: any, b: any) => b.combined - a.combined)
     .slice(0, params.maxChunks);
 
   // Build context text within token budget (RULE 5: compress memory, never task)

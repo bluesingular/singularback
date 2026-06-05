@@ -115,10 +115,15 @@ export interface InstallPackParams {
   pack:       PackManifest;
   /** Template variable values, e.g. { company_name: "Agence Dupont RH" } */
   variables:  Record<string, string>;
-  /** BullMQ agentQueue — for seed task scheduling */
-  agentQueue: { add: (name: string, data: unknown, opts?: { delay?: number; jobId?: string }) => Promise<unknown> };
-  /** BullMQ systemQueue — for activation trigger registration */
-  systemQueue: { add: (name: string, data: unknown, opts?: { delay?: number; jobId?: string }) => Promise<unknown> };
+  /**
+   * @deprecated No longer used — seed tasks and activation triggers are now
+   * written to the pending_jobs outbox inside the DB transaction (P5).
+   * The outbox worker dispatches to BullMQ after commit. Kept for call-site
+   * backwards compatibility; will be removed in a future cleanup.
+   */
+  installQueue?: { add: (name: string, data: unknown, opts?: { delay?: number; jobId?: string }) => Promise<unknown> };
+  /** @deprecated See installQueue. */
+  systemQueue?:  { add: (name: string, data: unknown, opts?: { delay?: number; jobId?: string }) => Promise<unknown> };
 }
 
 export interface InstallPackResult {

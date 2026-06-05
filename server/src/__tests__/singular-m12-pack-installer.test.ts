@@ -10,13 +10,13 @@
  *  6.  interpolateTemplate: unknown var → leaves {{unknown}} unchanged
  *  7.  interpolateTemplate: multiple vars replaced in one pass
  *  8.  installPack: all steps succeed → success=true, agentIds returned
- *  9.  installPack: step 4 (quality gates) throws → PackInstallError; seed tasks NOT scheduled
- * 10.  installPack: step 2 (agents) throws → PackInstallError; seed tasks NOT scheduled
+ *  9.  installPack: step 4 (quality gates) throws → PackInstallError; no pending_jobs rows written
+ * 10.  installPack: step 2 (agents) throws → PackInstallError; no pending_jobs rows written
  * 11.  installPack: seed task delay capped at 600,000ms (10 min)
- * 12.  installPack: all 3 seed tasks scheduled in agentQueue
+ * 12.  installPack: 3 seed task rows written to pending_jobs outbox
  * 13.  installPack: template vars interpolated in seed task title and body
- * 14.  installPack: all 5 activation triggers registered in systemQueue
- * 15.  installPack: activation trigger jobIds are idempotent (company+pack+key)
+ * 14.  installPack: 5 activation trigger rows written to pending_jobs outbox
+ * 15.  installPack: activation trigger _jobIds are idempotent (company+pack+key)
  * 16.  SEED_TASK_MAX_DELAY_MS is exactly 600,000
  */
 
@@ -80,44 +80,48 @@ const DEFAULT_VARS = {
 // ── DB mock builder ───────────────────────────────────────────────────────────
 
 function makeInstallDb(opts: {
-  /** Which values() call should throw (1=agents, 2=skills, 3=gates, 4=dna) */
+  /**
+   * Which non-outbox values() call should throw.
+   * 1=agents, 2=skills, 3=quality gates, 4=dna.
+   * Outbox inserts (data with `queue` + `payload` shape) never throw.
+   */
   throwAtStep?: number;
 } = {}) {
-  let stepCount = 0;
-
-  const insertValues = vi.fn().mockImplementation(() => {
-    stepCount++;
-    if (opts.throwAtStep === stepCount) {
-      throw new Error(`Simulated failure at step ${stepCount}`);
-    }
-    const rowId = `agent-${stepCount}`;
-    // .returning() may be called either directly on values() OR on onConflictDoUpdate(),
-    // so both need to expose it.
-    const returning = vi.fn().mockResolvedValue([{ id: rowId }]);
-    return {
-      returning,
-      onConflictDoUpdate: vi.fn().mockReturnValue({ returning }),
-    };
-  });
+  let stepCount        = 0;
+  const allInserts:    unknown[] = [];
 
   const tx = {
-    insert: vi.fn().mockReturnValue({ values: insertValues }),
+    insert: vi.fn().mockReturnValue({
+      values: vi.fn().mockImplementation((data: unknown) => {
+        allInserts.push(data);
+        // Detect outbox insert by shape: { queue, payload }
+        const d = data as Record<string, unknown>;
+        const isOutbox = typeof d?.queue === "string" && typeof d?.payload === "object";
+        if (!isOutbox) {
+          stepCount++;
+          if (opts.throwAtStep === stepCount) {
+            throw new Error(`Simulated failure at step ${stepCount}`);
+          }
+        }
+        const rowId    = `row-${stepCount}`;
+        const returning = vi.fn().mockResolvedValue([{ id: rowId }]);
+        return { returning, onConflictDoUpdate: vi.fn().mockReturnValue({ returning }) };
+      }),
+    }),
   };
 
   const db = {
     transaction: vi.fn().mockImplementation(async (callback: (tx: typeof tx) => Promise<unknown>) => {
       stepCount = 0;
+      allInserts.length = 0;
       return callback(tx);
     }),
   } as any;
 
-  return { db, tx, insertValues };
-}
+  // Helper: rows written to the outbox (pending_jobs shape)
+  const pendingInserts = allInserts;
 
-function makeQueues() {
-  const agentQueue  = { add: vi.fn().mockResolvedValue({ id: "job-1" }) };
-  const systemQueue = { add: vi.fn().mockResolvedValue({ id: "job-2" }) };
-  return { agentQueue, systemQueue };
+  return { db, tx, pendingInserts };
 }
 
 // ── validatePackManifest ──────────────────────────────────────────────────────
@@ -175,14 +179,11 @@ describe("installPack", () => {
 
   it("8. all steps succeed → success=true, agentIds returned", async () => {
     const { db } = makeInstallDb();
-    const { agentQueue, systemQueue } = makeQueues();
 
     const result = await installPack(db, {
       companyId: "company-1",
       pack:      makePack(),
       variables: DEFAULT_VARS,
-      agentQueue,
-      systemQueue,
     });
 
     expect(result.success).toBe(true);
@@ -190,50 +191,42 @@ describe("installPack", () => {
     expect(Array.isArray(result.agentIds)).toBe(true);
   });
 
-  it("9. step 4 (quality gates) throws → PackInstallError; seed tasks NOT scheduled", async () => {
-    // Steps in the transaction:
-    //   insert#1 = agents (step 2, has .returning())
-    //   insert#2 = skills (step 3, no .returning())
-    //   insert#3 = quality gates (step 4) ← throw here
-    const { db } = makeInstallDb({ throwAtStep: 3 }); // 3rd insert call
-    const { agentQueue, systemQueue } = makeQueues();
+  it("9. step 4 (quality gates) throws → PackInstallError; no outbox rows written", async () => {
+    // Non-outbox inserts inside the tx:
+    //   #1 = agents, #2 = skills, #3 = quality gates ← throw here
+    // Outbox inserts (steps 6–7) are never reached because step 3 throws first.
+    const { db, pendingInserts } = makeInstallDb({ throwAtStep: 3 });
 
     await expect(
       installPack(db, {
         companyId: "company-1",
         pack:      makePack(),
         variables: DEFAULT_VARS,
-        agentQueue,
-        systemQueue,
       }),
     ).rejects.toThrow(PackInstallError);
 
-    // Steps 6-7 must NOT have been called
-    expect(agentQueue.add).not.toHaveBeenCalled();
-    expect(systemQueue.add).not.toHaveBeenCalled();
+    // No outbox rows should have been written (steps 6–7 never reached)
+    const outboxRows = pendingInserts.filter((r: any) => typeof r?.queue === "string" && r?.payload);
+    expect(outboxRows).toHaveLength(0);
   });
 
-  it("10. step 2 (agents) throws → PackInstallError; seed tasks NOT scheduled", async () => {
-    const { db } = makeInstallDb({ throwAtStep: 1 }); // 1st insert call (agents)
-    const { agentQueue, systemQueue } = makeQueues();
+  it("10. step 2 (agents) throws → PackInstallError; no outbox rows written", async () => {
+    const { db, pendingInserts } = makeInstallDb({ throwAtStep: 1 });
 
     await expect(
       installPack(db, {
         companyId: "company-1",
         pack:      makePack(),
         variables: DEFAULT_VARS,
-        agentQueue,
-        systemQueue,
       }),
     ).rejects.toThrow(PackInstallError);
 
-    expect(agentQueue.add).not.toHaveBeenCalled();
-    expect(systemQueue.add).not.toHaveBeenCalled();
+    const outboxRows = pendingInserts.filter((r: any) => typeof r?.queue === "string" && r?.payload);
+    expect(outboxRows).toHaveLength(0);
   });
 
   it("11. seed task delay capped at SEED_TASK_MAX_DELAY_MS (600,000ms)", async () => {
-    const { db } = makeInstallDb();
-    const { agentQueue, systemQueue } = makeQueues();
+    const { db, pendingInserts } = makeInstallDb();
 
     const packWithLongDelay = makePack({
       seedTasks: [
@@ -247,88 +240,68 @@ describe("installPack", () => {
       companyId: "company-1",
       pack:      packWithLongDelay,
       variables: DEFAULT_VARS,
-      agentQueue,
-      systemQueue,
     });
 
-    const delays = agentQueue.add.mock.calls.map((c: unknown[]) => (c[2] as { delay?: number })?.delay ?? 0);
+    const seedRows = pendingInserts.filter((r: any) => r?.payload?.jobName === "seed.task");
+    const delays   = seedRows.map((r: any) => r?.payload?._delayMs ?? 0);
     expect(Math.max(...delays)).toBeLessThanOrEqual(SEED_TASK_MAX_DELAY_MS);
   });
 
-  it("12. all 3 seed tasks scheduled in agentQueue", async () => {
-    const { db } = makeInstallDb();
-    const { agentQueue, systemQueue } = makeQueues();
+  it("12. 3 seed task rows written to pending_jobs outbox", async () => {
+    const { db, pendingInserts } = makeInstallDb();
 
     await installPack(db, {
       companyId: "company-1",
       pack:      makePack(),
       variables: DEFAULT_VARS,
-      agentQueue,
-      systemQueue,
     });
 
-    expect(agentQueue.add).toHaveBeenCalledTimes(3);
-    for (const call of agentQueue.add.mock.calls) {
-      expect(call[0]).toBe("seed.task");
-    }
+    const seedRows = pendingInserts.filter((r: any) => r?.payload?.jobName === "seed.task");
+    expect(seedRows).toHaveLength(3);
   });
 
   it("13. template vars interpolated in seed task title and body", async () => {
-    const { db } = makeInstallDb();
-    const { agentQueue, systemQueue } = makeQueues();
+    const { db, pendingInserts } = makeInstallDb();
 
     await installPack(db, {
       companyId: "company-1",
       pack:      makePack(),
       variables: DEFAULT_VARS,
-      agentQueue,
-      systemQueue,
     });
 
-    // First seed task: title has {{candidate_name}}, body has {{company_name}}
-    const firstCall = agentQueue.add.mock.calls[0];
-    const data = firstCall[1] as { title: string; body: string };
+    const seedRows = pendingInserts.filter((r: any) => r?.payload?.jobName === "seed.task");
+    const first    = seedRows[0] as any;
 
-    expect(data.title).toContain("Jean Martin");         // {{candidate_name}} resolved
-    expect(data.title).not.toContain("{{");              // no raw placeholders left
-    expect(data.body).toContain("Agence Dupont RH");     // {{company_name}} resolved
+    expect(first.payload.title).toContain("Jean Martin");     // {{candidate_name}} resolved
+    expect(first.payload.title).not.toContain("{{");          // no raw placeholders left
+    expect(first.payload.body).toContain("Agence Dupont RH"); // {{company_name}} resolved
   });
 
-  it("14. all 5 activation triggers registered in systemQueue", async () => {
-    const { db } = makeInstallDb();
-    const { agentQueue, systemQueue } = makeQueues();
+  it("14. 5 activation trigger rows written to pending_jobs outbox", async () => {
+    const { db, pendingInserts } = makeInstallDb();
 
     await installPack(db, {
       companyId: "company-1",
       pack:      makePack(),
       variables: DEFAULT_VARS,
-      agentQueue,
-      systemQueue,
     });
 
-    expect(systemQueue.add).toHaveBeenCalledTimes(5);
-    for (const call of systemQueue.add.mock.calls) {
-      expect(call[0]).toBe("activation.check");
-    }
+    const triggerRows = pendingInserts.filter((r: any) => r?.payload?.jobName === "activation.check");
+    expect(triggerRows).toHaveLength(5);
   });
 
-  it("15. activation trigger jobIds include company+pack+key (idempotent)", async () => {
-    const { db } = makeInstallDb();
-    const { agentQueue, systemQueue } = makeQueues();
+  it("15. activation trigger _jobIds include company+pack+key (idempotent)", async () => {
+    const { db, pendingInserts } = makeInstallDb();
 
     await installPack(db, {
       companyId: "company-1",
       pack:      makePack(),
       variables: DEFAULT_VARS,
-      agentQueue,
-      systemQueue,
     });
 
-    const jobIds = systemQueue.add.mock.calls.map(
-      (c: unknown[]) => (c[2] as { jobId?: string })?.jobId,
-    );
+    const triggerRows = pendingInserts.filter((r: any) => r?.payload?.jobName === "activation.check");
+    const jobIds      = triggerRows.map((r: any) => r?.payload?._jobId as string);
 
-    // All job IDs unique and contain the trigger key
     const uniqueIds = new Set(jobIds);
     expect(uniqueIds.size).toBe(5);
     expect(jobIds[0]).toContain("company-1");

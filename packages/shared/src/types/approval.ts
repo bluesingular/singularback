@@ -13,6 +13,13 @@ export interface Approval {
   decidedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  /**
+   * F8 — Skill version notice.
+   * Set by the API when the skill used to generate this task has since been updated.
+   * When both fields are present and differ, the UI shows a notice in the approval card.
+   */
+  taskSkillVersion?: string;
+  latestSkillVersion?: string;
 }
 
 export interface ApprovalComment {

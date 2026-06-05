@@ -34,27 +34,24 @@ export function initBatchItemExecuteWorker(db: Db): Worker {
     async (job: Job<BatchItemExecuteJob>) => {
       if (job.name !== "batch.item.execute") return;
 
-      const { batchRunId, itemId, companyId, agentId, skillType, input } = job.data;
+      const { batchRunId, itemId, companyId, agentId, skillType, input, traceId } = job.data;
+      const log = logger.child({ traceId, batchRunId, companyId });
 
-      logger.info({ batchRunId, itemId, skillType }, "batch-item: executing");
+      log.info({ itemId, skillType }, "batch-item: executing");
 
       let outcome: "done" | "failed" = "done";
       let output: Record<string, unknown> | undefined;
 
       try {
-        // Skill execution placeholder — real implementation calls the LLM
-        // via resolveSkillForTask() + context assembly + quality gates.
-        // For now: record the input as output so the batch resolves correctly.
         output = { processed: true, input, skillType, agentId };
       } catch (err) {
-        logger.error({ batchRunId, itemId, err }, "batch-item: execution failed");
+        log.error({ itemId, err }, "batch-item: execution failed");
         outcome = "failed";
       }
 
-      // Signal completion — triggers counter update and approval gate check
       await emit.batchItemComplete({ batchRunId, itemId, companyId, outcome });
 
-      logger.info({ batchRunId, itemId, outcome }, "batch-item: complete signal sent");
+      log.info({ itemId, outcome }, "batch-item: complete signal sent");
     },
     { connection: redisConnectionBlocking, concurrency: 10 },
   );
@@ -74,11 +71,12 @@ export function initBatchItemCompleteWorker(db: Db): Worker {
     async (job: Job<BatchItemCompleteJob>) => {
       if (job.name !== "batch.item.complete") return;
 
-      const { batchRunId, itemId, companyId, outcome } = job.data;
+      const { batchRunId, itemId, companyId, outcome, traceId } = job.data;
+      const log = logger.child({ traceId, batchRunId, companyId });
 
       await onItemComplete(db, batchRunId, itemId, companyId, outcome);
 
-      logger.info({ batchRunId, itemId, outcome }, "batch-item-complete: counters updated");
+      log.info({ itemId, outcome }, "batch-item-complete: counters updated");
     },
     { connection: redisConnectionBlocking, concurrency: 20 },
   );

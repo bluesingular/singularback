@@ -15,6 +15,10 @@
 
 import pino from "pino";
 import { registerWhatsAppActionType } from "../integrations/whatsapp.js";
+import type { Db } from "@paperclipai/db";
+import { checkContactCollision, recordExternalCommunication } from "../safety/collision.js";
+import { checkZeroTolerance, type ZeroToleranceRule } from "../safety/zero-tolerance.js";
+import { runGates } from "../gates/engine.js";
 
 const logger = pino({ name: "builtin-actions" });
 
@@ -25,6 +29,17 @@ export interface ActionContext {
   agentId:    string;
   taskId:     string;
   traceId:    string;
+  /**
+   * Gap E — zero-tolerance rules from the skill frontmatter.
+   * Checked before trust calibration; no bypass path exists.
+   * Pass `[]` or omit when no rules are declared.
+   */
+  zeroToleranceRules?: ZeroToleranceRule[];
+  /**
+   * Company-level context values for zero-tolerance condition evaluation
+   * (e.g. { zero_tolerance_financial_threshold: 1000 }).
+   */
+  companyContext?: Record<string, unknown>;
 }
 
 export type ActionHandler = (
@@ -40,6 +55,11 @@ export interface ActionTypeDefinition {
   alwaysRequiresApproval: boolean;
   /** Whether this action can send communications to external parties */
   isExternalCommunication: boolean;
+  /**
+   * RULE 3 — maps this action to one of the 4 quality gate categories.
+   * Defaults to "api_call" when not specified.
+   */
+  gateActionType?: "send_email" | "publish_content" | "contact_external" | "api_call";
   handler:     ActionHandler;
 }
 
@@ -82,6 +102,7 @@ registerActionType({
   description:            "Envoie un email via l'intégration connectée (Gmail, SMTP)",
   alwaysRequiresApproval: false,  // trust level governs — not hardcoded
   isExternalCommunication: true,
+  gateActionType:          "send_email",
   handler: async (payload, ctx) => {
     logger.info({ ...ctx, to: payload.to }, "send_email: dispatched");
     return `Email envoyé à ${payload.to}`;
@@ -94,6 +115,7 @@ registerActionType({
   description:            "Génère un document structuré (PDF, DOCX, Notion)",
   alwaysRequiresApproval: false,
   isExternalCommunication: false,
+  gateActionType:          "publish_content",
   handler: async (payload, ctx) => {
     logger.info({ ...ctx, title: payload.title }, "create_document: dispatched");
     return `Document créé : ${payload.title}`;
@@ -164,3 +186,83 @@ registerActionType({
 // Gap G: WhatsApp Business API connector
 // Registered at startup; credentials resolved lazily from Vault at call time.
 registerWhatsAppActionType();
+
+// ── C2: Collision-aware action executor ───────────────────────────────────────
+
+export class ContactCollisionError extends Error {
+  constructor(
+    public readonly contactId:   string,
+    public readonly lastContact: Date,
+    public readonly priorTaskId: string | undefined,
+  ) {
+    super(`Contact ${contactId} was already reached within the cooldown window`);
+    this.name = "ContactCollisionError";
+  }
+}
+
+/**
+ * Execute a registered action type with full safety checks:
+ *   Gap E  — zero-tolerance check (no bypass, runs before all else)
+ *   RULE 3 — quality gates via runGates()
+ *   C2     — collision detection for external comms
+ *
+ * contactId is required when the action targets a specific contact.
+ * Pass undefined for broadcast / non-contact actions.
+ */
+export async function executeAction(
+  db:         Db,
+  slug:       string,
+  payload:    Record<string, unknown>,
+  ctx:        ActionContext,
+  contactId?: string,
+): Promise<string> {
+  const def = registry.get(slug);
+  if (!def) throw new ActionTypeUnknownError(slug);
+
+  // Gap E: zero-tolerance check — MUST run before trust calibration / quality gates.
+  // Throws ZeroToleranceViolation → caller must force pending_approval.
+  if (ctx.zeroToleranceRules && ctx.zeroToleranceRules.length > 0) {
+    checkZeroTolerance(
+      ctx.zeroToleranceRules,
+      { type: slug, params: payload },
+      ctx.companyContext ?? {},
+    );
+  }
+
+  // RULE 3: quality gates — mandatory for every external action, no bypass.
+  const gateActionType = def.gateActionType ?? "api_call";
+  const gateResult = await runGates(db, {
+    companyId:  ctx.companyId,
+    agentId:    ctx.agentId,
+    taskId:     ctx.taskId,
+    actionType: gateActionType,
+    actionData: payload,
+  });
+  if (!gateResult.passed) {
+    throw new Error(`Quality gate blocked action "${slug}": ${gateResult.reason}`);
+  }
+
+  // C2: collision detection for any external communication action
+  if (def.isExternalCommunication && contactId) {
+    const collision = await checkContactCollision(db, ctx.companyId, contactId);
+    if (collision.collision) {
+      throw new ContactCollisionError(contactId, collision.lastContact!, collision.taskId);
+    }
+  }
+
+  const result = await def.handler(payload, ctx);
+
+  // Record the communication so future actions see the cooldown
+  if (def.isExternalCommunication && contactId) {
+    await recordExternalCommunication(
+      db,
+      ctx.companyId,
+      contactId,
+      ctx.agentId,
+      ctx.taskId,
+      result,
+    );
+  }
+
+  return result;
+}

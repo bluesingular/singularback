@@ -63,25 +63,26 @@ export function initMorningIntelligenceWorker(db: Db) {
   const worker = new Worker(
     "system",
     async (job: Job) => {
+      const log = logger.child({ jobId: job.id, jobName: job.name });
+
       // F3: Approval escalation — runs every 15 minutes
       if (job.name === "approval.escalation") {
         try {
           const { escalated } = await runApprovalEscalations(db);
-          logger.info({ escalated }, "approval-escalation: sweep complete");
+          log.info({ escalated }, "approval-escalation: sweep complete");
         } catch (err) {
-          logger.error({ err }, "approval-escalation: sweep failed");
+          log.error({ err }, "approval-escalation: sweep failed");
         }
         return;
       }
 
       if (job.name !== "intelligence.sweep") return;
 
-      // Fetch all active companies
       const activeCompanies = await db
         .select({ id: companies.id, name: companies.name })
         .from(companies);
 
-      logger.info({ count: activeCompanies.length }, "morning-intelligence: starting sweep");
+      log.info({ count: activeCompanies.length }, "morning-intelligence: starting sweep");
 
       let totalInserted = 0;
       for (const company of activeCompanies) {
@@ -95,10 +96,10 @@ export function initMorningIntelligenceWorker(db: Db) {
 
           // AG-10: refresh behavioral baselines + detect anomalies (admin-only surface)
           await refreshBaselines(db, company.id).catch((err) =>
-            logger.warn({ companyId: company.id, err }, "morning-intelligence: baseline refresh failed"),
+            log.warn({ companyId: company.id, err }, "morning-intelligence: baseline refresh failed"),
           );
           await detectAnomalies(db, company.id).catch((err) =>
-            logger.warn({ companyId: company.id, err }, "morning-intelligence: anomaly detection failed"),
+            log.warn({ companyId: company.id, err }, "morning-intelligence: anomaly detection failed"),
           );
 
           // Gap M + §31.4 + §31.5: weekly jobs (Monday only)
@@ -106,39 +107,30 @@ export function initMorningIntelligenceWorker(db: Db) {
           if (isMonday) {
             // Gap A: skill variance metrics (admin-only, non-determinism debugging)
             await runVarianceSweep(db).catch((err) =>
-              logger.warn({ companyId: company.id, err }, "morning-intelligence: variance sweep failed"),
+              log.warn({ companyId: company.id, err }, "morning-intelligence: variance sweep failed"),
             );
             await computeOptimalTiming(db, company.id).catch((err) =>
-              logger.warn({ companyId: company.id, err }, "morning-intelligence: contact timing failed"),
+              log.warn({ companyId: company.id, err }, "morning-intelligence: contact timing failed"),
             );
             // §31.4: memory correctness tests
             await runMemoryCorrectnessTests(db, company.id).catch((err) =>
-              logger.warn({ companyId: company.id, err }, "morning-intelligence: memory tests failed"),
+              log.warn({ companyId: company.id, err }, "morning-intelligence: memory tests failed"),
             );
             // §31.5: embedding depth metrics
             const weekStart = getWeekStart();
             await computeAndStoreEmbeddingMetrics(db, company.id, weekStart).catch((err) =>
-              logger.warn({ companyId: company.id, err }, "morning-intelligence: embedding metrics failed"),
+              log.warn({ companyId: company.id, err }, "morning-intelligence: embedding metrics failed"),
             );
           }
 
-          logger.info(
-            { companyId: company.id, inserted },
-            "morning-intelligence: company swept",
-          );
+          log.info({ companyId: company.id, inserted }, "morning-intelligence: company swept");
         } catch (err) {
           // One company failing must not block the others
-          logger.error(
-            { companyId: company.id, err },
-            "morning-intelligence: company sweep failed",
-          );
+          log.error({ companyId: company.id, err }, "morning-intelligence: company sweep failed");
         }
       }
 
-      logger.info(
-        { companies: activeCompanies.length, totalInserted },
-        "morning-intelligence: sweep complete",
-      );
+      log.info({ companies: activeCompanies.length, totalInserted }, "morning-intelligence: sweep complete");
     },
     { connection: redisConnectionBlocking, concurrency: 1 },
   );

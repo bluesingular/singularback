@@ -56,14 +56,15 @@ const AUTONOMY_COLORS: Record<string, string> = {
 }
 
 function MiniScoreBar({ value }: { value: number }) {
-  const pct = Math.round((value / 5) * 100)
-  const color = value >= 4 ? "bg-[#1A9E68]" : value >= 3 ? "bg-[#C97C0A]" : "bg-[#DC2626]"
+  const num = typeof value === "string" ? parseFloat(value) : value
+  const pct = Math.round((num / 5) * 100)
+  const color = num >= 4 ? "bg-[#1A9E68]" : num >= 3 ? "bg-[#C97C0A]" : "bg-[#DC2626]"
   return (
     <div className="flex items-center gap-1.5">
       <div className="w-16 h-1 bg-[#F0EDE6] rounded-full overflow-hidden">
         <div className={cn("h-full rounded-full", color)} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] font-mono text-[#8A8680]">{value.toFixed(1)}</span>
+      <span className="text-[10px] font-mono text-[#8A8680]">{num.toFixed(1)}</span>
     </div>
   )
 }

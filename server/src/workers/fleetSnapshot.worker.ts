@@ -24,7 +24,14 @@ export function initFleetSnapshotWorker(db: Db): Worker {
     "system",
     async (job: Job) => {
       if (job.name !== "fleet.snapshot") return;
-      await computeAndPersistFleetSnapshot(db);
+      const log = logger.child({ jobId: job.id });
+      try {
+        await computeAndPersistFleetSnapshot(db);
+        log.info("fleet-snapshot: snapshot persisted");
+      } catch (err) {
+        log.error({ err }, "fleet-snapshot: snapshot failed");
+        throw err;
+      }
     },
     { connection: redisConnectionBlocking, concurrency: 1 },
   );

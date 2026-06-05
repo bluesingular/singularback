@@ -33,7 +33,7 @@ import { runJudge } from "../safety/judge.js";
 import { runConfidenceScoring, shouldForceApproval } from "../safety/confidence.js";
 import { routeModel } from "../llm/router.js";
 import { executeWithStreaming } from "../llm/streaming.js";
-import { writeCheckpoint } from "../tasks/checkpoints.js";
+import { writeCheckpoint, checkCancellation } from "../tasks/checkpoints.js";
 import { executeRules, parseRuleSet } from "../tasks/rule-engine.js";
 import type { ParsedSkill } from "../skills/parser.js";
 
@@ -52,6 +52,8 @@ export interface ExecuteSkillTaskParams {
   taskBrief?:      string | null;
   soulMd?:         string | null;
   skill:           ParsedSkill;
+  /** P4 — trace ID propagated from the originating HTTP request or BullMQ job payload */
+  traceId?:        string;
 }
 
 export interface ExecuteSkillTaskResult {
@@ -72,9 +74,10 @@ export async function executeSkillTask(
     agentName, agentDescription,
     companyName, companySector,
     taskTitle, taskBrief, soulMd, skill,
+    traceId,
   } = params;
 
-  const log = logger.child({ taskId, companyId, agentId });
+  const log = logger.child({ traceId, taskId, companyId, agentId });
 
   // ── 1. Input guardrails (C7) ────────────────────────────────────────────────
   const guardrailResult = await runInputGuardrails(
@@ -88,6 +91,9 @@ export async function executeSkillTask(
   if (guardrailResult.blocked) {
     throw new Error(`Guardrail blocked task ${taskId}: ${guardrailResult.reason}`);
   }
+
+  // ── C3: Check cancellation before we do any real work ──────────────────────
+  await checkCancellation(db, taskId, companyId);
 
   // ── 2. Token budget pre-flight (F6) ────────────────────────────────────────
   await checkBudgetBeforeCall(db, companyId);
@@ -136,6 +142,9 @@ export async function executeSkillTask(
           },
         ]
       : baseMessages;
+
+    // C3: check cancellation at each recycle boundary
+    await checkCancellation(db, taskId, companyId);
 
     // G6: streaming — each chunk fires an agent.writing SSE event
     const llmResponse = await executeWithStreaming({

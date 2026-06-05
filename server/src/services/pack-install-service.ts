@@ -7,11 +7,10 @@ import { join } from "node:path";
 import type { Db } from "@paperclipai/db";
 import { installPack } from "../packs/installer.js";
 import type { PackManifest } from "../packs/types.js";
-import type { Queue } from "bullmq";
 
 const PACKS_DIR = new URL("../../../packs", import.meta.url).pathname;
 
-export function packInstallService(db: Db, agentQueue: Queue, systemQueue: Queue) {
+export function packInstallService(db: Db) {
   /**
    * Load a pack manifest from disk
    */
@@ -156,8 +155,6 @@ export function packInstallService(db: Db, agentQueue: Queue, systemQueue: Queue
       companyId,
       pack,
       variables: variables ?? {},
-      agentQueue,
-      systemQueue,
     });
   }
 

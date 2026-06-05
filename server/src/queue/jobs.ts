@@ -13,7 +13,8 @@ import { z } from "zod";
 // boundaries can be correlated. Generated at task creation, never in workers.
 
 export const BaseJobSchema = z.object({
-  traceId: z.string().uuid().optional(), // optional for backwards compat with existing jobs
+  // optional for backwards compat — new jobs must include traceId explicitly
+  traceId: z.string().uuid().optional(),
 });
 
 // ── Agent execution jobs ──────────────────────────────────────────────────────
@@ -24,7 +25,7 @@ export const HeartbeatJobSchema = BaseJobSchema.extend({
   triggeredBy: z.enum(["scheduler", "email", "slack", "webhook", "approval", "manual"]),
 });
 
-export const EmailReceivedJobSchema = z.object({
+export const EmailReceivedJobSchema = BaseJobSchema.extend({
   agentId: z.string().uuid(),
   companyId: z.string().uuid(),
   emailId: z.string(),
@@ -34,7 +35,7 @@ export const EmailReceivedJobSchema = z.object({
   bodyPreview: z.string().max(500),
 });
 
-export const TaskApprovedJobSchema = z.object({
+export const TaskApprovedJobSchema = BaseJobSchema.extend({
   taskId: z.string().uuid(),
   agentId: z.string().uuid(),
   companyId: z.string().uuid(),
@@ -53,7 +54,7 @@ const RoutingRuleSchema = z.object({
   }),
 });
 
-export const WebhookReceivedJobSchema = z.object({
+export const WebhookReceivedJobSchema = BaseJobSchema.extend({
   /** UUID of the webhook_endpoints row (null for legacy agentSlug-based routes) */
   endpointId: z.string().uuid().nullable(),
   companyId: z.string().uuid(),
@@ -67,7 +68,7 @@ export type RoutingRule = z.infer<typeof RoutingRuleSchema>;
 
 // ── G5: Human clarification jobs ─────────────────────────────────────────────
 
-export const ClarificationRequestedJobSchema = z.object({
+export const ClarificationRequestedJobSchema = BaseJobSchema.extend({
   clarificationId: z.string().uuid(),
   companyId:       z.string().uuid(),
   issueId:         z.string().uuid(),
@@ -76,7 +77,7 @@ export const ClarificationRequestedJobSchema = z.object({
   timeoutHours:    z.number().int().min(1),
 });
 
-export const ClarificationTimedOutJobSchema = z.object({
+export const ClarificationTimedOutJobSchema = BaseJobSchema.extend({
   clarificationId: z.string().uuid(),
   companyId:       z.string().uuid(),
   issueId:         z.string().uuid(),
@@ -85,14 +86,14 @@ export const ClarificationTimedOutJobSchema = z.object({
 
 // ── Background processing jobs ────────────────────────────────────────────────
 
-export const MemoryExtractionJobSchema = z.object({
+export const MemoryExtractionJobSchema = BaseJobSchema.extend({
   taskId: z.string().uuid(),
   agentId: z.string().uuid(),
   companyId: z.string().uuid(),
   output: z.string(),
 });
 
-export const SkillImprovementJobSchema = z.object({
+export const SkillImprovementJobSchema = BaseJobSchema.extend({
   agentId: z.string().uuid(),
   companyId: z.string().uuid(),
   skillSlug: z.string(),
@@ -101,11 +102,11 @@ export const SkillImprovementJobSchema = z.object({
 
 // ── System jobs ───────────────────────────────────────────────────────────────
 
-export const CostResetJobSchema = z.object({
+export const CostResetJobSchema = BaseJobSchema.extend({
   companyId: z.string().uuid(),
 });
 
-export const ActivationCheckJobSchema = z.object({
+export const ActivationCheckJobSchema = BaseJobSchema.extend({
   companyId:  z.string().uuid(),
   packSlug:   z.string(),
   triggerKey: z.enum([
@@ -119,7 +120,7 @@ export const ActivationCheckJobSchema = z.object({
 
 // ── G9: Batch processing jobs ─────────────────────────────────────────────────
 
-export const BatchItemExecuteJobSchema = z.object({
+export const BatchItemExecuteJobSchema = BaseJobSchema.extend({
   batchRunId: z.string().uuid(),
   itemId:     z.string().uuid(),
   companyId:  z.string().uuid(),
@@ -128,7 +129,7 @@ export const BatchItemExecuteJobSchema = z.object({
   input:      z.record(z.unknown()),
 });
 
-export const BatchItemCompleteJobSchema = z.object({
+export const BatchItemCompleteJobSchema = BaseJobSchema.extend({
   batchRunId: z.string().uuid(),
   itemId:     z.string().uuid(),
   companyId:  z.string().uuid(),

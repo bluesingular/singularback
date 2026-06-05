@@ -4,30 +4,31 @@
  * Pack installation — M12.
  *
  * 7-step atomic installation:
- *   Steps 1–5  run inside a DB transaction (rollback on any failure).
- *   Steps 6–7  run after transaction commits (BullMQ — idempotent).
+ *   All 7 steps run inside a single DB transaction (rollback on any failure).
  *
  *   1. Validate pack manifest                   (pure, no DB)
  *   2. Install agents                           (insert agents rows)
  *   3. Install skills                           (insert company_skills rows)
  *   4. Install quality gates                    (insert qualityGates rows)
  *   5. Upsert company DNA                       (upsert companyDna row)
- *   6. Schedule seed tasks via BullMQ           (delay ≤ 10 min — RULE: fires < 10min)
- *   7. Register activation triggers in BullMQ   (scheduled moments)
+ *   6. Queue seed tasks → pending_jobs outbox   (delay ≤ 10 min — RULE: fires < 10min)
+ *   7. Queue activation triggers → pending_jobs outbox
  *
- * If step 4 (or any earlier step) throws, the transaction rolls back steps 2–3
- * automatically. Steps 6–7 are never reached.
+ * P5 — Transactional outbox: Steps 6–7 write to pending_jobs inside the
+ * transaction. If anything rolls back, the job rows are rolled back too —
+ * no orphaned BullMQ jobs. The outbox worker dispatches to BullMQ after commit.
  *
- * RULE 6: BullMQ jobs are idempotent (jobId deduplication).
+ * RULE 6: BullMQ jobs are idempotent (_jobId in payload → deduplication).
  * RULE 10: Seed tasks must be indistinguishable from real work.
  */
 
-import { agents, companySkills, qualityGates, companyDna, AGENT_COLOURS } from "@paperclipai/db";
+import { agents, companySkills, qualityGates, companyDna, pendingJobs, AGENT_COLOURS } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { interpolateTemplate } from "./template.js";
 import { parseSkill } from "../skills/parser.js";
 import { BASE_CONSTITUTION } from "../safety/constitution.js";
 import { bootstrapAgentTrust } from "../trust/bootstrap.js";
+import { sanitiseDNAValue } from "../safety/dna-sanitise.js";
 import { copyMasterSkillToTenant } from "../services/company-skills.js";
 import {
   PackValidationError,
@@ -171,6 +172,20 @@ async function installAgents(
     // WAR-2: generate soul.md from template + base constitution
     const soulMd = buildSoulMd(def, variables);
 
+    // Build heartbeat runtimeConfig from pack agent definition
+    // heartbeat_frequency_ms from pack.json → intervalSec for heartbeatService
+    const heartbeatIntervalMs = (def as any).heartbeat_frequency_ms ?? 14_400_000; // 4h default
+    const runtimeConfig = {
+      heartbeat: {
+        enabled:           true,
+        intervalSec:       Math.round(heartbeatIntervalMs / 1000),
+        wakeOnDemand:      true,
+        wakeOnAssignment:  true,
+        maxConcurrentRuns: 3,
+        cooldownSec:       10,
+      },
+    };
+
     const rows = await (tx as any)
       .insert(agents)
       .values({
@@ -181,14 +196,16 @@ async function installAgents(
         colour,
         soulMd,
         teamRosterVisible: true,
+        runtimeConfig,
         metadata: agentMeta,
       })
       .onConflictDoUpdate({
         target: [agents.companyId, agents.slug],
         set: {
-          displayName: def.displayName ?? def.name,
+          displayName:   def.displayName ?? def.name,
           soulMd,
-          metadata:    agentMeta,
+          runtimeConfig,
+          metadata:      agentMeta,
         },
       })
       .returning({ id: agents.id });
@@ -299,10 +316,11 @@ async function installCompanyDna(
   dna: NonNullable<PackManifest["companyDna"]>,
   variables: Record<string, string> = {},
 ): Promise<void> {
-  const desc       = interpolateTemplate(dna.description       ?? "", variables);
-  const profile    = interpolateTemplate(dna.customerProfile   ?? "", variables);
-  const tone       = interpolateTemplate(dna.tone              ?? "", variables);
-  const regulatory = interpolateTemplate(dna.regulatoryContext ?? "", variables);
+  // C5 — sanitise all DNA values before interpolation to block prompt injection
+  const desc       = sanitiseDNAValue(interpolateTemplate(dna.description       ?? "", variables), "description");
+  const profile    = sanitiseDNAValue(interpolateTemplate(dna.customerProfile   ?? "", variables), "customerProfile");
+  const tone       = sanitiseDNAValue(interpolateTemplate(dna.tone              ?? "", variables), "tone");
+  const regulatory = sanitiseDNAValue(interpolateTemplate(dna.regulatoryContext ?? "", variables), "regulatoryContext");
 
   await (tx as any)
     .insert(companyDna)
@@ -324,69 +342,69 @@ async function installCompanyDna(
     });
 }
 
-// ── Step 6: Seed tasks ────────────────────────────────────────────────────────
+// ── Steps 6–7: Outbox writes (inside the DB transaction) ─────────────────────
+//
+// P5 — Transactional outbox pattern:
+// Seed tasks and activation triggers are written to pending_jobs INSIDE the
+// PostgreSQL transaction. If the transaction rolls back (e.g. quality gate
+// install fails), these rows are never committed — jobs are never dispatched.
+// The outbox worker polls pending_jobs every 5 s and enqueues to BullMQ.
+// BullMQ jobId deduplication prevents double-dispatch on retries.
 
-async function scheduleSeedTasks(
-  agentQueue: InstallPackParams["agentQueue"],
+async function writeSeedTasksToOutbox(
+  tx: Db,
   params: {
     companyId: string;
     seedTasks: PackManifest["seedTasks"];
-    agentIds:  string[];
     variables: Record<string, string>;
   },
 ): Promise<void> {
   for (let i = 0; i < params.seedTasks.length; i++) {
     const task = params.seedTasks[i];
-
     const title = interpolateTemplate(task.title, params.variables);
     const body  = interpolateTemplate(task.body,  params.variables);
-
     // Cap delay at SEED_TASK_MAX_DELAY_MS — spec requires firing within 10 min
-    const delay = Math.min(task.delayMs ?? 0, SEED_TASK_MAX_DELAY_MS);
+    const delayMs = Math.min(task.delayMs ?? 0, SEED_TASK_MAX_DELAY_MS);
 
-    await agentQueue.add(
-      "seed.task",
-      {
-        companyId:  params.companyId,
-        agentSlug:  task.agentSlug,
+    await tx.insert(pendingJobs).values({
+      queue: "install",
+      payload: {
+        jobName:   "seed.task",
+        // _delayMs is extracted by the outbox worker and passed as BullMQ delay
+        _delayMs:  delayMs,
+        // _jobId is extracted by the outbox worker for BullMQ idempotency
+        _jobId:    `seed-${params.companyId}-${task.agentSlug}-${i}`,
+        companyId: params.companyId,
+        agentSlug: task.agentSlug,
         title,
         body,
-      },
-      {
-        delay,
-        // Idempotency: same seed task won't be double-scheduled (RULE 6)
-        jobId: `seed-${params.companyId}-${task.agentSlug}-${i}`,
-      },
-    );
+      } as any,
+    });
   }
 }
 
-// ── Step 7: Activation triggers ───────────────────────────────────────────────
-
-async function registerActivationTriggers(
-  systemQueue: InstallPackParams["systemQueue"],
+async function writeActivationTriggersToOutbox(
+  tx: Db,
   params: {
-    companyId:  string;
-    packSlug:   string;
-    triggers:   PackManifest["activationSequence"];
+    companyId: string;
+    packSlug:  string;
+    triggers:  PackManifest["activationSequence"];
   },
 ): Promise<void> {
   for (const trigger of params.triggers) {
     const delayMs = trigger.dayThreshold * 24 * 60 * 60 * 1000;
 
-    await systemQueue.add(
-      "activation.check",
-      {
+    await tx.insert(pendingJobs).values({
+      queue: "system",
+      payload: {
+        jobName:    "activation.check",
+        _delayMs:   delayMs,
+        _jobId:     `activation-${params.companyId}-${params.packSlug}-${trigger.key}`,
         companyId:  params.companyId,
         packSlug:   params.packSlug,
         triggerKey: trigger.key,
-      },
-      {
-        delay: delayMs,
-        // Idempotent per company + trigger key (RULE 6)
-        jobId: `activation-${params.companyId}-${params.packSlug}-${trigger.key}`,
-      },
-    );
+      } as any,
+    });
   }
 }
 
@@ -395,20 +413,24 @@ async function registerActivationTriggers(
 /**
  * Install a pack into a company account.
  *
- * Steps 1–5 run in a single DB transaction; any failure rolls back all DB writes.
- * Steps 6–7 are BullMQ scheduling and run post-commit; they are idempotent.
+ * All 7 steps run in a single DB transaction.
+ * Steps 6–7 write job rows to pending_jobs (P5 outbox pattern) — they are
+ * dispatched to BullMQ by the outbox worker after the transaction commits.
+ * If the transaction rolls back, the pending_jobs rows are rolled back too
+ * and no jobs are dispatched. BullMQ jobId deduplication prevents double-
+ * dispatch on outbox retries.
  */
 export async function installPack(
   db: Db,
   params: InstallPackParams,
 ): Promise<InstallPackResult> {
-  const { companyId, pack, variables, agentQueue, systemQueue } = params;
+  const { companyId, pack, variables } = params;
 
   logger.info({ companyId, packSlug: pack.slug }, "pack-installer: starting");
 
   let agentIds: string[] = [];
 
-  // Steps 1–5: atomic DB transaction
+  // Steps 1–7: single atomic DB transaction
   try {
     await (db as any).transaction(async (tx: Db) => {
       // Step 1: Validate
@@ -427,6 +449,16 @@ export async function installPack(
       if (pack.companyDna) {
         await installCompanyDna(tx, companyId, pack.companyDna, variables);
       }
+
+      // Step 6: Queue seed tasks via outbox (fires within 10 min after commit)
+      await writeSeedTasksToOutbox(tx, { companyId, seedTasks: pack.seedTasks, variables });
+
+      // Step 7: Queue activation triggers via outbox
+      await writeActivationTriggersToOutbox(tx, {
+        companyId,
+        packSlug: pack.slug,
+        triggers: pack.activationSequence,
+      });
     });
   } catch (err) {
     const step = err instanceof PackValidationError ? 1 : 4;
@@ -437,21 +469,11 @@ export async function installPack(
     );
   }
 
-  // Gap C: Bootstrap trust scores for all installed agents
+  // Gap C: Bootstrap trust scores for all installed agents (non-transactional, non-fatal)
   await bootstrapAgentTrust(db, companyId, agentIds, {
     skillType:     pack.skills[0]?.slug,
     industrySlug:  variables.industry ?? undefined,
   }).catch((err) => logger.warn({ err }, "trust-bootstrap: non-fatal failure"));
-
-  // Step 6: Schedule seed tasks (within 10 min)
-  await scheduleSeedTasks(agentQueue, { companyId, seedTasks: pack.seedTasks, agentIds, variables });
-
-  // Step 7: Register activation triggers
-  await registerActivationTriggers(systemQueue, {
-    companyId,
-    packSlug: pack.slug,
-    triggers: pack.activationSequence,
-  });
 
   logger.info(
     { companyId, packSlug: pack.slug, agentIds },

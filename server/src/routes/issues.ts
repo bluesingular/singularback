@@ -3,7 +3,7 @@ import { Router, type Request, type Response } from "express";
 import multer from "multer";
 import { z } from "zod";
 import type { Db } from "@paperclipai/db";
-import { issueExecutionDecisions, trustScores } from "@paperclipai/db";
+import { issueExecutionDecisions, trustScores, issues as issuesTable } from "@paperclipai/db";
 import { eq, and } from "drizzle-orm";
 import {
   addIssueCommentSchema,
@@ -3071,6 +3071,44 @@ export function issueRoutes(
       });
     } catch (err) {
       res.status(500).json({ ok: false, error: "Failed to retrieve explanation" });
+    }
+  });
+
+  // ── POST /issues/:id/cancel — C3: task cancellation ────────────────────────
+  // Sets cancel_requested = true. The running worker detects this flag at its
+  // next step boundary and transitions the task to 'cancelled'.
+  // Valid for tasks in: running/in_progress, pending_approval, awaiting_clarification.
+  router.post("/issues/:id/cancel", async (req, res) => {
+    const taskId    = req.params.id as string;
+    const companyId = (req as any).ctx?.companyId as string | undefined;
+
+    if (!companyId) { res.status(403).json({ ok: false, error: "No active company" }); return; }
+
+    try {
+      const cancellableStatuses = ["in_progress", "in_review", "pending_approval", "awaiting_clarification", "blocked", "todo"];
+
+      const [task] = await db
+        .select({ id: issuesTable.id, status: issuesTable.status, companyId: issuesTable.companyId })
+        .from(issuesTable)
+        .where(and(eq(issuesTable.id, taskId), eq(issuesTable.companyId, companyId)))
+        .limit(1);
+
+      if (!task) { res.status(404).json({ ok: false, error: "Task not found" }); return; }
+
+      if (!cancellableStatuses.includes(task.status)) {
+        res.status(409).json({ ok: false, error: `Cannot cancel task in status: ${task.status}` });
+        return;
+      }
+
+      await db
+        .update(issuesTable)
+        .set({ cancelRequested: true })
+        .where(and(eq(issuesTable.id, taskId), eq(issuesTable.companyId, companyId)));
+
+      res.json({ ok: true, data: { taskId, cancelRequested: true } });
+    } catch (err) {
+      logger.error({ taskId, companyId, err }, "cancel: failed");
+      res.status(500).json({ ok: false, error: "Failed to request cancellation" });
     }
   });
 

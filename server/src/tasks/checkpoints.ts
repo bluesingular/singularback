@@ -103,6 +103,37 @@ export async function clearCheckpoints(
   logger.info({ taskId }, "checkpoint: cleared on task completion");
 }
 
+// ── C3: Cancellation check ────────────────────────────────────────────────────
+
+export class TaskCancelledException extends Error {
+  constructor(public readonly taskId: string) {
+    super(`Task ${taskId} was cancelled by operator`);
+    this.name = "TaskCancelledException";
+  }
+}
+
+/**
+ * Poll cancel_requested flag at each step boundary.
+ * Throws TaskCancelledException if the operator has requested cancellation.
+ * Workers must call this at every step boundary — it's a single indexed lookup.
+ */
+export async function checkCancellation(
+  db:        Db,
+  taskId:    string,
+  companyId: string,
+): Promise<void> {
+  const [row] = await db
+    .select({ cancelRequested: issues.cancelRequested })
+    .from(issues)
+    .where(and(eq(issues.id, taskId), eq(issues.companyId, companyId)))
+    .limit(1);
+
+  if (row?.cancelRequested) {
+    logger.info({ taskId }, "checkpoint: cancel_requested=true — throwing TaskCancelledException");
+    throw new TaskCancelledException(taskId);
+  }
+}
+
 /**
  * Resume-or-start helper.
  * Returns the latest checkpoint context, or null for a fresh start.

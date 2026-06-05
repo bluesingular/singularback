@@ -23,13 +23,11 @@ export const emailWorker = new Worker<EmailReceivedJob>(
   async (job: Job<EmailReceivedJob>) => {
     if (job.name !== "email.received") return;
 
-    const { agentId, companyId, emailId, subject } = job.data;
+    const { agentId, companyId, emailId, subject, traceId } = job.data;
+    const log = logger.child({ traceId, agentId, companyId });
 
-    logger.info({ agentId, emailId, subject }, "email received: triggering immediate heartbeat");
+    log.info({ emailId, subject }, "email received: triggering immediate heartbeat");
 
-    // Trigger an immediate heartbeat (delay = 0) so the agent processes
-    // the email now rather than at its next scheduled interval.
-    // Full email fetching and reactive task creation happens in M4.
     await emit.heartbeat({ agentId, companyId, triggeredBy: "email" }, 0);
   },
   {
@@ -39,10 +37,7 @@ export const emailWorker = new Worker<EmailReceivedJob>(
 );
 
 emailWorker.on("failed", (job, err) => {
-  logger.error(
-    { agentId: job?.data?.agentId, emailId: job?.data?.emailId, err },
-    "email.received job failed",
-  );
+  logger.error({ traceId: job?.data?.traceId, agentId: job?.data?.agentId, emailId: job?.data?.emailId, err }, "email.received job failed");
 });
 
 emailWorker.on("error", (err) => {

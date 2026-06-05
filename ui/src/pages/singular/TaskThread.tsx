@@ -24,9 +24,11 @@ import { useNavigate, useParams } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import { MicroReward, HandoffIndicator } from "@/components/singular"
 import { InlineOutputEditor } from "@/components/InlineOutputEditor"
+import { ClarificationCard } from "@/components/ClarificationCard"
 import { Button } from "@/components/ui/button"
 import { useQuery } from "@tanstack/react-query"
 import { issuesApi } from "@/api/issues"
+import { clarificationsApi } from "@/api/clarifications"
 import { requestBiometric, isBiometricAvailable } from "@/hooks/useWebAuthn"
 import { useStreamingTask } from "@/hooks/useStreamingTask"
 import { useCompany } from "../../context/CompanyContext"
@@ -52,11 +54,12 @@ interface JudgeContext {
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    pending_approval: { label: "Pending approval", cls: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
-    in_review:        { label: "In review",              cls: "bg-[#EFF3FA] text-[#1A4E8C] border-[#1A4E8C]/20" },
-    in_progress:      { label: "In progress",                 cls: "bg-[#ECFBF4] text-[#1A9E68] border-[#1A9E68]/20" },
-    done:             { label: "Done",                 cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]"    },
-    cancelled:        { label: "Cancelled",                  cls: "bg-[#FEF2F2] text-[#B91C1C] border-[#B91C1C]/20" },
+    pending_approval:       { label: "Pending approval",    cls: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
+    in_review:              { label: "In review",           cls: "bg-[#EFF3FA] text-[#1A4E8C] border-[#1A4E8C]/20" },
+    in_progress:            { label: "In progress",         cls: "bg-[#ECFBF4] text-[#1A9E68] border-[#1A9E68]/20" },
+    awaiting_clarification: { label: "En attente de réponse", cls: "bg-[#FFF8EC] text-[#C97C0A] border-[#C97C0A]/20" },
+    done:                   { label: "Done",                cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]"    },
+    cancelled:              { label: "Cancelled",           cls: "bg-[#FEF2F2] text-[#B91C1C] border-[#B91C1C]/20" },
   }
   const cfg = map[status] ?? { label: status, cls: "bg-[#F5F5F3] text-[#8A8680] border-[#E8E4DC]" }
   return (
@@ -249,7 +252,17 @@ export default function TaskThread() {
     staleTime: 30_000,
   })
 
-  const isPending = ["pending_approval", "in_review"].includes(issue?.status ?? "")
+  const isPending             = ["pending_approval", "in_review"].includes(issue?.status ?? "")
+  const isAwaitingClarification = issue?.status === "awaiting_clarification"
+
+  // G5: fetch pending clarification for this issue
+  const { data: clarifications } = useQuery({
+    queryKey:  ["clarifications", selectedCompanyId, issueId],
+    queryFn:   () => clarificationsApi.list(selectedCompanyId!),
+    enabled:   !!selectedCompanyId && isAwaitingClarification,
+    staleTime: 15_000,
+  })
+  const pendingClarification = clarifications?.find(c => c.issueId === issueId && c.status === "pending")
 
   // C8: fetch judge score only while task needs approval
   const { data: judgeCtx } = useQuery<JudgeContext>({
@@ -420,6 +433,19 @@ export default function TaskThread() {
               <span className="font-medium text-[#0F0F0D]">Heads up: </span>
               The agent completed the task but produced no output. Check the skill configuration.
             </p>
+          </div>
+        )}
+
+        {/* G5: clarification card — shown when agent needs operator input */}
+        {isAwaitingClarification && pendingClarification && (
+          <div className="flex items-start gap-3">
+            <div className="hidden sm:block w-8 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <ClarificationCard
+                clarification={pendingClarification}
+                companyId={selectedCompanyId!}
+              />
+            </div>
           </div>
         )}
 
