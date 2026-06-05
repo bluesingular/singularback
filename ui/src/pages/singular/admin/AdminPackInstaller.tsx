@@ -203,11 +203,12 @@ export function AdminPackInstaller() {
     staleTime: 60_000,
   })
 
-  // Try to fetch available packs from API, fall back to P1 hardcoded
+  // Fetch available packs from API, fall back to P1 hardcoded
   const availableQuery = useQuery({
     queryKey: ["admin-available-packs"],
     queryFn: () =>
-      adminApi.get<{ packs: AvailablePack[] }>("/admin/packs")
+      adminApi.get<{ ok: true; data: { packs: AvailablePack[] } }>("/admin/packs")
+        .then(r => ({ packs: r.data.packs }))
         .catch(() => ({ packs: [P1_PACK as AvailablePack] })),
     staleTime: 300_000,
   })
@@ -215,7 +216,8 @@ export function AdminPackInstaller() {
   const installedQuery = useQuery({
     queryKey: ["admin-installed-packs"],
     queryFn: () =>
-      adminApi.get<{ installations: InstalledPack[] }>("/admin/packs/installations")
+      adminApi.get<{ ok: true; data: { installations: InstalledPack[] } }>("/admin/packs/installations")
+        .then(r => ({ installations: r.data.installations }))
         .catch(() => ({ installations: [] as InstalledPack[] })),
     staleTime: 30_000,
   })

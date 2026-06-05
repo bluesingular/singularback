@@ -23,10 +23,12 @@ import {
   auditEntries,
   authUsers,
   mcpApiKeys,
+  activationMoments,
 } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { assertInstanceAdmin } from "./authz.js";
 import { getLatestFleetSnapshot, computeAndPersistFleetSnapshot } from "../fleet/snapshot.js";
+import { packInstallService } from "../services/pack-install-service.js";
 
 const log = pino({ name: "admin-routes" });
 
@@ -372,6 +374,108 @@ export function adminRoutes(db: Db) {
       assertInstanceAdmin(req);
       const snapshot = await computeAndPersistFleetSnapshot(db);
       res.json({ ok: true, data: snapshot });
+    } catch (err) { next(err); }
+  });
+
+  // ── Admin pack management ─────────────────────────────────────────────────
+  // GET  /admin/packs                              — list available packs from disk
+  // GET  /admin/packs/installations                — all tenant × pack installs
+  // POST /admin/companies/:companyId/packs/install — install for any tenant
+  // DELETE /admin/companies/:companyId/packs/:packSlug — deactivate pack agents
+
+  router.get("/admin/packs", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const svc = packInstallService(db);
+      const packs = await svc.listAvailablePacks();
+      res.json({ ok: true, data: { packs } });
+    } catch (err) { next(err); }
+  });
+
+  router.get("/admin/packs/installations", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      // Use activation_moments as the install-tracking record (written atomically at pack install).
+      // DISTINCT ON (company_id, pack_slug) so we get one row per installation.
+      const rows = await (db as any)
+        .selectDistinct({
+          companyId:   activationMoments.companyId,
+          companyName: companies.name,
+          packSlug:    activationMoments.packSlug,
+          installedAt: sql<string>`MIN(${activationMoments.createdAt})`,
+        })
+        .from(activationMoments)
+        .leftJoin(companies, eq(companies.id, activationMoments.companyId))
+        .groupBy(activationMoments.companyId, companies.name, activationMoments.packSlug)
+        .orderBy(desc(sql`MIN(${activationMoments.createdAt})`));
+
+      // Annotate with active agent count per company/pack as a proxy for install health
+      const installations = await Promise.all(rows.map(async (row: any) => {
+        const [{ count }] = await (db as any)
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(agents)
+          .where(and(eq(agents.companyId, row.companyId), eq(agents.status, "active")));
+        return {
+          id:          `${row.companyId}-${row.packSlug}`,
+          companyId:   row.companyId,
+          companyName: row.companyName,
+          packSlug:    row.packSlug,
+          packVersion: "1.0.0",
+          installedAt: row.installedAt,
+          status:      Number(count) > 0 ? "active" : "error",
+        };
+      }));
+
+      res.json({ ok: true, data: { installations } });
+    } catch (err) { next(err); }
+  });
+
+  router.post("/admin/companies/:companyId/packs/install", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { companyId } = req.params as { companyId: string };
+      const { packSlug, dnaExtensions } = req.body ?? {};
+      if (!packSlug) { res.status(400).json({ ok: false, error: "packSlug is required" }); return; }
+
+      const svc = packInstallService(db);
+      const result = await svc.install(companyId, packSlug, dnaExtensions ?? {});
+
+      await (db as any).insert(auditEntries).values({
+        companyId,
+        agentId:    null,
+        taskId:     null,
+        actionType: "pack.installed",
+        actionData: { packSlug, adminUserId: (req as any).actor?.userId },
+        result:     "success",
+      });
+
+      log.info({ adminUserId: (req as any).actor?.userId, companyId, packSlug }, "admin: pack installed");
+      res.json({ ok: true, data: result });
+    } catch (err) { next(err); }
+  });
+
+  router.delete("/admin/companies/:companyId/packs/:packSlug", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { companyId, packSlug } = req.params as { companyId: string; packSlug: string };
+
+      // Deactivate all agents for this company (pack uninstall = pause all agents)
+      await (db as any)
+        .update(agents)
+        .set({ status: "deactivated" })
+        .where(eq(agents.companyId, companyId));
+
+      await (db as any).insert(auditEntries).values({
+        companyId,
+        agentId:    null,
+        taskId:     null,
+        actionType: "pack.uninstalled",
+        actionData: { packSlug, adminUserId: (req as any).actor?.userId },
+        result:     "success",
+      });
+
+      log.info({ adminUserId: (req as any).actor?.userId, companyId, packSlug }, "admin: pack deactivated");
+      res.json({ ok: true, data: { companyId, packSlug, status: "deactivated" } });
     } catch (err) { next(err); }
   });
 
