@@ -79,7 +79,7 @@ export function initMorningIntelligenceWorker(db: Db) {
       if (job.name !== "intelligence.sweep") return;
 
       const activeCompanies = await db
-        .select({ id: companies.id, name: companies.name })
+        .select({ id: companies.id, name: companies.name, locale: companies.locale, timezone: companies.timezone })
         .from(companies);
 
       log.info({ count: activeCompanies.length }, "morning-intelligence: starting sweep");
@@ -103,7 +103,8 @@ export function initMorningIntelligenceWorker(db: Db) {
           );
 
           // Gap M + §31.4 + §31.5: weekly jobs (Monday only)
-          const isMonday = new Date().getUTCDay() === 1;
+          // G1: check Monday in company's local timezone, not UTC
+          const isMonday = isMondayInTimezone(company.timezone ?? "Europe/Paris");
           if (isMonday) {
             // Gap A: skill variance metrics (admin-only, non-determinism debugging)
             await runVarianceSweep(db).catch((err) =>
@@ -183,4 +184,19 @@ function getWeekStart(): Date {
   d.setUTCDate(d.getUTCDate() + diff);
   d.setUTCHours(0, 0, 0, 0);
   return d;
+}
+
+// G1: check whether it is currently Monday in the given IANA timezone
+function isMondayInTimezone(timezone: string): boolean {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      weekday: "long",
+    }).formatToParts(new Date());
+    const weekday = parts.find((p) => p.type === "weekday")?.value;
+    return weekday === "Monday";
+  } catch {
+    // Fallback to UTC if timezone is invalid
+    return new Date().getUTCDay() === 1;
+  }
 }
