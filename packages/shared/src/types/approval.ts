@@ -20,6 +20,8 @@ export interface Approval {
    */
   taskSkillVersion?: string;
   latestSkillVersion?: string;
+  /** AG-4 — Confidence flag from multi-factor confidence scoring. Never a raw number. */
+  confidenceFlag?: "high" | "medium" | "low";
 }
 
 export interface ApprovalComment {

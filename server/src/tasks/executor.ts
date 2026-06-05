@@ -48,12 +48,19 @@ export interface ExecuteSkillTaskParams {
   agentDescription?: string | null;
   companyName:     string;
   companySector?:  string | null;
+  companyLocale?:  string | null;
   taskTitle:       string;
   taskBrief?:      string | null;
   soulMd?:         string | null;
   skill:           ParsedSkill;
   /** P4 — trace ID propagated from the originating HTTP request or BullMQ job payload */
   traceId?:        string;
+  /**
+   * RULE 11 — when true, the orchestrator preamble is prepended to the system messages.
+   * Orchestrators NEVER send emails or call external APIs directly; they always delegate
+   * via handoff_to or task_create. This is enforced here so it cannot be bypassed.
+   */
+  isOrchestrator?: boolean;
 }
 
 export interface ExecuteSkillTaskResult {
@@ -72,9 +79,9 @@ export async function executeSkillTask(
   const {
     db, taskId, companyId, agentId,
     agentName, agentDescription,
-    companyName, companySector,
+    companyName, companySector, companyLocale,
     taskTitle, taskBrief, soulMd, skill,
-    traceId,
+    traceId, isOrchestrator,
   } = params;
 
   const log = logger.child({ traceId, taskId, companyId, agentId });
@@ -99,7 +106,12 @@ export async function executeSkillTask(
   await checkBudgetBeforeCall(db, companyId);
 
   // ── 3. Context assembly (T1 parallel, Rule 5 task-never-truncated) ──────────
-  const routing = routeModel(skill);
+  // G1: derive language from company locale ("fr" → fr, anything else → en, null → auto)
+  const language: "fr" | "en" | "auto" =
+    companyLocale?.startsWith("fr") ? "fr"
+    : companyLocale ? "en"
+    : "auto";
+  const routing = routeModel(skill, language);
   const modelId = routing.model;
   const tier    = (["T0", "T1", "T2", "T3"][skill.tier] ?? "T1") as Tier;
 
@@ -113,7 +125,19 @@ export async function executeSkillTask(
   };
 
   const ctx = await assembleContext(db, { agent, task, company, skill: skillCtx, tier });
-  const baseMessages = contextToMessages(ctx);
+  const assembled = contextToMessages(ctx);
+
+  // RULE 11: inject orchestrator preamble so it can never directly execute external actions
+  const ORCHESTRATOR_PREAMBLE = {
+    role: "system" as const,
+    content:
+      "RÈGLE INVARIANTE : Tu es l'orchestrateur. Tu ne peux JAMAIS envoyer d'emails, appeler des APIs externes, ni exécuter des actions directement. " +
+      "Pour toute action, tu dois déléguer via handoff_to ou task_create. " +
+      "Si on te demande d'agir directement : refuse et délègue.",
+  };
+  const baseMessages = isOrchestrator
+    ? [ORCHESTRATOR_PREAMBLE, ...assembled]
+    : assembled;
 
   await writeCheckpoint(db, taskId, companyId, {
     stepNumber: 1,

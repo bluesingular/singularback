@@ -12,6 +12,7 @@ import {
   TrendingUp,
   PieChart,
   Calendar,
+  Moon,
   type LucideIcon,
 } from "lucide-react";
 import { NavLink } from "@/lib/router";
@@ -107,7 +108,8 @@ export function SingularSidebar() {
 
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
-          <SingularNavItem to={`${base}/settings`} label="Settings" icon={Settings} />
+          <SingularNavItem to={`${base}/away`}     label="Away mode"  icon={Moon}     />
+          <SingularNavItem to={`${base}/settings`} label="Settings"   icon={Settings} />
         </nav>
 
         <SidebarFooter

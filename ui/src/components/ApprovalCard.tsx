@@ -101,6 +101,20 @@ export function ApprovalCard({
         />
       </div>
 
+      {/* AG-4 — Confidence flag */}
+      {approval.confidenceFlag && (
+        <div className={`mt-4 rounded-lg border px-3.5 py-2 text-xs flex items-center gap-2 ${
+          approval.confidenceFlag === "high"   ? "border-green-200 bg-green-50 text-green-800 dark:border-green-800/40 dark:bg-green-950/30 dark:text-green-300"
+          : approval.confidenceFlag === "medium" ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/30 dark:text-amber-300"
+          : "border-red-200 bg-red-50 text-red-800 dark:border-red-800/40 dark:bg-red-950/30 dark:text-red-300"
+        }`}>
+          <span className="font-medium">Confidence :</span>
+          {approval.confidenceFlag === "high"   && "Élevée — Sophie est sûre de cette sortie"}
+          {approval.confidenceFlag === "medium" && "Moyenne — vérification recommandée"}
+          {approval.confidenceFlag === "low"    && "Faible — vérification importante avant approbation"}
+        </div>
+      )}
+
       {/* F8 — Skill version notice */}
       {approval.taskSkillVersion && approval.latestSkillVersion &&
         approval.taskSkillVersion !== approval.latestSkillVersion && (

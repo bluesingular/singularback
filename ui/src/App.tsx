@@ -53,6 +53,7 @@ const AgentProfile = lazy(() => import("./pages/singular/AgentProfile"));
 const TrustCentre = lazy(() => import("./pages/singular/TrustCentre"));
 const TaskThread = lazy(() => import("./pages/singular/TaskThread"));
 const MissionsArchive = lazy(() => import('./pages/singular/MissionsArchive').then(m => ({ default: m.MissionsArchive })));
+const AwayMode        = lazy(() => import("./pages/singular/AwayMode").then(m => ({ default: m.AwayMode })));
 const ConsoleCEO     = lazy(() => import("./pages/singular/ConsoleCEO").then(m => ({ default: m.ConsoleCEO })));
 const Reports = lazy(() => import("./pages/singular/Reports").then(m => ({ default: m.Reports })));
 const Contacts       = lazy(() => import("./pages/singular/Contacts").then(m => ({ default: m.Contacts })));
@@ -178,6 +179,7 @@ function boardRoutes() {
       <Route path="tasks/:taskId" element={<Suspense fallback={null}><TaskThread /></Suspense>} />
       <Route path="console" element={<Suspense fallback={null}><ConsoleCEO /></Suspense>} />
       <Route path="missions/archive" element={<Suspense fallback={null}><MissionsArchive /></Suspense>} />
+      <Route path="away" element={<Suspense fallback={null}><AwayMode /></Suspense>} />
       <Route path="reports" element={<Suspense fallback={null}><Reports /></Suspense>} />
       <Route path="contacts" element={<Suspense fallback={null}><Contacts /></Suspense>} />
       <Route path="voice" element={<Suspense fallback={null}><VoiceAgent /></Suspense>} />

@@ -67,7 +67,7 @@ export function internalExecuteRoutes(db: Db): Router {
 
       // 2. Load company
       const [company] = await db
-        .select({ id: companies.id, name: companies.name })
+        .select({ id: companies.id, name: companies.name, locale: companies.locale })
         .from(companies)
         .where(eq(companies.id, companyId))
         .limit(1);
@@ -175,6 +175,7 @@ export function internalExecuteRoutes(db: Db): Router {
           agentName:        agent.name,
           agentDescription: packDesc,
           companyName:      company.name,
+          companyLocale:    company.locale ?? null,
           taskTitle:        issue.title,
           taskBrief:        issue.description ?? null,
           soulMd:           agent.soulMd ?? null,
@@ -191,10 +192,15 @@ export function internalExecuteRoutes(db: Db): Router {
         throw execErr;
       }
 
-      // 8. Transition issue to done
+      // 8. Transition issue to done, persisting confidence flag in metadata
       await db
         .update(issues)
-        .set({ status: "done", completedAt: new Date(), updatedAt: new Date() })
+        .set({
+          status:         "done",
+          completedAt:    new Date(),
+          updatedAt:      new Date(),
+          executionState: { confidenceFlag: result.confidenceFlag, judgeScore: result.judgeScore },
+        })
         .where(eq(issues.id, issue.id));
 
       logger.info(

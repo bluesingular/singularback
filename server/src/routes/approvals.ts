@@ -40,12 +40,12 @@ async function getSkillVersionContext(
   db: Db,
   payload: Record<string, unknown>,
   companyId: string,
-): Promise<{ taskSkillVersion?: string; latestSkillVersion?: string }> {
+): Promise<{ taskSkillVersion?: string; latestSkillVersion?: string; confidenceFlag?: "high" | "medium" | "low" }> {
   const issueId = (payload.issueId ?? payload.taskId) as string | undefined;
   if (!issueId) return {};
 
   const [issue] = await db
-    .select({ skillVersionId: issues.skillVersionId, skillType: issues.skillType })
+    .select({ skillVersionId: issues.skillVersionId, skillType: issues.skillType, executionState: issues.executionState })
     .from(issues)
     .where(and(eq(issues.id, issueId), eq(issues.companyId, companyId)))
     .limit(1);
@@ -77,8 +77,14 @@ async function getSkillVersionContext(
     .limit(1);
   const latestSkillVersion = active?.version;
 
-  if (!taskSkillVersion && !latestSkillVersion) return {};
-  return { taskSkillVersion, latestSkillVersion };
+  // AG-4: confidence flag stored in issue executionState by executor
+  const meta = (issue?.executionState ?? {}) as Record<string, unknown>;
+  const rawFlag = meta.confidenceFlag as string | undefined;
+  const confidenceFlag = (rawFlag === "high" || rawFlag === "medium" || rawFlag === "low")
+    ? rawFlag : undefined;
+
+  if (!taskSkillVersion && !latestSkillVersion && !confidenceFlag) return {};
+  return { taskSkillVersion, latestSkillVersion, confidenceFlag };
 }
 
 export function approvalRoutes(db: Db) {
