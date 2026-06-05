@@ -633,6 +633,12 @@ export function AdminSkills() {
   const [tab, setTab] = React.useState<Tab>("approval")
   const [searchCompanyId, setSearchCompanyId] = React.useState("")
   const [searchSkillType, setSearchSkillType] = React.useState("")
+
+  const tenantsQuery = useQuery({
+    queryKey: ["admin-tenants-for-skills"],
+    queryFn: () => adminApi.listTenants().then(r => r.tenants),
+    staleTime: 60_000,
+  })
   const [busyId, setBusyId] = React.useState<string | null>(null)
   const [showNewDialog, setShowNewDialog] = useState(false)
 
@@ -746,19 +752,20 @@ export function AdminSkills() {
               <div className="px-5 py-4 border-b border-[#F0EDE6]">
                 <h2 className="text-sm font-semibold text-[#0F0F0D] mb-3">Parcourir les versions</h2>
                 <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8680]" />
-                    <input
-                      value={searchCompanyId}
-                      onChange={e => setSearchCompanyId(e.target.value)}
-                      placeholder="Company ID (UUID)"
-                      className="w-full pl-8 pr-3 py-2 text-sm border border-[#E8E4DC] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
-                    />
-                  </div>
+                  <select
+                    value={searchCompanyId}
+                    onChange={e => setSearchCompanyId(e.target.value)}
+                    className="flex-1 px-3 py-2 text-sm border border-[#E8E4DC] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1A9E68] bg-white"
+                  >
+                    <option value="">Sélectionner un tenant…</option>
+                    {(tenantsQuery.data ?? []).map((t: import("@/api/admin").TenantSummary) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
                   <input
                     value={searchSkillType}
                     onChange={e => setSearchSkillType(e.target.value)}
-                    placeholder="Skill type (ex: qualification-cv)"
+                    placeholder="Type de compétence (ex: qualification-cv)"
                     className="flex-1 px-3 py-2 text-sm border border-[#E8E4DC] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1A9E68]"
                   />
                 </div>

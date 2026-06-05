@@ -1134,14 +1134,14 @@ export function Settings() {
 
       {/* Tabs */}
       <div
-        className="flex gap-0 mb-6 border-b"
+        className="flex gap-0 mb-6 border-b overflow-x-auto scrollbar-none"
         style={{ borderColor: "#E8E4DC" }}
       >
         {tabLabels.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className="text-sm px-4 py-2.5 -mb-px border-b-2 transition-colors"
+            className="text-sm px-4 py-2.5 -mb-px border-b-2 transition-colors whitespace-nowrap flex-shrink-0"
             style={
               activeTab === tab.key
                 ? {

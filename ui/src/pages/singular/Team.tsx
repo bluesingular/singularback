@@ -1,7 +1,7 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { ArrowRight, BarChart2 } from "lucide-react"
-import { useNavigate } from "@/lib/router"
+import { useNavigate, useParams } from "@/lib/router"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 import { TrustDot, AgentStatusBadge } from "@/components/singular"
@@ -60,6 +60,7 @@ export default function Team() {
   const { t } = useTranslation("agents")
   const { t: tc } = useTranslation("common")
   const navigate = useNavigate()
+  const { companyPrefix } = useParams<{ companyPrefix: string }>()
   const { selectedCompanyId } = useCompany()
 
   const { data: agentList, isLoading } = useQuery({
@@ -71,6 +72,7 @@ export default function Team() {
 
   const agents = agentList ?? []
   const activeCount = agents.filter((a) => a.status === "active").length
+  const base = companyPrefix ? `/${companyPrefix}` : ""
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -82,7 +84,7 @@ export default function Team() {
             <p className="text-sm text-[#8A8680] mt-1">
               {isLoading
                 ? "…"
-                : t("team.activeCount", { count: activeCount, tasks: agents.length })}
+                : `${agents.length} agent${agents.length !== 1 ? "s" : ""} · ${agents.filter(a => a.status === "active").length} actif${agents.filter(a => a.status === "active").length !== 1 ? "s" : ""} · ${agents.length} tâches complétées ce mois`}
             </p>
           </div>
           <button
@@ -112,7 +114,7 @@ export default function Team() {
               <AgentCard
                 key={agent.id}
                 agent={agent}
-                onClick={() => navigate(`/agents/${agent.urlKey}`)}
+                onClick={() => navigate(`${base}/team/${agent.urlKey}/config`)}
               />
             ))}
           </div>

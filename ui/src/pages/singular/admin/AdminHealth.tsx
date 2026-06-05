@@ -144,9 +144,15 @@ export function AdminHealth() {
         </div>
 
         <div className="bg-white rounded-2xl border border-[#E8E4DC] shadow-sm p-6 flex items-center justify-between gap-4">
-          <p className="text-sm text-[#8A8680]">
-            Bull Board disponible sur <code className="text-xs font-mono bg-[#F0EDE6] px-1 py-0.5 rounded">/internal/queues</code>
-          </p>
+          <a
+            href="/internal/queues"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-[#1A9E68] hover:underline flex items-center gap-1.5"
+          >
+            Bull Board — visualiser les queues BullMQ
+            <code className="text-xs font-mono bg-[#E8F5EE] px-1 py-0.5 rounded">/internal/queues</code>
+          </a>
           {queueTotal !== null && (
             <span className="text-xs text-[#4B4846] bg-[#F0EDE6] px-2.5 py-1 rounded-lg font-medium whitespace-nowrap">
               File : {queueTotal} tâche{queueTotal !== 1 ? "s" : ""} en attente

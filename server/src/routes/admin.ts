@@ -112,14 +112,14 @@ export function adminRoutes(db: Db) {
 
     const memberMap = new Map(memberCounts.map((r) => [r.companyId, r.count]));
 
-    // Active agent counts per company
+    // All agent counts per company (active + paused — not deactivated)
     const agentCounts: { companyId: string; count: number }[] = await (db as any)
       .select({
         companyId: agents.companyId,
         count:     sql<number>`count(*)::int`,
       })
       .from(agents)
-      .where(eq(agents.status, "active"))
+      .where(sql`${agents.status} != 'deactivated'`)
       .groupBy(agents.companyId);
 
     const agentMap = new Map(agentCounts.map((r) => [r.companyId, r.count]));
@@ -737,18 +737,18 @@ export function adminRoutes(db: Db) {
   router.get("/admin/mcp/stats", async (req, res, next) => {
     try {
       assertInstanceAdmin(req);
-      // Per-tenant: active key count + last activity
+      // All companies — left join MCP keys so companies with no keys still appear
       const rows = await (db as any)
         .select({
-          companyId:    mcpApiKeys.companyId,
+          companyId:    companies.id,
           companyName:  companies.name,
-          activeKeys:   sql<number>`COUNT(*) FILTER (WHERE ${mcpApiKeys.revokedAt} IS NULL)`,
-          totalKeys:    sql<number>`COUNT(*)`,
+          activeKeys:   sql<number>`COUNT(${mcpApiKeys.id}) FILTER (WHERE ${mcpApiKeys.revokedAt} IS NULL)`,
+          totalKeys:    sql<number>`COUNT(${mcpApiKeys.id})`,
           lastUsedAt:   sql<string>`MAX(${mcpApiKeys.lastUsedAt})`,
         })
-        .from(mcpApiKeys)
-        .leftJoin(companies, eq(companies.id, mcpApiKeys.companyId))
-        .groupBy(mcpApiKeys.companyId, companies.name)
+        .from(companies)
+        .leftJoin(mcpApiKeys, eq(mcpApiKeys.companyId, companies.id))
+        .groupBy(companies.id, companies.name)
         .orderBy(desc(sql`MAX(${mcpApiKeys.lastUsedAt})`));
       res.json({ ok: true, data: { tenants: rows } });
     } catch (err) { next(err); }

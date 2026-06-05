@@ -90,7 +90,7 @@ export function Reports() {
         <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
           <div className="mb-2"><Clock size={18} style={{ color: "#1A4E8C" }} /></div>
           <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
-            {hoursSaved > 0 ? `${hoursSaved} h` : "–"}
+            {hoursSaved > 0 ? `${hoursSaved} h` : "0 h"}
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.hoursSaved")}</p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.estimatedTime")}</p>
@@ -99,7 +99,7 @@ export function Reports() {
         <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
           <div className="mb-2"><Euro size={18} style={{ color: "#C97C0A" }} /></div>
           <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
-            {costEuros > 0 ? `≈ ${costEuros} €` : "–"}
+            {costEuros > 0 ? `≈ ${costEuros} €` : "0,00 €"}
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.aiCost")}</p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.fullTeam")}</p>
@@ -108,7 +108,7 @@ export function Reports() {
         <div className="rounded-xl border p-4" style={{ backgroundColor: "#FFFFFF", borderColor: "#E8E4DC" }}>
           <div className="mb-2"><Users size={18} style={{ color: "#8A8680" }} /></div>
           <p className="text-2xl font-semibold" style={{ color: "#0F0F0D" }}>
-            {monthlyCostHuman > 0 ? `≈ ${formatNumber(monthlyCostHuman)} €` : "–"}
+            {monthlyCostHuman > 0 ? `≈ ${formatNumber(monthlyCostHuman)} €` : "0 €"}
           </p>
           <p className="text-sm mt-0.5" style={{ color: "#0F0F0D" }}>{t("kpi.humanEquivalent")}</p>
           <p className="text-xs mt-1" style={{ color: "#8A8680" }}>{t("kpi.estimatedMonthly")}</p>
