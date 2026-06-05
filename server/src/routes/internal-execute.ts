@@ -111,10 +111,11 @@ export function internalExecuteRoutes(db: Db): Router {
 
       let skillContent: string | null = null;
       let skillSlug = "general";
+      let skillDbId: string | undefined;
 
       if (skillSlugs.length > 0) {
         const [installedSkill] = await db
-          .select({ slug: companySkills.slug, instructions: companySkills.markdown })
+          .select({ id: companySkills.id, slug: companySkills.slug, instructions: companySkills.markdown })
           .from(companySkills)
           .where(
             and(
@@ -127,6 +128,7 @@ export function internalExecuteRoutes(db: Db): Router {
         if (installedSkill) {
           skillContent = installedSkill.instructions;
           skillSlug = installedSkill.slug;
+          skillDbId = installedSkill.id;
         }
       }
 
@@ -180,6 +182,7 @@ export function internalExecuteRoutes(db: Db): Router {
           taskBrief:        issue.description ?? null,
           soulMd:           agent.soulMd ?? null,
           skill:            parsedSkill,
+          skillDbId,
           traceId,
         });
       } catch (execErr) {

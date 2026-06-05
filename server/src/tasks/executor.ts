@@ -36,6 +36,7 @@ import { executeWithStreaming } from "../llm/streaming.js";
 import { writeCheckpoint, checkCancellation } from "../tasks/checkpoints.js";
 import { executeRules, parseRuleSet } from "../tasks/rule-engine.js";
 import type { ParsedSkill } from "../skills/parser.js";
+import { getCachedResponse, setCachedResponse } from "../memory/semantic-cache.js";
 
 const logger = pino({ name: "task-executor" });
 
@@ -53,6 +54,8 @@ export interface ExecuteSkillTaskParams {
   taskBrief?:      string | null;
   soulMd?:         string | null;
   skill:           ParsedSkill;
+  /** AG-6 — DB id of the installed skill for procedural memory lookup */
+  skillDbId?:      string;
   /** P4 — trace ID propagated from the originating HTTP request or BullMQ job payload */
   traceId?:        string;
   /**
@@ -80,7 +83,7 @@ export async function executeSkillTask(
     db, taskId, companyId, agentId,
     agentName, agentDescription,
     companyName, companySector, companyLocale,
-    taskTitle, taskBrief, soulMd, skill,
+    taskTitle, taskBrief, soulMd, skill, skillDbId,
     traceId, isOrchestrator,
   } = params;
 
@@ -124,7 +127,7 @@ export async function executeSkillTask(
     body:        skill.body,
   };
 
-  const ctx = await assembleContext(db, { agent, task, company, skill: skillCtx, tier });
+  const ctx = await assembleContext(db, { agent, task, company, skill: skillCtx, tier, skillDbId });
   const assembled = contextToMessages(ctx);
 
   // RULE 11: inject orchestrator preamble so it can never directly execute external actions
@@ -149,6 +152,35 @@ export async function executeSkillTask(
   // ParsedSkill has no steps field — skill bodies encode steps as headings.
   // Rule sets live in separate JSON files loaded by the pack installer.
   // When present in skill metadata extension, we evaluate them here.
+
+  // ── Gap F: Semantic cache check (before LLM loop) ─────────────────────────
+  // Embed the task context once; use hash as cache key. No-op if gdpr_required.
+  let contextEmbedding: number[] | null = null;
+  if (!skill.gdprRequired) {
+    try {
+      const { embedText } = await import("../memory/embed.js");
+      contextEmbedding = await embedText(`${taskTitle}\n${taskBrief ?? ""}`);
+      const cached = await getCachedResponse({
+        companyId,
+        skillSlug: skill.name,
+        gdprRequired: skill.gdprRequired,
+        embedding: contextEmbedding,
+      });
+      if (cached) {
+        // Cache hit — skip LLM call entirely, return cached output
+        logger.info({ taskId, companyId, skillSlug: skill.name }, "semantic-cache: hit — skipping LLM");
+        return {
+          output:           cached,
+          judgeScore:       9.0,   // cached outputs were already judge-approved
+          confidenceFlag:   "high" as const,
+          requiresApproval: false,
+          recycleCount:     0,
+        };
+      }
+    } catch {
+      // Embedding failure is non-fatal — proceed without cache
+    }
+  }
 
   // ── 5–7. LLM → constitution → judge (recycle loop) ─────────────────────────
   let output       = "";
@@ -239,6 +271,14 @@ export async function executeSkillTask(
   });
 
   log.info({ judgeScore, confidenceFlag: confidence.flag, recycleCount, forceApproval }, "executor: done");
+
+  // Gap F: store to semantic cache if judge approved and not GDPR-sensitive
+  if (contextEmbedding && judgeScore >= 7.0 && !forceApproval) {
+    setCachedResponse({
+      companyId, skillSlug: skill.name, gdprRequired: skill.gdprRequired,
+      embedding: contextEmbedding, response: output,
+    }).catch(() => {});
+  }
 
   return {
     output,

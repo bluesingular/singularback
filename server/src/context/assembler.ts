@@ -17,6 +17,7 @@ import type { Db } from "@paperclipai/db";
 import { getDnaCompressed, getDnaFull } from "./dna.js";
 import { retrieveMemory } from "./memory.js";
 import { estimateTokens, estimateTokensTotal, truncateToTokens } from "./tokens.js";
+import { buildPatternInjection } from "../memory/procedural.js";
 
 // ── Token budgets by model tier ────────────────────────────────────────────────
 
@@ -154,6 +155,8 @@ export async function assembleContext(
     skill: SkillForContext;
     tier: Tier;
     recentOutputs?: RecentOutput[];
+    /** AG-6: skill DB id for procedural pattern lookup */
+    skillDbId?: string;
     /** If provided, publishes agent.reading SSE events during assembly */
     publishReading?: (source: string) => void;
   },
@@ -171,7 +174,7 @@ export async function assembleContext(
   // These are the only two DB-bound layers; fire them concurrently.
   publishReading?.("company_dna");
   publishReading?.("org_memory");
-  const [companyDna, memoryResult] = await Promise.all([
+  const [companyDna, memoryResult, patternInjection] = await Promise.all([
     tier === "T0" || tier === "T1"
       ? getDnaCompressed(db, company.id)
       : getDnaFull(db, company.id),
@@ -181,6 +184,10 @@ export async function assembleContext(
       maxChunks: tier === "T0" || tier === "T1" ? 5 : 10,
       maxTokens: budget.memory,
     }),
+    // AG-6: procedural memory — load learned patterns for this agent+skill
+    params.skillDbId
+      ? buildPatternInjection(db, company.id, agent.id, params.skillDbId)
+      : Promise.resolve(""),
   ]);
   const { text: orgMemory, chunksUsed: memoryChunksUsed } = memoryResult;
 
@@ -196,7 +203,11 @@ export async function assembleContext(
     company_sector: company.sector ?? "",
     agent_name: agent.name,
   });
-  const skillInstructions = truncateToTokens(skillBody, budget.skill);
+  // AG-6: append learned procedural patterns after skill instructions
+  const skillBodyWithPatterns = patternInjection
+    ? `${skillBody}\n\n${patternInjection}`
+    : skillBody;
+  const skillInstructions = truncateToTokens(skillBodyWithPatterns, budget.skill);
 
   // ── Total budget check + compression ──────────────────────────────────────
   const totalBudget =

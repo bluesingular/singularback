@@ -80,6 +80,7 @@ import { instanceLlmModelsRoutes } from "./routes/instance-llm-models.js";
 import { adminPlanRoutes } from "./routes/admin-plan.js";
 import { adapterRoutes } from "./routes/adapters.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
+import { agentProposalRoutes } from "./routes/agent-proposals.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
@@ -300,6 +301,7 @@ export async function createApp(
   api.use(missionRoutes(db));
   api.use(steerRoutes(db));
   api.use(agentMessageRoutes(db));
+  api.use(agentProposalRoutes(db));
   api.use(voiceRoutes(db));
   api.use(documentStudioRoutes(db));
   api.use(financialPulseRoutes(db));
