@@ -13,10 +13,12 @@ import {
   PieChart,
   Calendar,
   Moon,
+  Handshake,
   type LucideIcon,
 } from "lucide-react";
 import { NavLink } from "@/lib/router";
 import { useCompany } from "../context/CompanyContext";
+import { useQuery } from "@tanstack/react-query";
 import { NotificationBell } from "./NotificationBell";
 import { SidebarFooter } from "./SidebarFooter";
 import { SessionGapBriefing } from "./singular/SessionGapBriefing";
@@ -61,6 +63,19 @@ export function SingularSidebar() {
   const base = `/${prefix}`;
 
   const [showGap, setShowGap] = useState(true);
+
+  // §34: show partner link only if this user is a partner
+  const { data: partnerData } = useQuery({
+    queryKey:  ["partner-profile"],
+    queryFn:   async () => {
+      const res = await fetch("/api/partners/me", { credentials: "include" });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+  const isPartner = partnerData?.partner?.isPartner === true;
 
   return (
     <>
@@ -110,6 +125,9 @@ export function SingularSidebar() {
 
           <SingularNavItem to={`${base}/away`}     label="Away mode"  icon={Moon}     />
           <SingularNavItem to={`${base}/settings`} label="Settings"   icon={Settings} />
+          {isPartner && (
+            <SingularNavItem to={`${base}/partenaires`} label="Partner" icon={Handshake} />
+          )}
         </nav>
 
         <SidebarFooter

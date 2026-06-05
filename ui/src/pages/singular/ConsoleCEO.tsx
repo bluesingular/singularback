@@ -15,13 +15,14 @@
  */
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Lightbulb, X, CheckCircle2, Mic, ChevronDown, ChevronUp, Circle } from "lucide-react";
+import { Send, Lightbulb, X, CheckCircle2, Mic, ChevronDown, ChevronUp, Circle, Building2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCompany } from "../../context/CompanyContext";
 import { useNavigate } from "@/lib/router";
 import { consoleApi, type ConsoleCard } from "@/api/console";
 import { missionsApi } from "@/api/missions";
 import { OperativesFloor, type OperativeAgent } from "@/components/singular/OperativesFloor";
+import { ClientContextSelector } from "@/components/singular/ClientContextSelector";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -146,6 +147,8 @@ export function ConsoleCEO() {
   const [showFloor, setShowFloor]           = useState(true);
   const [approvedIds, setApprovedIds]       = useState<Set<string>>(new Set());
   const [approvingId, setApprovingId]       = useState<string | null>(null);
+  // §35: active client context (null = firm-level, string = client context id)
+  const [activeClientContextId, setActiveClientContextId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
 
@@ -250,6 +253,14 @@ export function ConsoleCEO() {
           </h1>
         </div>
         <div className="flex items-center gap-3">
+          {/* §35: client context selector — only visible when company has client contexts */}
+          {selectedCompanyId && (
+            <ClientContextSelector
+              companyId={selectedCompanyId}
+              value={activeClientContextId}
+              onChange={setActiveClientContextId}
+            />
+          )}
           {selectedCompanyId && <DispatcherLed companyId={selectedCompanyId} />}
           <button onClick={() => navigate("voice")} title="Note vocale"
             className="p-2 rounded-xl border border-[#E8E4DC] hover:bg-[#F0EDE8] transition-colors">

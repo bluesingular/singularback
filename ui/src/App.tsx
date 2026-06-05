@@ -65,6 +65,7 @@ const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then
 const PaymentSuccess = lazy(() => import("./pages/singular/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const ConfigAgent    = lazy(() => import("./pages/singular/ConfigAgent").then(m => ({ default: m.ConfigAgent })));
 const SkillPerformance = lazy(() => import("./pages/singular/SkillPerformance").then(m => ({ default: m.SkillPerformance })));
+const PartnerDashboard = lazy(() => import("./pages/singular/PartnerDashboard").then(m => ({ default: m.PartnerDashboard })));
 const AdminLayout       = lazy(() => import("./pages/singular/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
 const AdminHealth       = lazy(() => import("./pages/singular/admin/AdminHealth").then(m => ({ default: m.AdminHealth })));
 const AdminTenants      = lazy(() => import("./pages/singular/admin/AdminTenants").then(m => ({ default: m.AdminTenants })));
@@ -188,6 +189,7 @@ function boardRoutes() {
       <Route path="ceo-health" element={<Suspense fallback={null}><CeoHealth /></Suspense>} />
       <Route path="meeting-briefing" element={<Suspense fallback={null}><CalendarBriefing /></Suspense>} />
       <Route path="settings" element={<Suspense fallback={null}><Settings /></Suspense>} />
+      <Route path="partenaires" element={<Suspense fallback={null}><PartnerDashboard /></Suspense>} />
       {/* Approvals surfaced within the Singular layout so navigation stays consistent */}
       <Route path="approbations" element={<Navigate to="/approvals/pending" replace />} />
       <Route path="approvals" element={<Navigate to="/approvals/pending" replace />} />
