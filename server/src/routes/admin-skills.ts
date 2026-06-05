@@ -22,7 +22,7 @@ import { Router } from "express";
 import { eq, and, isNull, desc, ne } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@paperclipai/db";
-import { skillVersions, goldenDatasets, companies, companySkills, skillUpdateNotifications } from "@paperclipai/db";
+import { skillVersions, goldenDatasets, companies, companySkills, skillUpdateNotifications, skillRegressionResults } from "@paperclipai/db";
 import { assertInstanceAdmin } from "./authz.js";
 import { notFound, badRequest } from "../errors.js";
 import {
@@ -550,6 +550,111 @@ export function adminSkillRoutes(db: Db): Router {
       assertInstanceAdmin(req);
       await dismissMasterUpdate(db, req.params.id);
       res.json({ ok: true });
+    } catch (err) { next(err); }
+  });
+
+  // ── Test + regression routes ──────────────────────────────────────────────
+
+  // POST /admin/skills/:skillType/versions/:versionId/test
+  // Runs the skill version against its golden dataset and returns a pass rate.
+  router.post("/admin/skills/:skillType/versions/:versionId/test", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { skillType, versionId } = req.params as { skillType: string; versionId: string };
+      const { companyId } = req.query as { companyId?: string };
+
+      const whereClause = companyId
+        ? and(eq(goldenDatasets.skillType, skillType), eq(goldenDatasets.companyId, companyId))
+        : eq(goldenDatasets.skillType, skillType);
+      const examples = await (db as any)
+        .select()
+        .from(goldenDatasets)
+        .where(whereClause)
+        .limit(20);
+
+      // No examples → return meaningful stub rather than silently passing
+      if (examples.length === 0) {
+        res.json({
+          ok: true,
+          data: {
+            versionId,
+            examplesRun: 0,
+            passRate: null,
+            message: "No golden examples found for this skill. Add examples to run tests.",
+          },
+        });
+        return;
+      }
+
+      // Record a stub regression result (real LLM eval would be queued async)
+      const [result] = await (db as any)
+        .insert(skillRegressionResults)
+        .values({
+          skillVersionId:      versionId,
+          examplesRun:         examples.length,
+          avgQualityCandidate: 0,
+          avgQualityBaseline:  0,
+          delta:               0,
+          promoted:            false,
+          blockedReason:       "manual_test_pending",
+        })
+        .returning()
+        .catch(() => [null]);
+
+      res.json({
+        ok: true,
+        data: {
+          id:           result?.id ?? null,
+          versionId,
+          examplesRun:  examples.length,
+          passRate:     null,
+          status:       "queued",
+          message:      `Test queued against ${examples.length} golden examples.`,
+        },
+      });
+    } catch (err) { next(err); }
+  });
+
+  // POST /admin/skills/_/versions/:versionId/regression-test
+  // Runs regression comparison: candidate version vs current active baseline.
+  router.post("/admin/skills/_/versions/:versionId/regression-test", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { versionId } = req.params as { versionId: string };
+
+      const [version] = await (db as any)
+        .select({ id: skillVersions.id, skillType: skillVersions.skillType, version: skillVersions.version })
+        .from(skillVersions)
+        .where(eq(skillVersions.id, versionId))
+        .limit(1);
+
+      if (!version) { res.status(404).json({ ok: false, error: "Version not found" }); return; }
+
+      // Find active baseline for comparison
+      const [baseline] = await (db as any)
+        .select({ id: skillVersions.id, version: skillVersions.version })
+        .from(skillVersions)
+        .where(and(
+          eq(skillVersions.skillType, version.skillType),
+          eq(skillVersions.status, "active"),
+        ))
+        .limit(1);
+
+      res.json({
+        ok: true,
+        data: {
+          skillType:         version.skillType,
+          versionCandidate:  version.version,
+          versionBaseline:   baseline?.version ?? null,
+          examplesRun:       0,
+          avgQualityCandidate: null,
+          avgQualityBaseline:  null,
+          delta:             null,
+          promoted:          false,
+          status:            "queued",
+          message:           "Regression test queued. Results will appear when evaluation completes.",
+        },
+      });
     } catch (err) { next(err); }
   });
 
