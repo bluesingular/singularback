@@ -22,6 +22,7 @@ import {
   costRecords,
   auditEntries,
   authUsers,
+  mcpApiKeys,
 } from "@paperclipai/db";
 import type { Db } from "@paperclipai/db";
 import { assertInstanceAdmin } from "./authz.js";
@@ -371,6 +372,87 @@ export function adminRoutes(db: Db) {
       assertInstanceAdmin(req);
       const snapshot = await computeAndPersistFleetSnapshot(db);
       res.json({ ok: true, data: snapshot });
+    } catch (err) { next(err); }
+  });
+
+  // ── Admin MCP management ──────────────────────────────────────────────────
+  // GET  /admin/mcp/keys           — all keys across all tenants
+  // POST /admin/mcp/keys           — create a key for any tenant
+  // DELETE /admin/mcp/keys/:keyId  — revoke any key
+  // GET  /admin/mcp/stats          — per-tenant usage summary
+
+  router.get("/admin/mcp/keys", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const rows = await (db as any)
+        .select({
+          id:         mcpApiKeys.id,
+          companyId:  mcpApiKeys.companyId,
+          companyName: companies.name,
+          name:       mcpApiKeys.name,
+          lastUsedAt: mcpApiKeys.lastUsedAt,
+          revokedAt:  mcpApiKeys.revokedAt,
+          createdAt:  mcpApiKeys.createdAt,
+        })
+        .from(mcpApiKeys)
+        .leftJoin(companies, eq(companies.id, mcpApiKeys.companyId))
+        .orderBy(desc(mcpApiKeys.createdAt));
+      res.json({ ok: true, data: { keys: rows } });
+    } catch (err) { next(err); }
+  });
+
+  router.post("/admin/mcp/keys", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { companyId, name } = req.body ?? {};
+      if (!companyId || !name) {
+        res.status(400).json({ ok: false, error: "companyId and name are required" });
+        return;
+      }
+      const { randomBytes, createHash } = await import("node:crypto");
+      const rawKey  = `swm_${randomBytes(32).toString("hex")}`;
+      const keyHash = createHash("sha256").update(rawKey).digest("hex");
+      const [row] = await (db as any)
+        .insert(mcpApiKeys)
+        .values({ companyId, name, keyHash })
+        .returning({ id: mcpApiKeys.id, name: mcpApiKeys.name, createdAt: mcpApiKeys.createdAt });
+      log.info({ adminUserId: (req as any).actor?.userId, companyId, keyId: row.id }, "admin: MCP key created");
+      res.status(201).json({ ok: true, data: { key: rawKey, id: row.id, name: row.name, createdAt: row.createdAt } });
+    } catch (err) { next(err); }
+  });
+
+  router.delete("/admin/mcp/keys/:keyId", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const { keyId } = req.params as { keyId: string };
+      const [row] = await (db as any)
+        .update(mcpApiKeys)
+        .set({ revokedAt: new Date() })
+        .where(and(eq(mcpApiKeys.id, keyId), sql`${mcpApiKeys.revokedAt} IS NULL`))
+        .returning({ id: mcpApiKeys.id, companyId: mcpApiKeys.companyId });
+      if (!row) { res.status(404).json({ ok: false, error: "Key not found or already revoked" }); return; }
+      log.info({ adminUserId: (req as any).actor?.userId, keyId, companyId: row.companyId }, "admin: MCP key revoked");
+      res.json({ ok: true, data: { id: row.id } });
+    } catch (err) { next(err); }
+  });
+
+  router.get("/admin/mcp/stats", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      // Per-tenant: active key count + last activity
+      const rows = await (db as any)
+        .select({
+          companyId:    mcpApiKeys.companyId,
+          companyName:  companies.name,
+          activeKeys:   sql<number>`COUNT(*) FILTER (WHERE ${mcpApiKeys.revokedAt} IS NULL)`,
+          totalKeys:    sql<number>`COUNT(*)`,
+          lastUsedAt:   sql<string>`MAX(${mcpApiKeys.lastUsedAt})`,
+        })
+        .from(mcpApiKeys)
+        .leftJoin(companies, eq(companies.id, mcpApiKeys.companyId))
+        .groupBy(mcpApiKeys.companyId, companies.name)
+        .orderBy(desc(sql`MAX(${mcpApiKeys.lastUsedAt})`));
+      res.json({ ok: true, data: { tenants: rows } });
     } catch (err) { next(err); }
   });
 

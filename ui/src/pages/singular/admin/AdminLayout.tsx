@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Outlet } from "react-router-dom"
 import { useNavigate, useLocation } from "@/lib/router"
-import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users, ShieldCheck, Bell, FileText, TrendingUp, Package, AlertTriangle, Activity } from "lucide-react"
+import { BarChart3, Building2, ArrowLeft, GitBranch, Key, Shield, Plug, Webhook, Cpu, CreditCard, Users, ShieldCheck, Bell, FileText, TrendingUp, Package, AlertTriangle, Activity, BrainCircuit } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV = [
@@ -11,6 +11,7 @@ const NAV = [
   { to: "/instance/admin/skill-performance", label: "Performance",   icon: TrendingUp,    exact: false },
   { to: "/instance/admin/packs",             label: "Packs",         icon: Package,       exact: false },
   { to: "/instance/admin/api-keys",          label: "Clés API",      icon: Key,           exact: false },
+  { to: "/instance/admin/mcp",              label: "MCP & A2A",     icon: BrainCircuit,  exact: false },
   { to: "/instance/admin/quality-gates", label: "Sécurité",     icon: Shield,    exact: false },
   { to: "/instance/admin/integrations",  label: "Intégrations", icon: Plug,      exact: false },
   { to: "/instance/admin/webhooks",      label: "Webhooks",     icon: Webhook,    exact: false },

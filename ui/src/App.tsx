@@ -88,6 +88,7 @@ const AdminGdpr        = lazy(() => import("./pages/singular/admin/AdminGdpr").t
 const AdminSkillPerformance    = lazy(() => import("./pages/singular/admin/AdminSkillPerformance").then(m => ({ default: m.AdminSkillPerformance })));
 const AdminBehavioralAnomalies = lazy(() => import("./pages/singular/admin/AdminBehavioralAnomalies").then(m => ({ default: m.AdminBehavioralAnomalies })));
 const AdminVarianceMetrics     = lazy(() => import("./pages/singular/admin/AdminVarianceMetrics").then(m => ({ default: m.AdminVarianceMetrics })));
+const AdminMcp                 = lazy(() => import("./pages/singular/admin/AdminMcp").then(m => ({ default: m.AdminMcp })));
 const AdminPackInstaller       = lazy(() => import("./pages/singular/admin/AdminPackInstaller").then(m => ({ default: m.AdminPackInstaller })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
@@ -428,6 +429,7 @@ export function App() {
             <Route path="members" element={<Suspense fallback={null}><AdminMembers /></Suspense>} />
             <Route path="trust" element={<Suspense fallback={null}><AdminTrustConfig /></Suspense>} />
             <Route path="notifications" element={<Suspense fallback={null}><AdminNotifications /></Suspense>} />
+            <Route path="mcp" element={<Suspense fallback={null}><AdminMcp /></Suspense>} />
             <Route path="gdpr" element={<Suspense fallback={null}><AdminGdpr /></Suspense>} />
             <Route path="skill-performance" element={<Suspense fallback={null}><AdminSkillPerformance /></Suspense>} />
             <Route path="packs" element={<Suspense fallback={null}><AdminPackInstaller /></Suspense>} />
