@@ -23,6 +23,7 @@ const NAV = [
   { to: "/instance/admin/gdpr",      label: "RGPD",      icon: FileText,      exact: false },
   { to: "/instance/admin/anomalies", label: "Anomalies", icon: AlertTriangle, exact: false },
   { to: "/instance/admin/variance",  label: "Variance",  icon: Activity,      exact: false },
+  { to: "/instance/admin/fleet",     label: "Fleet",     icon: BarChart3,     exact: false },
 ];
 
 function NavItem({ to, label, icon: Icon, exact }: { to: string; label: string; icon: React.ElementType; exact: boolean }) {

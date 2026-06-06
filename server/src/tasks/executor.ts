@@ -39,6 +39,7 @@ import type { ParsedSkill } from "../skills/parser.js";
 import { getCachedResponse, setCachedResponse } from "../memory/semantic-cache.js";
 import { parseAnnotations } from "../safety/uncertainty.js";
 import { generateAndStore as generateCounterfactual } from "../compliance/counterfactual-store.js";
+import { getEffectiveSkillsForAgent } from "../missions/skill-composition.js";
 
 const logger = pino({ name: "task-executor" });
 
@@ -58,6 +59,8 @@ export interface ExecuteSkillTaskParams {
   skill:           ParsedSkill;
   /** AG-6 — DB id of the installed skill for procedural memory lookup */
   skillDbId?:      string;
+  /** AG-15 — mission id for dynamic skill composition (adds/removes skills for this mission) */
+  missionId?:      string;
   /** P4 — trace ID propagated from the originating HTTP request or BullMQ job payload */
   traceId?:        string;
   /**
@@ -85,7 +88,7 @@ export async function executeSkillTask(
     db, taskId, companyId, agentId,
     agentName, agentDescription,
     companyName, companySector, companyLocale,
-    taskTitle, taskBrief, soulMd, skill, skillDbId,
+    taskTitle, taskBrief, soulMd, skill, skillDbId, missionId,
     traceId, isOrchestrator,
   } = params;
 
@@ -123,10 +126,37 @@ export async function executeSkillTask(
   const agent:    AgentForContext  = { id: agentId, name: agentName, companyId, description: agentDescription };
   const task:     TaskForContext   = { id: taskId, title: taskTitle, body: taskBrief };
   const company:  CompanyForContext = { id: companyId, name: companyName, sector: companySector };
+  // AG-15: dynamic skill composition — merge additional mission-scoped skills into body
+  let composedSkillBody = skill.body;
+  if (missionId) {
+    try {
+      const effectiveSlugs = await getEffectiveSkillsForAgent(db, { missionId, companyId, agentId });
+      const baseSlugs = new Set(effectiveSlugs);
+      // Load bodies of additional skills not in the base skill
+      const additionalSlugs = effectiveSlugs.filter((s) => s !== skill.name && baseSlugs.has(s));
+      if (additionalSlugs.length > 0) {
+        const { companySkills } = await import("@paperclipai/db");
+        const { inArray, eq, and } = await import("drizzle-orm");
+        const extras = await db.select({ slug: companySkills.slug, markdown: companySkills.markdown })
+          .from(companySkills)
+          .where(and(eq(companySkills.companyId, companyId), inArray(companySkills.slug, additionalSlugs)));
+        if (extras.length > 0) {
+          composedSkillBody = [
+            skill.body,
+            ...extras.map((e) => `\n---\n## Compétence supplémentaire : ${e.slug}\n${e.markdown ?? ""}`),
+          ].join("\n");
+          log.info({ missionId, added: extras.map((e) => e.slug) }, "ag-15: composed skill body");
+        }
+      }
+    } catch (err) {
+      log.warn({ missionId, err }, "ag-15: skill composition failed (non-fatal)");
+    }
+  }
+
   const skillCtx: SkillForContext  = {
     name:        skill.name,
     description: skill.description,
-    body:        skill.body,
+    body:        composedSkillBody,
   };
 
   const ctx = await assembleContext(db, { agent, task, company, skill: skillCtx, tier, skillDbId });

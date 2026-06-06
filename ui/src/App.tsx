@@ -92,6 +92,7 @@ const AdminBehavioralAnomalies = lazy(() => import("./pages/singular/admin/Admin
 const AdminVarianceMetrics     = lazy(() => import("./pages/singular/admin/AdminVarianceMetrics").then(m => ({ default: m.AdminVarianceMetrics })));
 const AdminMcp                 = lazy(() => import("./pages/singular/admin/AdminMcp").then(m => ({ default: m.AdminMcp })));
 const AdminPackInstaller       = lazy(() => import("./pages/singular/admin/AdminPackInstaller").then(m => ({ default: m.AdminPackInstaller })));
+const AdminFleetRegistry       = lazy(() => import("./pages/singular/admin/AdminFleetRegistry").then(m => ({ default: m.AdminFleetRegistry })));
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -439,6 +440,7 @@ export function App() {
             <Route path="packs" element={<Suspense fallback={null}><AdminPackInstaller /></Suspense>} />
             <Route path="anomalies" element={<Suspense fallback={null}><AdminBehavioralAnomalies /></Suspense>} />
             <Route path="variance" element={<Suspense fallback={null}><AdminVarianceMetrics /></Suspense>} />
+            <Route path="fleet" element={<Suspense fallback={null}><AdminFleetRegistry /></Suspense>} />
           </Route>
           <Route path="instance/settings" element={<Layout />}>
             <Route index element={<Navigate to="general" replace />} />

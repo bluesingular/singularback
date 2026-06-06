@@ -16,6 +16,7 @@
 import pino from "pino";
 import { registerWhatsAppActionType } from "../integrations/whatsapp.js";
 import { executeQuery } from "../integrations/federated-query.js";
+import { decryptCredential, VaultError } from "../integrations/vault.js";
 import type { Db } from "@paperclipai/db";
 import { checkContactCollision, recordExternalCommunication } from "../safety/collision.js";
 import { getTimingRecommendation } from "../contacts/timing.js";
@@ -191,14 +192,45 @@ registerActionType({
     };
     logger.info({ ...ctx, integration: integrationSlug, queryTemplate }, "query_integration: executing");
 
-    // Credential must be decrypted server-side — never passes to LLM context (RULE 2)
-    // For now: credential fetched from company_secrets by integration slug
-    // TODO: integrate with Vault service when available
-    const credential = ""; // placeholder — vault integration at §36
-
     if (!ctx.db) {
       logger.warn({ ...ctx }, "query_integration: no db in context — skipping live query");
       return `Requête ${queryTemplate} sur ${integrationSlug} ignorée (contexte limité)`;
+    }
+
+    // AG-12: Decrypt credential from integrations table via Vault (RULE 2 — server-side only)
+    let credential = "";
+    try {
+      const { integrations } = await import("@paperclipai/db");
+      const { eq, and } = await import("drizzle-orm");
+      const [row] = await ctx.db.select({
+        credentialsEnc: integrations.credentialsEnc,
+        credentialsIv:  integrations.credentialsIv,
+        credentialsTag: integrations.credentialsTag,
+        status:         integrations.status,
+      })
+      .from(integrations)
+      .where(and(eq(integrations.companyId, ctx.companyId), eq(integrations.type, integrationSlug)))
+      .limit(1);
+
+      if (!row) {
+        return `Intégration ${integrationSlug} non connectée pour cette entreprise.`;
+      }
+      if (row.status !== "connected") {
+        return `Intégration ${integrationSlug} déconnectée — reconnectez dans les paramètres.`;
+      }
+      credential = decryptCredential(
+        ctx.companyId,
+        row.credentialsEnc as Buffer,
+        row.credentialsIv  as Buffer,
+        row.credentialsTag as Buffer,
+      );
+    } catch (err) {
+      if (err instanceof VaultError) {
+        logger.error({ ...ctx, integrationSlug }, "query_integration: vault decryption failed");
+        return `Impossible de déchiffrer les identifiants ${integrationSlug}.`;
+      }
+      // VAULT_MASTER_KEY not configured — degrade gracefully
+      logger.warn({ ...ctx, integrationSlug }, "query_integration: vault not configured");
     }
 
     const result = await executeQuery({
