@@ -38,6 +38,7 @@ import { calendarAlertGenerator } from "../intelligence/calendar.js";
 import { ceoHealthCardGenerator } from "../intelligence/ceo-health.js";
 import { runApprovalEscalations } from "../intelligence/approval-escalation.js";
 import { runVarianceSweep } from "../evals/variance.js";
+import { generateNarrative } from "../intelligence/narrative.js";
 
 const logger = pino({ name: "morning-intelligence-worker" });
 
@@ -73,6 +74,22 @@ export function initMorningIntelligenceWorker(db: Db) {
         } catch (err) {
           log.error({ err }, "approval-escalation: sweep failed");
         }
+        return;
+      }
+
+      // AG-11: monthly narrative — runs on the 1st of each month at 06:00 UTC
+      if (job.name === "narrative.monthly") {
+        const now = new Date();
+        // Previous month
+        const periodEnd = new Date(now.getFullYear(), now.getMonth(), 1);
+        const periodStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const allCompanies = await db.select({ id: companies.id }).from(companies);
+        for (const company of allCompanies) {
+          await generateNarrative(db, company.id, periodStart, periodEnd).catch((err) =>
+            log.warn({ companyId: company.id, err }, "narrative: monthly generation failed"),
+          );
+        }
+        log.info({ count: allCompanies.length }, "narrative: monthly sweep complete");
         return;
       }
 
@@ -175,6 +192,22 @@ export async function scheduleApprovalEscalations() {
     },
   );
   logger.info("approval-escalation: 15-minute sweep scheduled");
+}
+
+/**
+ * AG-11 — Register monthly narrative generation on the 1st of each month at 06:00 UTC.
+ * Generates company_narrative records for the previous calendar month.
+ */
+export async function scheduleMonthlyNarrative() {
+  await systemQueue.add(
+    "narrative.monthly",
+    {},
+    {
+      repeat: { pattern: "0 6 1 * *" }, // 06:00 UTC on 1st of every month
+      jobId: "narrative-monthly",
+    },
+  );
+  logger.info("narrative: monthly generation scheduled on 1st of each month at 06:00 UTC");
 }
 
 function getWeekStart(): Date {

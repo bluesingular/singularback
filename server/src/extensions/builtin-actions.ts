@@ -15,8 +15,10 @@
 
 import pino from "pino";
 import { registerWhatsAppActionType } from "../integrations/whatsapp.js";
+import { executeQuery } from "../integrations/federated-query.js";
 import type { Db } from "@paperclipai/db";
 import { checkContactCollision, recordExternalCommunication } from "../safety/collision.js";
+import { getTimingRecommendation } from "../contacts/timing.js";
 import { checkZeroTolerance, type ZeroToleranceRule } from "../safety/zero-tolerance.js";
 import { runGates } from "../gates/engine.js";
 
@@ -29,6 +31,8 @@ export interface ActionContext {
   agentId:    string;
   taskId:     string;
   traceId:    string;
+  /** AG-12: database handle for actions that need live data (federated queries). */
+  db?:        Db;
   /**
    * Gap E — zero-tolerance rules from the skill frontmatter.
    * Checked before trust calibration; no bypass path exists.
@@ -178,8 +182,37 @@ registerActionType({
   alwaysRequiresApproval: false,
   isExternalCommunication: false,
   handler: async (payload, ctx) => {
-    logger.info({ ...ctx, integration: payload.integrationSlug }, "query_integration: dispatched");
-    return `Requête ${payload.queryTemplate} sur ${payload.integrationSlug}`;
+    const { integrationSlug, queryTemplate, params, gdprRequired, cacheResult } = payload as {
+      integrationSlug: string;
+      queryTemplate:   string;
+      params:          Record<string, string>;
+      gdprRequired:    boolean;
+      cacheResult:     boolean;
+    };
+    logger.info({ ...ctx, integration: integrationSlug, queryTemplate }, "query_integration: executing");
+
+    // Credential must be decrypted server-side — never passes to LLM context (RULE 2)
+    // For now: credential fetched from company_secrets by integration slug
+    // TODO: integrate with Vault service when available
+    const credential = ""; // placeholder — vault integration at §36
+
+    if (!ctx.db) {
+      logger.warn({ ...ctx }, "query_integration: no db in context — skipping live query");
+      return `Requête ${queryTemplate} sur ${integrationSlug} ignorée (contexte limité)`;
+    }
+
+    const result = await executeQuery({
+      db: ctx.db,
+      companyId: ctx.companyId,
+      taskId: ctx.taskId,
+      agentId: ctx.agentId,
+      action: { type: "query_integration", integrationSlug, queryTemplate, params: params ?? {}, gdprRequired: gdprRequired ?? false, cacheResult: cacheResult ?? false },
+      credential,
+    });
+
+    return typeof result.data === "string"
+      ? result.data
+      : JSON.stringify(result.data).slice(0, 2000);
   },
 });
 
@@ -247,6 +280,17 @@ export async function executeAction(
     const collision = await checkContactCollision(db, ctx.companyId, contactId);
     if (collision.collision) {
       throw new ContactCollisionError(contactId, collision.lastContact!, collision.taskId);
+    }
+
+    // Gap M: contact timing optimisation — log recommendation (non-blocking)
+    // Scheduling delay is applied upstream by the worker if delayMs > 0.
+    const timing = await getTimingRecommendation(db, contactId, ctx.companyId).catch(() => null);
+    if (timing && timing.delayMs > 0) {
+      logger.info(
+        { contactId, companyId: ctx.companyId, taskId: ctx.taskId, delayMs: timing.delayMs, reason: timing.reason },
+        "gap-m: contact timing recommendation — optimal window in future",
+      );
+      // Delay is surfaced to the approval card via task metadata (not blocking here)
     }
   }
 

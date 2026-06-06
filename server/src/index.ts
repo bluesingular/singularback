@@ -51,6 +51,7 @@ import {
   initMorningIntelligenceWorker,
   scheduleIntelligenceSweep,
   scheduleApprovalEscalations,
+  scheduleMonthlyNarrative,
 } from "./workers/morningIntelligence.worker.js";
 import { initCostResetWorker } from "./workers/costReset.worker.js";
 import { initBatchItemExecuteWorker, initBatchItemCompleteWorker } from "./workers/batchItem.worker.js";
@@ -648,6 +649,10 @@ export async function startServer(): Promise<StartedServer> {
     // F3: Approval escalation — 15-minute sweep
     void scheduleApprovalEscalations().catch((err) => {
       logger.error({ err }, "Approval escalation scheduling failed");
+    });
+    // AG-11: Monthly narrative generation — 1st of each month at 06:00 UTC
+    void scheduleMonthlyNarrative().catch((err) => {
+      logger.error({ err }, "Monthly narrative scheduling failed");
     });
 
     // Gap O: Fleet registry snapshot — every 6 hours

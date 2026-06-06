@@ -37,6 +37,8 @@ import { writeCheckpoint, checkCancellation } from "../tasks/checkpoints.js";
 import { executeRules, parseRuleSet } from "../tasks/rule-engine.js";
 import type { ParsedSkill } from "../skills/parser.js";
 import { getCachedResponse, setCachedResponse } from "../memory/semantic-cache.js";
+import { parseAnnotations } from "../safety/uncertainty.js";
+import { generateAndStore as generateCounterfactual } from "../compliance/counterfactual-store.js";
 
 const logger = pino({ name: "task-executor" });
 
@@ -271,6 +273,27 @@ export async function executeSkillTask(
   });
 
   log.info({ judgeScore, confidenceFlag: confidence.flag, recycleCount, forceApproval }, "executor: done");
+
+  // AG-13: parse uncertainty annotations from output (non-fatal)
+  try {
+    const parsed = parseAnnotations(output);
+    if (parsed.hasAnnotations) {
+      const uncertain = parsed.claims.filter((c) => c.confidence === "INCERTAIN").length;
+      log.info({ taskId, uncertain }, "uncertainty: annotations found");
+    }
+  } catch { /* non-fatal */ }
+
+  // AG-14: generate counterfactual explanation for high-risk skills (non-fatal)
+  generateCounterfactual({
+    db,
+    taskId, companyId,
+    skillSlug:     skill.name,
+    decision:      (output.split("\n").find((l) => l.trim().length > 0) ?? output).slice(0, 200),
+    outputSummary: output.slice(0, 500),
+    criteria:      [],
+    metCriteria:   [],
+    unmetCriteria: [],
+  }).catch((err) => log.warn({ taskId, err }, "counterfactual: generation failed (non-fatal)"));
 
   // Gap F: store to semantic cache if judge approved and not GDPR-sensitive
   if (contextEmbedding && judgeScore >= 7.0 && !forceApproval) {
