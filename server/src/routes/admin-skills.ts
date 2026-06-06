@@ -471,6 +471,53 @@ export function adminSkillRoutes(db: Db): Router {
 
   // ── §20 Master skills (Tier 1 platform repository) ───────────────────────
 
+  // POST /admin/skills/master — create a new master skill from SKILL.md content
+  router.post("/admin/skills/master", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const body = z.object({
+        slug:        z.string().regex(/^[a-z0-9-]+$/),
+        name:        z.string().min(1).max(100),
+        description: z.string().max(500).optional().default(""),
+        markdown:    z.string().min(1), // full SKILL.md content (body only, no frontmatter required)
+        tier:        z.number().int().min(0).max(3).optional().default(1),
+        gdprRequired: z.boolean().optional().default(false),
+      }).parse(req.body);
+
+      const PLATFORM_COMPANY_ID = "00000000-0000-0000-0000-000000000001";
+
+      // Prevent duplicate slugs
+      const [existing] = await (db as any)
+        .select({ id: companySkills.id })
+        .from(companySkills)
+        .where(and(eq(companySkills.companyId, PLATFORM_COMPANY_ID), eq(companySkills.slug, body.slug)))
+        .limit(1);
+      if (existing) {
+        res.status(409).json({ ok: false, error: `Master skill "${body.slug}" already exists` });
+        return;
+      }
+
+      const [inserted] = await (db as any)
+        .insert(companySkills)
+        .values({
+          companyId:   PLATFORM_COMPANY_ID,
+          key:         body.slug,
+          slug:        body.slug,
+          name:        body.name,
+          description: body.description,
+          markdown:    body.markdown,
+          sourceType:  "platform",
+          tier:        body.tier,
+          gdprRequired: body.gdprRequired,
+          metadata:    {},
+        })
+        .returning({ id: companySkills.id, slug: companySkills.slug });
+
+      log.info({ slug: body.slug }, "admin-skills: master skill created");
+      res.status(201).json({ ok: true, skill: inserted });
+    } catch (err) { next(err); }
+  });
+
   // GET /admin/skills/master — list all master skills
   router.get("/admin/skills/master", async (req, res, next) => {
     try {

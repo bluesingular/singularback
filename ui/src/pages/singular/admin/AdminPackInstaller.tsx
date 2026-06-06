@@ -196,6 +196,40 @@ export function AdminPackInstaller() {
   const queryClient = useQueryClient()
   const [installTarget, setInstallTarget] = React.useState<AvailablePack | null>(null)
   const [busyId, setBusyId] = React.useState<string | null>(null)
+  const [uploadError, setUploadError] = React.useState("")
+  const [uploadSuccess, setUploadSuccess] = React.useState("")
+  const uploadRef = React.useRef<HTMLInputElement>(null)
+
+  const uploadMutation = useMutation({
+    mutationFn: async (packJson: object) =>
+      adminApi.post("/admin/packs/upload", packJson),
+    onSuccess: (_, vars: any) => {
+      setUploadSuccess(`Pack "${vars.slug ?? vars.name}" ajouté avec succès.`)
+      setUploadError("")
+      queryClient.invalidateQueries({ queryKey: ["admin-available-packs"] })
+      setTimeout(() => setUploadSuccess(""), 4000)
+    },
+    onError: (err: unknown) => {
+      setUploadError(err instanceof Error ? err.message : "Erreur lors de l'upload")
+    },
+  })
+
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const json = JSON.parse((ev.target?.result as string) ?? "{}")
+        uploadMutation.mutate(json)
+      } catch {
+        setUploadError("Fichier JSON invalide")
+      }
+    }
+    reader.readAsText(file)
+    // Reset input so same file can be re-uploaded
+    e.target.value = ""
+  }
 
   const tenantsQuery = useQuery({
     queryKey: ["admin-tenants"],
@@ -250,14 +284,32 @@ export function AdminPackInstaller() {
       <div className="max-w-6xl mx-auto flex flex-col gap-8">
 
         {/* Header */}
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Package size={16} className="text-[#8A8680]" />
-            <h1 className="text-2xl font-serif font-semibold text-[#0F0F0D]">Packs</h1>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Package size={16} className="text-[#8A8680]" />
+              <h1 className="text-2xl font-serif font-semibold text-[#0F0F0D]">Packs</h1>
+            </div>
+            <p className="text-sm text-[#8A8680]">
+              Gestion des packs disponibles et de leur installation par tenant.
+            </p>
           </div>
-          <p className="text-sm text-[#8A8680]">
-            Gestion des packs disponibles et de leur installation par tenant.
-          </p>
+          <div className="flex flex-col items-end gap-2">
+            <input ref={uploadRef} type="file" accept=".json" className="hidden" onChange={handleUpload} />
+            <button
+              onClick={() => { setUploadError(""); uploadRef.current?.click(); }}
+              disabled={uploadMutation.isPending}
+              className={cn(
+                "flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl transition-colors",
+                "text-white bg-[#1A9E68] hover:bg-[#158a5a] disabled:opacity-40"
+              )}
+            >
+              {uploadMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Package size={14} />}
+              {uploadMutation.isPending ? "Upload…" : "Upload pack.json"}
+            </button>
+            {uploadError && <p className="text-xs text-red-600 max-w-xs text-right">{uploadError}</p>}
+            {uploadSuccess && <p className="text-xs text-[#1A9E68] max-w-xs text-right">{uploadSuccess}</p>}
+          </div>
         </div>
 
         {/* Two-column layout */}

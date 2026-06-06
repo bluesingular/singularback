@@ -549,6 +549,7 @@ function PendingUpdatesPanel() {
 function MasterSkillsTab() {
   const [editingSkill, setEditingSkill] = useState<MasterSkill | null>(null)
   const [notifiedCount, setNotifiedCount] = useState<number | null>(null)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
   const queryClient = useQueryClient()
 
   const masterQuery = useQuery({
@@ -560,6 +561,11 @@ function MasterSkillsTab() {
   function handleEditSuccess(notified: number) {
     setNotifiedCount(notified)
     setEditingSkill(null)
+    queryClient.invalidateQueries({ queryKey: ["admin-master-skills"] })
+  }
+
+  function handleCreated() {
+    setShowCreateDialog(false)
     queryClient.invalidateQueries({ queryKey: ["admin-master-skills"] })
   }
 
@@ -585,7 +591,17 @@ function MasterSkillsTab() {
               </span>
             )}
           </div>
-          {masterQuery.isLoading && <Loader2 size={14} className="animate-spin text-[#8A8680]" />}
+          <div className="flex items-center gap-2">
+            {masterQuery.isLoading && <Loader2 size={14} className="animate-spin text-[#8A8680]" />}
+            <button
+              onClick={() => setShowCreateDialog(true)}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ backgroundColor: "#1A9E68", color: "#FFFFFF" }}
+            >
+              <Play size={11} />
+              Nouvelle compétence
+            </button>
+          </div>
         </div>
 
         {/* Table header */}
@@ -619,7 +635,117 @@ function MasterSkillsTab() {
           onSuccess={handleEditSuccess}
         />
       )}
+      {showCreateDialog && (
+        <CreateMasterSkillDialog
+          onClose={() => setShowCreateDialog(false)}
+          onCreated={handleCreated}
+        />
+      )}
     </div>
+  )
+}
+
+// ── Create master skill dialog ────────────────────────────────────────────────
+
+function CreateMasterSkillDialog({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [slug, setSlug]           = React.useState("")
+  const [name, setName]           = React.useState("")
+  const [description, setDescription] = React.useState("")
+  const [markdown, setMarkdown]   = React.useState("# Instructions\n\n")
+  const [tier, setTier]           = React.useState(1)
+  const [gdprRequired, setGdprRequired] = React.useState(false)
+  const [error, setError]         = React.useState("")
+  const fileRef = React.useRef<HTMLInputElement>(null)
+
+  const create = useMutation({
+    mutationFn: () => adminApi.post("/admin/skills/master", { slug, name, description, markdown, tier, gdprRequired }),
+    onSuccess: onCreated,
+    onError: (err: unknown) => setError(err instanceof Error ? err.message : "Erreur"),
+  })
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = (ev.target?.result as string) ?? ""
+      setMarkdown(text)
+      // Auto-fill name from filename if not already set
+      if (!name) setName(file.name.replace(/\.md$/i, "").replace(/-/g, " "))
+      if (!slug) setSlug(file.name.replace(/\.md$/i, "").toLowerCase().replace(/[^a-z0-9]+/g, "-"))
+    }
+    reader.readAsText(file)
+  }
+
+  const valid = slug.match(/^[a-z0-9-]+$/) && name.trim().length > 0 && markdown.trim().length > 10
+
+  return (
+    <AdminDialog open title="Nouvelle compétence maître" onClose={onClose} maxWidth="max-w-2xl">
+      <div className="flex flex-col gap-4">
+        {/* File upload */}
+        <div
+          onClick={() => fileRef.current?.click()}
+          className="border-2 border-dashed border-[#E8E4DC] rounded-xl p-4 text-center cursor-pointer hover:border-[#1A9E68] transition-colors"
+        >
+          <input ref={fileRef} type="file" accept=".md,.txt" className="hidden" onChange={handleFile} />
+          <p className="text-sm text-[#8A8680]">Glisser un fichier <strong>SKILL.md</strong> ici ou cliquer pour sélectionner</p>
+          <p className="text-xs text-[#8A8680] mt-1">Le contenu est chargé dans l'éditeur ci-dessous</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Slug * (ex: qualification-cv)</label>
+            <input value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+              placeholder="qualification-cv"
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Nom affiché *</label>
+            <input value={name} onChange={e => setName(e.target.value)}
+              placeholder="Qualification de CV"
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-[#4B4846] mb-1 block">Tier (0=micro, 1=standard, 2=avancé, 3=frontier)</label>
+            <select value={tier} onChange={e => setTier(Number(e.target.value))}
+              className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]">
+              {[0,1,2,3].map(t => <option key={t} value={t}>Tier {t}</option>)}
+            </select>
+          </div>
+          <div className="flex items-end pb-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={gdprRequired} onChange={e => setGdprRequired(e.target.checked)} className="w-4 h-4 rounded" />
+              <span className="text-sm text-[#0F0F0D]">RGPD requis (Mistral EU)</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1 block">Description</label>
+          <input value={description} onChange={e => setDescription(e.target.value)}
+            placeholder="Évalue les CVs entrants pour une mission ouverte"
+            className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1A9E68]" />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-[#4B4846] mb-1 block">Instructions SKILL.md *</label>
+          <textarea value={markdown} onChange={e => setMarkdown(e.target.value)} rows={10}
+            className="w-full border border-[#E8E4DC] rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#1A9E68] resize-y" />
+        </div>
+
+        {error && <p className="text-xs text-red-600">{error}</p>}
+      </div>
+      <div className="flex justify-end gap-2 pt-4 border-t border-[#E8E4DC] mt-4">
+        <button onClick={onClose} className="px-4 py-2 text-sm text-[#8A8680] hover:text-[#0F0F0D]">Annuler</button>
+        <button onClick={() => create.mutate()} disabled={!valid || create.isPending}
+          className="px-4 py-2 text-sm bg-[#1A9E68] text-white rounded-lg hover:bg-[#158a5a] disabled:opacity-50 transition-colors">
+          {create.isPending ? "Création…" : "Créer la compétence maître"}
+        </button>
+      </div>
+    </AdminDialog>
   )
 }
 

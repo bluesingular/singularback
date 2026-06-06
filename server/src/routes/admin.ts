@@ -35,6 +35,9 @@ import type { Db } from "@paperclipai/db";
 import { assertInstanceAdmin } from "./authz.js";
 import { getLatestFleetSnapshot, computeAndPersistFleetSnapshot } from "../fleet/snapshot.js";
 import { packInstallService } from "../services/pack-install-service.js";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { z } from "zod";
 
 const log = pino({ name: "admin-routes" });
 
@@ -576,6 +579,33 @@ export function adminRoutes(db: Db) {
   // GET  /admin/packs/installations                — all tenant × pack installs
   // POST /admin/companies/:companyId/packs/install — install for any tenant
   // DELETE /admin/companies/:companyId/packs/:packSlug — deactivate pack agents
+
+  // POST /admin/packs/upload — upload a pack.json to create a new pack on disk
+  router.post("/admin/packs/upload", async (req, res, next) => {
+    try {
+      assertInstanceAdmin(req);
+      const body = req.body;
+      // Validate minimum required fields
+      const packSchema = z.object({
+        slug:        z.string().regex(/^[a-z0-9-]+$/, "slug must be lowercase alphanumeric with dashes"),
+        name:        z.string().min(1).max(100),
+        version:     z.string().regex(/^\d+\.\d+\.\d+$/),
+        description: z.string().optional().default(""),
+        agents:      z.array(z.unknown()).optional().default([]),
+        skills:      z.array(z.string()).optional().default([]),
+        seed_tasks:  z.array(z.string()).optional().default([]),
+      });
+      const parsed = packSchema.parse(body);
+
+      const PACKS_DIR = new URL("../../../packs", import.meta.url).pathname;
+      const packDir   = join(PACKS_DIR, parsed.slug);
+      await mkdir(packDir, { recursive: true });
+      await writeFile(join(packDir, "pack.json"), JSON.stringify(body, null, 2), "utf-8");
+
+      log.info({ slug: parsed.slug, version: parsed.version }, "admin: pack uploaded to disk");
+      res.status(201).json({ ok: true, slug: parsed.slug, version: parsed.version });
+    } catch (err) { next(err); }
+  });
 
   router.get("/admin/packs", async (req, res, next) => {
     try {
