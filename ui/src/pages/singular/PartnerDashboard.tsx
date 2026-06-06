@@ -7,12 +7,37 @@
  * SECURITY: displays health metrics only — NO operational data, NO agent outputs.
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCompany } from "../../context/CompanyContext";
-import { Building2, BadgeCheck, TrendingUp, Users, AlertTriangle, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { Building2, BadgeCheck, TrendingUp, Users, AlertTriangle, ChevronRight, Palette, Save } from "lucide-react";
+import { useState, useEffect } from "react";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
+
+interface WhiteLabelConfig {
+  brandName:     string;
+  logoUrl?:      string;
+  primaryColour?: string;
+  supportEmail?: string;
+  customDomain?: string;
+  showPoweredBy: boolean;
+}
+
+async function fetchWhiteLabel(): Promise<WhiteLabelConfig | null> {
+  const res = await fetch("/api/partners/me/white-label", { credentials: "include" });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.config ?? null;
+}
+
+async function saveWhiteLabel(config: WhiteLabelConfig): Promise<void> {
+  const res = await fetch("/api/partners/me/white-label", {
+    method: "POST", credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(config),
+  });
+  if (!res.ok) throw new Error("Failed to save");
+}
 
 async function fetchPartnerProfile() {
   const res = await fetch("/api/partners/me", { credentials: "include" });
@@ -142,6 +167,84 @@ function Metric({ label, value, highlight }: { label: string; value: string; hig
   );
 }
 
+// ── White-label config form ───────────────────────────────────────────────────
+
+function WhiteLabelForm() {
+  const qc = useQueryClient();
+  const { data: current } = useQuery({
+    queryKey: ["partner-white-label"],
+    queryFn: fetchWhiteLabel,
+    retry: false,
+  });
+
+  const [form, setForm] = useState<WhiteLabelConfig>({
+    brandName: "", logoUrl: "", primaryColour: "", supportEmail: "", customDomain: "", showPoweredBy: true,
+  });
+  const [saved, setSaved] = useState(false);
+
+  // Sync form with fetched data
+  useEffect(() => { if (current) setForm(current); }, [current]);
+
+  const mutation = useMutation({
+    mutationFn: saveWhiteLabel,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["partner-white-label"] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    },
+  });
+
+  function field(label: string, key: keyof WhiteLabelConfig, type = "text", placeholder = "") {
+    return (
+      <div>
+        <label className="text-xs font-medium text-[#8A8680] block mb-1">{label}</label>
+        {type === "checkbox" ? (
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form[key] as boolean}
+              onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.checked }))}
+              className="w-4 h-4 rounded" />
+            <span className="text-sm text-[#0F0F0D]">Show "Powered by Swwarm"</span>
+          </label>
+        ) : (
+          <input type={type} value={(form[key] as string) ?? ""}
+            onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+            placeholder={placeholder}
+            className="w-full text-sm px-3 py-2 rounded-lg border outline-none focus:border-[#1A9E68]"
+            style={{ borderColor: "#E8E4DC", backgroundColor: "#FFFFFF" }} />
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border p-5 space-y-4" style={{ borderColor: "#E8E4DC", backgroundColor: "#FFFFFF" }}>
+      <div className="flex items-center gap-2 mb-1">
+        <Palette size={16} color="#8A8680" />
+        <h2 className="text-sm font-semibold text-[#0F0F0D]">White-label configuration</h2>
+      </div>
+      <p className="text-xs text-[#8A8680]">
+        Compliance and AI Act documentation always identifies Swwarm (Singular.blue) as processor — white-label does not extend to compliance.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {field("Brand name", "brandName", "text", "My Platform")}
+        {field("Logo URL", "logoUrl", "url", "https://...")}
+        {field("Primary colour", "primaryColour", "text", "#1A9E68")}
+        {field("Support email", "supportEmail", "email", "support@example.com")}
+        {field("Custom domain", "customDomain", "text", "app.myplatform.com")}
+        <div className="sm:col-span-2">{field("", "showPoweredBy", "checkbox")}</div>
+      </div>
+      <button
+        onClick={() => mutation.mutate(form)}
+        disabled={mutation.isPending || !form.brandName}
+        className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40"
+        style={{ backgroundColor: "#1A9E68", color: "#FFFFFF" }}>
+        <Save size={12} />
+        {saved ? "Saved" : mutation.isPending ? "Saving…" : "Save configuration"}
+      </button>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function PartnerDashboard() {
@@ -236,6 +339,9 @@ export function PartnerDashboard() {
           </div>
         )}
       </div>
+
+      {/* White-label config */}
+      <WhiteLabelForm />
 
       {/* Compliance note */}
       <p className="text-[11px] text-[#8A8680] border-t pt-4" style={{ borderColor: "#E8E4DC" }}>

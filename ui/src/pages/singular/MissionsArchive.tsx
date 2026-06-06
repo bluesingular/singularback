@@ -6,9 +6,10 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Archive, CheckCircle2, Clock } from "lucide-react";
+import { Archive, CheckCircle2, Clock, Euro } from "lucide-react";
 import { useCompany } from "../../context/CompanyContext";
 import { useLocale } from "../../hooks/useLocale";
+import { missionsApi } from "../../api/missions";
 
 interface Mission {
   id:          string;
@@ -41,6 +42,21 @@ function StatusChip({ status }: { status: string }) {
     <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">
       <Archive size={10} />
       Archived
+    </span>
+  );
+}
+
+function MissionCostBadge({ companyId, missionId }: { companyId: string; missionId: string }) {
+  const { data } = useQuery({
+    queryKey:  ["mission-cost", missionId],
+    queryFn:   () => missionsApi.getCost(companyId, missionId),
+    staleTime: 5 * 60_000,
+  });
+  if (!data || data.totalEur === 0) return null;
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-stone-400">
+      <Euro size={10} />
+      {data.totalEur.toFixed(2)}
     </span>
   );
 }
@@ -92,13 +108,18 @@ export function MissionsArchive() {
                   </p>
                 )}
 
-                <div className="flex items-center gap-1 text-xs text-stone-400 mt-1">
-                  <Clock size={11} />
-                  <span>
-                    {mission.completedAt
-                      ? `Completed on ${formatDate(new Date(mission.completedAt))}`
-                      : `Créée le ${formatDate(new Date(mission.createdAt))}`}
-                  </span>
+                <div className="flex items-center justify-between gap-2 mt-1">
+                  <div className="flex items-center gap-1 text-xs text-stone-400">
+                    <Clock size={11} />
+                    <span>
+                      {mission.completedAt
+                        ? `Completed on ${formatDate(new Date(mission.completedAt))}`
+                        : `Créée le ${formatDate(new Date(mission.createdAt))}`}
+                    </span>
+                  </div>
+                  {selectedCompanyId && (
+                    <MissionCostBadge companyId={selectedCompanyId} missionId={mission.id} />
+                  )}
                 </div>
               </div>
             ))}

@@ -11,8 +11,9 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Building2, ChevronDown } from "lucide-react";
+import { Building2, ChevronDown, Settings2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { ClientDNAWizard } from "./ClientDNAWizard";
 
 interface ClientContext {
   id:     string;
@@ -38,6 +39,7 @@ interface Props {
 
 export function ClientContextSelector({ companyId, value, onChange }: Props) {
   const [open, setOpen] = useState(false);
+  const [wizardContextId, setWizardContextId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const { data: contexts = [] } = useQuery({
@@ -90,16 +92,34 @@ export function ClientContextSelector({ companyId, value, onChange }: Props) {
           <div className="h-px" style={{ backgroundColor: "#E8E4DC" }} />
 
           {contexts.map((ctx) => (
-            <button
-              key={ctx.id}
-              onClick={() => { onChange(ctx.id); setOpen(false); }}
-              className={`w-full text-left px-3 py-2 text-xs hover:bg-[#FAFAF8] transition-colors flex items-center gap-2 ${value === ctx.id ? "font-semibold text-[#0F0F0D]" : "text-[#8A8680]"}`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full flex-none" style={{ backgroundColor: value === ctx.id ? "#1A9E68" : "transparent" }} />
-              <span className="truncate">{ctx.name}</span>
-            </button>
+            <div key={ctx.id} className="flex items-center">
+              <button
+                onClick={() => { onChange(ctx.id); setOpen(false); }}
+                className={`flex-1 text-left px-3 py-2 text-xs hover:bg-[#FAFAF8] transition-colors flex items-center gap-2 ${value === ctx.id ? "font-semibold text-[#0F0F0D]" : "text-[#8A8680]"}`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full flex-none" style={{ backgroundColor: value === ctx.id ? "#1A9E68" : "transparent" }} />
+                <span className="truncate">{ctx.name}</span>
+              </button>
+              {/* DNA mini-wizard trigger */}
+              <button
+                onClick={(e) => { e.stopPropagation(); setOpen(false); setWizardContextId(ctx.id); }}
+                className="px-2 py-2 hover:bg-[#FAFAF8] transition-colors"
+                title="Edit client DNA"
+              >
+                <Settings2 size={11} style={{ color: "#8A8680" }} />
+              </button>
+            </div>
           ))}
         </div>
+      )}
+
+      {/* Client DNA wizard modal */}
+      {wizardContextId && (
+        <ClientDNAWizard
+          companyId={companyId}
+          contextId={wizardContextId}
+          onClose={() => setWizardContextId(null)}
+        />
       )}
     </div>
   );
