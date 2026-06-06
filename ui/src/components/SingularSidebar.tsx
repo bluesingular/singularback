@@ -66,6 +66,15 @@ export function SingularSidebar() {
 
   const [showGap, setShowGap]         = useState(true);
   const [searchOpen, setSearchOpen]   = useState(false);
+  const [collapsed, setCollapsed]     = useState<Set<string>>(new Set());
+
+  function toggleSection(section: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(section)) next.delete(section); else next.add(section);
+      return next;
+    });
+  }
 
   // Cmd+K / Ctrl+K global shortcut
   useEffect(() => {
@@ -129,23 +138,35 @@ export function SingularSidebar() {
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
           {/* Intelligence */}
-          <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
+          <button
+            onClick={() => toggleSection("intelligence")}
+            className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider w-full text-left flex items-center justify-between hover:text-[#0F0F0D] transition-colors"
+          >
             Intelligence
-          </p>
-          <SingularNavItem to={`${base}/reports`}          label="Reports"          icon={BarChart2} />
-          <SingularNavItem to={`${base}/contacts`}         label="Contacts"         icon={BookUser} />
-          <SingularNavItem to={`${base}/financial-pulse`}  label="Financial health" icon={TrendingUp} />
-          <SingularNavItem to={`${base}/ceo-health`}       label="CEO health"       icon={PieChart} />
-          <SingularNavItem to={`${base}/meeting-briefing`} label="Meeting briefing" icon={Calendar} />
+            <span className="text-[8px]">{collapsed.has("intelligence") ? "▸" : "▾"}</span>
+          </button>
+          {!collapsed.has("intelligence") && <>
+            <SingularNavItem to={`${base}/reports`}          label="Reports"          icon={BarChart2} />
+            <SingularNavItem to={`${base}/contacts`}         label="Contacts"         icon={BookUser} />
+            <SingularNavItem to={`${base}/financial-pulse`}  label="Financial health" icon={TrendingUp} />
+            <SingularNavItem to={`${base}/ceo-health`}       label="CEO health"       icon={PieChart} />
+            <SingularNavItem to={`${base}/meeting-briefing`} label="Meeting briefing" icon={Calendar} />
+          </>}
 
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 
           {/* Tools */}
-          <p className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider">
+          <button
+            onClick={() => toggleSection("tools")}
+            className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8A8680] uppercase tracking-wider w-full text-left flex items-center justify-between hover:text-[#0F0F0D] transition-colors"
+          >
             Tools
-          </p>
-          <SingularNavItem to={`${base}/voice`}     label="Voice note"       icon={Mic} />
-          <SingularNavItem to={`${base}/documents`} label="Document studio"  icon={FileText} />
+            <span className="text-[8px]">{collapsed.has("tools") ? "▸" : "▾"}</span>
+          </button>
+          {!collapsed.has("tools") && <>
+            <SingularNavItem to={`${base}/voice`}     label="Voice note"       icon={Mic} />
+            <SingularNavItem to={`${base}/documents`} label="Document studio"  icon={FileText} />
+          </>}
 
           <div className="my-2 mx-1 border-t border-[#E8E4DC]" />
 

@@ -43,6 +43,8 @@ export const issues = pgTable(
     createdByUserId: text("created_by_user_id"),
     issueNumber: integer("issue_number"),
     identifier: text("identifier"),
+    /** Planning mode: 'standard' = normal task execution, 'planning' = structured plan creation */
+    workMode: text("work_mode").notNull().default("standard"),
     originKind: text("origin_kind").notNull().default("manual"),
     originId: text("origin_id"),
     originRunId: text("origin_run_id"),

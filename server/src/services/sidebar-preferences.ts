@@ -93,5 +93,64 @@ export function sidebarPreferenceService(db: Db) {
         .returning();
       return toPreference(row?.projectOrder ?? normalized, row?.updatedAt ?? now);
     },
+
+    async getFullPrefs(companyId: string, userId: string) {
+      const [row] = await db
+        .select()
+        .from(companyUserSidebarPreferences)
+        .where(and(
+          eq(companyUserSidebarPreferences.companyId, companyId),
+          eq(companyUserSidebarPreferences.userId, userId),
+        ))
+        .limit(1);
+      return {
+        projectOrder:      row?.projectOrder ?? [],
+        hiddenAgentIds:    (row as any)?.hiddenAgentIds ?? [],
+        hiddenProjectIds:  (row as any)?.hiddenProjectIds ?? [],
+        collapsedSections: (row as any)?.collapsedSections ?? [],
+      };
+    },
+
+    async upsertFullPrefs(
+      companyId: string,
+      userId: string,
+      data: {
+        projectOrder?:      string[];
+        hiddenAgentIds?:    string[];
+        hiddenProjectIds?:  string[];
+        collapsedSections?: string[];
+      },
+    ) {
+      const now = new Date();
+      const updates: Record<string, unknown> = { updatedAt: now };
+      if (data.projectOrder      !== undefined) updates.projectOrder      = data.projectOrder;
+      if (data.hiddenAgentIds    !== undefined) updates.hiddenAgentIds    = data.hiddenAgentIds;
+      if (data.hiddenProjectIds  !== undefined) updates.hiddenProjectIds  = data.hiddenProjectIds;
+      if (data.collapsedSections !== undefined) updates.collapsedSections = data.collapsedSections;
+
+      const [row] = await db
+        .insert(companyUserSidebarPreferences)
+        .values({
+          companyId,
+          userId,
+          projectOrder:      data.projectOrder ?? [],
+          ...(data.hiddenAgentIds    !== undefined ? { hiddenAgentIds:    data.hiddenAgentIds    as any } : {}),
+          ...(data.hiddenProjectIds  !== undefined ? { hiddenProjectIds:  data.hiddenProjectIds  as any } : {}),
+          ...(data.collapsedSections !== undefined ? { collapsedSections: data.collapsedSections as any } : {}),
+          updatedAt: now,
+        } as any)
+        .onConflictDoUpdate({
+          target: [companyUserSidebarPreferences.companyId, companyUserSidebarPreferences.userId],
+          set: updates as any,
+        })
+        .returning();
+
+      return {
+        projectOrder:      (row as any)?.projectOrder ?? [],
+        hiddenAgentIds:    (row as any)?.hiddenAgentIds ?? [],
+        hiddenProjectIds:  (row as any)?.hiddenProjectIds ?? [],
+        collapsedSections: (row as any)?.collapsedSections ?? [],
+      };
+    },
   };
 }

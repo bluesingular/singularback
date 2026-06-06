@@ -83,6 +83,8 @@ import { adapterRoutes } from "./routes/adapters.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { agentProposalRoutes } from "./routes/agent-proposals.js";
 import { packInstallService } from "./services/pack-install-service.js";
+import { documentAnnotationRoutes } from "./routes/document-annotations.js";
+import { routineRevisionRoutes } from "./routes/routine-revisions.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
@@ -314,6 +316,8 @@ export async function createApp(
   api.use(agentMessageRoutes(db));
   api.use(agentProposalRoutes(db));
   api.use(searchRoutes(db));
+  api.use(documentAnnotationRoutes(db));
+  api.use(routineRevisionRoutes(db));
   api.use(voiceRoutes(db));
   api.use(documentStudioRoutes(db));
   api.use(financialPulseRoutes(db));

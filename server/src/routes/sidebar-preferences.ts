@@ -35,19 +35,26 @@ export function sidebarPreferenceRoutes(db: Db) {
     assertCompanyAccess(req, companyId);
     const userId = requireBoardUserId(req, res);
     if (!userId) return;
-    res.json(await svc.getProjectOrder(companyId, userId));
+    // Return full prefs (includes hiddenAgentIds, hiddenProjectIds, collapsedSections)
+    const full = await (svc as any).getFullPrefs(companyId, userId);
+    res.json(full);
   });
 
   router.put(
     "/companies/:companyId/sidebar-preferences/me",
-    validate(upsertSidebarOrderPreferenceSchema),
     async (req, res) => {
       const companyId = req.params.companyId as string;
       assertCompanyAccess(req, companyId);
       const userId = requireBoardUserId(req, res);
       if (!userId) return;
 
-      const result = await svc.upsertProjectOrder(companyId, userId, req.body.orderedIds);
+      // Handle both legacy orderedIds and new full prefs shape
+      let result: unknown;
+      if (req.body.orderedIds !== undefined) {
+        result = await svc.upsertProjectOrder(companyId, userId, req.body.orderedIds);
+      } else {
+        result = await (svc as any).upsertFullPrefs(companyId, userId, req.body);
+      }
       const actor = getActorInfo(req);
       await logActivity(db, {
         companyId,
