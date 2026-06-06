@@ -148,16 +148,9 @@ export function CataloguePacks() {
                   onSelect={() => navigate(`installation?pack=${pack.slug}`)}
                 />
               ))}
-
-              {/* Coming soon stubs */}
-              <ComingSoonCard
-                name="Real estate agency"
-                description="Qualification de leads, relances automatiques, comptes-rendus de visite."
-              />
-              <ComingSoonCard
-                name="Cabinet comptable"
-                description="Document collection, client follow-up, balance sheet preparation."
-              />
+              {packs.length === 0 && (
+                <p className="text-sm text-[#8A8680]">Aucun pack disponible pour le moment.</p>
+              )}
             </div>
           )}
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -14,6 +14,7 @@ import {
   Calendar,
   Moon,
   Handshake,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 import { NavLink } from "@/lib/router";
@@ -22,6 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import { NotificationBell } from "./NotificationBell";
 import { SidebarFooter } from "./SidebarFooter";
 import { SessionGapBriefing } from "./singular/SessionGapBriefing";
+import { SearchPalette } from "./singular/SearchPalette";
 
 // ── Swwarm nav item — hardcoded light-theme colors (never inherits dark mode) ──
 // SidebarNavItem uses CSS vars that resolve to near-white in dark mode,
@@ -62,7 +64,20 @@ export function SingularSidebar() {
   const prefix = selectedCompany?.issuePrefix ?? "";
   const base = `/${prefix}`;
 
-  const [showGap, setShowGap] = useState(true);
+  const [showGap, setShowGap]         = useState(true);
+  const [searchOpen, setSearchOpen]   = useState(false);
+
+  // Cmd+K / Ctrl+K global shortcut
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   // §34: show partner link only if this user is a partner
   const { data: partnerData } = useQuery({
@@ -82,6 +97,7 @@ export function SingularSidebar() {
       {showGap && selectedCompany && (
         <SessionGapBriefing onDismiss={() => setShowGap(false)} />
       )}
+      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
 
       <aside className="w-60 h-full min-h-0 border-r border-[#E8E4DC] bg-[#FAFAF8] flex flex-col">
         {/* Company name */}
@@ -94,6 +110,16 @@ export function SingularSidebar() {
         </div>
 
         <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-0.5 px-2 py-3">
+          {/* Search */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-[#8A8680] hover:bg-[#E8E4DC]/60 transition-colors mb-1"
+          >
+            <Search size={13} />
+            <span className="flex-1 text-left">Search…</span>
+            <kbd className="text-[10px] bg-[#E8E4DC] px-1.5 py-0.5 rounded">⌘K</kbd>
+          </button>
+
           {/* Core */}
           <SingularNavItem to={`${base}/dashboard`}        label="Dashboard"      icon={LayoutDashboard} />
           <SingularNavItem to={`${base}/console`}         label="CEO Console"    icon={MessageSquare} />

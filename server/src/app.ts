@@ -37,6 +37,7 @@ import { consoleRoutes } from "./routes/console.js";
 import { missionRoutes } from "./routes/missions.js";
 import { steerRoutes } from "./routes/steer.js";
 import { agentMessageRoutes } from "./routes/agent-messages.js";
+import { searchRoutes } from "./routes/search.js";
 import { voiceRoutes } from "./routes/voice.js";
 import { documentStudioRoutes } from "./routes/document-studio.js";
 import { financialPulseRoutes } from "./routes/financial-pulse.js";
@@ -81,6 +82,7 @@ import { adminPlanRoutes } from "./routes/admin-plan.js";
 import { adapterRoutes } from "./routes/adapters.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { agentProposalRoutes } from "./routes/agent-proposals.js";
+import { packInstallService } from "./services/pack-install-service.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
@@ -230,6 +232,15 @@ export async function createApp(
   // Runs after actorMiddleware — resolves active company, role, and plan into req.ctx.
   // Must come before any route that needs req.ctx.
   app.use(companyContextMiddleware(db));
+  // Public pack catalogue — no auth required (pack store browsing)
+  app.get("/api/packs", async (_req, res, next) => {
+    try {
+      const svc = packInstallService(db);
+      const packs = await svc.listAvailablePacks();
+      res.json({ ok: true, packs });
+    } catch (err) { next(err); }
+  });
+
   app.get("/api/auth/get-session", (req, res) => {
     if (req.actor.type !== "board" || !req.actor.userId) {
       res.status(401).json({ error: "Unauthorized" });
@@ -302,6 +313,7 @@ export async function createApp(
   api.use(steerRoutes(db));
   api.use(agentMessageRoutes(db));
   api.use(agentProposalRoutes(db));
+  api.use(searchRoutes(db));
   api.use(voiceRoutes(db));
   api.use(documentStudioRoutes(db));
   api.use(financialPulseRoutes(db));

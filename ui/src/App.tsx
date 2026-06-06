@@ -60,7 +60,8 @@ const Contacts       = lazy(() => import("./pages/singular/Contacts").then(m => 
 const Settings = lazy(() => import("./pages/singular/Settings").then(m => ({ default: m.Settings })));
 const SingularPreview = lazy(() => import("./pages/singular/Preview").then(m => ({ default: m.SingularPreview })));
 const AssistantInstallation = lazy(() => import("./pages/singular/AssistantInstallation").then(m => ({ default: m.AssistantInstallation })));
-const Signup = lazy(() => import("./pages/singular/Signup").then(m => ({ default: m.Signup })));
+const Signup    = lazy(() => import("./pages/singular/Signup").then(m => ({ default: m.Signup })));
+const PackStore = lazy(() => import("./pages/singular/PackStore").then(m => ({ default: m.PackStore })));
 const CataloguePacks = lazy(() => import("./pages/singular/CataloguePacks").then(m => ({ default: m.CataloguePacks })));
 const PaymentSuccess = lazy(() => import("./pages/singular/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const ConfigAgent    = lazy(() => import("./pages/singular/ConfigAgent").then(m => ({ default: m.ConfigAgent })));
@@ -410,6 +411,7 @@ export function App() {
         <Route path="preview/*" element={<SingularPreview />} />
         <Route path="auth" element={<AuthPage />} />
         <Route path="inscription" element={<Suspense fallback={null}><Signup /></Suspense>} />
+        <Route path="store" element={<Suspense fallback={null}><PackStore /></Suspense>} />
         <Route path="succes-paiement" element={<Suspense fallback={null}><PaymentSuccess /></Suspense>} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />

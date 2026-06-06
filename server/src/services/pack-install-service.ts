@@ -2,7 +2,7 @@
  * Pack installation service — loads pack manifest and calls installer.
  */
 
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { Db } from "@paperclipai/db";
 import { installPack } from "../packs/installer.js";
@@ -125,18 +125,33 @@ export function packInstallService(db: Db) {
     value_proposition: string[];
   }>> {
     try {
-      const p1 = await loadPackManifest("p1-recruitment");
-      return [
-        {
-          slug: p1.slug,
-          name: p1.name,
-          version: p1.version,
-          description: p1.description ?? "",
-          tagline: p1.tagline ?? "",
-          estimated_setup_minutes: p1.estimated_setup_minutes ?? 20,
-          value_proposition: p1.value_proposition ?? [],
-        },
-      ];
+      // Read all subdirectories from the packs/ folder dynamically
+      const entries = await readdir(PACKS_DIR, { withFileTypes: true });
+      const slugs = entries
+        .filter((e) => e.isDirectory())
+        .map((e) => e.name)
+        .sort();
+
+      const results = await Promise.all(
+        slugs.map(async (slug) => {
+          try {
+            const pack = await loadPackManifest(slug);
+            return {
+              slug:                     pack.slug,
+              name:                     pack.name,
+              version:                  pack.version,
+              description:              pack.description ?? "",
+              tagline:                  (pack as any).tagline ?? "",
+              estimated_setup_minutes:  (pack as any).estimated_setup_minutes ?? 20,
+              value_proposition:        (pack as any).value_proposition ?? [],
+            };
+          } catch {
+            return null; // skip malformed packs
+          }
+        }),
+      );
+
+      return results.filter((r): r is NonNullable<typeof r> => r !== null);
     } catch {
       return [];
     }
