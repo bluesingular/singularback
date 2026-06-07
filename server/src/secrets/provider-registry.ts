@@ -1,20 +1,13 @@
 import type { SecretProvider, SecretProviderDescriptor } from "@paperclipai/shared";
 import { localEncryptedProvider } from "./local-encrypted-provider.js";
-import {
-  awsSecretsManagerProvider,
-  gcpSecretManagerProvider,
-  vaultProvider,
-} from "./external-stub-providers.js";
+import { vaultProvider } from "./external-stub-providers.js";
 import type { SecretProviderModule } from "./types.js";
 import { unprocessable } from "../errors.js";
 
-// EU-sovereign first: local AES-256-GCM vault is the primary.
-// AWS/GCP are stubs kept for upstream compatibility — not offered to customers.
+// EU-sovereign only: local AES-256-GCM (primary) + self-hosted HashiCorp Vault.
 const providers: SecretProviderModule[] = [
   localEncryptedProvider,
-  awsSecretsManagerProvider, // stub — not EU-sovereign, not exposed in UI
-  gcpSecretManagerProvider,  // stub
-  vaultProvider,             // stub — available for self-hosted HashiCorp Vault
+  vaultProvider,
 ];
 
 const providerById = new Map<SecretProvider, SecretProviderModule>(

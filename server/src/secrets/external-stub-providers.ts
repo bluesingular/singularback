@@ -2,7 +2,7 @@ import { unprocessable } from "../errors.js";
 import type { SecretProviderModule } from "./types.js";
 
 function unavailableProvider(
-  id: "aws_secrets_manager" | "gcp_secret_manager" | "vault",
+  id: "vault",
   label: string,
 ): SecretProviderModule {
   return {
@@ -21,12 +21,6 @@ function unavailableProvider(
   };
 }
 
-export const awsSecretsManagerProvider = unavailableProvider(
-  "aws_secrets_manager",
-  "AWS Secrets Manager",
-);
-export const gcpSecretManagerProvider = unavailableProvider(
-  "gcp_secret_manager",
-  "GCP Secret Manager",
-);
+// Self-hosted HashiCorp Vault — EU-compliant when self-hosted.
+// Wire up by implementing resolveVersion() with your Vault HTTP API token.
 export const vaultProvider = unavailableProvider("vault", "HashiCorp Vault");
