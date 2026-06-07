@@ -725,6 +725,10 @@ export async function startServer(): Promise<StartedServer> {
         const generalSettings = await settingsSvc.getGeneral();
         const retention = generalSettings.backupRetention;
 
+        // Ensure backup directory exists (may be missing on first run)
+        await import("node:fs/promises").then(({ mkdir }) =>
+          mkdir(config.databaseBackupDir, { recursive: true })
+        );
         const result = await runDatabaseBackup({
           connectionString: activeDatabaseConnectionString,
           backupDir: config.databaseBackupDir,
