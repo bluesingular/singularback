@@ -174,14 +174,15 @@ export function webhookRoutes(db: Db): Router {
       return;
     }
 
-    // Emit via existing webhook pipeline
+    // Emit via existing webhook pipeline (no DB event row for WhatsApp path)
     await emit.webhookReceived({
-      endpointId:   null,
+      endpointId:     null,
+      webhookEventId: null,
       companyId,
-      source:       "custom",
-      payload:      { ...req.body as Record<string, unknown>, _whatsapp_from: from },
-      receivedAt:   new Date().toISOString(),
-      routingRules: [],
+      source:         "custom",
+      payload:        { ...req.body as Record<string, unknown>, _whatsapp_from: from },
+      receivedAt:     new Date().toISOString(),
+      routingRules:   [],
     }).catch((err) => logger.error({ err, companyId }, "whatsapp: failed to emit"));
 
     logger.info({ companyId, from }, "whatsapp: inbound message queued");
@@ -252,17 +253,18 @@ async function handleEndpointRoute(
     }
   }
 
-  // Store event
-  await db.insert(webhookEvents).values({
+  // Store event — capture ID so the worker can scope its status update
+  const [insertedEvent] = await db.insert(webhookEvents).values({
     companyId,
     source: endpoint.sourceHint ?? source,
     payload: req.body as Record<string, unknown>,
     status: "queued",
-  });
+  }).returning({ id: webhookEvents.id });
 
   // Emit to BullMQ with routing rules from the endpoint
   await emit.webhookReceived({
     endpointId,
+    webhookEventId: insertedEvent?.id ?? null,
     companyId,
     source: endpoint.sourceHint ?? source,
     payload: req.body as Record<string, unknown>,
@@ -297,13 +299,13 @@ async function handleLegacyAgentSlugRoute(
     }
   }
 
-  // Store event
-  await db.insert(webhookEvents).values({
+  // Store event — capture ID so the worker can scope its status update
+  const [insertedEvent] = await db.insert(webhookEvents).values({
     companyId,
     source,
     payload: req.body as Record<string, unknown>,
     status: "queued",
-  });
+  }).returning({ id: webhookEvents.id });
 
   // Find the target agent by name
   const [agent] = await db
@@ -320,6 +322,7 @@ async function handleLegacyAgentSlugRoute(
   // Emit direct heartbeat via routing rule
   await emit.webhookReceived({
     endpointId: null,
+    webhookEventId: insertedEvent?.id ?? null,
     companyId,
     source,
     payload: req.body as Record<string, unknown>,

@@ -18,3 +18,4 @@ export { initHeartbeatWorker } from "./heartbeat.worker.js";
 export { startOutboxWorker } from "./outbox.worker.js";
 export { initSeedTaskWorker } from "./seedTask.worker.js";
 export { initMemoryDecayWorker, scheduleMemoryDecaySweep } from "./memoryDecay.worker.js";
+export { initBehavioralMonitoringWorker, scheduleBehavioralMonitoring } from "./behavioralMonitoring.worker.js";

@@ -35,6 +35,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
 import { issues, goldenDatasets } from "@paperclipai/db";
 import { assertCompanyAccess } from "./authz.js";
+import { maybeExtractCorrectionPattern } from "../learning/pattern-from-corrections.js";
 import pino from "pino";
 
 const logger = pino({ name: "task-inline-edit" });
@@ -135,6 +136,12 @@ export function taskInlineEditRoutes(db: Db) {
           { companyId, taskId, skillType: task.skillType, charCount },
           "gap-b: inline edit recorded → golden dataset entry created (weight 3.0)",
         );
+
+        // AG-6: fire-and-forget pattern extraction — enough corrections → LLM extracts pattern
+        if (task.skillType) {
+          void maybeExtractCorrectionPattern({ db, companyId, skillType: task.skillType })
+            .catch((err) => logger.warn({ err, companyId, skillType: task.skillType }, "gap-b: pattern extraction failed (non-fatal)"));
+        }
 
         res.json({ ok: true, recorded: true, charCount });
       } catch (err) {

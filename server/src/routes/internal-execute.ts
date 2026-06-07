@@ -23,13 +23,21 @@ const logger = pino({ name: "internal-execute" });
 
 const INTERNAL_TOKEN = process.env.INTERNAL_AUTH_TOKEN ?? "";
 
+// Fail fast at startup if the token is absent or too short — never run unprotected.
+if (!INTERNAL_TOKEN || INTERNAL_TOKEN.length < 32) {
+  throw new Error(
+    "INTERNAL_AUTH_TOKEN must be set and at least 32 characters long. " +
+    "Generate one with: openssl rand -hex 32",
+  );
+}
+
 export function internalExecuteRoutes(db: Db): Router {
   const router = Router();
 
   // Auth guard — internal token only
   router.use((req, res, next) => {
     const auth = req.headers.authorization;
-    if (!INTERNAL_TOKEN || auth !== `Bearer ${INTERNAL_TOKEN}`) {
+    if (auth !== `Bearer ${INTERNAL_TOKEN}`) {
       res.status(401).json({ ok: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } });
       return;
     }
@@ -224,7 +232,7 @@ export function internalExecuteRoutes(db: Db): Router {
       const errMsg   = err instanceof Error ? err.message : String(err);
       const errStack = err instanceof Error ? err.stack?.split("\n").slice(0, 5).join(" | ") : undefined;
       logger.error({ traceId, agentId, errMsg, errStack }, "internal-execute: failed");
-      res.status(500).json({ ok: false, error: { code: "EXECUTION_FAILED", message: errMsg, stack: errStack } });
+      res.status(500).json({ ok: false, error: { code: "EXECUTION_FAILED", message: "Internal execution error" } });
     }
   });
 

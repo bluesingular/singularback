@@ -60,6 +60,7 @@ import { initHeartbeatWorker } from "./workers/heartbeat.worker.js";
 import { startOutboxWorker } from "./workers/outbox.worker.js";
 import { initSeedTaskWorker } from "./workers/seedTask.worker.js";
 import { initMemoryDecayWorker, scheduleMemoryDecaySweep } from "./workers/memoryDecay.worker.js";
+import { initBehavioralMonitoringWorker, scheduleBehavioralMonitoring } from "./workers/behavioralMonitoring.worker.js";
 
 type BetterAuthSessionUser = {
   id: string;
@@ -671,6 +672,12 @@ export async function startServer(): Promise<StartedServer> {
     initMemoryDecayWorker(db as any);
     void scheduleMemoryDecaySweep().catch((err) => {
       logger.error({ err }, "Memory decay sweep scheduling failed");
+    });
+
+    // AG-10: Behavioral monitoring worker — daily baseline + anomaly detection
+    initBehavioralMonitoringWorker(db as any);
+    void scheduleBehavioralMonitoring().catch((err) => {
+      logger.error({ err }, "Behavioral monitoring scheduling failed");
     });
 
     // Routine scheduler still uses setInterval for now — will be migrated

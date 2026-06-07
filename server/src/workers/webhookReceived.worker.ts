@@ -11,7 +11,7 @@
  */
 
 import { Worker, type Job } from "bullmq";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import pino from "pino";
 import { redisConnectionBlocking } from "../queue/redis.js";
 import { emit } from "../queue/emit.js";
@@ -60,7 +60,7 @@ export function initWebhookReceivedWorker(db: Db): Worker {
   async (job: Job<WebhookReceivedJob>) => {
     if (job.name !== "webhook.received") return;
 
-    const { endpointId, companyId, routingRules, payload, source, traceId } = job.data;
+    const { endpointId, webhookEventId, companyId, routingRules, payload, source, traceId } = job.data;
     const log = logger.child({ traceId, companyId, endpointId });
 
     log.info({ source, ruleCount: routingRules.length }, "webhook: processing job");
@@ -88,13 +88,16 @@ export function initWebhookReceivedWorker(db: Db): Worker {
       log.info("webhook: no rule matched — event stored only");
     }
 
-    try {
-      await db
-        .update(webhookEvents)
-        .set({ status: "processed", processedAt: new Date() })
-        .where(eq(webhookEvents.companyId, companyId));
-    } catch (err) {
-      log.warn({ err }, "webhook: could not update event status");
+    // Only update the specific event row — never the whole company's events
+    if (webhookEventId) {
+      try {
+        await db
+          .update(webhookEvents)
+          .set({ status: "processed", processedAt: new Date() })
+          .where(and(eq(webhookEvents.id, webhookEventId), eq(webhookEvents.companyId, companyId)));
+      } catch (err) {
+        log.warn({ err }, "webhook: could not update event status");
+      }
     }
   },
   {

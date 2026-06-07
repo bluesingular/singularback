@@ -600,7 +600,7 @@ export function adminRoutes(db: Db) {
       const PACKS_DIR = new URL("../../../packs", import.meta.url).pathname;
       const packDir   = join(PACKS_DIR, parsed.slug);
       await mkdir(packDir, { recursive: true });
-      await writeFile(join(packDir, "pack.json"), JSON.stringify(body, null, 2), "utf-8");
+      await writeFile(join(packDir, "pack.json"), JSON.stringify(parsed, null, 2), "utf-8");
 
       log.info({ slug: parsed.slug, version: parsed.version }, "admin: pack uploaded to disk");
       res.status(201).json({ ok: true, slug: parsed.slug, version: parsed.version });

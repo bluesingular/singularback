@@ -10,6 +10,7 @@ import {
   ApprovalPayloadRenderer,
   typeLabel,
 } from "./ApprovalPayload";
+import { InlineOutputEditor } from "./InlineOutputEditor";
 import { timeAgo } from "../lib/timeAgo";
 import type { Approval, Agent } from "@paperclipai/shared";
 import { cn } from "@/lib/utils";
@@ -100,6 +101,21 @@ export function ApprovalCard({
           hidePrimaryTitle={Boolean(subject)}
         />
       </div>
+
+      {/* Gap B — Inline output editing (pending approvals with a linked task only) */}
+      {(() => {
+        const linkedTaskId = payload?.taskId ?? payload?.issueId;
+        if (approval.status !== "pending" || !linkedTaskId) return null;
+        return (
+          <div className="mt-4 border-t border-border/60 pt-4">
+            <InlineOutputEditor
+              companyId={approval.companyId}
+              taskId={String(linkedTaskId)}
+              originalOutput={typeof payload?.output === "string" ? payload.output : ""}
+            />
+          </div>
+        );
+      })()}
 
       {/* AG-4 — Confidence flag */}
       {approval.confidenceFlag && (

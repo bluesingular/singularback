@@ -57,6 +57,8 @@ const RoutingRuleSchema = z.object({
 export const WebhookReceivedJobSchema = BaseJobSchema.extend({
   /** UUID of the webhook_endpoints row (null for legacy agentSlug-based routes) */
   endpointId: z.string().uuid().nullable(),
+  /** UUID of the specific webhook_events row being processed — used to scope the status update */
+  webhookEventId: z.string().uuid().nullable(),
   companyId: z.string().uuid(),
   source: z.string(), // 'indeed' | 'calendly' | 'custom' | etc.
   payload: z.record(z.unknown()),

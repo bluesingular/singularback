@@ -104,6 +104,7 @@ export function trustRoutes(db: Db) {
           .set({ autonomyLevel: proposal.proposedLevel, updatedAt: new Date() })
           .where(
             and(
+              eq(trustScores.companyId, companyId),
               eq(trustScores.agentId, proposal.agentId),
               eq(trustScores.skillType, proposal.skillType),
             ),

@@ -489,11 +489,14 @@ export declare const createIssueSchema: z.ZodObject<{
         } | null | undefined;
     }>>>;
     labelIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    /** Planning mode: 'standard' = normal execution, 'planning' = structured plan creation */
+    workMode: z.ZodDefault<z.ZodOptional<z.ZodEnum<["standard", "planning"]>>>;
 }, "strip", z.ZodTypeAny, {
     status: "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked" | "cancelled" | "awaiting_clarification";
     title: string;
     priority: "critical" | "high" | "medium" | "low";
     requestDepth: number;
+    workMode: "standard" | "planning";
     description?: string | null | undefined;
     projectId?: string | null | undefined;
     projectWorkspaceId?: string | null | undefined;
@@ -587,6 +590,7 @@ export declare const createIssueSchema: z.ZodObject<{
         } | null | undefined;
     } | null | undefined;
     labelIds?: string[] | undefined;
+    workMode?: "standard" | "planning" | undefined;
 }>;
 export type CreateIssue = z.infer<typeof createIssueSchema>;
 export declare const createIssueLabelSchema: z.ZodObject<{
@@ -759,6 +763,7 @@ export declare const updateIssueSchema: z.ZodObject<{
         } | null | undefined;
     }>>>>;
     labelIds: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+    workMode: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodEnum<["standard", "planning"]>>>>;
 } & {
     assigneeAgentId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     comment: z.ZodOptional<z.ZodString>;
@@ -815,6 +820,7 @@ export declare const updateIssueSchema: z.ZodObject<{
         } | null | undefined;
     } | null | undefined;
     labelIds?: string[] | undefined;
+    workMode?: "standard" | "planning" | undefined;
     reopen?: boolean | undefined;
     interrupt?: boolean | undefined;
     hiddenAt?: string | null | undefined;
@@ -868,6 +874,7 @@ export declare const updateIssueSchema: z.ZodObject<{
         } | null | undefined;
     } | null | undefined;
     labelIds?: string[] | undefined;
+    workMode?: "standard" | "planning" | undefined;
     reopen?: boolean | undefined;
     interrupt?: boolean | undefined;
     hiddenAt?: string | null | undefined;

@@ -116,6 +116,8 @@ export const createIssueSchema = z.object({
     executionWorkspacePreference: z.enum(ISSUE_EXECUTION_WORKSPACE_PREFERENCES).optional().nullable(),
     executionWorkspaceSettings: issueExecutionWorkspaceSettingsSchema.optional().nullable(),
     labelIds: z.array(z.string().uuid()).optional(),
+    /** Planning mode: 'standard' = normal execution, 'planning' = structured plan creation */
+    workMode: z.enum(["standard", "planning"]).optional().default("standard"),
 });
 export const createIssueLabelSchema = z.object({
     name: z.string().trim().min(1).max(48),

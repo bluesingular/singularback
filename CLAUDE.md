@@ -1,3 +1,118 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+## Dev commands
+
+```bash
+# Install deps (pnpm workspaces)
+pnpm install
+
+# Start all services (server + UI hot-reload)
+pnpm dev
+
+# Start individual services
+pnpm dev:server       # Express API + BullMQ workers only
+pnpm dev:ui           # Vite UI (app.swwarm.com)
+pnpm dev:customer     # Vite UI (customer-app)
+
+# Run all tests (vitest)
+pnpm test
+
+# Run a single test file
+pnpm test -- server/src/__tests__/singular-m1-bullmq.test.ts
+
+# Run tests matching a pattern
+pnpm test -- --grep "GDPR routing"
+
+# Type-check all packages
+pnpm typecheck
+
+# DB migrations
+pnpm db:generate      # generate Drizzle migration files
+pnpm db:migrate       # apply pending migrations
+
+# Build everything
+pnpm build
+```
+
+## Monorepo structure
+
+```
+server/src/          Express API + BullMQ workers (all backend logic)
+  tasks/             Task execution pipeline
+  llm/               LLM router — enforces GDPR routing (Rule 1)
+  packs/             Pack installer + manifest validation
+  trust/             Trust calibration + autonomy thresholds
+  gates/             Quality gates (runGates)
+  memory/            pgvector org memory (assembleContext)
+  missions/          Mission tables + orchestrator logic
+  queue/             BullMQ queue definitions + workers
+  skills/            Three-tier skill architecture
+  routes/            Express route handlers (API)
+
+ui/src/              React app (app.swwarm.com — operator-facing)
+  pages/             Route-level components
+  components/        Shared UI (ApprovalCard, TaskThread, etc.)
+
+customer-app/        React app (customer-facing portal)
+
+packages/
+  db/                Drizzle ORM schema + migrations (single source of truth for DB)
+  shared/            Types shared across server + UI
+  sdk/               Public SDK (for G13 public API)
+  adapters/          Integration connectors (Gmail, etc.)
+```
+
+## Key patterns
+
+**BullMQ jobs** — every job payload must extend `BaseJobPayload` (`traceId`, `companyId`, `triggeredBy`). Workers must check `cancel_requested` at each step boundary.
+
+**LLM routing** — always call `routeModel()` from `server/src/llm/`. Never hardcode a model string. `gdpr_required: true` → Mistral EU only (Rule 1).
+
+**Context assembly** — `assembleContext()` in `server/src/memory/`. All queries in `Promise.all()`. Never truncate task layer (Rule 5).
+
+**DB schema** — Drizzle ORM in `packages/db/`. Run `pnpm db:generate` after schema changes, `pnpm db:migrate` to apply. Never write raw SQL migrations by hand unless adding PostgreSQL triggers.
+
+**Tests** — vitest, located in `server/src/__tests__/`. Named `singular-m{N}-*.test.ts` for module tests.
+
+## UI routing
+
+The operator app runs at `http://localhost:5173`. The company prefix for local dev is `PAP` — routes are `/:companyPrefix/...`.
+
+**Swwarm-specific routes** (under `ui/src/pages/singular/`):
+- `/PAP/console` → CEO Console (`ConsoleCEO.tsx`)
+- `/PAP/team` → My team (`Team.tsx`), `/PAP/team/:slug/config` → soul+skill editor (`ConfigAgent.tsx`)
+- `/PAP/trust` → Trust centre (`TrustCentre.tsx`)
+- `/PAP/dashboard` → Swwarm Dashboard (`Dashboard.tsx`)
+- `/PAP/reports` → ROI / activity reports (`Reports.tsx`)
+- `/PAP/performances` → Team skill performance (`SkillPerformance.tsx`)
+- `/PAP/missions/archive` → Mission archive (`MissionsArchive.tsx`)
+
+**`isSingularRoute` regex** in `ui/src/components/Layout.tsx:79` controls which sidebar renders. If you add a new Swwarm page, add its path to this regex or it will render the legacy Paperclip sidebar.
+
+**Admin panel** at `/instance/admin` — all pages under `ui/src/pages/singular/admin/`.
+
+## Known active bugs (as of 2026-06-05)
+
+These are confirmed bugs found during live functional testing — fix before shipping:
+
+- **`[object Object]` on first cold load of Goals/Reports** — the Paperclip base error boundary renders a raw error object. `ui/src/pages/Goals.tsx:39` renders `{error.message}` which is fine, but the outer layout's error boundary renders `{error}` directly. Fix: change error rendering to `{error?.message ?? String(error)}` in the layout boundary.
+- **`AdminTenantDetail` — `MiniScoreBar` crashes** — `trustScore.score` comes from DB as a string decimal. Fixed in `ui/src/pages/singular/admin/AdminTenantDetail.tsx` — coerce with `parseFloat`. **Already fixed this session.**
+- **`/PAP/settings` renders legacy Paperclip wizard** — the Swwarm `Settings` page (`ui/src/pages/singular/Settings.tsx`) needs to render Company DNA / notification prefs, not the Paperclip onboarding flow. Half-screen is black due to layout overflow.
+- **`TrustCentre.tsx` shows UUID instead of agent display_name** — the trust scores query returns agent IDs; the component must join to `display_name`.
+- **All agents in error state** — HTTP adapter has no URL configured in local dev. Set adapter URL in agent configuration to clear.
+
+## Safety checks before modifying UI files
+
+Before adding any user-facing string: check `ui/src/locales/fr/` for the French key. All operator-facing copy must come from the translation files — never hardcode French strings inline (Rule 9).
+
+Before modifying `Layout.tsx`: the `isSingularRoute` regex on line 79 determines which sidebar renders. A wrong regex silently renders the wrong nav.
+
+---
+
 # CLAUDE.md — Platform Implementation Brief v3
 **For:** Claude Code  
 **Project:** Swwarm — EU-sovereign agentic operating system for SMBs  
