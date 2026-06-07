@@ -30,6 +30,8 @@ import {
   listTenantCopiesOfMaster,
   copyMasterSkillToTenant,
 } from "../services/company-skills.js";
+import { auditSkillContent, assertSkillSecuritySafe } from "../safety/skill-security-audit.js";
+import { evaluateSkillQuality } from "../skills/quality-eval.js";
 import {
   publishMasterSkillUpdate,
   applyMasterUpdate,
@@ -469,6 +471,39 @@ export function adminSkillRoutes(db: Db): Router {
     }
   });
 
+  // ── POST /admin/skills/eval — quality score SKILL.md on-the-fly ─────────
+  // Returns the 7-dimension quality report. Used by AdminSkillEditor "Qualité" tab.
+  router.post("/admin/skills/eval", (req, res, next) => {
+    try {
+      const { markdown, slug } = req.body as { markdown?: string; slug?: string };
+      if (typeof markdown !== "string" || !markdown.trim()) {
+        res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "markdown is required" } });
+        return;
+      }
+      const report = evaluateSkillQuality(markdown, slug);
+      res.json({ ok: true, data: report });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── POST /admin/skills/audit — scan SKILL.md content on-the-fly ─────────
+  // Used by the editor UI before saving/publishing. Returns findings without
+  // blocking. Caller decides what to surface based on verdict.
+  router.post("/admin/skills/audit", (req, res, next) => {
+    try {
+      const { markdown } = req.body as { markdown?: string };
+      if (typeof markdown !== "string" || !markdown.trim()) {
+        res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "markdown is required" } });
+        return;
+      }
+      const result = auditSkillContent(markdown);
+      res.json({ ok: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // ── §20 Master skills (Tier 1 platform repository) ───────────────────────
 
   // POST /admin/skills/master — create a new master skill from SKILL.md content
@@ -487,6 +522,21 @@ export function adminSkillRoutes(db: Db): Router {
       const PLATFORM_COMPANY_ID = "00000000-0000-0000-0000-000000000001";
 
       // Prevent duplicate slugs
+      // Security audit before any DB write
+      const auditResult = auditSkillContent(body.markdown);
+      if (auditResult.verdict === "dangerous") {
+        const criticals = auditResult.findings.filter(f => f.severity === "critical")
+        res.status(422).json({
+          ok: false,
+          error: {
+            code: "SWWARM_SKILL_SECURITY_VIOLATION",
+            message: `Skill content failed security audit (${criticals.length} critical finding(s))`,
+            details: auditResult.findings,
+          },
+        });
+        return;
+      }
+
       const [existing] = await (db as any)
         .select({ id: companySkills.id })
         .from(companySkills)
@@ -547,6 +597,20 @@ export function adminSkillRoutes(db: Db): Router {
       };
       if (!markdown?.trim() || !version?.trim()) {
         res.status(400).json({ ok: false, error: { code: "SWWARM_CLIENT_ERROR", message: "markdown and version are required" } });
+        return;
+      }
+      // Security audit on update too
+      const auditResult = auditSkillContent(markdown);
+      if (auditResult.verdict === "dangerous") {
+        const criticals = auditResult.findings.filter(f => f.severity === "critical")
+        res.status(422).json({
+          ok: false,
+          error: {
+            code: "SWWARM_SKILL_SECURITY_VIOLATION",
+            message: `Updated skill content failed security audit (${criticals.length} critical finding(s))`,
+            details: auditResult.findings,
+          },
+        });
         return;
       }
       const result = await publishMasterSkillUpdate(db, skillId, markdown, version, changelog);

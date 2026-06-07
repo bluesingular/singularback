@@ -86,7 +86,9 @@ function makeInboundDb(endpointRow: unknown) {
     insert: vi.fn().mockImplementation(() => {
       insertCalled = true;
       return {
-        values: vi.fn().mockResolvedValue(undefined),
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{ id: "evt-mock-id" }]),
+        }),
       };
     }),
     _wasInserted: () => insertCalled,
@@ -283,7 +285,7 @@ describe("G4 — Inbound webhooks", () => {
           }),
         }),
       }),
-      insert: vi.fn().mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) }),
+      insert: vi.fn().mockReturnValue({ values: vi.fn().mockReturnValue({ returning: vi.fn().mockResolvedValue([{ id: "evt-mock-id" }]) }) }),
     };
     const { webhookRoutes } = await import("../routes/webhooks.js");
     const app = express();
@@ -307,7 +309,7 @@ describe("G4 — Inbound webhooks", () => {
           }),
         }),
       }),
-      insert: vi.fn().mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) }),
+      insert: vi.fn().mockReturnValue({ values: vi.fn().mockReturnValue({ returning: vi.fn().mockResolvedValue([{ id: "evt-mock-id" }]) }) }),
     };
     const { webhookRoutes } = await import("../routes/webhooks.js");
     const app = express();

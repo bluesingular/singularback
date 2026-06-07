@@ -87,7 +87,11 @@
       "Bash(ls /Users/luc/Documents/GitHub/singularback/packs/ 2>/dev/null || echo \"No packs dir\" *)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(mkdir -p /Users/luc/.paperclip/instances/default/data/backups)"
+      "Bash(mkdir -p /Users/luc/.paperclip/instances/default/data/backups)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(wait)"
     ]
   }
 }

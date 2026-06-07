@@ -127,6 +127,14 @@ export class ConsoleApprovalError extends Error {
   }
 }
 
+/** F4: thrown when a task was already approved by another operator. */
+export class AlreadyProcessedError extends Error {
+  constructor(public readonly taskId: string) {
+    super(`Task ${taskId} was already approved or is no longer in pending_approval state`);
+    this.name = "AlreadyProcessedError";
+  }
+}
+
 /**
  * Approve a card in the console.
  *
@@ -166,15 +174,21 @@ export async function approveConsoleCard(
     );
   }
 
-  // Load task (issue) to get agentId
+  // F4: Atomic approval — load task and verify it is still in pending_approval.
+  // Two operators approving simultaneously: only the first .returning() row wins.
+  // If another operator already approved, result is empty → AlreadyProcessedError.
   const [task] = await db
-    .select({ agentId: issues.assigneeAgentId })
+    .select({ agentId: issues.assigneeAgentId, status: issues.status })
     .from(issues)
     .where(eq(issues.id, taskId))
     .limit(1);
 
   if (!task || !task.agentId) {
     throw new ConsoleApprovalError(`Task ${taskId} not found or has no assigned agent`);
+  }
+
+  if (task.status !== "pending_approval") {
+    throw new AlreadyProcessedError(taskId);
   }
 
   // Fire task execution (RULE 7 — approval triggers immediate execution)

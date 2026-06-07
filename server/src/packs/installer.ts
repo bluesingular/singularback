@@ -29,6 +29,7 @@ import { parseSkill } from "../skills/parser.js";
 import { BASE_CONSTITUTION } from "../safety/constitution.js";
 import { bootstrapAgentTrust } from "../trust/bootstrap.js";
 import { sanitiseDNAValue } from "../safety/dna-sanitise.js";
+import { auditSkillContent, assertSkillSecuritySafe } from "../safety/skill-security-audit.js";
 import { copyMasterSkillToTenant } from "../services/company-skills.js";
 import {
   PackValidationError,
@@ -232,6 +233,10 @@ async function installSkills(
 ): Promise<void> {
   for (const def of skillDefs) {
     const markdown = interpolateTemplate(def.markdown, variables);
+
+    // Security: scan skill content before installing (C5 / C7 extension)
+    const auditResult = auditSkillContent(markdown);
+    assertSkillSecuritySafe(auditResult, def.slug ?? "unknown");
 
     // G2: parse capability declarations and store in metadata
     let capabilityMetadata: Record<string, unknown> = {};

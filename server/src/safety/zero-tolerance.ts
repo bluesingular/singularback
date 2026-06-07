@@ -53,7 +53,7 @@ function evaluateCondition(
   if (condition === "always") return true;
 
   // Parse simple comparisons: "field op value"
-  const match = condition.match(/^(\w+)\s*(>|<|>=|<=|==|!=)\s*(.+)$/);
+  const match = condition.match(/^(\w+)\s*(>=|<=|==|!=|>|<)\s*(.+)$/);
   if (!match) return false;
 
   const [, field, op, rawValue] = match;

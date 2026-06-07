@@ -11,7 +11,7 @@ import { useParams, useSearchParams } from "react-router-dom"
 import {
   ArrowLeft, CheckCircle2, XCircle, RotateCcw, ChevronRight,
   Plus, Trash2, Loader2, GitBranch, Star, FileText, Database, GitCompare,
-  Play, AlertCircle,
+  Play, AlertCircle, Gauge,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { adminApi } from "../../../api/admin.js"
@@ -627,7 +627,166 @@ function GoldenDatasets({ skillType, companyId }: { skillType: string; companyId
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-type Tab = "editor" | "diff" | "golden"
+// ── Quality report panel ──────────────────────────────────────────────────────
+
+interface DimensionResult {
+  name:        string
+  score:       number
+  maxScore:    number
+  suggestions: string[]
+}
+
+interface SkillQualityReport {
+  slug:           string
+  overallScore:   number
+  grade:          "A" | "B" | "C" | "D" | "F"
+  dimensions:     DimensionResult[]
+  topSuggestions: string[]
+}
+
+const GRADE_COLORS: Record<string, string> = {
+  A: "text-[#1A9E68]",
+  B: "text-[#1A4E8C]",
+  C: "text-[#C97C0A]",
+  D: "text-[#C97C0A]",
+  F: "text-red-600",
+}
+
+function QualityPanel({ promptBody, frontmatter, skillType }: {
+  promptBody:  string
+  frontmatter: string
+  skillType:   string
+}) {
+  const [report, setReport] = React.useState<SkillQualityReport | null>(null)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  async function runEval() {
+    setLoading(true)
+    setError(null)
+    try {
+      // Reconstruct minimal SKILL.md from prompt body + frontmatter JSON
+      let fmYaml = ""
+      try {
+        const fmObj = JSON.parse(frontmatter)
+        // Convert key JSON frontmatter fields to YAML-ish string for the evaluator
+        const lines: string[] = []
+        if (fmObj.gdpr_required !== undefined) lines.push(`gdpr_required: ${fmObj.gdpr_required}`)
+        if (fmObj.model_tier    !== undefined) lines.push(`tier: ${fmObj.model_tier}`)
+        if (fmObj.ai_act?.risk_level)          lines.push(`ai_act:\n  risk_level: ${fmObj.ai_act.risk_level}`)
+        if (fmObj.output_schema && Object.keys(fmObj.output_schema).length > 0) {
+          lines.push("output_schema:\n  type: object")
+        }
+        if (Array.isArray(fmObj.zero_tolerance_actions) && fmObj.zero_tolerance_actions.length > 0) {
+          lines.push("zero_tolerance_actions:\n  - action_type: declared")
+        }
+        fmYaml = lines.join("\n")
+      } catch { /* ignore */ }
+
+      const fullMarkdown = `---\nname: ${skillType}\n${fmYaml}\n---\n\n${promptBody}`
+
+      const res = await adminApi.post<{ data: SkillQualityReport }>("/admin/skills/eval", {
+        markdown: fullMarkdown,
+        slug: skillType,
+      })
+      setReport(res.data)
+    } catch {
+      setError("L'évaluation a échoué — vérifier le contenu du prompt.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const barWidth = (score: number, max: number) => `${Math.round((score / max) * 100)}%`
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="bg-white border border-[#E8E4DC] rounded-2xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-[#F0EDE6] flex items-center justify-between">
+          <p className="text-xs font-semibold text-[#8A8680] uppercase tracking-wider">Qualité du skill</p>
+          <button
+            onClick={runEval}
+            disabled={loading}
+            className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#1A4E8C] hover:bg-[#153d6f] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          >
+            {loading ? <Loader2 size={12} className="animate-spin" /> : <Gauge size={12} />}
+            {loading ? "Évaluation…" : "Évaluer"}
+          </button>
+        </div>
+
+        {error && (
+          <p className="px-5 py-3 text-xs text-red-600">{error}</p>
+        )}
+
+        {!report && !loading && !error && (
+          <p className="px-5 py-6 text-sm text-[#8A8680] text-center">
+            Cliquer sur Évaluer pour analyser la qualité du prompt.
+          </p>
+        )}
+
+        {report && (
+          <div className="px-5 py-4 flex flex-col gap-5">
+            {/* Overall score */}
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-[#F5F5F3]">
+                <span className={`text-2xl font-bold ${GRADE_COLORS[report.grade] ?? "text-[#0F0F0D]"}`}>
+                  {report.grade}
+                </span>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold text-[#0F0F0D]">{report.overallScore}<span className="text-base text-[#8A8680]">/100</span></p>
+                <p className="text-xs text-[#8A8680]">Score global</p>
+              </div>
+            </div>
+
+            {/* Top suggestions */}
+            {report.topSuggestions.length > 0 && (
+              <div className="bg-[#FFF8EC] border border-[#F0EDE6] rounded-xl px-4 py-3 flex flex-col gap-1.5">
+                <p className="text-xs font-semibold text-[#C97C0A] uppercase tracking-wider mb-1">Priorités d'amélioration</p>
+                {report.topSuggestions.map((s, i) => (
+                  <p key={i} className="text-xs text-[#0F0F0D] flex items-start gap-2">
+                    <span className="text-[#C97C0A] font-bold mt-0.5">{i + 1}.</span>
+                    {s}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {/* Dimension breakdown */}
+            <div className="flex flex-col gap-3">
+              {report.dimensions.map(dim => (
+                <div key={dim.name}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-[#0F0F0D]">{dim.name}</span>
+                    <span className="text-xs text-[#8A8680]">{dim.score}/{dim.maxScore}</span>
+                  </div>
+                  <div className="h-1.5 bg-[#F0EDE6] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        dim.score / dim.maxScore >= 0.8 ? "bg-[#1A9E68]" :
+                        dim.score / dim.maxScore >= 0.5 ? "bg-[#C97C0A]" : "bg-red-400"
+                      }`}
+                      style={{ width: barWidth(dim.score, dim.maxScore) }}
+                    />
+                  </div>
+                  {dim.suggestions.length > 0 && (
+                    <ul className="mt-1 flex flex-col gap-0.5">
+                      {dim.suggestions.map((s, i) => (
+                        <li key={i} className="text-[11px] text-[#8A8680]">↳ {s}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+type Tab = "editor" | "diff" | "golden" | "quality"
 
 export function AdminSkillEditor() {
   const { skillType, versionId } = useParams<{ skillType: string; versionId: string }>()
@@ -730,9 +889,10 @@ export function AdminSkillEditor() {
   const canRollback = version?.status === "deprecated"
 
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: "editor", label: "Éditeur",       icon: FileText },
-    { id: "diff",   label: "Diff parent",   icon: GitCompare },
-    { id: "golden", label: "Golden dataset", icon: Database },
+    { id: "editor",  label: "Éditeur",       icon: FileText },
+    { id: "diff",    label: "Diff parent",   icon: GitCompare },
+    { id: "golden",  label: "Golden dataset", icon: Database },
+    { id: "quality", label: "Qualité",        icon: Gauge },
   ]
 
   if (versionQuery.isLoading) {
@@ -926,6 +1086,15 @@ export function AdminSkillEditor() {
               companyId={companyId || version.companyId}
             />
           </div>
+        )}
+
+        {/* Quality tab */}
+        {tab === "quality" && (
+          <QualityPanel
+            promptBody={promptBody}
+            frontmatter={frontmatter}
+            skillType={version.skillType}
+          />
         )}
       </div>
     </div>
